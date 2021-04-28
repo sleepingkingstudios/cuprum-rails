@@ -1,0 +1,62 @@
+require:
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.6
+  NewCops: enable
+  Exclude:
+    - db/schema.rb
+    - vendor/**/*
+
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/HashAlignment:
+  EnforcedColonStyle:      table
+  EnforcedHashRocketStyle: table
+
+Layout/LineLength:
+  Max: 80
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Metrics/BlockLength:
+  Exclude:
+    - '*.gemspec'
+    - spec/support/**/*_examples.rb
+    - spec/spec_helper.rb
+    - spec/**/*_spec.rb
+
+Metrics/ModuleLength:
+  Exclude:
+    - spec/**/*_examples.rb
+
+Naming/RescuedExceptionsVariableName:
+  PreferredName: exception
+
+RSpec/ExampleWording:
+  Enabled: false
+
+Style/AccessorGrouping:
+  EnforcedStyle: separated
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Documentation:
+  Exclude:
+    - config/**/*.rb
+    - db/migrate/*
+    - spec/support/**/*.rb
+
+RSpec/FilePath:
+  Exclude:
+    - spec/integration/**/*
+
+Style/NestedParenthesizedCalls:
+  Exclude:
+    - 'spec/**/*'
+
+Style/TrailingUnderscoreVariable:
+  Enabled: false
