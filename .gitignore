@@ -1,0 +1,17 @@
+# Ignore local configuration files.
+/.rspec
+/.rubocop
+/.ruby-version
+Gemfile.lock
+
+# Ignore local and generated documentation.
+/coverage
+/doc
+.yardoc
+
+# Ignore temporary files.
+*.gem
+/.byebug_history
+/log
+/spec/examples.txt
+/tmp
