@@ -16,6 +16,8 @@ require 'rspec/sleeping_king_studios/all'
 require 'byebug'
 require 'database_cleaner/active_record'
 
+require 'cuprum/rspec/be_a_result'
+
 # Isolated namespace for defining spec-only or transient objects.
 module Spec; end
 
