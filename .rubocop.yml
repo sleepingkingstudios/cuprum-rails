@@ -42,6 +42,9 @@ RSpec/ExampleWording:
 RSpec/HookArgument:
   Enabled: false
 
+RSpec/NestedGroups:
+  Max: 5
+
 Style/AccessorGrouping:
   EnforcedStyle: separated
 

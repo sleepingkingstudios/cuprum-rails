@@ -10,5 +10,7 @@ module Cuprum
     def self.version
       VERSION
     end
+
+    autoload :Query, 'cuprum/rails/query'
   end
 end
