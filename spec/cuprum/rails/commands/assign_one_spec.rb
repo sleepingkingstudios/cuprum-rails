@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/rspec/assign_one_command_contract'
+
 require 'cuprum/rails/commands/assign_one'
 require 'cuprum/rails/rspec/command_contract'
-require 'cuprum/collections/rspec/assign_one_command_contract'
 
 require 'support/examples/rails_command_examples'
 
