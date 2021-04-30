@@ -10,3 +10,10 @@ gem 'cuprum-collections',
   git: 'https://github.com/sleepingkingstudios/cuprum-collections'
 
 gem 'stannum', git: 'https://github.com/sleepingkingstudios/stannum'
+
+group :rails do
+  gem 'database_cleaner-active_record'
+  gem 'pg'
+  gem 'rails', '~> 6.0'
+  gem 'rake'
+end
