@@ -1,5 +1,8 @@
 # Build Options
 language: ruby
+env:
+  global:
+    - PGPORT=5433
 rvm:
   - 2.6.7
   - 2.7.3
@@ -7,8 +10,15 @@ before_script:
   - cp .rspec.example .rspec
   - cp .rubocop.example .rubocop
 script:
+  - bundle exec rake db:test:prepare
   - bundle exec thor ci:steps
 
 # Travis-CI Configuration
 cache: bundler
 sudo:  false # Enable containerized builds.
+addons:
+  postgresql: 12
+  apt:
+    packages:
+    - postgresql-12
+    - postgresql-client-12

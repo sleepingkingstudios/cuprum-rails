@@ -5,6 +5,7 @@ AllCops:
   TargetRubyVersion: 2.6
   NewCops: enable
   Exclude:
+    - bin/rails
     - db/schema.rb
     - vendor/**/*
 
@@ -36,6 +37,9 @@ Naming/RescuedExceptionsVariableName:
   PreferredName: exception
 
 RSpec/ExampleWording:
+  Enabled: false
+
+RSpec/HookArgument:
   Enabled: false
 
 Style/AccessorGrouping:
