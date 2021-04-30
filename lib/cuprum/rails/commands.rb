@@ -13,5 +13,6 @@ module Cuprum::Rails
     autoload :FindOne,      'cuprum/rails/commands/find_one'
     autoload :InsertOne,    'cuprum/rails/commands/insert_one'
     autoload :UpdateOne,    'cuprum/rails/commands/update_one'
+    autoload :ValidateOne,  'cuprum/rails/commands/validate_one'
   end
 end
