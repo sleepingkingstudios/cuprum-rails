@@ -11,6 +11,7 @@ module Cuprum
       VERSION
     end
 
-    autoload :Query, 'cuprum/rails/query'
+    autoload :Collection, 'cuprum/rails/collection'
+    autoload :Query,      'cuprum/rails/query'
   end
 end
