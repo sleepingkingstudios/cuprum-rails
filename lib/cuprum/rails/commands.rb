@@ -12,5 +12,6 @@ module Cuprum::Rails
     autoload :FindMatching, 'cuprum/rails/commands/find_matching'
     autoload :FindOne,      'cuprum/rails/commands/find_one'
     autoload :InsertOne,    'cuprum/rails/commands/insert_one'
+    autoload :UpdateOne,    'cuprum/rails/commands/update_one'
   end
 end
