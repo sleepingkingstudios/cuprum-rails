@@ -8,5 +8,6 @@ module Cuprum::Rails
     autoload :AssignOne,  'cuprum/rails/commands/assign_one'
     autoload :BuildOne,   'cuprum/rails/commands/build_one'
     autoload :DestroyOne, 'cuprum/rails/commands/destroy_one'
+    autoload :FindMany,   'cuprum/rails/commands/find_many'
   end
 end
