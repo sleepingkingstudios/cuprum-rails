@@ -25,12 +25,14 @@ Layout/MultilineMethodCallIndentation:
 Metrics/BlockLength:
   Exclude:
     - '*.gemspec'
+    - lib/**/*_contract.rb
     - spec/support/**/*_examples.rb
     - spec/spec_helper.rb
     - spec/**/*_spec.rb
 
 Metrics/ModuleLength:
   Exclude:
+    - lib/**/*_contract.rb
     - spec/**/*_examples.rb
 
 Naming/RescuedExceptionsVariableName:

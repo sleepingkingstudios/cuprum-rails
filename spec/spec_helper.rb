@@ -16,6 +16,18 @@ require 'rspec/sleeping_king_studios/all'
 require 'byebug'
 require 'database_cleaner/active_record'
 
+require 'cuprum/rspec/be_a_result'
+require 'stannum/rspec/validate_parameter'
+
+Stannum::RSpec::ValidateParameterMatcher.add_parameter_mapping(
+  match: lambda do |actual:, method_name:, **_|
+    actual.is_a?(Cuprum::Command) && method_name == :call
+  end,
+  map:   lambda do |actual:, **_|
+    actual.method(:process).parameters
+  end
+)
+
 # Isolated namespace for defining spec-only or transient objects.
 module Spec; end
 
@@ -23,6 +35,8 @@ require 'support/contract_helpers'
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+  include Stannum::RSpec::Matchers
+
   config.extend  RSpec::SleepingKingStudios::Concerns::ExampleConstants
   config.extend  RSpec::SleepingKingStudios::Concerns::FocusExamples
   config.extend  RSpec::SleepingKingStudios::Concerns::WrapExamples
