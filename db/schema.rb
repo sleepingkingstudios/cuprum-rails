@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_30_052601) do
+ActiveRecord::Schema.define(version: 2021_04_30_053552) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -21,6 +21,15 @@ ActiveRecord::Schema.define(version: 2021_04_30_052601) do
     t.string "author", default: "", null: false
     t.string "series"
     t.string "category"
+  end
+
+  create_table "tomes", id: false, force: :cascade do |t|
+    t.uuid "uuid", null: false
+    t.string "title", default: "", null: false
+    t.string "author", default: "", null: false
+    t.string "series"
+    t.string "category"
+    t.index ["uuid"], name: "index_tomes_on_uuid", unique: true
   end
 
 end
