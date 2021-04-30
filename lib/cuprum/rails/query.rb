@@ -6,7 +6,7 @@ require 'cuprum/rails'
 require 'cuprum/rails/query_builder'
 
 module Cuprum::Rails
-  # @todo Document Query.
+  # Interface for performing query operations on a Rails collection.
   class Query < Cuprum::Collections::Query
     extend  Forwardable
     include Enumerable
@@ -16,7 +16,10 @@ module Cuprum::Rails
       :exists?,
       :to_a
 
-    # @todo Document #initialize.
+    # @param record_class [Class] The class of the collection items. Must be a
+    #   subclass of ActiveRecord::Base.
+    # @param native_query [ActiveRecord::Relation] A relation used to scope the
+    #   query.
     def initialize(record_class, native_query: nil)
       super()
 
@@ -27,7 +30,7 @@ module Cuprum::Rails
       @order        = {}
     end
 
-    # @todo Document #record_class.
+    # @return [Class] the class of the collection items.
     attr_reader :record_class
 
     protected
