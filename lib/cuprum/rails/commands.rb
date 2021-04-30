@@ -11,5 +11,6 @@ module Cuprum::Rails
     autoload :FindMany,     'cuprum/rails/commands/find_many'
     autoload :FindMatching, 'cuprum/rails/commands/find_matching'
     autoload :FindOne,      'cuprum/rails/commands/find_one'
+    autoload :InsertOne,    'cuprum/rails/commands/insert_one'
   end
 end
