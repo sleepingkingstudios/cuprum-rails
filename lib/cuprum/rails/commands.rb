@@ -10,5 +10,6 @@ module Cuprum::Rails
     autoload :DestroyOne,   'cuprum/rails/commands/destroy_one'
     autoload :FindMany,     'cuprum/rails/commands/find_many'
     autoload :FindMatching, 'cuprum/rails/commands/find_matching'
+    autoload :FindOne,      'cuprum/rails/commands/find_one'
   end
 end
