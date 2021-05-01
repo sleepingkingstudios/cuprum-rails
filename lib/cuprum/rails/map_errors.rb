@@ -12,7 +12,11 @@ module Cuprum::Rails
       @instance ||= new
     end
 
-    # @todo Document #call.
+    # Maps an ActiveModel::Errors object to a Stannum::Errors object.
+    #
+    # @param native_errors [ActiveModel::Errors] The Rails error object.
+    #
+    # @return [Stannum::Errors] the generated errors object.
     def call(native_errors:)
       unless native_errors.is_a?(ActiveModel::Errors)
         raise ArgumentError,
