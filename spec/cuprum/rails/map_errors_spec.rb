@@ -143,5 +143,36 @@ RSpec.describe Cuprum::Rails::MapErrors do
         expect(mapping.call(native_errors: errors)).to be == expected_errors
       end
     end
+
+    describe 'with an errors object with a custom message' do
+      let(:book)   { Spec::CensoredBook.new(title: 'Work and Play') }
+      let(:errors) { book.tap(&:valid?).errors }
+      let(:expected_errors) do
+        errors = Stannum::Errors.new
+
+        errors[:title].add('invalid', message: 'has four letter words')
+        errors[:author].add('blank', message: "can't be blank")
+
+        errors
+      end
+
+      example_class 'Spec::CensoredBook', Book do |klass|
+        klass.validate :title_cannot_swear
+
+        klass.define_method :title_cannot_swear do
+          words = title.split
+
+          return  unless words.any? { |word| word.length == 4 }
+
+          errors.add(:title, :invalid, message: 'has four letter words')
+        end
+      end
+
+      it { expect(mapping.call(native_errors: errors)).to be_a Stannum::Errors }
+
+      it 'should map the errors' do
+        expect(mapping.call(native_errors: errors)).to be == expected_errors
+      end
+    end
   end
 end

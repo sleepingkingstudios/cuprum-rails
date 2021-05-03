@@ -29,17 +29,16 @@ module Cuprum::Rails
     private
 
     def map_errors(native_errors:)
-      native_errors.details.each.with_object(Stannum::Errors.new) \
-      do |(attribute, attribute_errors), errors|
-        attribute_errors.each do |attribute_error|
-          error   = attribute_error[:error]
-          details = attribute_error.except(:error)
-          message = native_errors.generate_message(attribute, error, details)
+      errors = Stannum::Errors.new
 
-          (attribute == :base ? errors : errors[attribute])
-            .add(error, message: message, **details)
-        end
+      native_errors.each do |error|
+        attribute = error.attribute
+        scoped    = attribute == :base ? errors : errors[attribute]
+
+        scoped.add(error.type, message: error.message, **error.options)
       end
+
+      errors
     end
   end
 end
