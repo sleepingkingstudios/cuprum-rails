@@ -30,6 +30,9 @@ module Spec::Support::Examples
       let(:query) do
         Cuprum::Rails::Query.new(record_class)
       end
+      let(:scope) do
+        Cuprum::Rails::Query.new(record_class).where(scope_filter)
+      end
 
       before(:example) do
         mapped_data.each { |attributes| record_class.create!(attributes) }
