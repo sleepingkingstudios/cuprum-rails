@@ -24,8 +24,12 @@ module Cuprum::Rails::Commands
     #   When the :envelope option is true, the command wraps the records in a
     #   Hash, using the name of the collection as the key.
     #
+    #   @param allow_partial [Boolean] If true, passes if any of the records are
+    #     found.
     #   @param envelope [Boolean] If true, wraps the result value in a Hash.
     #   @param primary_keys [Array] The primary keys of the requested records.
+    #   @param scope [Cuprum::Collections::Basic::Query, nil] Optional scope for
+    #     the query. Records must match the scope as well as the primary keys.
     #
     #   @return [Cuprum::Result<Array<ActiveRecord>>] a result with the
     #     requested records.
@@ -33,6 +37,7 @@ module Cuprum::Rails::Commands
       keyword :allow_partial, Stannum::Constraints::Boolean.new, default: true
       keyword :envelope,      Stannum::Constraints::Boolean.new, default: true
       keyword :primary_keys,  Array
+      keyword :scope,         Cuprum::Rails::Query, optional: true
     end
 
     private
@@ -41,7 +46,12 @@ module Cuprum::Rails::Commands
       Cuprum::Rails::Query.new(record_class)
     end
 
-    def process(primary_keys:, allow_partial: false, envelope: false)
+    def process(
+      primary_keys:,
+      allow_partial: false,
+      envelope:      false,
+      scope:         nil
+    )
       step { validate_primary_keys(primary_keys) }
 
       super

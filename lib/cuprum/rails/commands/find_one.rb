@@ -24,12 +24,15 @@ module Cuprum::Rails::Commands
     #
     #   @param envelope [Boolean] If true, wraps the result value in a Hash.
     #   @param primary_key [Object] The primary key of the requested record.
+    #   @param scope [Cuprum::Collections::Basic::Query, nil] Optional scope for
+    #     the query. The record must match the scope as well as the primary key.
     #
     #   @return [Cuprum::Result<Hash{String, Object}>] a result with the
     #     requested record.
     validate_parameters :call do
       keyword :envelope,    Stannum::Constraints::Boolean.new, default: true
       keyword :primary_key, Object
+      keyword :scope,       Cuprum::Rails::Query, optional: true
     end
 
     private
@@ -38,7 +41,7 @@ module Cuprum::Rails::Commands
       Cuprum::Rails::Query.new(record_class)
     end
 
-    def process(primary_key:, envelope: false)
+    def process(primary_key:, envelope: false, scope: nil)
       step { validate_primary_key(primary_key) }
 
       super

@@ -7,7 +7,8 @@ gemspec
 gem 'cuprum', git: 'https://github.com/sleepingkingstudios/cuprum'
 
 gem 'cuprum-collections',
-  git: 'https://github.com/sleepingkingstudios/cuprum-collections'
+  branch: 'main',
+  git:    'https://github.com/sleepingkingstudios/cuprum-collections'
 
 gem 'stannum', git: 'https://github.com/sleepingkingstudios/stannum'
 
