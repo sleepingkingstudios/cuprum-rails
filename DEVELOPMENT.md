@@ -2,16 +2,6 @@
 
 ## Action
 
-Configuration:
-
-- resource
-
-\#call takes parameters:
-
-- cookies: ActionDispatch::Cookies::CookieJar
-- headers: Hash
-- params:  ActionController::Parameters
-
 ### Resourceful Actions
 
 - create

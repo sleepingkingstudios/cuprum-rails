@@ -11,6 +11,7 @@ module Cuprum
       VERSION
     end
 
+    autoload :Action,     'cuprum/rails/action'
     autoload :Collection, 'cuprum/rails/collection'
     autoload :Command,    'cuprum/rails/command'
     autoload :Commands,   'cuprum/rails/commands'
