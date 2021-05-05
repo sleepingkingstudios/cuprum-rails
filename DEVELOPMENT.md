@@ -2,6 +2,10 @@
 
 ## Action
 
+Configuration:
+
+- resource
+
 \#call takes parameters:
 
 - cookies: ActionDispatch::Cookies::CookieJar
@@ -20,6 +24,10 @@
 
 ## Resource
 
+- base_url
+- collection
+- default_order
+- permitted_attributes
 - plural?
 - plural_resource_name
 - resource_class

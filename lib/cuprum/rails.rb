@@ -15,5 +15,6 @@ module Cuprum
     autoload :Command,    'cuprum/rails/command'
     autoload :Commands,   'cuprum/rails/commands'
     autoload :Query,      'cuprum/rails/query'
+    autoload :Resource,   'cuprum/rails/resource'
   end
 end
