@@ -28,6 +28,22 @@ RSpec.describe Cuprum::Rails::Resource do
           .to raise_error ArgumentError, error_message
       end
     end
+
+    describe 'with permitted_attributes: an object' do
+      let(:error_message) do
+        'keyword :permitted_attributes must be an Array or nil'
+      end
+
+      it 'should raise an exception' do # rubocop:disable RSpec/ExampleLength
+        expect do
+          described_class.new(
+            permitted_attributes: Object.new.freeze,
+            resource_name:        'books'
+          )
+        end
+          .to raise_error ArgumentError, error_message
+      end
+    end
   end
 
   describe '#base_url' do

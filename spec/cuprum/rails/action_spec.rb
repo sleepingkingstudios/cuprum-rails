@@ -2,7 +2,11 @@
 
 require 'cuprum/rails/action'
 
+require 'support/examples/action_examples'
+
 RSpec.describe Cuprum::Rails::Action do
+  include Spec::Support::Examples::ActionExamples
+
   subject(:action) { described_class.new(resource: resource) }
 
   let(:resource) { Cuprum::Rails::Resource.new(resource_name: 'books') }
@@ -34,11 +38,7 @@ RSpec.describe Cuprum::Rails::Action do
   end
 
   describe '#params' do
-    let(:expected) { {} }
-    let(:request) do
-      instance_double(ActionDispatch::Request, params: expected)
-    end
-    let(:action) { super().tap { |action| action.call(request: request) } }
+    include_context 'when the action is called with a request'
 
     it 'should define the private method' do
       expect(action).to respond_to(:params, true).with(0).arguments
@@ -46,10 +46,10 @@ RSpec.describe Cuprum::Rails::Action do
 
     it { expect(action.send(:params)).to be_a ActionController::Parameters }
 
-    it { expect(action.send(:params).to_unsafe_hash).to be == expected }
+    it { expect(action.send(:params).to_unsafe_hash).to be == params }
 
     context 'when the request has parameters' do
-      let(:expected) do
+      let(:params) do
         {
           'book' => {
             'title' => 'Tammsyn Muir'
@@ -58,7 +58,7 @@ RSpec.describe Cuprum::Rails::Action do
         }
       end
 
-      it { expect(action.send(:params).to_unsafe_hash).to be == expected }
+      it { expect(action.send(:params).to_unsafe_hash).to be == params }
     end
   end
 

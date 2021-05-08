@@ -28,6 +28,8 @@ module Cuprum::Rails
         raise ArgumentError, 'missing keyword :resource_class or :resource_name'
       end
 
+      validate_permitted_attributes(options[:permitted_attributes])
+
       @collection     = collection
       @options        = options
       @resource_class = resource_class
@@ -95,6 +97,14 @@ module Cuprum::Rails
             resource_name.singularize
           end
           .to_s
+    end
+
+    def validate_permitted_attributes(attributes)
+      return if attributes.nil? || attributes.is_a?(Array)
+
+      raise ArgumentError,
+        'keyword :permitted_attributes must be an Array or nil',
+        caller(1..-1)
     end
   end
 end
