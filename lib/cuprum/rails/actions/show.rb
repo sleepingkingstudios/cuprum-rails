@@ -12,11 +12,11 @@ module Cuprum::Rails::Actions
       super
 
       primary_key = step { resource_id }
-      instance    = step do
+      entity      = step do
         collection.find_one.call(primary_key: primary_key)
       end
 
-      { singular_resource_name => instance }
+      { singular_resource_name => entity }
     end
   end
 end

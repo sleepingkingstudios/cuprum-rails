@@ -10,5 +10,6 @@ module Cuprum::Rails
     autoload :Index,   'cuprum/rails/actions/index'
     autoload :New,     'cuprum/rails/actions/new'
     autoload :Show,    'cuprum/rails/actions/show'
+    autoload :Update,  'cuprum/rails/actions/update'
   end
 end

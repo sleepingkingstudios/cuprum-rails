@@ -11,20 +11,20 @@ module Cuprum::Rails::Actions
     private
 
     def create_resource
-      resource = nil
+      entity = nil
 
       result = steps do
         attributes = step { resource_params }
-        resource   = step { collection.build_one.call(attributes: attributes) }
+        entity     = step { collection.build_one.call(attributes: attributes) }
 
-        step { collection.validate_one.call(entity: resource) }
+        step { collection.validate_one.call(entity: entity) }
 
-        step { collection.insert_one.call(entity: resource) }
+        step { collection.insert_one.call(entity: entity) }
 
-        { singular_resource_name => resource }
+        { singular_resource_name => entity }
       end
 
-      [resource, result]
+      [entity, result]
     end
 
     def failed_validation?(result)
@@ -35,14 +35,14 @@ module Cuprum::Rails::Actions
     def process(request:)
       super
 
-      resource, result = create_resource
+      entity, result = create_resource
 
       return result unless failed_validation?(result)
 
       Cuprum::Result.new(
         error:  result.error,
         status: :failure,
-        value:  { singular_resource_name => resource }
+        value:  { singular_resource_name => entity }
       )
     end
   end
