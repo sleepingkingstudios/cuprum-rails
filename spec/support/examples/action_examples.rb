@@ -56,6 +56,38 @@ module Spec::Support::Examples
         include_examples 'should define reader', :collection, -> { collection }
       end
 
+      describe '#resource_id' do
+        include_context 'when the action is called with a request'
+
+        it { expect(action).to respond_to(:resource_id).with(0).arguments }
+
+        context 'when the parameters do not include a primary key' do
+          let(:expected_error) do
+            Cuprum::Rails::Errors::MissingPrimaryKey.new(
+              primary_key:   resource.primary_key,
+              resource_name: resource.singular_resource_name
+            )
+          end
+
+          it 'should return a failing result' do
+            expect(action.resource_id)
+              .to be_a_failing_result
+              .with_error(expected_error)
+          end
+        end
+
+        context 'when the :id parameter is set' do
+          let(:primary_key_value) { 0 }
+          let(:params)            { { id: primary_key_value } }
+
+          it 'should return a passing result with the primary key value' do
+            expect(action.resource_id)
+              .to be_a_passing_result
+              .with_value(primary_key_value)
+          end
+        end
+      end
+
       describe '#resource_name' do
         include_examples 'should define reader',
           :resource_name,

@@ -127,6 +127,35 @@ RSpec.describe Cuprum::Rails::Resource do
     end
   end
 
+  describe '#primary_key' do
+    include_examples 'should define reader', :primary_key, 'id'
+
+    context 'when initialized without a resource class' do
+      let(:resource_name) { 'books' }
+      let(:constructor_options) do
+        super()
+          .tap { |hsh| hsh.delete(:resource_class) }
+          .merge(resource_name: resource_name)
+      end
+
+      it { expect(resource.primary_key).to be nil }
+    end
+
+    context 'when initialized with primary_key: a string' do
+      let(:primary_key)         { 'uuid' }
+      let(:constructor_options) { super().merge(primary_key: primary_key) }
+
+      it { expect(resource.primary_key).to be == primary_key }
+    end
+
+    context 'when initialized with primary_key: a symbol' do
+      let(:primary_key)         { :uuid }
+      let(:constructor_options) { super().merge(primary_key: primary_key) }
+
+      it { expect(resource.primary_key).to be == primary_key.to_s }
+    end
+  end
+
   describe '#resource_class' do
     include_examples 'should define reader',
       :resource_class,

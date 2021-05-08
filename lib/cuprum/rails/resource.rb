@@ -7,16 +7,20 @@ module Cuprum::Rails
   class Resource
     # @param collection [Cuprum::Collections::Base] Collection representing the
     #   resource data.
-    # @param default_order [Hash] The default ordering for the resource items.
     # @param options [Hash] Additional options for the resource.
-    # @param permitted_attributes [Array] List of attributes that can be set or
-    #   changed by resourceful actions.
-    # @param singular [Boolean] Indicates that the resource is a singular
-    #   collection, and has only one member.
     # @param resource_class [Class] Class representing the resource items.
     # @param resource_name [String] The name of the resource.
-    # @param singular_resource_name [String] The singular form of the resource
-    #   name.
+    # @param singular [Boolean] Indicates that the resource is a singular
+    #   collection, and has only one member.
+    #
+    # @option options default_order [Hash] The default ordering for the resource
+    #   items.
+    # @option options permitted_attributes [Array] List of attributes that can
+    #   be set or changed by resourceful actions.
+    # @option options primary_key [String, Symbol] The name of the primary key
+    #   for the resource, if any.
+    # @option options singular_resource_name [String] The singular form of the
+    #   resource name.
     def initialize(
       collection:     nil,
       resource_class: nil,
@@ -72,6 +76,14 @@ module Cuprum::Rails
     #   false.
     def plural?
       !@singular
+    end
+
+    # @return [String] the name of the primary key for the resource, if any.
+    def primary_key
+      @primary_key ||=
+        options
+          .fetch(:primary_key) { resource_class&.primary_key }
+          .yield_self { |value| value.nil? ? nil : value.to_s }
     end
 
     # @return [String] the name of the resource.

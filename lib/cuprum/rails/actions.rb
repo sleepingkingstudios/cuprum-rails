@@ -5,7 +5,7 @@ require 'cuprum/rails'
 module Cuprum::Rails
   # Namespace for defined resourceful actions.
   module Actions
-    autoload :Create, 'cuprum/rails/actions/create'
-    autoload :Index,  'cuprum/rails/actions/index'
+    autoload :Create,  'cuprum/rails/actions/create'
+    autoload :Destroy, 'cuprum/rails/actions/destroy'
   end
 end

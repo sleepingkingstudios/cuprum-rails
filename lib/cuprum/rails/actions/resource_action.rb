@@ -4,6 +4,7 @@ require 'forwardable'
 
 require 'cuprum/rails/actions'
 require 'cuprum/rails/errors/missing_parameters'
+require 'cuprum/rails/errors/missing_primary_key'
 require 'cuprum/rails/errors/undefined_permitted_attributes'
 
 module Cuprum::Rails::Actions
@@ -25,6 +26,13 @@ module Cuprum::Rails::Actions
       :resource_name,
       :singular_resource_name
 
+    # @return [Object] the primary key for the resource.
+    def resource_id
+      return success(params[:id]) unless params[:id].blank?
+
+      failure(missing_primary_key_error)
+    end
+
     # @return [Hash] the permitted params for the resource.
     def resource_params
       return failure(permitted_attributes_error) unless permitted_attributes?
@@ -39,6 +47,13 @@ module Cuprum::Rails::Actions
     def missing_parameters_error
       Cuprum::Rails::Errors::MissingParameters
         .new(resource_name: singular_resource_name)
+    end
+
+    def missing_primary_key_error
+      Cuprum::Rails::Errors::MissingPrimaryKey.new(
+        primary_key:   resource.primary_key,
+        resource_name: singular_resource_name
+      )
     end
 
     def permitted_attributes?
