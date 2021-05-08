@@ -9,5 +9,6 @@ module Cuprum::Rails
     autoload :Destroy, 'cuprum/rails/actions/destroy'
     autoload :Index,   'cuprum/rails/actions/index'
     autoload :New,     'cuprum/rails/actions/new'
+    autoload :Show,    'cuprum/rails/actions/show'
   end
 end

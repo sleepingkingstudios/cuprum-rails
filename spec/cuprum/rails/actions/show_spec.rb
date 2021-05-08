@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/actions/destroy'
+require 'cuprum/rails/actions/show'
 
 require 'support/book'
 require 'support/examples/action_examples'
 
-RSpec.describe Cuprum::Rails::Actions::Destroy do
+RSpec.describe Cuprum::Rails::Actions::Show do
   include Spec::Support::Examples::ActionExamples
 
   subject(:action) { described_class.new(resource: resource) }
@@ -63,7 +63,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
     end
 
     context 'when the resource exists' do
-      let!(:record) do
+      let(:record) do
         resource_class.create!(
           title:  'Gideon the Ninth',
           author: 'Tammsyn Muir'
@@ -76,18 +76,6 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
         expect(action.call(request: request))
           .to be_a_passing_result
           .with_value({ resource.singular_resource_name => record })
-      end
-
-      it 'should remove an entity from the collection' do
-        expect { action.call(request: request) }
-          .to change(resource_class, :count)
-          .by(-1)
-      end
-
-      it 'should remove the specified entity' do
-        action.call(request: request)
-
-        expect(resource_class.where(id: primary_key_value).exists?).to be false
       end
     end
   end

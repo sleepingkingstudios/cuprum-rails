@@ -76,4 +76,17 @@ RSpec.describe Cuprum::Rails::Actions::Index do
       end
     end
   end
+
+  describe '#default_order' do
+    include_examples 'should define reader', :default_order, {}
+
+    context 'when the resource has a default order' do
+      let(:default_order) { { author: :asc, title: :asc } }
+      let(:resource_options) do
+        super().merge(default_order: default_order)
+      end
+
+      it { expect(action.default_order).to be == default_order }
+    end
+  end
 end
