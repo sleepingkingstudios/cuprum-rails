@@ -4,17 +4,14 @@ require 'cuprum/rails/actions'
 require 'cuprum/rails/actions/resource_action'
 
 module Cuprum::Rails::Actions
-  # Action to delete a resource instance by primary key.
-  class Destroy < Cuprum::Rails::Actions::ResourceAction
+  # Action to build an empty resource instance.
+  class New < Cuprum::Rails::Actions::ResourceAction
     private
 
     def process(request:)
       super
 
-      primary_key = step { resource_id }
-      instance    = step do
-        collection.destroy_one.call(primary_key: primary_key)
-      end
+      instance = step { collection.build_one.call(attributes: {}) }
 
       { singular_resource_name => instance }
     end
