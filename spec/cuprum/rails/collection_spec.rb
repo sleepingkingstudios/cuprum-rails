@@ -19,6 +19,7 @@ RSpec.describe Cuprum::Rails::Collection do
   let(:constructor_options) { {} }
   let(:query_class)         { Cuprum::Rails::Query }
   let(:query_options)       { { record_class: record_class } }
+  let(:default_order)       { { record_class.primary_key => :asc } }
 
   def self.command_options
     %i[
