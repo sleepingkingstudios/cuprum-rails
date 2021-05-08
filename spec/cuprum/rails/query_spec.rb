@@ -5,6 +5,7 @@ require 'cuprum/collections/rspec/query_contract'
 require 'cuprum/rails/query'
 
 require 'support/book'
+require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Query do
   subject(:query) do
@@ -14,6 +15,7 @@ RSpec.describe Cuprum::Rails::Query do
   let(:data)          { [] }
   let(:native_query)  { nil }
   let(:record_class)  { Book }
+  let(:default_order) { { record_class.primary_key => :asc } }
   let(:expected_data) do
     matching_data.map do |attributes|
       Book.where(attributes).first
@@ -69,6 +71,12 @@ RSpec.describe Cuprum::Rails::Query do
     include_examples 'should have private reader',
       :native_query,
       -> { record_class.all }
+  end
+
+  describe '#order' do
+    context 'when the record class has a custom primary key' do
+      it { expect(query.order).to be == default_order }
+    end
   end
 
   describe '#record_class' do

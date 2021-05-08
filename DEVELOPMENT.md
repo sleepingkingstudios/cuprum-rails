@@ -2,12 +2,6 @@
 
 ## Action
 
-\#call takes parameters:
-
-- cookies: ActionDispatch::Cookies::CookieJar
-- headers: Hash
-- params:  ActionController::Parameters
-
 ### Resourceful Actions
 
 - create
@@ -18,8 +12,28 @@
 - show
 - update
 
+## Controller
+
+### DSL
+
+```ruby
+class ExampleController
+  # Pass the result to the default responder.
+  action :create, Example::Actions::Create
+
+  # Handle custom responses.
+  action :custom, Example::Actions::Custom do |result|
+    CustomResponder.call(resource: resource, result: result)
+  end
+end
+```
+
 ## Resource
 
+- base_url
+- collection
+- default_order
+- permitted_attributes
 - plural?
 - plural_resource_name
 - resource_class
@@ -41,6 +55,10 @@
 
 Curries scoped resources:
   project_tasks_path(project) => tasks(project).routes.index_path
+
+### SingularRoutes
+
+### PluralRoutes
 
 ## Responder
 

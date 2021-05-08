@@ -27,7 +27,7 @@ module Cuprum::Rails
       @record_class = record_class
       @limit        = nil
       @offset       = nil
-      @order        = {}
+      @order        = { record_class.primary_key => :asc }
     end
 
     # @return [Class] the class of the collection items.
