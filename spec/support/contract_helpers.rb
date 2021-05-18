@@ -4,7 +4,7 @@ module Spec
   module ContractHelpers
     # :nocov:
     def finclude_contract(contract, *args, **kwargs)
-      fdescribe '(focused)' do # rubocop:disable RSpec/EmptyExampleGroup, RSpec/Focus
+      fdescribe '(focused)' do
         if kwargs.empty?
           include_contract(contract, *args)
         else
@@ -22,7 +22,7 @@ module Spec
     end
 
     def xinclude_contract(contract, *args, **kwargs)
-      xdescribe '(skipped)' do # rubocop:disable RSpec/EmptyExampleGroup
+      xdescribe '(skipped)' do
         if kwargs.empty?
           include_contract(contract, *args)
         else

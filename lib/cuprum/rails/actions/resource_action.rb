@@ -28,7 +28,7 @@ module Cuprum::Rails::Actions
 
     # @return [Object] the primary key for the resource.
     def resource_id
-      return success(params[:id]) unless params[:id].blank?
+      return success(params[:id]) if params[:id].present?
 
       failure(missing_primary_key_error)
     end

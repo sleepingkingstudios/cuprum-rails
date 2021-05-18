@@ -1,4 +1,6 @@
 require:
+  - rubocop-rails
+  - rubocop-rake
   - rubocop-rspec
 
 AllCops:
@@ -8,6 +10,24 @@ AllCops:
     - bin/rails
     - db/schema.rb
     - vendor/**/*
+
+RSpec:
+  Language:
+    ExampleGroups:
+      Regular:
+        - wrap_context
+      Skipped:
+        - xwrap_context
+      Focused:
+        - fwrap_context
+    Includes:
+      Examples:
+        - include_contract
+        - finclude_contract
+        - fwrap_examples
+        - wrap_examples
+        - xinclude_contract
+        - xwrap_examples
 
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
@@ -42,6 +62,12 @@ RSpec/ExampleWording:
   Enabled: false
 
 RSpec/HookArgument:
+  Enabled: false
+
+RSpec/LeadingSubject:
+  Enabled: false # Prefer shared examples at top of file.
+
+RSpec/MultipleMemoizedHelpers:
   Enabled: false
 
 RSpec/NestedGroups:

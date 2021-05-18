@@ -79,13 +79,11 @@ module Spec::Support::Examples
           contract = Stannum::Contracts::ParametersContract.new do
             keyword :entity, type
           end
-          errors = contract.errors_for(
-            {
-              arguments: [],
-              keywords:  { entity: entity },
-              block:     nil
-            }
-          )
+          errors = contract.errors_for({
+            arguments: [],
+            keywords:  { entity: entity },
+            block:     nil
+          })
 
           Cuprum::Collections::Errors::InvalidParameters.new(
             command: command,
