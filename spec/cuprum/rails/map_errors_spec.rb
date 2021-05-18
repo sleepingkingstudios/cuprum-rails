@@ -51,12 +51,10 @@ RSpec.describe Cuprum::Rails::MapErrors do
 
     describe 'with an empty errors object' do
       let(:book) do
-        Book.new(
-          {
-            title:  'Gideon the Ninth',
-            author: 'Tammsyn Muir'
-          }
-        )
+        Book.new({
+          title:  'Gideon the Ninth',
+          author: 'Tammsyn Muir'
+        })
       end
       let(:errors)          { book.tap(&:valid?).errors }
       let(:expected_errors) { Stannum::Errors.new }
