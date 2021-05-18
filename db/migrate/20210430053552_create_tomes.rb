@@ -4,7 +4,7 @@ class CreateTomes < ActiveRecord::Migration[6.1]
   def change
     enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
 
-    create_table :tomes, id: false do |t|
+    create_table :tomes, id: false do |t| # rubocop:disable Rails/CreateTableWithTimestamps
       t.uuid   :uuid,   null: false
       t.string :title,  null: false, default: ''
       t.string :author, null: false, default: ''

@@ -2,7 +2,7 @@
 
 require 'active_record'
 
-class Tome < ActiveRecord::Base
+class Tome < ActiveRecord::Base # rubocop:disable Rails/ApplicationRecord
   self.primary_key = :uuid
 
   validates :title,  presence: true

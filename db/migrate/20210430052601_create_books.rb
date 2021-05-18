@@ -2,7 +2,7 @@
 
 class CreateBooks < ActiveRecord::Migration[6.1]
   def change
-    create_table :books do |t|
+    create_table :books do |t| # rubocop:disable Rails/CreateTableWithTimestamps
       t.string :title,  null: false, default: ''
       t.string :author, null: false, default: ''
       t.string :series

@@ -87,7 +87,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
       it 'should remove the specified entity' do
         action.call(request: request)
 
-        expect(resource_class.where(id: primary_key_value).exists?).to be false
+        expect(resource_class.exists?(id: primary_key_value)).to be false
       end
     end
   end

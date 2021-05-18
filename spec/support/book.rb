@@ -2,7 +2,7 @@
 
 require 'active_record'
 
-class Book < ActiveRecord::Base
+class Book < ActiveRecord::Base # rubocop:disable Rails/ApplicationRecord
   validates :title,  presence: true
   validates :author, presence: true
 
