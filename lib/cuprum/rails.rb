@@ -19,5 +19,6 @@ module Cuprum
     autoload :Query,      'cuprum/rails/query'
     autoload :Resource,   'cuprum/rails/resource'
     autoload :Routes,     'cuprum/rails/routes'
+    autoload :Routing,    'cuprum/rails/routing'
   end
 end
