@@ -46,27 +46,27 @@ RSpec.describe Cuprum::Rails::Resource do
     end
   end
 
-  describe '#base_url' do
-    include_examples 'should define reader', :base_url, '/books'
+  describe '#base_path' do
+    include_examples 'should define reader', :base_path, '/books'
 
-    describe 'when initialized with base_url: a string' do
-      let(:base_url)            { '/path/to/books' }
-      let(:constructor_options) { super().merge(base_url: base_url) }
+    context 'when initialized with base_path: a string' do
+      let(:base_path)           { '/path/to/books' }
+      let(:constructor_options) { super().merge(base_path: base_path) }
 
-      it { expect(resource.base_url).to be == base_url }
+      it { expect(resource.base_path).to be == base_path }
     end
 
-    describe 'when initialized with resource name: a string' do
+    context 'when initialized with resource name: a string' do
       let(:resource_name)       { 'tomes' }
       let(:constructor_options) { super().merge(resource_name: resource_name) }
 
-      it { expect(resource.base_url).to be == '/tomes' }
+      it { expect(resource.base_path).to be == '/tomes' }
     end
 
-    describe 'when initialized with singular: true' do
+    context 'when initialized with singular: true' do
       let(:constructor_options) { super().merge(singular: true) }
 
-      it { expect(resource.base_url).to be == '/book' }
+      it { expect(resource.base_path).to be == '/book' }
     end
   end
 
@@ -214,6 +214,71 @@ RSpec.describe Cuprum::Rails::Resource do
 
         it { expect(resource.resource_name).to be == 'grimoire' }
       end
+    end
+  end
+
+  describe '#routes' do
+    it 'should define the method' do
+      expect(resource)
+        .to respond_to(:routes)
+        .with(0).arguments
+        .and_keywords(:wildcards)
+    end
+
+    it { expect(resource.routes).to be_a Cuprum::Rails::Routing::PluralRoutes }
+
+    it { expect(resource.routes.base_path).to be == '/books' }
+
+    it { expect(resource.routes.wildcards).to be == {} }
+
+    describe 'when initialized with base_path: a string' do
+      let(:base_path)           { '/path/to/books' }
+      let(:constructor_options) { super().merge(base_path: base_path) }
+
+      it { expect(resource.routes.base_path).to be == base_path }
+    end
+
+    describe 'when initialized with resource name: a string' do
+      let(:resource_name)       { 'tomes' }
+      let(:constructor_options) { super().merge(resource_name: resource_name) }
+
+      it { expect(resource.routes.base_path).to be == '/tomes' }
+    end
+
+    context 'when initialized with routes: a Routes object' do
+      let(:routes)              { Spec::Routes.new(base_path: '/books') }
+      let(:constructor_options) { super().merge(routes: routes) }
+
+      example_class 'Spec::Routes', Cuprum::Rails::Routes
+
+      it { expect(resource.routes).to be_a Spec::Routes }
+
+      it { expect(resource.routes.wildcards).to be == {} }
+
+      describe 'with wildcards: a Hash' do
+        let(:wildcards) { { 'key' => 'value' } }
+
+        it 'should return the routes' do
+          expect(resource.routes(wildcards: wildcards)).to be_a Spec::Routes
+        end
+
+        it 'should set the wildcards' do
+          expect(resource.routes(wildcards: wildcards).wildcards)
+            .to be == wildcards
+        end
+      end
+    end
+
+    context 'when initialized with singular: true' do
+      let(:constructor_options) { super().merge(singular: true) }
+
+      it 'should return a singular routes object' do
+        expect(resource.routes).to be_a Cuprum::Rails::Routing::SingularRoutes
+      end
+
+      it { expect(resource.routes.base_path).to be == '/book' }
+
+      it { expect(resource.routes.wildcards).to be == {} }
     end
   end
 

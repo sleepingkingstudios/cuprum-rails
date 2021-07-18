@@ -35,6 +35,7 @@ require 'support/contract_helpers'
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+  include Cuprum::RSpec::Matchers
   include Stannum::RSpec::Matchers
 
   config.extend  RSpec::SleepingKingStudios::Concerns::ExampleConstants

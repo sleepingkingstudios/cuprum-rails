@@ -10,6 +10,7 @@ module Cuprum::Rails
     # @param options [Hash] Additional options for the resource.
     # @param resource_class [Class] Class representing the resource items.
     # @param resource_name [String] The name of the resource.
+    # @param routes [Cuprum::Rails::Routes] The routes defined for the resource.
     # @param singular [Boolean] Indicates that the resource is a singular
     #   collection, and has only one member.
     #
@@ -21,10 +22,11 @@ module Cuprum::Rails
     #   for the resource, if any.
     # @option options singular_resource_name [String] The singular form of the
     #   resource name.
-    def initialize(
+    def initialize( # rubocop:disable Metrics/ParameterLists
       collection:     nil,
       resource_class: nil,
       resource_name:  nil,
+      routes:         nil,
       singular:       false,
       **options
     )
@@ -38,6 +40,7 @@ module Cuprum::Rails
       @options        = options
       @resource_class = resource_class
       @resource_name  = resource_name.to_s unless resource_name.nil?
+      @routes         = routes
       @singular       = !!singular
     end
 
@@ -52,12 +55,10 @@ module Cuprum::Rails
     attr_reader :resource_class
 
     # @return [String] the base url for the resource.
-    def base_url
-      @base_url ||=
+    def base_path
+      @base_path ||=
         options
-          .fetch(:base_url) do
-            "/#{resource_name.underscore}"
-          end
+          .fetch(:base_path) { "/#{resource_name.underscore}" }
           .to_s
     end
 
@@ -95,6 +96,10 @@ module Cuprum::Rails
       @resource_name = plural? ? name.pluralize : name
     end
 
+    def routes(wildcards: {})
+      routes_without_wildcards.with_wildcards(wildcards)
+    end
+
     # @return [Boolean] true if the collection is a singular collection,
     #   otherwise false.
     def singular?
@@ -117,6 +122,19 @@ module Cuprum::Rails
       raise ArgumentError,
         'keyword :permitted_attributes must be an Array or nil',
         caller(1..-1)
+    end
+
+    private
+
+    def routes_without_wildcards
+      return @routes if @routes
+
+      @routes =
+        if plural?
+          Cuprum::Rails::Routing::PluralRoutes.new(base_path: base_path)
+        else
+          Cuprum::Rails::Routing::SingularRoutes.new(base_path: base_path)
+        end
     end
   end
 end
