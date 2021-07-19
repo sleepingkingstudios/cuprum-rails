@@ -14,7 +14,7 @@ module Cuprum::Rails::Commands
     #   If the collection already includes a record with the same primary key,
     #   #call will fail and the collection will not be updated.
     #
-    #   @param record [ActiveRecord::Base] The record to persist.
+    #   @param entity [ActiveRecord::Base] The record to persist.
     #
     #   @return [Cuprum::Result<ActiveRecord::Base>] the persisted record.
     validate_parameters :call do

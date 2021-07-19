@@ -3,6 +3,7 @@
 require 'cuprum/rails/rspec'
 
 module Cuprum::Rails::RSpec
+  # Contract asserting that a Routes object defines the given route.
   DEFINE_ROUTE_CONTRACT = lambda \
   do |action_name:, path:, member_action: false, wildcards: {}|
     describe "##{action_name}_path" do

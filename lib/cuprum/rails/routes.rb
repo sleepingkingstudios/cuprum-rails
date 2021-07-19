@@ -99,7 +99,7 @@ module Cuprum::Rails
       '/'
     end
 
-    # @param [Hash] The wildcards to use with the routes.
+    # @param wildcards [Hash] The wildcards to use with the routes.
     #
     # @return [Cuprum::Rails::Routes] a copy of the routes with the wildcards.
     def with_wildcards(wildcards)
