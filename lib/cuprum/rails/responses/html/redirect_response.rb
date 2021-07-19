@@ -3,7 +3,7 @@
 require 'cuprum/rails/responses/html'
 
 module Cuprum::Rails::Responses::Html
-  # Encapsulates an HTML redirect response.
+  # Encapsulates an HTML response that redirects to a given path.
   class RedirectResponse
     # @param path [String] The path or url to redirect to.
     # @param status [Integer] The HTTP status of the response.
