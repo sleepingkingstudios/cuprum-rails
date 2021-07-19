@@ -12,7 +12,7 @@ module Cuprum::Rails::Commands
   class FindOne < Cuprum::Rails::Command
     include Cuprum::Collections::Commands::AbstractFindOne
 
-    # @!method call(primary_key:, envelope: false)
+    # @!method call(primary_key:, envelope: false, scope: nil)
     #   Queries the collection for the record with the given primary key.
     #
     #   The command will find and return the entity with the given primary key.

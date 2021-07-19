@@ -96,6 +96,11 @@ module Cuprum::Rails
       @resource_name = plural? ? name.pluralize : name
     end
 
+    # Generates the routes for the resource and injects the given wildcards.
+    #
+    # @param wildcards [Hash] The wildcard values to use in the routes.
+    #
+    # @return [Cuprum::Rails::Routes] the routes with injected wildcards.
     def routes(wildcards: {})
       routes_without_wildcards.with_wildcards(wildcards)
     end

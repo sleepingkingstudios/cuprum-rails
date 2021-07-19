@@ -20,7 +20,7 @@ module Cuprum::Rails::Commands
     #   @param contract [Stannum::Constraints:Base] The contract with which to
     #     validate the record. If not given, the record will be validated using
     #     the collection's default contract.
-    #   @param record [ActiveRecord::Base] The collection record to validate.
+    #   @param entity [ActiveRecord::Base] The collection record to validate.
     #
     #   @return [Cuprum::Result<ActiveRecord::Base>] the validated record.
     validate_parameters :call do

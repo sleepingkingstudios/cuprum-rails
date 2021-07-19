@@ -9,6 +9,8 @@ module Cuprum::Rails::Actions
     def_delegators :@resource,
       :default_order
 
+    private
+
     def process(request:)
       super
 
