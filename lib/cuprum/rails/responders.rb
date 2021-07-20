@@ -5,6 +5,7 @@ require 'cuprum/rails'
 module Cuprum::Rails
   # Namespace for responders, which process action results into responses.
   module Responders
+    autoload :Actions,  'cuprum/rails/responders/actions'
     autoload :Matching, 'cuprum/rails/responders/matching'
   end
 end
