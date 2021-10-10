@@ -23,11 +23,12 @@ module Cuprum::Rails
     def initialize(record_class, native_query: nil)
       super()
 
-      @native_query = native_query || record_class.all
+      default_order = { record_class.primary_key => :asc }
+      @native_query = native_query || record_class.all.order(default_order)
       @record_class = record_class
       @limit        = nil
       @offset       = nil
-      @order        = { record_class.primary_key => :asc }
+      @order        = default_order
     end
 
     # @return [Class] the class of the collection items.
@@ -64,7 +65,7 @@ module Cuprum::Rails
     end
 
     def with_order(order)
-      @native_query = @native_query.order(order)
+      @native_query = @native_query.reorder(order)
 
       super
     end

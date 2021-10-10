@@ -43,7 +43,13 @@ RSpec.describe Cuprum::Rails::Query do
 
   describe '#each' do
     let(:mock_query) do
-      instance_double(ActiveRecord::Relation, each: [].to_enum, to_a: [])
+      instance_double(
+        ActiveRecord::Relation,
+        each:  [].to_enum,
+        order: nil,
+        to_a:  []
+      )
+        .tap { |mock| allow(mock).to receive(:order).and_return(mock) }
     end
 
     before(:example) do
@@ -70,7 +76,7 @@ RSpec.describe Cuprum::Rails::Query do
   describe '#native_query' do
     include_examples 'should have private reader',
       :native_query,
-      -> { record_class.all }
+      -> { record_class.all.order({ 'id' => :asc }) }
   end
 
   describe '#order' do
@@ -85,7 +91,13 @@ RSpec.describe Cuprum::Rails::Query do
 
   describe '#to_a' do
     let(:mock_query) do
-      instance_double(ActiveRecord::Relation, each: [].to_enum, to_a: [])
+      instance_double(
+        ActiveRecord::Relation,
+        each:  [].to_enum,
+        order: nil,
+        to_a:  []
+      )
+        .tap { |mock| allow(mock).to receive(:order).and_return(mock) }
     end
 
     before(:example) do
