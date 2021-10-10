@@ -94,7 +94,7 @@ module Cuprum::Rails
 
       @primary_keys_contract ||= Stannum::Contracts::ParametersContract.new do
         keyword :primary_keys,
-          Stannum::Constraints::Types::Array.new(item_type: type)
+          Stannum::Constraints::Types::ArrayType.new(item_type: type)
       end
     end
 
