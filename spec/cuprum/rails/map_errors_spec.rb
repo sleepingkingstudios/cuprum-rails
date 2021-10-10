@@ -8,11 +8,13 @@ RSpec.describe Cuprum::Rails::MapErrors do
   subject(:mapping) { described_class.instance }
 
   describe '.instance' do
+    let(:instance) { described_class.instance }
+
     it { expect(described_class).to respond_to(:instance).with(0).arguments }
 
     it { expect(described_class.instance).to be_a described_class }
 
-    it { expect(described_class.instance).to be described_class.instance }
+    it { expect(described_class.instance).to be instance }
   end
 
   describe '.new' do
