@@ -38,6 +38,22 @@ module Cuprum::Rails
       sanitize("#{attribute} = :value", value: value)
     end
 
+    def greater_than(attribute, value)
+      sanitize("#{attribute} > :value", value: value)
+    end
+
+    def greater_than_or_equal_to(attribute, value)
+      sanitize("#{attribute} >= :value", value: value)
+    end
+
+    def less_than(attribute, value)
+      sanitize("#{attribute} < :value", value: value)
+    end
+
+    def less_than_or_equal_to(attribute, value)
+      sanitize("#{attribute} <= :value", value: value)
+    end
+
     def not_equal(attribute, value)
       return sanitize("#{attribute} IS NOT NULL") if value.nil?
 

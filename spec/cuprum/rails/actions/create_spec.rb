@@ -77,7 +77,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
         Cuprum::Collections::Errors::ExtraAttributes.new(
           entity_class:     resource.resource_class,
           extra_attributes: %w[publisher],
-          valid_attributes: %w[id title author series category]
+          valid_attributes: %w[id title author series category published_at]
         )
       end
 
