@@ -4,8 +4,9 @@ env:
   global:
     - PGPORT=5433
 rvm:
-  - 2.6.7
-  - 2.7.3
+  - 2.6.8
+  - 2.7.4
+  - 3.0.2
 before_script:
   - cp .rspec.example .rspec
   - cp .rubocop.example .rubocop
@@ -15,7 +16,7 @@ script:
 
 # Travis-CI Configuration
 cache: bundler
-sudo:  false # Enable containerized builds.
+dist:  focal
 addons:
   postgresql: 12
   apt:
