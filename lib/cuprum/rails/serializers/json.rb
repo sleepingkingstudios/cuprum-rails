@@ -5,6 +5,8 @@ require 'cuprum/rails/serializers'
 module Cuprum::Rails::Serializers
   # Namespace for JSON serializers, which convert objects to a JSON format.
   module Json
+    autoload :ActiveRecordSerializer,
+      'cuprum/rails/serializers/json/active_record_serializer'
     autoload :ArraySerializer,
       'cuprum/rails/serializers/json/array_serializer'
     autoload :HashSerializer,
