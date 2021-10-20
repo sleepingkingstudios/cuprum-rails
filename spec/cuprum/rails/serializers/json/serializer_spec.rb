@@ -55,9 +55,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
     end
 
     def serializer_for(klass)
-      instance_double(described_class, call: nil).tap do |double|
-        allow(double).to receive(:call).and_return({ 'type' => klass.name })
-      end
+      instance_double(described_class, call: { 'type' => klass.name })
     end
 
     it 'should define the method' do

@@ -28,7 +28,11 @@ module Cuprum::Rails::Serializers::Json
     # @param serializers [Hash<Class, #call>] The serializers for different
     #   object types.
     #
-    # @return [Hash<String, Object>] a JSON-compatible Hash representation of
+    # @return [Object] a JSON-compatible representation of the object.
+    #
+    # @raise RecursiveSerializerError if the serializer would create an infinite
+    #   loop, e.g. by calling itself.
+    # @raise UndefinedSerializerError if there is no matching serializer for
     #   the object.
     def call(object, serializers:)
       serializer = handle_recursion!(object) do
