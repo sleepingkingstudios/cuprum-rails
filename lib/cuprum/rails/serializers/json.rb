@@ -7,6 +7,8 @@ module Cuprum::Rails::Serializers
   module Json
     autoload :ArraySerializer,
       'cuprum/rails/serializers/json/array_serializer'
+    autoload :HashSerializer,
+      'cuprum/rails/serializers/json/hash_serializer'
     autoload :IdentitySerializer,
       'cuprum/rails/serializers/json/identity_serializer'
     autoload :Serializer, 'cuprum/rails/serializers/json/serializer'
