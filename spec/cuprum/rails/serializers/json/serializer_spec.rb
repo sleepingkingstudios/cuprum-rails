@@ -54,6 +54,12 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
       }
     end
 
+    example_class 'Spec::Part'
+
+    example_class 'Spec::RocketPart', 'Spec::Part'
+
+    example_class 'Spec::RocketEngine', 'Spec::RocketPart'
+
     def serializer_for(klass)
       instance_double(described_class, call: { 'type' => klass.name })
     end
@@ -64,12 +70,6 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
         .with(1).argument
         .and_keywords(:serializers)
     end
-
-    example_class 'Spec::Part'
-
-    example_class 'Spec::RocketPart', 'Spec::Part'
-
-    example_class 'Spec::RocketEngine', 'Spec::RocketPart'
 
     context 'when the serializers are empty' do
       let(:serializers) { {} }
@@ -87,9 +87,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
     end
 
     context 'when there is no serializer for the object' do
-      let(:error_message) do
-        'no serializer defined for NilClass'
-      end
+      let(:error_message) { 'no serializer defined for NilClass' }
 
       it 'should raise an exception' do
         expect { serializer.call(object, serializers: serializers) }
