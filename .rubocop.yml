@@ -15,18 +15,27 @@ RSpec:
   Language:
     ExampleGroups:
       Regular:
+        - context
+        - describe
         - wrap_context
       Skipped:
+        - xcontext
+        - xdescribe
         - xwrap_context
       Focused:
+        - fcontext
+        - fdescribe
         - fwrap_context
     Includes:
       Examples:
-        - include_contract
         - finclude_contract
+        - finclude_examples
         - fwrap_examples
+        - include_contract
+        - include_examples
         - wrap_examples
         - xinclude_contract
+        - xinclude_examples
         - xwrap_examples
 
 Layout/ArgumentAlignment:

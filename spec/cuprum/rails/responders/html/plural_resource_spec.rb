@@ -197,7 +197,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
     end
 
     context 'when initialized with action_name: :show' do
-      let(:action_name) { :new }
+      let(:action_name) { :show }
 
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
