@@ -9,6 +9,8 @@ module Cuprum::Rails::Serializers
       'cuprum/rails/serializers/json/active_record_serializer'
     autoload :ArraySerializer,
       'cuprum/rails/serializers/json/array_serializer'
+    autoload :AttributesSerializer,
+      'cuprum/rails/serializers/json/attributes_serializer'
     autoload :HashSerializer,
       'cuprum/rails/serializers/json/hash_serializer'
     autoload :IdentitySerializer,
