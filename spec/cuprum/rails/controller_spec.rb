@@ -107,7 +107,9 @@ RSpec.describe Cuprum::Rails::Controller do
           end
 
           before(:example) do
-            allow(controller).to receive(:resource).and_return(resource)
+            allow(controller) # rubocop:disable RSpec/SubjectStub
+              .to receive(:resource)
+              .and_return(resource)
           end
 
           it 'should raise an exception' do
@@ -128,7 +130,9 @@ RSpec.describe Cuprum::Rails::Controller do
           before(:example) do
             described_class.responder :html, Spec::HtmlResponder
 
-            allow(controller).to receive(:resource).and_return(resource)
+            allow(controller) # rubocop:disable RSpec/SubjectStub
+              .to receive(:resource)
+              .and_return(resource)
 
             allow(action).to receive(:call).and_return(response)
           end

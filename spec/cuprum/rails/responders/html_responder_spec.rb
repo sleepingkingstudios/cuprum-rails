@@ -100,6 +100,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
           it { expect(response.status).to be 302 }
 
+          # rubocop:disable RSpec/NestedGroups
           context 'when the result value exists' do
             let(:value) { Spec::Model.new('12345') }
             let(:result) do
@@ -157,6 +158,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
             it { expect(response.status).to be 302 }
           end
+          # rubocop:enable RSpec/NestedGroups
         end
       end
     end
@@ -448,7 +450,11 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
       Cuprum::Rails::Responses::Html::RenderResponse
     end
 
-    before(:example) { allow(responder).to receive(:result).and_return(result) }
+    before(:example) do
+      allow(responder) # rubocop:disable RSpec/SubjectStub
+        .to receive(:result)
+        .and_return(result)
+    end
 
     it 'should define the method' do
       expect(responder)

@@ -115,11 +115,13 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
   describe '#call' do
     shared_examples 'should set the matcher context' do |message|
       it 'should set the matcher context' do
-        allow(responder).to receive(:render)
+        allow(responder).to receive(:render) # rubocop:disable RSpec/SubjectStub
 
         responder.call(result)
 
-        expect(responder).to have_received(:render).with(message)
+        expect(responder) # rubocop:disable RSpec/SubjectStub
+          .to have_received(:render)
+          .with(message)
       end
     end
 
