@@ -19,6 +19,7 @@ module Cuprum::Rails::Controllers::ClassMethods
 
       action_name              = action_name.intern
       own_actions[action_name] = Cuprum::Rails::ControllerAction.new(
+        configuration,
         action_class:  action_class,
         action_name:   action_name,
         member_action: member
@@ -47,12 +48,7 @@ module Cuprum::Rails::Controllers::ClassMethods
     def define_action(action_name)
       define_method(action_name) do
         action   = self.class.actions[action_name]
-        format   = request.format.symbol
-        response = action.call(
-          request:         request,
-          resource:        self.class.resource,
-          responder_class: self.class.configuration.responder_for(format)
-        )
+        response = action.call(request)
         response.call(self)
       end
     end

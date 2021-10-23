@@ -75,6 +75,12 @@ module Spec::Support::Examples
                 "no resource defined for #{described_class.name}"
               end
 
+              example_class 'Spec::HtmlResponder'
+
+              before(:example) do
+                described_class.responder :html, Spec::HtmlResponder
+              end
+
               it 'should raise an exception' do
                 expect { controller.send(action_name) }
                   .to raise_error(error_class, error_message)
@@ -122,14 +128,10 @@ module Spec::Support::Examples
                 allow(action).to receive(:call).and_return(response)
               end
 
-              it 'should call the action' do # rubocop:disable RSpec/ExampleLength
+              it 'should call the action' do
                 controller.send(action_name)
 
-                expect(action).to have_received(:call).with(
-                  request:         request,
-                  resource:        resource,
-                  responder_class: Spec::HtmlResponder
-                )
+                expect(action).to have_received(:call).with(request)
               end
 
               it 'should call the response' do
@@ -332,24 +334,27 @@ module Spec::Support::Examples
       end
 
       describe '.configuration' do
-        let(:error_class) do
-          Cuprum::Rails::Controller::UndefinedResourceError
-        end
-        let(:error_message) do
-          "no resource defined for #{described_class.name}"
-        end
-
         include_examples 'should define class reader', :configuration
 
-        it 'should raise an exception' do
-          expect { described_class.configuration }
-            .to raise_error error_class, error_message
+        it 'should return the controller configuration' do
+          expect(described_class.configuration)
+            .to be_a Cuprum::Rails::Controllers::Configuration
+        end
+
+        it 'should delegate to the controller' do
+          expect(described_class.configuration.controller)
+            .to be described_class
         end
 
         wrap_context 'when the controller defines a resource' do
           it 'should return the controller configuration' do
             expect(described_class.configuration)
               .to be_a Cuprum::Rails::Controllers::Configuration
+          end
+
+          it 'should delegate to the controller' do
+            expect(described_class.configuration.controller)
+              .to be described_class
           end
 
           it 'should return the configured resource' do

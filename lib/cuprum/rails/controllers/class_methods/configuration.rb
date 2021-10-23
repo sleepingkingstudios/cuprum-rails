@@ -9,10 +9,7 @@ module Cuprum::Rails::Controllers::ClassMethods
     # @return [Cuprum::Rails::Controllers::Configuration] the configured options
     #   for the controller.
     def configuration
-      Cuprum::Rails::Controllers::Configuration.new(
-        resource:   resource,
-        responders: responders
-      )
+      Cuprum::Rails::Controllers::Configuration.new(self)
     end
 
     # @private

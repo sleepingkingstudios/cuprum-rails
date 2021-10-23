@@ -1,30 +1,35 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/controllers/class_methods/configuration'
+require 'cuprum/rails/controllers/class_methods/validations'
 require 'cuprum/rails/controllers/configuration'
 require 'cuprum/rails/resource'
 
 RSpec.describe Cuprum::Rails::Controllers::Configuration do
-  subject(:configuration) do
-    described_class.new(
-      resource:   resource,
-      responders: responders
-    )
-  end
+  subject(:configuration) { described_class.new(controller) }
 
   let(:resource) { instance_double(Cuprum::Rails::Resource) }
   let(:responders) do
     { json: Spec::JsonResponder }
   end
+  let(:controller) do
+    instance_double(
+      Spec::Controller,
+      resource:   resource,
+      responders: responders
+    )
+  end
+
+  example_class 'Spec::Controller', Struct.new(:resource, :responders)
 
   example_class 'Spec::JsonResponder'
 
   describe '.new' do
-    it 'should define the constructor' do
-      expect(described_class)
-        .to respond_to(:new)
-        .with(0).arguments
-        .and_keywords(:resource, :responders)
-    end
+    it { expect(described_class).to respond_to(:new).with(1).argument }
+  end
+
+  describe '#controller' do
+    include_examples 'should define reader', :controller, -> { controller }
   end
 
   describe '#resource' do

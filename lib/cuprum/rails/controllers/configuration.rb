@@ -1,26 +1,34 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 require 'cuprum/rails/controllers'
 
 module Cuprum::Rails::Controllers
   # Data object that stores a controller's configuration.
   class Configuration
-    # @param resource [Cuprum::Rails::Resource] The resource defined for the
-    #   controller.
-    # @param responders [Hash<Symbol, Class>] The responder classes defined for
-    #   the controller, by format.
-    def initialize(resource:, responders:)
-      @resource   = resource
-      @responders = responders
+    extend Forwardable
+
+    # @param controller [#resource, #responders] The controller to delegate
+    #   configuration.
+    def initialize(controller)
+      @controller = controller
     end
 
-    # @return [Cuprum::Rails::Resource] the resource defined for the
-    #   controller.
-    attr_reader :resource
+    # @return [#resource, #responders] the controller to delegate configuration.
+    attr_reader :controller
 
-    # @return [Hash<Symbol, Class>] the responder classes defined for the
-    #   controller, by format.
-    attr_reader :responders
+    # @!method resource
+    #   @return [Cuprum::Rails::Resource] the resource defined for the
+    #     controller.
+
+    # @!method responders
+    #   @return [Hash<Symbol, Class>] the responder classes defined for the
+    #     controller, by format.
+
+    def_delegators :@controller,
+      :resource,
+      :responders
 
     # Finds the configured responder for the requested format.
     #
