@@ -11,17 +11,19 @@ module Cuprum
       VERSION
     end
 
-    autoload :Action,      'cuprum/rails/action'
-    autoload :Actions,     'cuprum/rails/actions'
-    autoload :Collection,  'cuprum/rails/collection'
-    autoload :Command,     'cuprum/rails/command'
-    autoload :Commands,    'cuprum/rails/commands'
-    autoload :Controller,  'cuprum/rails/controller'
-    autoload :Query,       'cuprum/rails/query'
-    autoload :Responders,  'cuprum/rails/responders'
-    autoload :Resource,    'cuprum/rails/resource'
-    autoload :Routes,      'cuprum/rails/routes'
-    autoload :Routing,     'cuprum/rails/routing'
-    autoload :Serializers, 'cuprum/rails/serializers'
+    autoload :Action,           'cuprum/rails/action'
+    autoload :Actions,          'cuprum/rails/actions'
+    autoload :Collection,       'cuprum/rails/collection'
+    autoload :Command,          'cuprum/rails/command'
+    autoload :Commands,         'cuprum/rails/commands'
+    autoload :Controller,       'cuprum/rails/controller'
+    autoload :ControllerAction, 'cuprum/rails/controller_action'
+    autoload :Controllers,      'cuprum/rails/controllers'
+    autoload :Query,            'cuprum/rails/query'
+    autoload :Responders,       'cuprum/rails/responders'
+    autoload :Resource,         'cuprum/rails/resource'
+    autoload :Routes,           'cuprum/rails/routes'
+    autoload :Routing,          'cuprum/rails/routing'
+    autoload :Serializers,      'cuprum/rails/serializers'
   end
 end
