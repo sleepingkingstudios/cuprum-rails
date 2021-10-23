@@ -132,7 +132,7 @@ module Cuprum::Rails
     # Exception when the controller does not have a responder for a format.
     class UnknownFormatError < StandardError; end
 
-    # @api private
+    # @private
     def self.included(other)
       super
 
