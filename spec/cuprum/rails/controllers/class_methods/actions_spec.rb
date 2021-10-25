@@ -9,16 +9,11 @@ require 'support/examples/controller_examples'
 RSpec.describe Cuprum::Rails::Controllers::ClassMethods::Actions do
   include Spec::Support::Examples::ControllerExamples
 
-  subject(:controller) { described_class.new(request) }
+  subject(:controller) { described_class.new(native_request) }
+
+  include_context 'with a native request'
 
   let(:described_class) { Spec::Controller }
-  let(:format)          { :html }
-  let(:mime_type) do
-    instance_double(Mime::Type, symbol: format)
-  end
-  let(:request) do
-    instance_double(ActionDispatch::Request, format: mime_type)
-  end
 
   example_class 'Spec::Controller', Struct.new(:request) do |klass|
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Actions # rubocop:disable RSpec/DescribedClass

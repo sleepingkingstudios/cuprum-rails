@@ -88,8 +88,7 @@ module Cuprum::Rails
     private
 
     def build_responder(request)
-      format          = request.format.symbol
-      responder_class = responder_for(format)
+      responder_class = responder_for(request.format)
 
       responder_class.new(
         action_name:   action_name,

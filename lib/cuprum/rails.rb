@@ -20,6 +20,7 @@ module Cuprum
     autoload :ControllerAction, 'cuprum/rails/controller_action'
     autoload :Controllers,      'cuprum/rails/controllers'
     autoload :Query,            'cuprum/rails/query'
+    autoload :Request,          'cuprum/rails/request'
     autoload :Responders,       'cuprum/rails/responders'
     autoload :Resource,         'cuprum/rails/resource'
     autoload :Routes,           'cuprum/rails/routes'

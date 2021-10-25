@@ -8,6 +8,31 @@ module Spec::Support::Examples
   module ControllerExamples
     extend RSpec::SleepingKingStudios::Concerns::SharedExampleGroup
 
+    shared_context 'with a native request' do
+      let(:format) { :html }
+      let(:native_request) do
+        instance_double(
+          ActionDispatch::Request,
+          authorization:         nil,
+          format:                instance_double(Mime::Type, symbol: format),
+          fullpath:              '/books',
+          headers:               { 'HTTP_HOST' => 'www.example.com' },
+          params:                { 'key' => 'value', 'param' => 'value' },
+          query_parameters:      { 'param' => 'value' },
+          request_method_symbol: :get,
+          request_parameters:    { 'key' => 'value' }
+        )
+      end
+      let(:request) { Cuprum::Rails::Request.build(request: native_request) }
+
+      before(:example) do
+        allow(Cuprum::Rails::Request)
+          .to receive(:build)
+          .with(request: native_request)
+          .and_return(request)
+      end
+    end
+
     shared_examples 'should implement the actions DSL' do
       describe '.action' do
         shared_examples 'should define the action' do

@@ -63,11 +63,8 @@ RSpec.describe Cuprum::Rails::ControllerAction do
     let(:response)        { instance_double(Spec::Response, call: nil) }
     let(:responder)       { instance_double(Spec::Responder, call: response) }
     let(:format)          { :html }
-    let(:mime_type) do
-      instance_double(Mime::Type, symbol: format)
-    end
     let(:request) do
-      instance_double(ActionDispatch::Request, format: mime_type)
+      instance_double(Cuprum::Rails::Request, format: format)
     end
 
     example_class 'Spec::Action', Cuprum::Rails::Action

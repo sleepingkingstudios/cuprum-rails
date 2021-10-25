@@ -23,17 +23,25 @@ RSpec.describe BooksController do
     end
   end
 
-  let(:assigns) { controller.assigns }
-  let(:format)  { :html }
-  let(:params)  { {} }
+  let(:assigns)      { controller.assigns }
+  let(:format)       { :html }
+  let(:headers)      { {} }
+  let(:params)       { {} }
+  let(:query_params) { {} }
   let(:renderer) do
     instance_double(Spec::Renderer, redirect_to: nil, render: nil)
   end
   let(:request) do
     instance_double(
-      Spec::Request,
-      format: instance_double(Mime::Type, symbol: format),
-      params: params
+      ActionDispatch::Request,
+      authorization:         nil,
+      format:                instance_double(Mime::Type, symbol: format),
+      fullpath:              path,
+      headers:               headers,
+      params:                query_params.merge(params),
+      query_parameters:      query_params,
+      request_method_symbol: method,
+      request_parameters:    params
     )
   end
 
@@ -42,10 +50,11 @@ RSpec.describe BooksController do
     klass.define_method(:render)      { |*_, **_| nil }
   end
 
-  example_class 'Spec::Request', Struct.new(:format, :params)
-
   # rubocop:disable RSpec/NestedGroups
   describe '#create' do
+    let(:method) { :post }
+    let(:path)   { '/books' }
+
     it { expect(controller).to respond_to(:create).with(0).arguments }
 
     describe 'with format: :html' do
@@ -120,6 +129,9 @@ RSpec.describe BooksController do
   end
 
   describe '#destroy' do
+    let(:method) { :delete }
+    let(:path)   { '/books/' }
+
     it { expect(controller).to respond_to(:destroy).with(0).arguments }
 
     describe 'with format: :html' do
@@ -132,8 +144,9 @@ RSpec.describe BooksController do
       end
 
       describe 'with an invalid resource id' do
-        let(:book_id) { (Book.last&.id || -1) + 1 }
-        let(:params)  { super().merge(id: book_id) }
+        let(:book_id)      { (Book.last&.id || -1) + 1 }
+        let(:path)         { "/books/#{book_id}" }
+        let(:query_params) { { 'id' => book_id } }
 
         it 'should redirect to the resource root' do
           controller.destroy
@@ -146,8 +159,9 @@ RSpec.describe BooksController do
 
       wrap_context 'when there are many books' do
         describe 'with an invalid resource id' do
-          let(:book_id) { (Book.last&.id || -1) + 1 }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book_id)      { (Book.last&.id || -1) + 1 }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should redirect to the resource root' do
             controller.destroy
@@ -163,9 +177,10 @@ RSpec.describe BooksController do
         end
 
         describe 'with a valid resource id' do
-          let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
-          let(:book_id) { book.id }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book)         { Book.where(title: 'The Tombs of Atuan').first }
+          let(:book_id)      { book.id }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should redirect to the resource root' do
             controller.destroy
@@ -190,6 +205,9 @@ RSpec.describe BooksController do
   end
 
   describe '#edit' do
+    let(:method) { :get }
+    let(:path)   { '/books//edit' }
+
     it { expect(controller).to respond_to(:edit).with(0).arguments }
 
     describe 'with format: :html' do
@@ -202,8 +220,9 @@ RSpec.describe BooksController do
       end
 
       describe 'with an invalid resource id' do
-        let(:book_id) { (Book.last&.id || -1) + 1 }
-        let(:params)  { super().merge(id: book_id) }
+        let(:book_id)      { (Book.last&.id || -1) + 1 }
+        let(:path)         { "/books/#{book_id}/edit" }
+        let(:query_params) { { 'id' => book_id } }
 
         it 'should redirect to the resource root' do
           controller.edit
@@ -216,8 +235,9 @@ RSpec.describe BooksController do
 
       wrap_context 'when there are many books' do
         describe 'with an invalid resource id' do
-          let(:book_id) { (Book.last&.id || -1) + 1 }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book_id)      { (Book.last&.id || -1) + 1 }
+          let(:path)         { "/books/#{book_id}/edit" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should redirect to the resource root' do
             controller.edit
@@ -229,9 +249,10 @@ RSpec.describe BooksController do
         end
 
         describe 'with a valid resource id' do
-          let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
-          let(:book_id) { book.id }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book)         { Book.where(title: 'The Tombs of Atuan').first }
+          let(:book_id)      { book.id }
+          let(:path)         { "/books/#{book_id}/edit" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should render the #edit view' do
             controller.edit
@@ -252,6 +273,9 @@ RSpec.describe BooksController do
   end
 
   describe '#index' do
+    let(:method) { :get }
+    let(:path)   { '/books' }
+
     it { expect(controller).to respond_to(:index).with(0).arguments }
 
     describe 'with format: :html' do
@@ -288,6 +312,9 @@ RSpec.describe BooksController do
   end
 
   describe '#new' do
+    let(:method) { :get }
+    let(:path)   { '/books/new' }
+
     it { expect(controller).to respond_to(:new).with(0).arguments }
 
     describe 'with format: :html' do
@@ -310,6 +337,9 @@ RSpec.describe BooksController do
   end
 
   describe '#show' do
+    let(:method) { :get }
+    let(:path)   { '/books//' }
+
     it { expect(controller).to respond_to(:show).with(0).arguments }
 
     describe 'with format: :html' do
@@ -322,8 +352,9 @@ RSpec.describe BooksController do
       end
 
       describe 'with an invalid resource id' do
-        let(:book_id) { (Book.last&.id || -1) + 1 }
-        let(:params)  { super().merge(id: book_id) }
+        let(:book_id)      { (Book.last&.id || -1) + 1 }
+        let(:path)         { "/books/#{book_id}" }
+        let(:query_params) { { 'id' => book_id } }
 
         it 'should redirect to the resource root' do
           controller.show
@@ -336,8 +367,9 @@ RSpec.describe BooksController do
 
       wrap_context 'when there are many books' do
         describe 'with an invalid resource id' do
-          let(:book_id) { (Book.last&.id || -1) + 1 }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book_id)      { (Book.last&.id || -1) + 1 }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should redirect to the resource root' do
             controller.show
@@ -349,9 +381,10 @@ RSpec.describe BooksController do
         end
 
         describe 'with a valid resource id' do
-          let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
-          let(:book_id) { book.id }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book)         { Book.where(title: 'The Tombs of Atuan').first }
+          let(:book_id)      { book.id }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should render the #show view' do
             controller.show
@@ -372,6 +405,9 @@ RSpec.describe BooksController do
   end
 
   describe '#update' do
+    let(:method) { :patch }
+    let(:path)   { '/books//' }
+
     it { expect(controller).to respond_to(:update).with(0).arguments }
 
     describe 'with format: :html' do
@@ -384,8 +420,9 @@ RSpec.describe BooksController do
       end
 
       describe 'with an invalid resource id' do
-        let(:book_id) { (Book.last&.id || -1) + 1 }
-        let(:params)  { super().merge(id: book_id) }
+        let(:book_id)      { (Book.last&.id || -1) + 1 }
+        let(:path)         { "/books/#{book_id}" }
+        let(:query_params) { { 'id' => book_id } }
 
         it 'should redirect to the resource root' do
           controller.update
@@ -398,8 +435,9 @@ RSpec.describe BooksController do
 
       wrap_context 'when there are many books' do
         describe 'with an invalid resource id' do
-          let(:book_id) { (Book.last&.id || -1) + 1 }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book_id)      { (Book.last&.id || -1) + 1 }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should redirect to the resource root' do
             controller.update
@@ -411,9 +449,10 @@ RSpec.describe BooksController do
         end
 
         describe 'with a valid resource id' do
-          let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
-          let(:book_id) { book.id }
-          let(:params)  { super().merge(id: book_id) }
+          let(:book)         { Book.where(title: 'The Tombs of Atuan').first }
+          let(:book_id)      { book.id }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
 
           it 'should redirect to the resource root' do
             controller.update
