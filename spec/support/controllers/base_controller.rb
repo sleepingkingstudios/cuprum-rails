@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+require 'forwardable'
+
+require 'cuprum/rails'
+
+class BaseController
+  extend  Forwardable
+  include Cuprum::Rails::Controller
+
+  responder :html, Cuprum::Rails::Responders::Html::PluralResource
+
+  def initialize(renderer:, request:)
+    @renderer = renderer
+    @request  = request
+  end
+
+  attr_reader :request
+
+  def_delegators :@renderer,
+    :redirect_to,
+    :render
+
+  def assigns
+    @assigns ||= {}
+  end
+
+  def instance_variable_set(variable, value)
+    assigns[variable] = value
+
+    super
+  end
+end
