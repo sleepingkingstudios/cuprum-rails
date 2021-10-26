@@ -51,5 +51,11 @@ module Cuprum::Rails::Controllers::ClassMethods
         .map(&:own_responders)
         .reduce(&:merge)
     end
+
+    # @return [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the
+    #   serializers for converting result values into serialized data.
+    def serializers
+      {}
+    end
   end
 end
