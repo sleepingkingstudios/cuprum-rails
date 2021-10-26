@@ -24,6 +24,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
         .to respond_to(:new)
         .with(0).arguments
         .and_keywords(:action_name, :matcher, :member_action, :resource)
+        .and_any_keywords
     end
   end
 

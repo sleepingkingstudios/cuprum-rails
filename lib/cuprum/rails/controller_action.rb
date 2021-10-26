@@ -21,16 +21,21 @@ module Cuprum::Rails
     # @param action_name [String, Symbol] The name of the action.
     # @param member_action [Boolean] True if the action acts on a collection
     #   item, not on the collection as a whole.
+    # @param serializers
+    #   [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] The serializers
+    #   for converting result values into serialized data.
     def initialize(
       configuration,
       action_class:,
       action_name:,
-      member_action: false
+      member_action: false,
+      serializers:   {}
     )
       @configuration = configuration
       @action_class  = action_class
       @action_name   = action_name
-      @member_action = !!member_action
+      @member_action = !!member_action # rubocop:disable Style/DoubleNegation
+      @serializers   = serializers
     end
 
     # @return [Class] the class of the action command.
@@ -42,6 +47,10 @@ module Cuprum::Rails
     # @return [Cuprum::Rails::Controllers::Configuration] the configuration for
     #   the originating controller.
     attr_reader :configuration
+
+    # @return [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the
+    #   serializers for converting result values into serialized data.
+    attr_reader :serializers
 
     # @!method resource
     #   @return [Cuprum::Rails::Resource] the resource defined for the
@@ -93,8 +102,20 @@ module Cuprum::Rails
       responder_class.new(
         action_name:   action_name,
         member_action: member_action?,
-        resource:      resource
+        resource:      resource,
+        serializers:   merge_serializers_for(request.format)
       )
+    end
+
+    def merge_serializers_for(format)
+      scoped_serializers(configuration.serializers, format: format)
+        .merge(scoped_serializers(serializers, format: format))
+    end
+
+    def scoped_serializers(serializers, format:)
+      serializers
+        .select { |key, _| key.is_a?(Class) }
+        .merge(serializers.fetch(format, {}))
     end
   end
 end

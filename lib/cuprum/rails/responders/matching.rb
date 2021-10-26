@@ -59,7 +59,13 @@ module Cuprum::Rails::Responders
     # @param member_action [Boolean] True if the action acts on a collection
     #   item, not on the collection as a whole.
     # @param resource [Cuprum::Rails::Resource] The resource for the controller.
-    def initialize(action_name:, resource:, matcher: nil, member_action: false)
+    def initialize(
+      action_name:,
+      resource:,
+      matcher: nil,
+      member_action: false,
+      **_options
+    )
       @action_name   = action_name
       @matcher       = matcher
       @member_action = !!member_action # rubocop:disable Style/DoubleNegation

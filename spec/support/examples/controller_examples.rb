@@ -523,7 +523,15 @@ module Spec::Support::Examples
       end
 
       describe '.serializers' do
-        include_examples 'should define class reader', :serializers, -> { {} }
+        let(:expected) do
+          {
+            json: Cuprum::Rails::Serializers::Json.default_serializers
+          }
+        end
+
+        include_examples 'should define class reader',
+          :serializers,
+          -> { be == expected }
       end
     end
   end
