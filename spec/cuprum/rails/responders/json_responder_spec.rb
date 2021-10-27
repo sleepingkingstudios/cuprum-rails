@@ -68,11 +68,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
   end
 
   describe '#call' do
-    let(:described_class) { Spec::JsonResponder }
-
-    example_class 'Spec::JsonResponder',
-      Cuprum::Rails::Responders::JsonResponder # rubocop:disable RSpec/DescribedClass
-
     it { expect(responder).to respond_to(:call).with(1).argument }
 
     describe 'with nil' do

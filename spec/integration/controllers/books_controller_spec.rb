@@ -126,6 +126,95 @@ RSpec.describe BooksController do
         end
       end
     end
+
+    describe 'with format: :json' do
+      let(:format) { :json }
+      let(:path)   { '/books.json' }
+      let(:error) do
+        Cuprum::Rails::Errors::MissingParameters
+          .new(resource_name: 'book')
+          .as_json
+      end
+      let(:expected) do
+        {
+          'ok'    => false,
+          'error' => error
+        }
+      end
+
+      it 'should render the json' do
+        controller.create
+
+        expect(renderer)
+          .to have_received(:render)
+          .with(json: expected, status: 400)
+      end
+
+      describe 'with invalid attributes' do
+        let(:attributes)    { { title: 'Gideon the Ninth' } }
+        let(:params)        { super().merge(book: attributes) }
+        let(:expected_book) { Book.new(attributes) }
+        let(:expected_errors) do
+          native_errors = expected_book.tap(&:valid?).errors
+
+          Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+        end
+        let(:error) do
+          Cuprum::Collections::Errors::FailedValidation
+            .new(entity_class: Book, errors: expected_errors)
+            .as_json
+        end
+        let(:expected) do
+          {
+            'ok'    => false,
+            'error' => error
+          }
+        end
+
+        it 'should render the json' do
+          controller.create
+
+          expect(renderer)
+            .to have_received(:render)
+            .with(json: expected, status: 422)
+        end
+
+        it 'should not create a book' do
+          expect { controller.create }.not_to change(Book, :count)
+        end
+      end
+
+      describe 'with valid attributes' do
+        let(:attributes) do
+          {
+            title:  'Gideon the Ninth',
+            author: 'Tamsyn Muir'
+          }
+        end
+        let(:params) { super().merge(book: attributes) }
+        let(:created_book) do
+          Book.where(attributes).first
+        end
+        let(:expected) do
+          {
+            'ok'   => true,
+            'data' => { 'book' => created_book.as_json }
+          }
+        end
+
+        it 'should render the json' do
+          controller.create
+
+          expect(renderer)
+            .to have_received(:render)
+            .with(json: expected, status: 201)
+        end
+
+        it 'should create a book' do
+          expect { controller.create }.to change(Book, :count).by(1)
+        end
+      end
+    end
   end
 
   describe '#destroy' do
@@ -188,6 +277,109 @@ RSpec.describe BooksController do
             expect(renderer)
               .to have_received(:redirect_to)
               .with('/books', { status: 302 })
+          end
+
+          it 'should destroy the book' do
+            expect { controller.destroy }.to change(Book, :count).by(-1)
+          end
+
+          it 'should remove the book from the collection' do
+            controller.destroy
+
+            expect(Book.exists?(title: 'The Tombs of Atuan')).to be false
+          end
+        end
+      end
+    end
+
+    describe 'with format: json' do
+      let(:format) { :json }
+      let(:path)   { '/books.json' }
+      let(:error) do
+        Cuprum::Error.new(
+          message: 'Something went wrong when processing the request'
+        )
+      end
+      let(:expected) do
+        {
+          'ok'    => false,
+          'error' => error.as_json
+        }
+      end
+
+      it 'should render the json' do
+        controller.destroy
+
+        expect(renderer)
+          .to have_received(:render)
+          .with(json: expected, status: 500)
+      end
+
+      describe 'with an invalid resource id' do
+        let(:book_id)      { (Book.last&.id || -1) + 1 }
+        let(:path)         { "/books/#{book_id}.json" }
+        let(:query_params) { { 'id' => book_id } }
+        let(:error) do
+          Cuprum::Collections::Errors::NotFound.new(
+            collection_name:    'books',
+            primary_key_name:   :id,
+            primary_key_values: [book_id]
+          )
+        end
+
+        it 'should render the json' do
+          controller.destroy
+
+          expect(renderer)
+            .to have_received(:render)
+            .with(json: expected, status: 404)
+        end
+      end
+
+      wrap_context 'when there are many books' do
+        describe 'with an invalid resource id' do
+          let(:book_id)      { (Book.last&.id || -1) + 1 }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
+          let(:error) do
+            Cuprum::Collections::Errors::NotFound.new(
+              collection_name:    'books',
+              primary_key_name:   :id,
+              primary_key_values: [book_id]
+            )
+          end
+
+          it 'should render the json' do
+            controller.destroy
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 404)
+          end
+
+          it 'should not destroy a book' do
+            expect { controller.destroy }.not_to change(Book, :count)
+          end
+        end
+
+        describe 'with a valid resource id' do
+          let(:book)         { Book.where(title: 'The Tombs of Atuan').first }
+          let(:book_id)      { book.id }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
+          let(:expected) do
+            {
+              'ok'   => true,
+              'data' => { 'book' => book.as_json }
+            }
+          end
+
+          it 'should render the json' do
+            controller.destroy
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 200)
           end
 
           it 'should destroy the book' do
@@ -309,6 +501,38 @@ RSpec.describe BooksController do
         end
       end
     end
+
+    describe 'with format :json' do
+      let(:format) { :json }
+      let(:path)   { '/books.json' }
+      let(:data)   { { 'books' => [] } }
+      let(:expected) do
+        {
+          'ok'   => true,
+          'data' => data
+        }
+      end
+
+      it 'should render the json' do
+        controller.index
+
+        expect(renderer)
+          .to have_received(:render)
+          .with(json: expected, status: 200)
+      end
+
+      wrap_context 'when there are many books' do
+        let(:data) { { 'books' => books.map(&:as_json) } }
+
+        it 'should render the json' do
+          controller.index
+
+          expect(renderer)
+            .to have_received(:render)
+            .with(json: expected, status: 200)
+        end
+      end
+    end
   end
 
   describe '#new' do
@@ -398,6 +622,95 @@ RSpec.describe BooksController do
             controller.show
 
             expect(assigns).to deep_match({ '@book' => book })
+          end
+        end
+      end
+    end
+
+    describe 'with format: :json' do
+      let(:format) { :json }
+      let(:path)   { '/books.json' }
+      let(:error) do
+        Cuprum::Error.new(
+          message: 'Something went wrong when processing the request'
+        )
+      end
+      let(:expected) do
+        {
+          'ok'    => false,
+          'error' => error.as_json
+        }
+      end
+
+      it 'should render the json' do
+        controller.show
+
+        expect(renderer)
+          .to have_received(:render)
+          .with(json: expected, status: 500)
+      end
+
+      describe 'with an invalid resource id' do
+        let(:book_id)      { (Book.last&.id || -1) + 1 }
+        let(:path)         { "/books/#{book_id}.json" }
+        let(:query_params) { { 'id' => book_id } }
+        let(:error) do
+          Cuprum::Collections::Errors::NotFound.new(
+            collection_name:    'books',
+            primary_key_name:   :id,
+            primary_key_values: [book_id]
+          )
+        end
+
+        it 'should render the json' do
+          controller.show
+
+          expect(renderer)
+            .to have_received(:render)
+            .with(json: expected, status: 404)
+        end
+      end
+
+      wrap_context 'when there are many books' do
+        describe 'with an invalid resource id' do
+          let(:book_id)      { (Book.last&.id || -1) + 1 }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
+          let(:error) do
+            Cuprum::Collections::Errors::NotFound.new(
+              collection_name:    'books',
+              primary_key_name:   :id,
+              primary_key_values: [book_id]
+            )
+          end
+
+          it 'should render the json' do
+            controller.show
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 404)
+          end
+        end
+
+        describe 'with a valid resource id' do
+          let(:book)         { Book.where(title: 'The Tombs of Atuan').first }
+          let(:book_id)      { book.id }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
+          let(:expected) do
+            {
+              'ok'   => true,
+              'data' => { 'book' => book.as_json }
+            }
+          end
+
+          it 'should render the json' do
+            controller.show
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 200)
           end
         end
       end
@@ -514,7 +827,190 @@ RSpec.describe BooksController do
                 .with("/books/#{book_id}", { status: 302 })
             end
 
+            it 'should update the attributes' do
+              expect { controller.update }
+                .to change { book.reload.attributes }
+                .to be >= attributes.stringify_keys
+            end
+          end
+        end
+      end
+    end
+
+    describe 'with format: :json' do
+      let(:format) { :json }
+      let(:path)   { '/books.json' }
+      let(:error) do
+        Cuprum::Error.new(
+          message: 'Something went wrong when processing the request'
+        )
+      end
+      let(:expected) do
+        {
+          'ok'    => false,
+          'error' => error.as_json
+        }
+      end
+
+      it 'should render the json' do
+        controller.update
+
+        expect(renderer)
+          .to have_received(:render)
+          .with(json: expected, status: 500)
+      end
+
+      describe 'with an invalid resource id' do
+        let(:book_id)      { (Book.last&.id || -1) + 1 }
+        let(:path)         { "/books/#{book_id}.json" }
+        let(:query_params) { { 'id' => book_id } }
+        let(:error) do
+          Cuprum::Rails::Errors::MissingParameters
+            .new(resource_name: 'book')
+            .as_json
+        end
+
+        it 'should render the json' do
+          controller.update
+
+          expect(renderer)
+            .to have_received(:render)
+            .with(json: expected, status: 400)
+        end
+
+        describe 'with attributes' do
+          let(:attributes) { { category: 'Coming of Age' } }
+          let(:params)     { super().merge(book: attributes) }
+          let(:error) do
+            Cuprum::Collections::Errors::NotFound.new(
+              collection_name:    'books',
+              primary_key_name:   :id,
+              primary_key_values: [book_id]
+            )
+          end
+
+          it 'should render the json' do
+            controller.update
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 404)
+          end
+        end
+      end
+
+      wrap_context 'when there are many books' do
+        describe 'with an invalid resource id' do
+          let(:book_id)      { (Book.last&.id || -1) + 1 }
+          let(:path)         { "/books/#{book_id}.json" }
+          let(:query_params) { { 'id' => book_id } }
+          let(:error) do
+            Cuprum::Rails::Errors::MissingParameters
+              .new(resource_name: 'book')
+              .as_json
+          end
+
+          it 'should render the json' do
+            controller.update
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 400)
+          end
+
+          describe 'with attributes' do
+            let(:attributes) { { category: 'Coming of Age' } }
+            let(:params)     { super().merge(book: attributes) }
+            let(:error) do
+              Cuprum::Collections::Errors::NotFound.new(
+                collection_name:    'books',
+                primary_key_name:   :id,
+                primary_key_values: [book_id]
+              )
+            end
+
+            it 'should render the json' do
+              controller.update
+
+              expect(renderer)
+                .to have_received(:render)
+                .with(json: expected, status: 404)
+            end
+          end
+        end
+
+        describe 'with a valid resource id' do
+          let(:book)         { Book.where(title: 'The Tombs of Atuan').first }
+          let(:book_id)      { book.id }
+          let(:path)         { "/books/#{book_id}" }
+          let(:query_params) { { 'id' => book_id } }
+          let(:error) do
+            Cuprum::Rails::Errors::MissingParameters
+              .new(resource_name: 'book')
+              .as_json
+          end
+
+          it 'should render the json' do
+            controller.update
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 400)
+          end
+
+          describe 'with invalid attributes' do
+            let(:attributes) { { title: '' } }
+            let(:params)     { super().merge(book: attributes) }
+            let(:expected_book) do
+              book.tap { book.assign_attributes(attributes) }
+            end
+            let(:expected_errors) do
+              native_errors = expected_book.tap(&:valid?).errors
+
+              Cuprum::Rails::MapErrors
+                .instance
+                .call(native_errors: native_errors)
+            end
+            let(:error) do
+              Cuprum::Collections::Errors::FailedValidation.new(
+                entity_class: Book,
+                errors:       expected_errors
+              )
+            end
+
+            it 'should render the json' do
+              controller.update
+
+              expect(renderer)
+                .to have_received(:render)
+                .with(json: expected, status: 422)
+            end
+
             it 'should not update the attributes' do
+              expect { controller.update }
+                .not_to(change { book.reload.attributes })
+            end
+          end
+
+          describe 'with valid attributes' do
+            let(:attributes) { { category: 'Coming of Age' } }
+            let(:params)     { super().merge(book: attributes) }
+            let(:expected) do
+              {
+                'ok'   => true,
+                'data' => { 'book' => book.reload.as_json }
+              }
+            end
+
+            it 'should render the json' do
+              controller.update
+
+              expect(renderer)
+                .to have_received(:render)
+                .with(json: expected, status: 200)
+            end
+
+            it 'should update the attributes' do
               expect { controller.update }
                 .to change { book.reload.attributes }
                 .to be >= attributes.stringify_keys
