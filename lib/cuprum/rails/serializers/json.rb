@@ -11,6 +11,8 @@ module Cuprum::Rails::Serializers
       'cuprum/rails/serializers/json/array_serializer'
     autoload :AttributesSerializer,
       'cuprum/rails/serializers/json/attributes_serializer'
+    autoload :ErrorSerializer,
+      'cuprum/rails/serializers/json/error_serializer'
     autoload :HashSerializer,
       'cuprum/rails/serializers/json/hash_serializer'
     autoload :IdentitySerializer,
@@ -21,16 +23,17 @@ module Cuprum::Rails::Serializers
     #
     # @return [Hash<Class, Cuprum::Rails::Serializers::Json::Serializer>] the
     #   default serializers.
-    def self.default_serializers
+    def self.default_serializers # rubocop:disable Metrics/MethodLength
       @default_serializers ||= {
-        Array      => self::ArraySerializer.instance,
-        Hash       => self::HashSerializer.instance,
-        FalseClass => self::IdentitySerializer.instance,
-        Float      => self::IdentitySerializer.instance,
-        Integer    => self::IdentitySerializer.instance,
-        NilClass   => self::IdentitySerializer.instance,
-        String     => self::IdentitySerializer.instance,
-        TrueClass  => self::IdentitySerializer.instance
+        Array         => self::ArraySerializer.instance,
+        Cuprum::Error => self::ErrorSerializer.instance,
+        Hash          => self::HashSerializer.instance,
+        FalseClass    => self::IdentitySerializer.instance,
+        Float         => self::IdentitySerializer.instance,
+        Integer       => self::IdentitySerializer.instance,
+        NilClass      => self::IdentitySerializer.instance,
+        String        => self::IdentitySerializer.instance,
+        TrueClass     => self::IdentitySerializer.instance
       }
     end
   end

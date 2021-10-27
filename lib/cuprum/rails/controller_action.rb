@@ -56,7 +56,7 @@ module Cuprum::Rails
     #   @return [Cuprum::Rails::Resource] the resource defined for the
     #     controller.
 
-    # @!method responder_for
+    # @!method responder_for(format)
     #   Finds the configured responder for the requested format.
     #
     #   @param format [Symbol] The format to respond to.
