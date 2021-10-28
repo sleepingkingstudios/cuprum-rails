@@ -26,9 +26,14 @@ module Cuprum::Rails::Controllers
     #   @return [Hash<Symbol, Class>] the responder classes defined for the
     #     controller, by format.
 
+    # @!method serializers
+    #   @return [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the
+    #     serializers for converting result values into serialized data.
+
     def_delegators :@controller,
       :resource,
-      :responders
+      :responders,
+      :serializers
 
     # Finds the configured responder for the requested format.
     #

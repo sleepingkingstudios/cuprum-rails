@@ -42,6 +42,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ActiveRecordSerializer do
       end
     end
 
+    describe 'with an Object' do
+      let(:object)        { Object.new.freeze }
+      let(:error_message) { 'object must be an ActiveRecord record' }
+
+      it 'should raise an exception' do
+        expect { serializer.call(object, serializers: serializers) }
+          .to raise_error ArgumentError, error_message
+      end
+    end
+
     describe 'with an ActiveRecord record' do
       let(:object) do
         Book.new(

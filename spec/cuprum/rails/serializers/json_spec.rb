@@ -8,6 +8,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json do
     let(:expected_keys) do
       [
         Array,
+        Cuprum::Error,
         FalseClass,
         Float,
         Hash,
@@ -29,6 +30,11 @@ RSpec.describe Cuprum::Rails::Serializers::Json do
     it 'should define the Array serializer' do
       expect(default_serializers[Array])
         .to be_a Cuprum::Rails::Serializers::Json::ArraySerializer
+    end
+
+    it 'should define the Cupurm::Error serializer' do
+      expect(default_serializers[Cuprum::Error])
+        .to be_a Cuprum::Rails::Serializers::Json::ErrorSerializer
     end
 
     it 'should define the FalseClass serializer' do

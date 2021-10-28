@@ -8,6 +8,8 @@ module Cuprum::Rails
     autoload :Actions,       'cuprum/rails/responders/actions'
     autoload :Html,          'cuprum/rails/responders/html'
     autoload :HtmlResponder, 'cuprum/rails/responders/html_responder'
+    autoload :Json,          'cuprum/rails/responders/json'
+    autoload :JsonResponder, 'cuprum/rails/responders/json_responder'
     autoload :Matching,      'cuprum/rails/responders/matching'
   end
 end

@@ -14,6 +14,12 @@ class BooksController < BaseController
     )
   end
 
+  def self.serializers
+    super.merge(
+      Book => Cuprum::Rails::Serializers::Json::ActiveRecordSerializer.instance
+    )
+  end
+
   action :create,  Cuprum::Rails::Actions::Create
   action :destroy, Cuprum::Rails::Actions::Destroy
   action :edit,    Cuprum::Rails::Actions::Show

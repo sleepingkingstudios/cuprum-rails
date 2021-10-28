@@ -2,6 +2,7 @@
 
 require 'cuprum/rails/controllers/class_methods'
 require 'cuprum/rails/controllers/configuration'
+require 'cuprum/rails/serializers/json'
 
 module Cuprum::Rails::Controllers::ClassMethods
   # Provides a DSL for defining controller configuration.
@@ -50,6 +51,14 @@ module Cuprum::Rails::Controllers::ClassMethods
         .reverse_each
         .map(&:own_responders)
         .reduce(&:merge)
+    end
+
+    # @return [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the
+    #   serializers for converting result values into serialized data.
+    def serializers
+      {
+        json: Cuprum::Rails::Serializers::Json.default_serializers
+      }
     end
   end
 end

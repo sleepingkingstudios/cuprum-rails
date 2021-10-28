@@ -30,8 +30,8 @@ module Cuprum::Rails::Responses::Html
 
     # Calls the renderer's #render method with the template and parameters.
     #
-    # @param renderer [#redirect_to] The context for executing the response,
-    #   such as a Rails controller.
+    # @param renderer [#render] The context for executing the response, such as
+    #   a Rails controller.
     def call(renderer)
       assign_variables(renderer)
 

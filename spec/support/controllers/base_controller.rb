@@ -9,6 +9,7 @@ class BaseController
   include Cuprum::Rails::Controller
 
   responder :html, Cuprum::Rails::Responders::Html::PluralResource
+  responder :json, Cuprum::Rails::Responders::Json::Resource
 
   def initialize(renderer:, request:)
     @renderer = renderer

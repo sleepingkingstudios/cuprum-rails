@@ -12,17 +12,24 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
   let(:responders) do
     { json: Spec::JsonResponder }
   end
+  let(:serializers) do
+    { Object => Spec::JsonSerializer }
+  end
   let(:controller) do
     instance_double(
       Spec::Controller,
-      resource:   resource,
-      responders: responders
+      resource:    resource,
+      responders:  responders,
+      serializers: serializers
     )
   end
 
-  example_class 'Spec::Controller', Struct.new(:resource, :responders)
+  example_class 'Spec::Controller',
+    Struct.new(:resource, :responders, :serializers)
 
   example_class 'Spec::JsonResponder'
+
+  example_class 'Spec::JsonSerializer'
 
   describe '.new' do
     it { expect(described_class).to respond_to(:new).with(1).argument }
@@ -75,5 +82,9 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
 
   describe '#responders' do
     include_examples 'should define reader', :responders, -> { responders }
+  end
+
+  describe '#serializers' do
+    include_examples 'should define reader', :serializers, -> { serializers }
   end
 end

@@ -392,6 +392,11 @@ module Spec::Support::Examples
               .to be == described_class.responders
           end
 
+          it 'should return the configured serializers' do
+            expect(described_class.configuration.serializers)
+              .to be == described_class.serializers
+          end
+
           wrap_context 'when the controller defines responders' do
             it 'should return the configured responders' do
               expect(described_class.configuration.responders)
@@ -515,6 +520,18 @@ module Spec::Support::Examples
 
           it { expect(described_class.responders).to be == expected }
         end
+      end
+
+      describe '.serializers' do
+        let(:expected) do
+          {
+            json: Cuprum::Rails::Serializers::Json.default_serializers
+          }
+        end
+
+        include_examples 'should define class reader',
+          :serializers,
+          -> { be == expected }
       end
     end
   end
