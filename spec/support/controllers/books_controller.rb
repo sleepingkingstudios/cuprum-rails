@@ -22,7 +22,7 @@ class BooksController < BaseController
 
   action :create,  Cuprum::Rails::Actions::Create
   action :destroy, Cuprum::Rails::Actions::Destroy
-  action :edit,    Cuprum::Rails::Actions::Show
+  action :edit,    Cuprum::Rails::Actions::Edit
   action :new,     Cuprum::Rails::Actions::New
   action :index,   Cuprum::Rails::Actions::Index
   action :show,    Cuprum::Rails::Actions::Show
