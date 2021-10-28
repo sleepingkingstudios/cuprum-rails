@@ -499,6 +499,32 @@ RSpec.describe BooksController do
 
           expect(assigns).to deep_match({ '@books' => books })
         end
+
+        context 'with filter params' do
+          let(:params) do
+            super().merge(
+              order: :title,
+              where: { 'author' => 'Ursula K. LeGuin' }
+            )
+          end
+          let(:expected) do
+            Book.where(author: 'Ursula K. LeGuin').order(:title).to_a
+          end
+
+          it 'should render the #index view' do
+            controller.index
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(:index, { status: 200 })
+          end
+
+          it 'should assign the queried books' do
+            controller.index
+
+            expect(assigns).to deep_match({ '@books' => expected })
+          end
+        end
       end
     end
 
@@ -530,6 +556,26 @@ RSpec.describe BooksController do
           expect(renderer)
             .to have_received(:render)
             .with(json: expected, status: 200)
+        end
+
+        context 'with filter params' do
+          let(:params) do
+            super().merge(
+              order: :title,
+              where: { 'author' => 'Ursula K. LeGuin' }
+            )
+          end
+          let(:books) do
+            Book.where(author: 'Ursula K. LeGuin').order(:title).to_a
+          end
+
+          it 'should render the json' do
+            controller.index
+
+            expect(renderer)
+              .to have_received(:render)
+              .with(json: expected, status: 200)
+          end
         end
       end
     end
