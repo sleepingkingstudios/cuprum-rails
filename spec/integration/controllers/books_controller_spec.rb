@@ -14,8 +14,6 @@ RSpec.describe BooksController do
   end
 
   shared_context 'when there are many books' do
-    let(:books) { Book.order(:id).to_a }
-
     before(:example) do
       Cuprum::Collections::RSpec::BOOKS_FIXTURES.each do |attributes|
         Book.create!(attributes.except(:id))
@@ -342,7 +340,7 @@ RSpec.describe BooksController do
     wrap_examples 'should serialize the data'
 
     wrap_context 'when there are many books' do
-      let(:expected_books) { Book.all }
+      let(:expected_books) { Book.order(:id).to_a }
 
       wrap_examples 'should render the view'
 

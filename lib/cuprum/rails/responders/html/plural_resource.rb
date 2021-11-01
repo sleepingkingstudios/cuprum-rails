@@ -19,9 +19,6 @@ module Cuprum::Rails::Responders::Html
   # failing result, redirects to either the show page or the index page for the
   # resource, based on the resource's defined #routes.
   class PluralResource < Cuprum::Rails::Responders::HtmlResponder
-    include Cuprum::Rails::Responders::Matching
-    include Cuprum::Rails::Responders::Actions
-
     action :create do
       match :failure, error: Cuprum::Collections::Errors::FailedValidation do
         render :new,
