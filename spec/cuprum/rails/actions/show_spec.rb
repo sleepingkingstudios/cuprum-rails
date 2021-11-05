@@ -66,7 +66,7 @@ RSpec.describe Cuprum::Rails::Actions::Show do
       let(:record) do
         resource_class.create!(
           title:  'Gideon the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         )
       end
       let(:primary_key_value) { record.id }

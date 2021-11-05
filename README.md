@@ -8,6 +8,7 @@ Cuprum::Rails defines the following objects:
     - [Commands](#commands): @todo
 - [Controllers](#controllers): @todo
     - [Actions](#actions): @todo
+    - [Requests](#requests): @todo
     - [Resources](#resources): @todo
     - [Responders](#responders) and [Responses](#responses): @todo
     - [Serializers](#serializers): @todo
@@ -67,6 +68,10 @@ Please note that the `Cuprum::Collections` project is released with a [Contribut
 #### Actions
 
 <a id="resources"></a>
+
+#### Requests
+
+<a id="requests"></a>
 
 #### Resources
 

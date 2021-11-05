@@ -13,7 +13,7 @@ RSpec.describe Cuprum::Rails::Routing::PluralRoutes do
   let(:block)     { nil }
   let(:entity) do
     Book.create!(
-      author: 'Tammsyn Muir',
+      author: 'Tamsyn Muir',
       title:  'Gideon the Ninth'
     )
   end
@@ -36,7 +36,7 @@ RSpec.describe Cuprum::Rails::Routing::PluralRoutes do
       end
       let(:entity) do
         Book.create!(
-          author: 'Tammsyn Muir',
+          author: 'Tamsyn Muir',
           title:  'Gideon the Ninth'
         )
       end

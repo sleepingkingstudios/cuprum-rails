@@ -36,7 +36,7 @@ RSpec.describe Cuprum::Rails::Routes do
       end
       let(:entity) do
         Book.create!(
-          author: 'Tammsyn Muir',
+          author: 'Tamsyn Muir',
           title:  'Gideon the Ninth'
         )
       end
@@ -80,7 +80,7 @@ RSpec.describe Cuprum::Rails::Routes do
     do |action_name:, path:, absolute_path: false|
       let(:entity) do
         Book.create!(
-          author: 'Tammsyn Muir',
+          author: 'Tamsyn Muir',
           title:  'Gideon the Ninth'
         )
       end

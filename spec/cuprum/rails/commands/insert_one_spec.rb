@@ -23,7 +23,7 @@ RSpec.describe Cuprum::Rails::Commands::InsertOne do
     {
       id:     0,
       title:  'Gideon the Ninth',
-      author: 'Tammsyn Muir'
+      author: 'Tamsyn Muir'
     }
   end
   let(:entity)        { record_class.new(attributes) }
