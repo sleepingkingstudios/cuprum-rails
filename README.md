@@ -5,9 +5,9 @@ An integration between Rails and the Cuprum library.
 Cuprum::Rails defines the following objects:
 
 - [Collections](#collections): A collection for performing operations on ActiveRecord models using the standard `Cuprum::Collections` interface.
-    - [Commands](#commands): @todo
-- [Controllers](#controllers): @todo
-    - [Actions](#actions): @todo
+    - [Commands](#commands): Each collection is comprised of `Cuprum` commands, which implement common collection operations such as inserting or querying data.
+- [Controllers](#controllers): Decouples controller responsibilities for precise control, reusability, and reduction of boilerplate code.
+    - [Actions](#actions): Implement a controller's actions as a `Cuprum` command.
     - [Requests](#requests): @todo
     - [Resources](#resources): @todo
     - [Responders](#responders) and [Responses](#responses): @todo
@@ -514,7 +514,185 @@ Let's walk through this step by step. We start by making a `POST` request to `/b
 
 ### Actions
 
-@todo
+```ruby
+require 'cuprum/rails/action'
+```
+
+`Cuprum::Rails` extracts the business logic of controllers into dedicated `Cuprum::Rails::Action`s. Each action is a `Cuprum::Command` that is initialized with a [Resource](#resources), called with a [Request](#request), and returns a `Cuprum::Result` that is then passed to the responder.
+
+```ruby
+class PublishedBooks < Cuprum::Rails::Action
+  private
+
+  def process(request)
+    super
+
+    resource.collection.find_matching.call(order: params[:order]) do
+      {
+        'published_at' => not_equal(nil)
+      }
+    end
+  end
+end
+```
+
+Each action has access to the `resource` via the constructor, the `request`, and the request's `params`. Above, we are defining a simple action for returning books that have a non-`nil` publication date. Like any `Cuprum::Command`, the heart of the class is the `#process` method, which for an action takes the `request` as its sole parameter. Inside the method, we call `super` to setup the action. We then access the configured `resource`, which grants us access to the `collection` of books. Finally, we call the collection's `find_matching` command, with an optional ordering coming from the params.
+
+The `Cuprum::Rails::Actions::ResourceAction` provides some helper methods for defining resourceful actions.
+
+```ruby
+class PublishBook < Cuprum::Rails::Actions::ResourceAction
+  private
+
+  def process(request)
+    book_id = step { resource_id }
+    book    = step { collection.find_one.call(entity_id: book_id) }
+
+    book.published_at = DateTime.current
+
+    step { collection.validate_one.call(entity: book) }
+
+    step { collection.update_one.call(entity: book) }
+  end
+end
+```
+
+`ResourceAction` delegates `#collection`, `#resource_name`, and `#singular_resource_name` to the `#resource`. In addition, it defines the following helper methods. Each method returns a `Cuprum::Result`, so you can use the `#step` control flow to handle command errors.
+
+- `#resource_id`: Wraps `params[:id]` in a result, or returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
+- `#resource_params`: Wraps `params[singular_resource_name]` and filters them using `resource.permitted_attributes`. Returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error if the resource params are missing, or with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error if the resource does not define permitted attributes.
+
+`Cuprum::Rails` also provides some pre-defined actions to implement classic resourceful controllers. Each resource action calls one or more commands from the resource collection to query or persist the record or records.
+
+#### Create
+
+The `Create` action passes the resource params to `collection.build_one`, validates the record using `collection.validate_one`, and finally inserts the new record into the collection using the `collection.insert_one` command. The action returns a Hash containing the created record.
+
+```ruby
+action     = Cuprum::Rails::Actions::Create.new(resource)
+attributes = { 'book' => { 'title' => 'Gideon the Ninth' } }
+result     = action.call(request)
+result.success?
+#=> true
+result.value
+#=> { 'book' => #<Book title: 'Gideon the Ninth'> }
+
+Book.where(title: 'Gideon the Ninth').exist?
+#=> true
+```
+
+If the created record is not valid, the action returns a failing result with a `Cuprum::Collections::Errors::FailedValidation` error.
+
+If the params do not include attributes for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
+
+If the permitted attributes are not defined for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error.
+
+#### Destroy
+
+The `Destroy` action removes the record from the collection via `collection.destroy_one`. The action returns a Hash containing the deleted record.
+
+```ruby
+action     = Cuprum::Rails::Actions::Destroy.new(resource)
+attributes = { 'id' => 0 }
+result     = action.call(request)
+result.success?
+#=> true
+result.value
+#=> { 'book' => #<Book id: 0> }
+
+Book.where(id: 0).exist?
+#=> false
+```
+
+If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
+
+#### Edit
+
+The `Edit` action finds the record with the given primary key via `collection.find_one` and returns a Hash containing the found record.
+
+```ruby
+action     = Cuprum::Rails::Actions::Edit.new(resource)
+attributes = { 'id' => 0 }
+result     = action.call(request)
+result.success?
+#=> true
+result.value
+#=> { 'book' => #<Book id: 0> }
+```
+
+If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
+
+#### Index
+
+The `Index` action performs a query on the records using `collection.find_matching`, and returns a Hash containing the found records. You can pass `:limit`, `:offset`, `:order`, and `:where` parameters to filter the results.
+
+```ruby
+action     = Cuprum::Rails::Actions::Index.new(resource)
+attributes = {
+  'limit' => 3,
+  'order' => { 'title' => :asc },
+  'where' => { 'author' => 'Ursula K. LeGuin' }
+}
+result     = action.call(request)
+result.success?
+#=> true
+result.value
+#=> { 'books' => [#<Book>, #<Book>, #<Book>] }
+```
+
+#### New
+
+The `New` action builds a new record with empty attributes using `collection.build_one`, and returns a Hash containing the new record.
+
+```ruby
+action = Cuprum::Rails::Actions::New.new(resource)
+result = action.call(request)
+result.success?
+#=> true
+result.value
+#=> { 'book' => #<Book> }
+```
+
+#### Show
+
+The `Show` action finds the record with the given primary key via `collection.find_one` and returns a Hash containing the found record.
+
+```ruby
+action     = Cuprum::Rails::Actions::Show.new(resource)
+attributes = { 'id' => 0 }
+result     = action.call(request)
+result.success?
+#=> true
+result.value
+#=> { 'book' => #<Book id: 0> }
+```
+
+If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
+
+#### Update
+
+The `Update` action finds the record with the given primary key via `collection.find_one`, assigns the given attributes using `collection.assign_one`, validates the record using `collection.validate_one`, and finally updates the record in the collection using the `collection.update_one` command. The action returns a Hash containing the created record.
+
+```ruby
+action     = Cuprum::Rails::Actions::Update.new(resource)
+attributes = { 'id' => 0, 'book' => { 'title' => 'Gideon the Ninth' } }
+result     = action.call(request)
+result.success?
+#=> true
+result.value
+#=> { 'book' => #<Book id: 0, title: 'Gideon the Ninth'> }
+
+Book.find(0).title
+#=> 'Gideon the Ninth'
+```
+
+If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
+
+If the updated record is not valid, the action returns a failing result with a `Cuprum::Collections::Errors::FailedValidation` error.
+
+If the params do not include attributes for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
+
+If the permitted attributes are not defined for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error.
 
 <a id="resources"></a>
 

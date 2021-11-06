@@ -12,7 +12,10 @@ Implemented `Cuprum::Rails::Repository`.
 
 #### Commands
 
-- Implemented `Cuprum::Rails::Command`.
+Implemented `Cuprum::Rails::Command`.
+
+Implemented Rails collection commands:
+
 - Implemented `Cuprum::Rails::Commands::AssignOne`.
 - Implemented `Cuprum::Rails::Commands::BuildOne`.
 - Implemented `Cuprum::Rails::Commands::DestroyOne`.
@@ -30,3 +33,19 @@ Implemented `Cuprum::Rails::Controller`.
 Implemented `Cuprum::Rails::ControllerAction`.
 
 Implemented `Cuprum::Rails::Controllers::Configuration`.
+
+#### Actions
+
+Implemented `Cuprum::Rails::Action`.
+
+Implemented `Cuprum::Rails::Actions::ResourceAction`.
+
+Implemented resourceful actions:
+
+- Implemented `Cuprum::Rails::Actions::Create`.
+- Implemented `Cuprum::Rails::Actions::Destroy`.
+- Implemented `Cuprum::Rails::Actions::Edit`.
+- Implemented `Cuprum::Rails::Actions::Index`.
+- Implemented `Cuprum::Rails::Actions::New`.
+- Implemented `Cuprum::Rails::Actions::Show`.
+- Implemented `Cuprum::Rails::Actions::Update`.

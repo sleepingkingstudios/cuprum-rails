@@ -1,77 +1,28 @@
 # Development
 
-## Action
+## Actions
 
-### Resourceful Actions
+- Remove ActionController::Parameters reference in Cuprum::Rails::Action.
 
-- create
-- destroy
-- edit
-- index
-- new
-- show
-- update
+## Controllers
 
-## Controller
+- Different cases for controllers.
+  - Singular resource (e.g. /user => UsersController)
+  - Plural resource (e.g. /books => BooksController)
+  - Non-resourceful controllers (e.g. / => HomeController)
+  - Nested resources (e.g. /user/profile => UserProfilesController, /books/:id/chapters => ChaptersController)
+  - Stateful resources (e.g. /rockets/:id => RocketsController, assemble, fuel, launch, recover)
 
-### DSL
+## Requests
 
-```ruby
-class ExampleController
-  # Pass the result to the default responder.
-  action :create, Example::Actions::Create
+- Convert parameters to a Hash with String keys.
 
-  # Handle custom responses.
-  action :custom, Example::Actions::Custom do |result|
-    CustomResponder.call(resource: resource, result: result)
-  end
-end
-```
+## Resources
 
-## Resource
+- Passing additional collections, e.g. "load a resource and associations"
+  - Define Resource#repository?
 
-- base_url
-- collection
-- default_order
-- permitted_attributes
-- plural?
-- plural_resource_name
-- resource_class
-- resource_name
-- routes (an instance of Routes, below)
-- scope
-  - defaults to {}
-  - for nested resources, primary_keys
-    e.g. { project_id: value }
-- singular?
-- singular_resource_name
+## Responders
 
-### Routes
-
-- edit_path(resource)
-- index_path
-- new_path
-- show_path(resource)
-
-Curries scoped resources:
-  project_tasks_path(project) => tasks(project).routes.index_path
-
-### SingularRoutes
-
-### PluralRoutes
-
-## Responder
-
-- on failure, determine status code
-- only display whitelisted errors in response
-
-### HtmlResponder
-
-- generic collection action
-  - on success, assign data.keys and render action
-  - on failure, redirect to parent_scope (defaults to root)
-- generic member action
-  - on success, assign data.keys and render action
-  - on failure, redirect to collection scope
-
-### JsonResponder
+- Condense Html::PluralResource and Html::SingularResource ?
+  - Check Responder#member_action? in relevant match blocks
