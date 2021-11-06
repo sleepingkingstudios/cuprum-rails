@@ -406,26 +406,146 @@ repository['books']
 
 ### Controllers
 
+```ruby
+require 'cuprum/rails/controller'
+```
+
+> **Important Note**
+>
+> `Cuprum::Rails` is a pre-release gem, and there may be breaking changes between minor versions and until the API is finalized by version 1.0.0. The `Controller` API is particularly likely to experience changes as additional use cases are discovered and supported.
+
+The Rails approach to controllers is to embrace Convention over Configuration. `Cuprum::Rails::Controller` inverts this pattern, using configuration to precisely define behavior.
+
+```ruby
+class BooksController
+  include Cuprum::Rails::Controller
+
+  def self.resource
+    @resource ||= Cuprum::Rails::Resource.new(
+      collection:           Cuprum::Rails::Collection.new(record_class: Book),
+      permitted_attributes: %i[title author series category published_at],
+      resource_class:       Book
+    )
+  end
+
+  def self.serializers
+    serializers       = super()
+    json              = serializers.fetch(:json, {})
+    record_serializer =
+      Cuprum::Rails::Serializers::Json::ActiveRecordSerializer.instance
+
+    serializers.merge(
+      json: json.merge(ActiveRecord::Base => record_serializer)
+    )
+  end
+
+  responder :html, Cuprum::Rails::Responders::Html::PluralResource
+  responder :json, Cuprum::Rails::Responders::Json::Resource
+
+  action :create,  Cuprum::Rails::Actions::Create
+  action :destroy, Cuprum::Rails::Actions::Destroy, member: true
+  action :edit,    Cuprum::Rails::Actions::Edit,    member: true
+  action :new,     Cuprum::Rails::Actions::New
+  action :index,   Cuprum::Rails::Actions::Index
+  action :show,    Cuprum::Rails::Actions::Show,    member: true
+  action :update,  Cuprum::Rails::Actions::Update,  member: true
+end
+```
+
+Here, we are defining a typical Rails resourceful controller, which implements the CRUD actions for `Book`s and responds to HTML and JSON requests. As you can see, `Cuprum::Rails::Controller` is a mix of [Actions](#actions) and configuration (the [Resource](#resources), [Responders](#responders), and [Serializers](#serializers)). In a full application, some of that configuration (the responders and serializers) could be handled in an abstract base controller, such as an `APIController` that defined a JSON responder and serializers. Note also that the *implementation* of the actions happens elsewhere - the controller references existing commands to define the actions.
+
+#### Configuring Controllers
+
+Each controller has three main points of configuration: a `Resource`, a set of `Responders`, and a set of `Serializers`.
+
+The [Resource](#resources) provides some metadata about the controller, such as a `#resource_name`, a set of `#routes`, and whether the controller represents a singular or a plural resource. Generally speaking, each controller should have a unique resource, which is defined by overriding the `.resource` class method.
+
+The [Responders](#responders) determine what request formats are accepted by the controller and how the corresponding responses are generated. Responders can and should be shared between controllers, and are defined using the `.responder` class method. `.responder` takes two parameters: a `format`, which should be either a string or a symbol (e.g. `:json`) and a `responder_class`, which will be used to generate responses for the specified format.
+
+The [Serializers](#serializers) are used in API responses (such as a JSON response) to convert application data into a serialized format. `Cuprum::Rails` defines a base set of serializers for simple data; applications can either set a generic serializer for records (as in `BooksController`, above) or set specific serializers for each record class on a per-controller basis. Serializers are defined by overriding the `.serializers` class method - make sure to call `super()` and merge the results, unless you specifically want to override the default values.
+
+#### Defining Actions
+
+A non-abstract controller should define at least one [Action](#actions), corresponding to a page, process, or API endpoint for the application. Actions are defined using the `.action` class method, which takes two parameters: an `action_name`, which should be either a string or a symbol (e.g. `:publish`), and an `action_class`, which is a subclass of `Cuprum::Rails::Action`.
+
+```ruby
+class BooksController
+  action :published, Actions::Books::Published
+end
+```
+
+In addition, `.action` accepts the following keywords:
+
+- `:member`: If `true`, the action is a member action and acts on a member of the collection, rather than the collection as a whole. In a classic controller, the `:edit`, `:destroy`, `:show`, and `:update` actions are member actions.
+
+```ruby
+class BooksController
+  action :publish, Actions::Books::Publish, member: true
+end
+```
+
+#### The Action Lifecycle
+
+Inside a controller action, `Cuprum::Rails` splits up the responsibilities of responding to a request.
+
+1. The Action
+    1. The `action_class` is initialized, passing the controller `resource` to the constructor and returning the `action`.
+    2. The controller `#request` is wrapped in a `Cuprum::Rails::Request`, which is passed to the `action`'s `#call` method, returning the `result`.
+2. The Responder
+    1. The `responder_class` is found for the request based on the request's `format` and the configured `responders`.
+    2. The `responder_class` is initialized with the `action_name`, `resource`, and `serializers`, returning the `responder`.
+    3. The `responder` is called with the action `result`, and finds a matching `response` based on the action name, the result's success or failure, and the result error (if any).
+3. The Response
+    1. The `response` is then called with the controller, which allows it to reference native Rails controller methods for rendering or redirecting.
+
+Let's walk through this step by step. We start by making a `POST` request to `/books`, which corresponds to the `BooksController#create` endpoint with parameters `{ book: { title: 'Gideon the Ninth' } }`.
+
+1. The Action
+    1. We initialize our configured action class, which is `Cuprum::Rails::Actions::Index`.
+    2. We wrap the request in a `Cuprum::Rails::Request`, and call our `action` with the wrapped `request`. The action performs the business logic (building, validating, and persisting a new `Book`) and returns an instance of `Cuprum::Result`. In our case, the book's attributes are valid, so the result has a `:status` of `:success` and a value of `{ 'book' => #<Book id: 0, title: 'Gideon the Ninth'> }`.
+2. The Responder
+    1. We're making an HTML request, so our controller will use the responder configured for the `:html` format. In our case, this is `Cuprum::Rails::Responders::Html::PluralResource`, which defines default behavior for responding to resourceful requests.
+    2. Our `Responders::Html::PluralResource` is initialized, giving us a `responder`.
+    3. The `responder` is called with our `result`. There is a match for a successful `:create` action, which returns an instance of `Cuprum::Rails::Responses::Html::RedirectResponse` with a `path` of `/books/0`.
+3. The Response
+    1. Finally, our `response` object is called. The `RedirectResponse` directs the controller to redirect to `/books/0`, which is the `:show` page for our newly created `Book`.
+
 <a id="actions"></a>
 
-#### Actions
+### Actions
+
+@todo
 
 <a id="resources"></a>
 
-#### Requests
+### Requests
+
+@todo
 
 <a id="requests"></a>
 
-#### Resources
+### Resources
+
+@todo
+
+#### Routes
+
+@todo
 
 <a id="responders"></a>
 
-#### Responders
+### Responders
+
+@todo
 
 <a id="responses"></a>
 
-##### Responses
+#### Responses
+
+@todo
 
 <a id="serializers"></a>
 
-#### Serializers
+### Serializers
+
+@todo

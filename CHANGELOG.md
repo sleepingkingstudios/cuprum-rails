@@ -12,6 +12,7 @@ Implemented `Cuprum::Rails::Repository`.
 
 #### Commands
 
+- Implemented `Cuprum::Rails::Command`.
 - Implemented `Cuprum::Rails::Commands::AssignOne`.
 - Implemented `Cuprum::Rails::Commands::BuildOne`.
 - Implemented `Cuprum::Rails::Commands::DestroyOne`.
@@ -21,3 +22,11 @@ Implemented `Cuprum::Rails::Repository`.
 - Implemented `Cuprum::Rails::Commands::InsertOne`.
 - Implemented `Cuprum::Rails::Commands::UpdateOne`.
 - Implemented `Cuprum::Rails::Commands::ValidateOne`.
+
+### Controllers
+
+Implemented `Cuprum::Rails::Controller`.
+
+Implemented `Cuprum::Rails::ControllerAction`.
+
+Implemented `Cuprum::Rails::Controllers::Configuration`.
