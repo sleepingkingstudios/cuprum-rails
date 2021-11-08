@@ -49,3 +49,7 @@ Implemented resourceful actions:
 - Implemented `Cuprum::Rails::Actions::New`.
 - Implemented `Cuprum::Rails::Actions::Show`.
 - Implemented `Cuprum::Rails::Actions::Update`.
+
+#### Requests
+
+Implemented `Cuprum::Rails::Request`.

@@ -8,7 +8,7 @@ Cuprum::Rails defines the following objects:
     - [Commands](#commands): Each collection is comprised of `Cuprum` commands, which implement common collection operations such as inserting or querying data.
 - [Controllers](#controllers): Decouples controller responsibilities for precise control, reusability, and reduction of boilerplate code.
     - [Actions](#actions): Implement a controller's actions as a `Cuprum` command.
-    - [Requests](#requests): @todo
+    - [Requests](#requests): Encapsulates a controller request.
     - [Resources](#resources): @todo
     - [Responders](#responders) and [Responses](#responses): @todo
     - [Serializers](#serializers): @todo
@@ -484,6 +484,8 @@ class BooksController
 end
 ```
 
+<a id="controllers-action-lifecycle"></a>
+
 #### The Action Lifecycle
 
 Inside a controller action, `Cuprum::Rails` splits up the responsibilities of responding to a request.
@@ -694,13 +696,28 @@ If the params do not include attributes for the resource, the action returns a f
 
 If the permitted attributes are not defined for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error.
 
-<a id="resources"></a>
+<a id="requests"></a>
 
 ### Requests
 
-@todo
+```ruby
+require 'cuprum/rails/request'
+```
 
-<a id="requests"></a>
+A `Cuprum::Rails::Request` is a value object that encapsulates the details of a controller request, such as the request `format`, the `headers`, and the `parameters`. Generally speaking, users should not instantiate requests directly; they are used as part of the [Controller action lifecycle](#controllers-action-lifecycle).
+
+Each request defines the following properties:
+
+- `#authorization`: The value of the `"AUTHORIZATION"` header, if any, as a `String`.
+- `#body_parameters`: (also `#body_params`) The parameters derived from the request body, such as a JSON payload or form data. A `Hash` with `String` keys.
+- `#format`: The format of the request as a `Symbol`, e.g. `:html` or `:json`.
+- `#headers`: The request headers, as a `Hash` with `String` keys.
+- `#method`: The HTTP method used for the request as a `Symbol`, e.g. `:get` or `:post`.
+- `#parameters`: (also `#params`) The complete parameters for the request, including both params from the request body and from the query string. A `Hash` with `String` keys.
+- `#path`: The relative path of the request, including query params.
+- `#query_parameters`: (also `#query_params`) The query parameters for the request. A `Hash` with `String` keys.
+
+<a id="resources"></a>
 
 ### Resources
 
