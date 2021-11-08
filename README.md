@@ -9,7 +9,7 @@ Cuprum::Rails defines the following objects:
 - [Controllers](#controllers): Decouples controller responsibilities for precise control, reusability, and reduction of boilerplate code.
     - [Actions](#actions): Implement a controller's actions as a `Cuprum` command.
     - [Requests](#requests): Encapsulates a controller request.
-    - [Resources](#resources): @todo
+    - [Resources](#resources): Configuration for a resourceful controller.
     - [Responders](#responders) and [Responses](#responses): @todo
     - [Serializers](#serializers): @todo
 
@@ -721,7 +721,28 @@ Each request defines the following properties:
 
 ### Resources
 
-@todo
+```ruby
+require 'cuprum/rails/resource'
+```
+
+A `Cuprum::Rails::Resource` defines the configuration for a resourceful controller.
+
+```ruby
+resource = Cuprum::Rails::Resource.new(
+  collection:     Cuprum::Rails::Collection.new(record_class: Book),
+  resource_class: Book
+)
+resource.resource_name
+#=> 'books'
+```
+
+A resource must be initialized with either a `resource_class` or a `resource_name`. It defines the following properties:
+
+- `#collection`: A `Cuprum::Collections` collection, used to perform queries and persistence operations on the resource data.
+- `#resource_class`: The `Class` of items in the resource.
+- `#resource_name`: The name of the resource as a `String`. If the resource is initialized with a `resource_class`, the `resource_name` is derived from the given class.
+- `#routes`: A [Cuprum::Rails::Routes](#routes) object for the resource. If not given, a default routes object is generated for the resource.
+- `#singular`: If true, the resource is a singular resource (e.g. `/user`, as opposed to the plural `/books` resource). Also defines the `#singular?` and `#plural` predicates.
 
 #### Routes
 

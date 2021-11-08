@@ -53,3 +53,7 @@ Implemented resourceful actions:
 #### Requests
 
 Implemented `Cuprum::Rails::Request`.
+
+#### Resources
+
+Implemented `Cuprum::Rails::Resource`.
