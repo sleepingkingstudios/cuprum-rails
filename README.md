@@ -9,7 +9,7 @@ Cuprum::Rails defines the following objects:
 - [Controllers](#controllers): Decouples controller responsibilities for precise control, reusability, and reduction of boilerplate code.
     - [Actions](#actions): Implement a controller's actions as a `Cuprum` command.
     - [Requests](#requests): Encapsulates a controller request.
-    - [Resources](#resources): Configuration for a resourceful controller.
+    - [Resources](#resources) and [Routes](#routes): Configuration for a resourceful controller.
     - [Responders](#responders) and [Responses](#responses): @todo
     - [Serializers](#serializers): @todo
 
@@ -744,9 +744,64 @@ A resource must be initialized with either a `resource_class` or a `resource_nam
 - `#routes`: A [Cuprum::Rails::Routes](#routes) object for the resource. If not given, a default routes object is generated for the resource.
 - `#singular`: If true, the resource is a singular resource (e.g. `/user`, as opposed to the plural `/books` resource). Also defines the `#singular?` and `#plural` predicates.
 
+<a id="routes"></a>
+
 #### Routes
 
-@todo
+Each resource has a `Cuprum::Rails::Routes` object that represents the routes implemented for the controller. The routes are typically used in responders when generating the controller response (see [Responders](#responders), below).
+
+```ruby
+routes = Cuprum::Rails::Routes.new(base_path: '/books') do
+  route :published, 'published'
+  route :publish,   ':id/publish'
+end
+routes.published_path
+#=> '/books/published'
+```
+
+Some routes include **wildcards**, such as the `:publish` route above which requires an `:id` wildcard; nested resources will require a wildcard value (the parent resource id) for all resourceful routes. Wildcards are assigned using the `#with_wildcards` method, which creates a copy of the routes object with the assigned wildcards.
+
+```ruby
+routes.publish_path
+#=> raises a Cuprum::Rails::Routes::MissingWildcardError exception
+routes.with_wildcards(id: 0).publish_path
+#=> /books/0/publish
+```
+
+`Cuprum::Rails` defines templates for defining resourceful routes for both singular and plural resources.  These define the standard CRUD operations for a resource.
+
+```ruby
+routes = Cuprum::Rails::Routing::PluralRoutes.new(base_path: '/books')
+routes = routes.with_wildcards(id: 0)
+routes.create_path
+#=> '/books'
+routes.destroy_path
+#=> '/books'
+routes.edit_path
+#=> '/books/0/edit'
+routes.index_path
+#=> '/books'
+routes.new_path
+#=> '/books/new'
+routes.show_path
+#=> '/books/0'
+routes.update_path
+#=> '/books/0'
+
+routes = Cuprum::Rails::Routing::SingularRoutes.new(base_path: '/book')
+routes.create_path
+#=> '/book'
+routes.destroy_path
+#=> '/book'
+routes.edit_path
+#=> '/book/edit'
+routes.new_path
+#=> '/book/new'
+routes.show_path
+#=> '/book'
+routes.update_path
+#=> '/book'
+```
 
 <a id="responders"></a>
 

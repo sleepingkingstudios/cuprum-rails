@@ -57,3 +57,12 @@ Implemented `Cuprum::Rails::Request`.
 #### Resources
 
 Implemented `Cuprum::Rails::Resource`.
+
+#### Routes
+
+Implemented `Cuprum::Rails::Routes`.
+
+Implemented resourceful routes:
+
+- Implemented `Cuprum::Rails::Routing::PluralRoutes`.
+- Implemented `Cuprum::Rails::Routing::SingularRoutes`.
