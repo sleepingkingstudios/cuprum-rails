@@ -58,6 +58,16 @@ Implemented `Cuprum::Rails::Request`.
 
 Implemented `Cuprum::Rails::Resource`.
 
+#### Responders
+
+Implemented responders:
+
+- Implemented `Cuprum::Rails::Responders::HtmlResponder`.
+- Implemented `Cuprum::Rails::Responders::Html::PluralResource`.
+- Implemented `Cuprum::Rails::Responders::Html::SingularResource`.
+- Implemented `Cuprum::Rails::Responders::JsonResponder`.
+- Implemented `Cuprum::Rails::Responders::Json::Resource`.
+
 #### Routes
 
 Implemented `Cuprum::Rails::Routes`.

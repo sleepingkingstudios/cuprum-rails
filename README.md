@@ -807,11 +807,91 @@ routes.update_path
 
 ### Responders
 
-@todo
+In a `Cuprum::Rails` controller, the responder is responsible for turning the action result into a response (see [The Action Lifecycle](#controllers-action-lifecycle), above). Each request format should have a dedicated responder, e.g. an `HtmlResponder` is used to respond to HTML requests.
+
+```ruby
+class CustomResponder < Cuprum::Rails::Responders::HtmlResponder
+  action :publish do
+    match :success do
+      redirect_to(resource.routes.show_path)
+    end
+
+    match :failure do
+      render 'show'
+    end
+  end
+
+  match :failure, error: Authorization::NotAuthorizedError do
+    redirect_to(login_path)
+  end
+
+  private
+
+  def login_path
+    '/login'
+  end
+end
+```
+
+First, we are using the `.action` class method to define responses for the `:publish` action. If the result is successful, it redirects to the `:show` page. If the result is failing, it instead renders the `:show` page and assigns the error (if any) to `@error`. Next, we are using the `.match` class method to define a response for a failing result with an `Authorization::NotAuthorizedError`.
+
+A result will be matched to a response in order of specificity:
+
+- An `.action` clause with a matching `error:` (if any).
+- A generic `.match` clause with a matching `error:`.
+- An `.action` clause with a matching status, either `:success` or `:failure`.
+- A generic `.match` clause with a matching status.
+
+In our case, consider a `:publish` request that fails with an `Authorization::NotAuthorizedError`. The responder will first check for a clause matching both the action and the error. It will then check for a generic action response with the error, which the `.match` clause we defined. If the request failed with a different error, the responder would not find a match for the error, and would fall back to the generic `:failure` clause for the action. Finally, if there was no `.action` clause for the action, or the clause did not specify a `:failure` clause, it would perform the generic `:failure` clause for any action.
+
+`Cuprum::Rails` also defines the following built-in responders:
+
+**Cuprum::Rails::Responders::HtmlResponder**
+
+Provides default responses for HTML requests.
+
+- For a successful result, renders the template for the action and assigns the result value as local variables.
+- For a failing result, redirects to the resource `:index` page (for a collection action) or the resource `:show` page (for a member action).
+
+**Cuprum::Rails::Responders::Html::PluralResource**
+
+Provides some additional response handling for plural resources.
+
+- For a failed `#create` result, renders the `:new` template.
+- For a successful `#create` result, redirects to the `:show` page.
+- For a successful `#destroy` result, redirects to the `:show` page.
+- For a failed `#index` result, redirects to the root page.
+- For a failed `#update` result, renders the `:edit` template.
+- For a successful `#update` result, redirects to the `:show` page.
+
+**Cuprum::Rails::Responders::Html::SingularResource**
+
+Provides some additional response handling for singular resources.
+
+- For a failed `#create` result, renders the `:new` template.
+- For a successful `#create` result, redirects to the `:show` page.
+- For a successful `#destroy` result, redirects to the parent resource.
+- For a failed `#update` result, renders the `:edit` template.
+- For a successful `#update` result, redirects to the `:show` page.
+
+**Cuprum::Rails::Responders::JsonResponder**
+
+Provides default responses for JSON requests.
+
+- For a successful result, serializes the result value and generates a JSON object of the form `{ ok: true, data: serialized_value }`.
+- For a failing result, creates and serializes a generic error and generates a JSON object of the form `{ ok: false, error: serialized_error }` and a status of `500 Internal Server Error`.
+
+**Cuprum::Rails::Responders::Json::Resource**
+
+- For a successful `#create` result, serializes the result value with a status of `201 Created`.
+- For a failed result with an `AlreadyExists` error, serializes the error with a status of `422 Unprocessable Entity`.
+- For a failed result with a `FailedValidation` error, serializes the error with a status of `422 Unprocessable Entity`.
+- For a failed result with a `MissingParameters` error, serializes the error with a status of `400 Bad Request`.
+- For a failed result with a `NotFound` error, serializes the error with a status of `404 Not Found`.
 
 <a id="responses"></a>
 
-#### Responses
+### Responses
 
 @todo
 

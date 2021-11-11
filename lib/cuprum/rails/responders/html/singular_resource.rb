@@ -12,7 +12,7 @@ module Cuprum::Rails::Responders::Html
   # - #create success: redirects to the resource #show page.
   # - #destroy success: redirects to the parent resource.
   # - #update failure: renders the :edit template.
-  # - #update success: redirects to the parent resource.
+  # - #update success: redirects to the resource #show page.
   #
   # Responds to any other successful result by rendering the template for the
   # action name and passing the result value as assigned variables. For a
