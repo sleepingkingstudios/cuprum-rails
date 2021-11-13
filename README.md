@@ -11,7 +11,7 @@ Cuprum::Rails defines the following objects:
     - [Requests](#requests): Encapsulates a controller request.
     - [Resources](#resources) and [Routes](#routes): Configuration for a resourceful controller.
     - [Responders](#responders) and [Responses](#responses): Generate controller responses from action results.
-    - [Serializers](#serializers): @todo
+    - [Serializers](#serializers): Recursively convert entities and data structures into serialized data.
 
 ## About
 
@@ -930,4 +930,116 @@ A response for a JSON request. Takes the serialized `:data` to return as well as
 
 ### Serializers
 
-@todo
+Serializers convert entities and data structures into serialized data. Each serializer is specific to one format and one type of object - for example, the `Cuprum::Rails::Serializers::Json::ErrorSerializer` generates a JSON representation of a `Cuprum::Error`.
+
+Serializers are also recursive: the `#call` method must accept a `:serializers` keyword, which contains the serializer mappings for the current controller or context. This allows serialization to be context-specific - one controller may use one serializer for a particular record class, while another controller may use a limited set of attributes, such as an admin versus a user-facing controller.
+
+```ruby
+class StructSerializer < Cuprum::Rails::Serializers::JsonSerializer
+  def call(struct, serializers:)
+    struct.each_pair.with_object do |(key, value), hsh|
+      hsh[key] = super(value, serializers: serializers)
+    end
+  end
+end
+
+serializer = StructSerializer.new
+struct     =
+  Struct
+  .new(:series, :author, :titles)
+  .new('The Locked Tomb', 'Tamsyn Muir', ['Gideon the Ninth', 'Harrow the Ninth'])
+serializer.call(struct, serializers: Cuprum::Rails::Serializers::Json.default_serializers)
+#=> {
+#     'series' => 'The Locked Tomb',
+#     'author' => 'Tamsyn Muir',
+#     'titles' => ['Gideon the Ninth', 'Harrow the Ninth']
+#   }
+```
+
+Above, we define a custom serializer for serializing `Struct` instances. We then use the serializer on our Book-like struct by passing it to the `#call` method, along with the default JSON serializers. The `#call` method takes each pair of keys and values and calls `super()`, which finds the configured serializer for each value. In our case, the default serializer for a `String` returns the string, while the default serializer for an `Array` returns a new array whose items are the serialized array items. Finally, a `Hash` with `String` keys is generated, which is our `Struct` serialized into a JSON-compatible object.
+
+`Cuprum::Rails` defines the following serializers:
+
+**Cuprum::Rails::Serializers::Json::Serializer**
+
+The base class for JSON serializers. Takes a configured `serializers:` hash and finds the serializer for the given object, then calls that serializer with the object and the configured serializers.
+
+The serializer for an object is determined based on the object's class. Specifically, for each ancestor of the object's class, the configured serializers are checked for a key matching that ancestor. If that class or module is a key in the configured hash, then the corresponding serializer is used to serialize the object. If the configured serializers do not include a serializer for any of the object class's ancestors, raises an `UndefinedSerializerError`.
+
+**Cuprum::Rails::Serializers::Json::AttributesSerializer**
+
+Serializes an object by finding and calling the configured serializer (see above) for each attribute defined for the serializer. See [Attribute Serializers](#attribute-serializers) below.
+
+**Cuprum::Rails::Serializers::Json::ActiveRecordSerializer**
+
+Serializes an `ActiveRecord` model by delegating to the `#as_json` method. An alternative to defining a specific `AttributeSerializer` (see above) for each model class.
+
+**Cuprum::Rails::Serializers::Json::ArraySerializer**
+
+Serializes an `Array` by finding and calling the configured serializer for each array item (see above). This is the default serializer for `Array`s.
+
+**Cuprum::Rails::Serializers::Json::ErrorSerializer**
+
+Serializes a `Cuprum::Error` by delegating to the `#as_json` method. This is the default serializer for errors.
+
+**Cuprum::Rails::Serializers::Json::HashSerializer**
+
+Serializes a `Hash` with `String` keys by finding and calling the configured serializer for each hash value (see above). This is the default serializer for `Hash`es.
+
+**Cuprum::Rails::Serializers::Json::IdentitySerializer**
+
+Serializes a value object by returning the object. This is the default serializer for `nil`, `true`, `false`, `Integer`s, `Float`s, and `String`s.
+
+<a id="attribute-serializers"></a>
+
+#### Attribute Serializers
+
+Attribute serializers define a set of attributes to be serialized. This is useful for whitelisting a specific set of attributes to return in the serialized object.
+
+```ruby
+class RecordSerializer < Cuprum::Rails::Serializers::Json::AttributesSerializer
+  attribute :id
+end
+
+class BookSerializer < RecordSerializer
+  attribute :title
+  attribute :author
+  attribute :series
+end
+
+class DetailedBookSerializer < BookSerializer
+  attribute :category
+  attribute :published_at
+end
+
+serializers = Cuprum::Rails::Serializers::Json.default_serializers
+book        = Book.new(
+  id:       0,
+  title:    'Nona The Ninth',
+  author:   'Tamsyn Muir',
+  series:   'The Locked Tomb',
+  category: 'Science Fiction and Fantasy',
+)
+
+BookSerializer.new.call(book, serializers: serializers)
+#=> {
+#     'id'     => 0,
+#     'title'  => 'Nona The Ninth',
+#     'author' => 'Tamsyn Muir',
+#     'series' => 'The Locked Tombs'
+#   }
+
+DetailedBookSerializer.new.call(book, serializers: serializers)
+#=> {
+#     'id'           => 0,
+#     'title'        => 'Nona The Ninth',
+#     'author'       => 'Tamsyn Muir',
+#     'series'       => 'The Locked Tombs',
+#     'category'     => 'Science Fiction and Fantasy',
+#     'published_at' => nil
+#   }
+```
+
+Above, we define an abstract `RecordSerializer` and a `BookSerializer`, which inherits the `:id` attribute and defines the `:title`, `:author`, and `:series` attributes. When the book serializer is called, it serializes the values of each attribute using the configured serializers; any attributes that are not defined on the serializer are ignored.
+
+We also define a `DetailedBookSerializer` which inherits from `BookSerializer`. This allows us to reuse the attributes defined for our basic book serializer.

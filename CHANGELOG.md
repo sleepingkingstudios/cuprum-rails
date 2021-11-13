@@ -84,3 +84,15 @@ Implemented resourceful routes:
 
 - `Cuprum::Rails::Routing::PluralRoutes`.
 - `Cuprum::Rails::Routing::SingularRoutes`.
+
+#### Serializers
+
+Implemented JSON serializers:
+
+- `Cuprum::Rails::Serializers::Json::ActiveRecordSerializer`.
+- `Cuprum::Rails::Serializers::Json::ArraySerializer`.
+- `Cuprum::Rails::Serializers::Json::AttributesSerializer`.
+- `Cuprum::Rails::Serializers::Json::ErrorSerializer`.
+- `Cuprum::Rails::Serializers::Json::HashSerializer`.
+- `Cuprum::Rails::Serializers::Json::IdentitySerializer`.
+- `Cuprum::Rails::Serializers::Json::Serializer`.
