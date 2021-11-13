@@ -16,15 +16,15 @@ Implemented `Cuprum::Rails::Command`.
 
 Implemented Rails collection commands:
 
-- Implemented `Cuprum::Rails::Commands::AssignOne`.
-- Implemented `Cuprum::Rails::Commands::BuildOne`.
-- Implemented `Cuprum::Rails::Commands::DestroyOne`.
-- Implemented `Cuprum::Rails::Commands::FindMany`.
-- Implemented `Cuprum::Rails::Commands::FindMatching`.
-- Implemented `Cuprum::Rails::Commands::FindOne`.
-- Implemented `Cuprum::Rails::Commands::InsertOne`.
-- Implemented `Cuprum::Rails::Commands::UpdateOne`.
-- Implemented `Cuprum::Rails::Commands::ValidateOne`.
+- `Cuprum::Rails::Commands::AssignOne`.
+- `Cuprum::Rails::Commands::BuildOne`.
+- `Cuprum::Rails::Commands::DestroyOne`.
+- `Cuprum::Rails::Commands::FindMany`.
+- `Cuprum::Rails::Commands::FindMatching`.
+- `Cuprum::Rails::Commands::FindOne`.
+- `Cuprum::Rails::Commands::InsertOne`.
+- `Cuprum::Rails::Commands::UpdateOne`.
+- `Cuprum::Rails::Commands::ValidateOne`.
 
 ### Controllers
 
@@ -42,13 +42,13 @@ Implemented `Cuprum::Rails::Actions::ResourceAction`.
 
 Implemented resourceful actions:
 
-- Implemented `Cuprum::Rails::Actions::Create`.
-- Implemented `Cuprum::Rails::Actions::Destroy`.
-- Implemented `Cuprum::Rails::Actions::Edit`.
-- Implemented `Cuprum::Rails::Actions::Index`.
-- Implemented `Cuprum::Rails::Actions::New`.
-- Implemented `Cuprum::Rails::Actions::Show`.
-- Implemented `Cuprum::Rails::Actions::Update`.
+- `Cuprum::Rails::Actions::Create`.
+- `Cuprum::Rails::Actions::Destroy`.
+- `Cuprum::Rails::Actions::Edit`.
+- `Cuprum::Rails::Actions::Index`.
+- `Cuprum::Rails::Actions::New`.
+- `Cuprum::Rails::Actions::Show`.
+- `Cuprum::Rails::Actions::Update`.
 
 #### Requests
 
@@ -62,11 +62,19 @@ Implemented `Cuprum::Rails::Resource`.
 
 Implemented responders:
 
-- Implemented `Cuprum::Rails::Responders::HtmlResponder`.
-- Implemented `Cuprum::Rails::Responders::Html::PluralResource`.
-- Implemented `Cuprum::Rails::Responders::Html::SingularResource`.
-- Implemented `Cuprum::Rails::Responders::JsonResponder`.
-- Implemented `Cuprum::Rails::Responders::Json::Resource`.
+- `Cuprum::Rails::Responders::HtmlResponder`.
+- `Cuprum::Rails::Responders::Html::PluralResource`.
+- `Cuprum::Rails::Responders::Html::SingularResource`.
+- `Cuprum::Rails::Responders::JsonResponder`.
+- `Cuprum::Rails::Responders::Json::Resource`.
+
+#### Responses
+
+Implemented responses:
+
+- `Cuprum::Rails::Responses::Html::RedirectResponse`
+- `Cuprum::Rails::Responses::Html::RenderResponse`
+- `Cuprum::Rails::Responses::JsonResponse`
 
 #### Routes
 
@@ -74,5 +82,5 @@ Implemented `Cuprum::Rails::Routes`.
 
 Implemented resourceful routes:
 
-- Implemented `Cuprum::Rails::Routing::PluralRoutes`.
-- Implemented `Cuprum::Rails::Routing::SingularRoutes`.
+- `Cuprum::Rails::Routing::PluralRoutes`.
+- `Cuprum::Rails::Routing::SingularRoutes`.

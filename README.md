@@ -10,7 +10,7 @@ Cuprum::Rails defines the following objects:
     - [Actions](#actions): Implement a controller's actions as a `Cuprum` command.
     - [Requests](#requests): Encapsulates a controller request.
     - [Resources](#resources) and [Routes](#routes): Configuration for a resourceful controller.
-    - [Responders](#responders) and [Responses](#responses): @todo
+    - [Responders](#responders) and [Responses](#responses): Generate controller responses from action results.
     - [Serializers](#serializers): @todo
 
 ## About
@@ -891,9 +891,40 @@ Provides default responses for JSON requests.
 
 <a id="responses"></a>
 
-### Responses
+#### Responses
 
-@todo
+Response objects implement the final step of [the Action Lifecycle](#controllers-action-lifecycle), and are returned when a [Responder](#responders) is `#call`ed. Each response class implements a specific type of response, such as an HTML redirect or a serialized JSON response, and encapsulates the data necessary to perform that response.
+
+Internally, each response delegates to the `renderer`, which must be passed to the `#call` method. This delegation allows the response to abstract out the details of generating a response to the renderer. During the action lifecycle, the renderer will be the controller instance.
+
+```ruby
+data     = {
+  'ok'   => 'true',
+  'data' => { 'book' => { 'title' => 'Gideon the Ninth' } }
+}
+response = Cuprum::Rails::Responses::JsonResponse.new(data: data)
+renderer = instance_double(ActionController::Base, render: nil)
+
+response.call(renderer)
+expect(renderer).to have_received(:render).with(json: data)
+#=> true
+```
+
+Responses should not be generated directly; they are created as part of the action lifecycle.
+
+`Cuprum::Rails` defines the following responses:
+
+**Cuprum::Rails::Responses::Html::RedirectResponse**
+
+A response for an HTML redirect. Takes the redirect `path` and an optional `:status` keyword, and calls `renderer.redirect_to`.
+
+**Cuprum::Rails::Responses::Html::RenderResponse**
+
+A response for an HTML rendered view. Takes the `template` to render, as well as optional keywords for the `:layout`, the `:status`, and the `:assigns` to assign as local variables. Calls `renderer.render`.
+
+**Cuprum::Rails::Responses::JsonResponse**
+
+A response for a JSON request. Takes the serialized `:data` to return as well as an optional `:status` keyword. Calls `renderer.render` with the `json:` option.
 
 <a id="serializers"></a>
 
