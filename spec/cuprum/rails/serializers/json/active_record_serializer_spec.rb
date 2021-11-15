@@ -57,7 +57,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ActiveRecordSerializer do
         Book.new(
           id:           0,
           title:        'Gideon the Ninth',
-          author:       'Tammsyn Muir',
+          author:       'Tamsyn Muir',
           series:       'The Locked Tomb',
           category:     'Science Fiction & Fantasy',
           published_at: '2019-09-10'
@@ -67,7 +67,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ActiveRecordSerializer do
         {
           'id'           => 0,
           'title'        => 'Gideon the Ninth',
-          'author'       => 'Tammsyn Muir',
+          'author'       => 'Tamsyn Muir',
           'series'       => 'The Locked Tomb',
           'category'     => 'Science Fiction & Fantasy',
           'published_at' => '2019-09-10T00:00:00.000Z'

@@ -52,7 +52,7 @@ RSpec.describe Cuprum::Rails::Action do
       let(:params) do
         {
           'book' => {
-            'title' => 'Tammsyn Muir'
+            'title' => 'Tamsyn Muir'
           },
           'key'  => 'value'
         }

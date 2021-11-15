@@ -55,7 +55,7 @@ RSpec.describe Cuprum::Rails::MapErrors do
       let(:book) do
         Book.new({
           title:  'Gideon the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         })
       end
       let(:errors)          { book.tap(&:valid?).errors }

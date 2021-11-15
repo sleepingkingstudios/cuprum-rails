@@ -50,7 +50,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
     context 'when initialized with assigns: a Hash' do
       let(:assigns) do
         {
-          author: 'Tammsyn Muir',
+          author: 'Tamsyn Muir',
           title:  'Gideon the Ninth'
         }
       end

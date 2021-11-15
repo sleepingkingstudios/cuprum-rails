@@ -68,7 +68,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
       let(:resource_params) do
         {
           title:     'Gideon the Ninth',
-          author:    'Tammsyn Muir',
+          author:    'Tamsyn Muir',
           publisher: 'Tor'
         }
       end
@@ -126,7 +126,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
         {
           uuid:   '00000000-0000-0000-0000-000000000000',
           title:  'Harrow the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         }
       end
       let(:params) { { resource.singular_resource_name => resource_params } }
@@ -142,7 +142,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
         resource_class.create!(
           uuid:   '00000000-0000-0000-0000-000000000000',
           title:  'Gideon the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         )
       end
 
@@ -157,7 +157,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
       let(:resource_params) do
         {
           title:  'Harrow the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         }
       end
       let(:params) { { resource.singular_resource_name => resource_params } }

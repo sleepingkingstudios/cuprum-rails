@@ -34,7 +34,7 @@ RSpec.describe Cuprum::Rails::Commands::ValidateOne do
   let(:valid_default_attributes) do
     {
       title:  'Gideon the Ninth',
-      author: 'Tammsyn Muir'
+      author: 'Tamsyn Muir'
     }
   end
   let(:expected_errors) do

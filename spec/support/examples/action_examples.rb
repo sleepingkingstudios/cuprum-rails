@@ -135,7 +135,7 @@ module Spec::Support::Examples
           let(:expected) do
             {
               'title'  => 'Gideon the Ninth',
-              'author' => 'Tammsyn Muir'
+              'author' => 'Tamsyn Muir'
             }
           end
           let(:params) do

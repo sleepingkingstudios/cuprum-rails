@@ -34,7 +34,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       let!(:record) do
         resource_class.create!(
           title:  'Gideon the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         )
       end
       let(:primary_key_value) { record.id }
@@ -100,7 +100,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       let(:resource_params) do
         {
           title:  'Gideon the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         }
       end
       let(:params) do
@@ -131,7 +131,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       let(:resource_params) do
         {
           title:     'Gideon the Ninth',
-          author:    'Tammsyn Muir',
+          author:    'Tamsyn Muir',
           publisher: 'Tor'
         }
       end
@@ -195,7 +195,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       let(:resource_params) do
         {
           title:  'Harrow the Ninth',
-          author: 'Tammsyn Muir'
+          author: 'Tamsyn Muir'
         }
       end
       let(:expected_value) do

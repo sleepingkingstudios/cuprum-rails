@@ -6,23 +6,18 @@ require 'cuprum/rails/responders/html'
 require 'cuprum/rails/responders/html_responder'
 
 module Cuprum::Rails::Responders::Html
-  # @todo
+  # Defines default responses for a singular RESTful resource.
+  #
+  # - #create failure: renders the :new template.
+  # - #create success: redirects to the resource #show page.
+  # - #destroy success: redirects to the parent resource.
+  # - #update failure: renders the :edit template.
+  # - #update success: redirects to the resource #show page.
+  #
+  # Responds to any other successful result by rendering the template for the
+  # action name and passing the result value as assigned variables. For a
+  # failing result, redirects to the parent resource.
   class SingularResource < Cuprum::Rails::Responders::HtmlResponder
-    # Singular resource actions:
-    # - POST   /book (create)
-    #   - success: redirect to /book
-    #   - failure (Validation): render :new
-    # - DELETE /book (destroy)
-    #   - success: redirect to root resource
-    # - GET    /book/edit (edit)
-    # - GET    /book/new (new)
-    # - GET    /book (show)
-    # - PATCH  /book (update)
-    #   - success: redirect to /book
-    #   - failure (Validation): render :edit
-    #
-    # - generic action
-    #   - failure: entity ? redirect to /book : redirect to root resource
     action :create do
       match :failure, error: Cuprum::Collections::Errors::FailedValidation do
         render :new,
