@@ -27,7 +27,13 @@ RSpec.describe Cuprum::Rails::Repository do
         record_class:    Spec::Periodical
       )
     end
-    let(:collection_names) { %w[books magazines periodicals] }
+    let(:collections) do
+      {
+        'books'       => books_collection,
+        'magazines'   => magazines_collection,
+        'periodicals' => periodicals_collection
+      }
+    end
 
     example_class 'Spec::Magazine',   ActiveRecord::Base
 
