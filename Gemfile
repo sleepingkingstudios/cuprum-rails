@@ -8,6 +8,10 @@ group :development, :test do
   gem 'byebug', '~> 11.0'
 end
 
+gem 'cuprum-collections',
+  branch: 'main',
+  git:    'https://github.com/sleepingkingstudios/cuprum-collections'
+
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
 
 group :rails do
