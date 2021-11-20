@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/serializers/base_serializer'
 require 'cuprum/rails/serializers/json'
-require 'cuprum/rails/serializers/json/serializer'
 
 module Cuprum::Rails::Serializers::Json
   # Converts Hash data structures to JSON based on configured serializers.
-  class HashSerializer < Cuprum::Rails::Serializers::Json::Serializer
+  class HashSerializer < Cuprum::Rails::Serializers::BaseSerializer
     # Converts the hash to JSON using the given serializers.
     #
     # First, #call finds the best serializer from the :serializers Hash for each
@@ -15,30 +15,31 @@ module Cuprum::Rails::Serializers::Json
     # are combined into a new Hash and returned.
     #
     # @param hash [Hash<String, Object>] The hash to convert to JSON.
-    # @param serializers [Hash<Class, #call>] The serializers for different
-    #   object types.
+    # @param context [Cuprum::Rails::Serializers::Context] The serialization
+    #   context, which includes the configured serializers for attributes or
+    #   collection items.
     #
     # @return [Hash] a JSON-compatible representation of the hash.
     #
     # @raise UndefinedSerializerError if there is no matching serializer for
     #   any of the values in the hash.
-    def call(hash, serializers:)
+    def call(hash, context:)
       unless hash.is_a?(Hash) && hash.keys.all? { |key| key.is_a?(String) }
         raise ArgumentError, 'object must be a Hash with String keys'
       end
 
       hash.each.with_object({}) do |(key, value), mapped|
-        mapped[key] = super(value, serializers: serializers)
+        mapped[key] = super(value, context: context)
       end
     end
 
     private
 
-    def handle_recursion!(_object)
+    def allow_recursion?
       # Call serializes the values, not the hash. Because the context changes,
       # we don't need to check for recursion (unless the Hash contains itself,
       # in which case here there be dragons).
-      yield
+      true
     end
   end
 end

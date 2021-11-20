@@ -48,21 +48,34 @@ RSpec.describe Cuprum::Rails::Responders::Serialization do
   end
 
   describe '#serialize' do
-    let(:object) { Object.new.freeze }
-    let(:value)  { 'serialized' }
+    let(:object)  { Object.new.freeze }
+    let(:value)   { 'serialized' }
+    let(:context) { instance_double(Cuprum::Rails::Serializers::Context) }
 
     before(:example) do
+      allow(Cuprum::Rails::Serializers::Context)
+        .to receive(:new)
+        .and_return(context)
+
       allow(root_serializer).to receive(:call).and_return(value)
     end
 
     it { expect(responder).to respond_to(:serialize).with(1).argument }
+
+    it 'should build a serialization context' do
+      responder.serialize(object)
+
+      expect(Cuprum::Rails::Serializers::Context)
+        .to have_received(:new)
+        .with(serializers: serializers)
+    end
 
     it 'should call the root serializer' do
       responder.serialize(object)
 
       expect(root_serializer)
         .to have_received(:call)
-        .with(object, serializers: serializers)
+        .with(object, context: context)
     end
 
     it 'should return the serialized value' do

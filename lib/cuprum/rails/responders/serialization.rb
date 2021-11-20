@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders'
+require 'cuprum/rails/serializers/context'
 
 module Cuprum::Rails::Responders
   # Implements serializing a result value into response data.
@@ -30,7 +31,11 @@ module Cuprum::Rails::Responders
     #
     # @return [Object] the serialized data.
     def serialize(object)
-      root_serializer.call(object, serializers: serializers)
+      context = Cuprum::Rails::Serializers::Context.new(
+        serializers: serializers
+      )
+
+      root_serializer.call(object, context: context)
     end
   end
 end

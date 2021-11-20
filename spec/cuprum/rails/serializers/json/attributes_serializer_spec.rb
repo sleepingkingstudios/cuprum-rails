@@ -44,7 +44,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
 
   shared_context 'with a serializer with a block attribute with a keyword' do
     let(:title_block) do
-      ->(_, serializers:) { { serializers: serializers }.inspect }
+      ->(_, context:) { { serializers: context.serializers }.inspect }
     end
 
     before(:example) { Spec::Serializer.attribute(:title, &title_block) }
@@ -58,8 +58,8 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
 
   shared_context 'with a serializer with a block attribute with many params' do
     let(:title_block) do
-      lambda do |object, serializers:|
-        { object: object, serializers: serializers }.inspect
+      lambda do |object, context:|
+        { object: object, serializers: context.serializers }.inspect
       end
     end
 
@@ -70,7 +70,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     let(:author_serializer) { Spec::AuthorSerializer.new }
 
     example_class 'Spec::AuthorSerializer',
-      Cuprum::Rails::Serializers::Json::Serializer \
+      Cuprum::Rails::Serializers::BaseSerializer \
       do |klass|
         klass.define_method(:call) { |object, **_| "by: #{object}" }
       end
@@ -219,7 +219,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:expected)  { value }
 
         example_class 'Spec::StringSerializer',
-          Cuprum::Rails::Serializers::Json::Serializer \
+          Cuprum::Rails::Serializers::BaseSerializer \
           do |klass|
             klass.define_method(:call) { |object, **_| object.to_s }
           end
@@ -266,7 +266,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:expected)  { value }
 
         example_class 'Spec::StringSerializer',
-          Cuprum::Rails::Serializers::Json::Serializer \
+          Cuprum::Rails::Serializers::BaseSerializer \
           do |klass|
             klass.define_method(:call) { |object, **_| object.to_s }
           end
@@ -505,7 +505,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
   describe '#call' do
     shared_examples 'should serialize the attributes' do
       it 'should serialize the attributes' do
-        expect(serializer.call(object, serializers: serializers))
+        expect(serializer.call(object, context: context))
           .to be == expected
       end
     end
@@ -523,13 +523,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     let(:serializers) do
       Cuprum::Rails::Serializers::Json.default_serializers
     end
+    let(:context) do
+      Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+    end
     let(:expected) { {} }
 
     it 'should define the method' do
       expect(serializer)
         .to respond_to(:call)
         .with(1).argument
-        .and_keywords(:serializers)
+        .and_keywords(:context)
     end
 
     include_examples 'should serialize the attributes'
@@ -549,7 +552,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           end
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error NoMethodError, error_message
           end
         end
@@ -559,9 +562,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           let(:error_message) { 'no serializer defined for Integer' }
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error(
-                described_class::UndefinedSerializerError,
+                Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
                 error_message
               )
           end
@@ -596,7 +599,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       wrap_context 'with a serializer with a block attribute with any' \
                    ' keywords' \
       do
-        let(:expected) { { 'title' => { serializers: serializers }.inspect } }
+        let(:expected) { { 'title' => { context: context }.inspect } }
 
         include_examples 'should serialize the attributes'
       end
@@ -651,7 +654,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           end
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error NoMethodError, error_message
           end
         end
@@ -661,9 +664,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           let(:error_message) { 'no serializer defined for Integer' }
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error(
-                described_class::UndefinedSerializerError,
+                Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
                 error_message
               )
           end
@@ -698,7 +701,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       wrap_context 'with a serializer with a block attribute with any' \
                    ' keywords' \
       do
-        let(:expected) { { 'title' => { serializers: serializers }.inspect } }
+        let(:expected) { { 'title' => { context: context }.inspect } }
 
         include_examples 'should serialize the attributes'
       end

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/serializers/base_serializer'
 require 'cuprum/rails/serializers/json'
-require 'cuprum/rails/serializers/json/serializer'
 
 module Cuprum::Rails::Serializers::Json
   # Converts a Cuprum::Error to JSON using the #as_json method.
-  class ErrorSerializer < Cuprum::Rails::Serializers::Json::Serializer
+  class ErrorSerializer < Cuprum::Rails::Serializers::BaseSerializer
     # Converts the Cuprum error to JSON.
     #
     # Calls and returns the #as_json method of the error.

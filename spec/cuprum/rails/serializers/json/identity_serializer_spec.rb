@@ -22,7 +22,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::IdentitySerializer do
   describe '#call' do
     shared_examples 'should return the object' do
       it 'should return the object' do
-        expect(serializer.call(object, serializers: serializers)).to be object
+        expect(serializer.call(object, context: context)).to be object
       end
 
       context 'when there is a serializer for the object' do
@@ -33,12 +33,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::IdentitySerializer do
         end
 
         it 'should return the object' do
-          expect(serializer.call(object, serializers: serializers)).to be object
+          expect(serializer.call(object, context: context)).to be object
         end
       end
     end
 
     let(:serializers) { {} }
+    let(:context) do
+      Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+    end
 
     it 'should define the method' do
       expect(serializer)
