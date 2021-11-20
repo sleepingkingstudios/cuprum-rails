@@ -116,7 +116,9 @@ module Cuprum::Rails::Serializers::Json
 
       # @return [Hash<String, Object>] the defined attributes and respective
       #   serializers.
-      def attributes(*_, **_)
+      def attributes(*attr_names)
+        attr_names.each { |attr_name| attribute(attr_name) }
+
         all_attributes
       end
 
