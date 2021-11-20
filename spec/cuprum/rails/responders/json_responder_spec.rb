@@ -365,12 +365,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     end
   end
 
-  describe '#root_serializer' do
-    include_examples 'should define reader',
-      :root_serializer,
-      -> { Cuprum::Rails::Serializers::BaseSerializer.instance }
-  end
-
   describe '#serializers' do
     include_examples 'should define reader',
       :serializers,

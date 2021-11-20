@@ -1,25 +1,20 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders'
+require 'cuprum/rails/serializers/base_serializer'
 require 'cuprum/rails/serializers/context'
 
 module Cuprum::Rails::Responders
   # Implements serializing a result value into response data.
   module Serialization
-    # @param root_serializer [Class] The root serializer for serializing the
-    #   result value.
     # @param serializers [Hash<Class, Object>] The serializers for converting
     #   result values into serialized data.
     # @param options [Hash] Additional parameters for the responder.
-    def initialize(root_serializer:, serializers:, **options)
+    def initialize(serializers:, **options)
       super(**options)
 
-      @root_serializer = root_serializer
-      @serializers     = serializers
+      @serializers = serializers
     end
-
-    # @return [Object] the root serializer for serializing the result value.
-    attr_reader :root_serializer
 
     # @return [Hash<Class, Object>] The serializers for converting result values
     #   into serialized data.
@@ -35,7 +30,9 @@ module Cuprum::Rails::Responders
         serializers: serializers
       )
 
-      root_serializer.call(object, context: context)
+      Cuprum::Rails::Serializers::BaseSerializer
+        .instance
+        .call(object, context: context)
     end
   end
 end

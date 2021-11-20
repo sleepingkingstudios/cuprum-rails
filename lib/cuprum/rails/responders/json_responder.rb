@@ -66,12 +66,11 @@ module Cuprum::Rails::Responders
       **_options
     )
       super(
-        action_name:     action_name,
-        matcher:         matcher,
-        member_action:   member_action,
-        resource:        resource,
-        root_serializer: Cuprum::Rails::Serializers::BaseSerializer.instance,
-        serializers:     serializers
+        action_name:   action_name,
+        matcher:       matcher,
+        member_action: member_action,
+        resource:      resource,
+        serializers:   serializers
       )
     end
 
