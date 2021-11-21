@@ -4,6 +4,7 @@ require 'cuprum/rails'
 
 require 'support/book'
 require 'support/controllers/base_controller'
+require 'support/serializers/book_serializer'
 
 class BooksController < BaseController
   def self.resource
@@ -16,7 +17,7 @@ class BooksController < BaseController
 
   def self.serializers
     super.merge(
-      Book => Cuprum::Rails::Serializers::Json::ActiveRecordSerializer.instance
+      Book => Spec::Support::Serializers::BookSerializer
     )
   end
 
