@@ -32,4 +32,6 @@ RSpec.describe Cuprum::Rails::Controller do
   include_examples 'should implement the actions DSL'
 
   include_examples 'should implement the configuration DSL'
+
+  include_examples 'should implement the middleware DSL'
 end

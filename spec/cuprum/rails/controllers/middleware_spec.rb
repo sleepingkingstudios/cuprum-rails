@@ -21,6 +21,101 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
     end
   end
 
+  describe '#==' do
+    describe 'with nil' do
+      it { expect(middleware == nil).to be false } # rubocop:disable Style/NilComparison
+    end
+
+    describe 'with an object' do
+      it { expect(middleware == Object.new.freeze).to be false }
+    end
+
+    describe 'with middleware with a different command' do
+      let(:other) { described_class.new(command: Cuprum::Command.new) }
+
+      it { expect(middleware == other).to be false }
+    end
+
+    describe 'with middleware with the same command' do
+      let(:options) { {} }
+      let(:other)   { described_class.new(command: command, **options) }
+
+      it { expect(middleware == other).to be true }
+
+      describe 'with except: a non-matching set' do
+        let(:options) { super().merge(except: %i[drafts]) }
+
+        it { expect(middleware == other).to be false }
+      end
+
+      describe 'with only: a non-matching set' do
+        let(:options) { super().merge(only: %i[published]) }
+
+        it { expect(middleware == other).to be false }
+      end
+    end
+
+    context 'when initialized with except: an array of symbols' do
+      let(:excepted_actions)    { %i[index show] }
+      let(:constructor_options) { super().merge(except: excepted_actions) }
+
+      describe 'with middleware with a different command' do
+        let(:other) { described_class.new(command: Cuprum::Command.new) }
+
+        it { expect(middleware == other).to be false }
+      end
+
+      describe 'with middleware with the same command' do
+        let(:options) { {} }
+        let(:other)   { described_class.new(command: command, **options) }
+
+        it { expect(middleware == other).to be false }
+
+        describe 'with except: a non-matching set' do
+          let(:options) { super().merge(except: %i[drafts]) }
+
+          it { expect(middleware == other).to be false }
+        end
+
+        describe 'with except: a matching set' do
+          let(:options) { super().merge(except: excepted_actions) }
+
+          it { expect(middleware == other).to be true }
+        end
+      end
+    end
+
+    context 'when initialized with only: an array of symbols' do
+      let(:only_actions)        { %i[create update] }
+      let(:constructor_options) { super().merge(only: only_actions) }
+
+      describe 'with middleware with a different command' do
+        let(:other) { described_class.new(command: Cuprum::Command.new) }
+
+        it { expect(middleware == other).to be false }
+      end
+
+      describe 'with middleware with the same command' do
+        let(:options) { {} }
+        let(:other)   { described_class.new(command: command, **options) }
+
+        it { expect(middleware == other).to be false }
+
+        describe 'with only: a non-matching set' do
+          let(:options) { super().merge(only: %i[published]) }
+
+          it { expect(middleware == other).to be false }
+        end
+
+        describe 'with only: a matching set' do
+          let(:options) { super().merge(only: only_actions) }
+
+          it { expect(middleware == other).to be true }
+        end
+      end
+    end
+  end
+
   describe '#command' do
     include_examples 'should define reader', :command, -> { command }
   end

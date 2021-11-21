@@ -2,7 +2,9 @@
 
 require 'cuprum/rails'
 require 'cuprum/rails/controller_action'
+require 'cuprum/rails/controllers/class_methods/actions'
 require 'cuprum/rails/controllers/class_methods/configuration'
+require 'cuprum/rails/controllers/class_methods/middleware'
 require 'cuprum/rails/controllers/class_methods/validations'
 
 module Cuprum::Rails
@@ -43,6 +45,7 @@ module Cuprum::Rails
 
         other.extend(Cuprum::Rails::Controllers::ClassMethods::Actions)
         other.extend(Cuprum::Rails::Controllers::ClassMethods::Configuration)
+        other.extend(Cuprum::Rails::Controllers::ClassMethods::Middleware)
         other.extend(Cuprum::Rails::Controllers::ClassMethods::Validations)
       end
     end

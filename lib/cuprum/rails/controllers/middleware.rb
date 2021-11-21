@@ -31,6 +31,14 @@ module Cuprum::Rails::Controllers
     #   applied only to actions on the list.
     attr_reader :only
 
+    # @private
+    def ==(other)
+      other.is_a?(Cuprum::Rails::Controllers::Middleware) &&
+        other.command == command &&
+        other.except  == except &&
+        other.only    == only
+    end
+
     # Checks if the middleware will be applied to the named action.
     #
     # If the middleware defines any :except actions, returns false if the action
