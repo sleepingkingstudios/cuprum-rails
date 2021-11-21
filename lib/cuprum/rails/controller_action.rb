@@ -77,7 +77,7 @@ module Cuprum::Rails
     # 3. Builds the responder with the resource and action metadata.
     # 4. Calls the responder with the action result.
     #
-    # @param request [ActionDispatch::Request] The request to process.
+    # @param request [Cuprum::Rails::Request] The request to process.
     #
     # @return [#call] The response object.
     def call(request)
