@@ -205,7 +205,9 @@ module Cuprum::Rails::Serializers::Json
     end
 
     def block_argument?(block)
-      block.parameters.any? { |type, _| type == :req || type == :rest } # rubocop:disable Style/MultipleComparison
+      block.parameters.any? do |type, _|
+        type == :opt || type == :req || type == :rest # rubocop:disable Style/MultipleComparison
+      end
     end
 
     def block_keyword?(block)
