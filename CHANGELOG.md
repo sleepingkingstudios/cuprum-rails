@@ -4,6 +4,10 @@
 
 ### Controllers
 
+#### Resources
+
+Automatically generate a `Cuprum::Rails::Collection` when creating a resource with a `record_class` but no explicit `collection`.
+
 #### Serializers
 
 Implemented `Cuprum::Rails::Serializers::Context`.
