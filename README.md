@@ -932,23 +932,26 @@ A response for a JSON request. Takes the serialized `:data` to return as well as
 
 Serializers convert entities and data structures into serialized data. Each serializer is specific to one format and one type of object - for example, the `Cuprum::Rails::Serializers::Json::ErrorSerializer` generates a JSON representation of a `Cuprum::Error`.
 
-Serializers are also recursive: the `#call` method must accept a `:serializers` keyword, which contains the serializer mappings for the current controller or context. This allows serialization to be context-specific - one controller may use one serializer for a particular record class, while another controller may use a limited set of attributes, such as an admin versus a user-facing controller.
+Serialization is context-specific - one controller may use one serializer for a particular record class, while another controller may use a limited set of attributes, such as an admin versus a user-facing controller. To handle this, the `#call` method must accept a `:context` keyword, which is an instance of `Cuprum::Rails::Serializers::Context`. Each context is initialized with a set of serializers that are used to serialize attributes, array items or hash values, associated models, or otherwise nested properties. All of this is handled automatically inside the controller action.
 
 ```ruby
 class StructSerializer < Cuprum::Rails::Serializers::JsonSerializer
-  def call(struct, serializers:)
+  def call(struct, context:)
     struct.each_pair.with_object do |(key, value), hsh|
-      hsh[key] = super(value, serializers: serializers)
+      hsh[key] = super(value, context: context)
     end
   end
 end
 
 serializer = StructSerializer.new
+context    = Cuprum::Rails::Serializers::Context.new(
+  serializers: Cuprum::Rails::Serializers::Json.default_serializers
+)
 struct     =
   Struct
   .new(:series, :author, :titles)
   .new('The Locked Tomb', 'Tamsyn Muir', ['Gideon the Ninth', 'Harrow the Ninth'])
-serializer.call(struct, serializers: Cuprum::Rails::Serializers::Json.default_serializers)
+serializer.call(struct, context: context)
 #=> {
 #     'series' => 'The Locked Tomb',
 #     'author' => 'Tamsyn Muir',
@@ -956,13 +959,13 @@ serializer.call(struct, serializers: Cuprum::Rails::Serializers::Json.default_se
 #   }
 ```
 
-Above, we define a custom serializer for serializing `Struct` instances. We then use the serializer on our Book-like struct by passing it to the `#call` method, along with the default JSON serializers. The `#call` method takes each pair of keys and values and calls `super()`, which finds the configured serializer for each value. In our case, the default serializer for a `String` returns the string, while the default serializer for an `Array` returns a new array whose items are the serialized array items. Finally, a `Hash` with `String` keys is generated, which is our `Struct` serialized into a JSON-compatible object.
+Above, we define a custom serializer for serializing `Struct` instances. We then use the serializer on our Book-like struct by passing it to the `#call` method, along with a serialization context that contains the default JSON serializers. The `#call` method takes each pair of keys and values and calls `super()`, which finds the configured serializer for each value. In our case, the default serializer for a `String` returns the string, while the default serializer for an `Array` returns a new array whose items are the serialized array items. Finally, a `Hash` with `String` keys is generated, which is our `Struct` serialized into a JSON-compatible object.
 
 `Cuprum::Rails` defines the following serializers:
 
 **Cuprum::Rails::Serializers::Json::Serializer**
 
-The base class for JSON serializers. Takes a configured `serializers:` hash and finds the serializer for the given object, then calls that serializer with the object and the configured serializers.
+The base class for JSON serializers. Takes a configured `context:` and finds the serializer for the given object, then calls that serializer with the object and the given context.
 
 The serializer for an object is determined based on the object's class. Specifically, for each ancestor of the object's class, the configured serializers are checked for a key matching that ancestor. If that class or module is a key in the configured hash, then the corresponding serializer is used to serialize the object. If the configured serializers do not include a serializer for any of the object class's ancestors, raises an `UndefinedSerializerError`.
 
@@ -1012,8 +1015,11 @@ class DetailedBookSerializer < BookSerializer
   attribute :published_at
 end
 
-serializers = Cuprum::Rails::Serializers::Json.default_serializers
-book        = Book.new(
+
+context    = Cuprum::Rails::Serializers::Context.new(
+  serializers: Cuprum::Rails::Serializers::Json.default_serializers
+)
+book       = Book.new(
   id:       0,
   title:    'Nona The Ninth',
   author:   'Tamsyn Muir',
@@ -1021,7 +1027,7 @@ book        = Book.new(
   category: 'Science Fiction and Fantasy',
 )
 
-BookSerializer.new.call(book, serializers: serializers)
+BookSerializer.new.call(book, context: context)
 #=> {
 #     'id'     => 0,
 #     'title'  => 'Nona The Ninth',
@@ -1029,7 +1035,7 @@ BookSerializer.new.call(book, serializers: serializers)
 #     'series' => 'The Locked Tombs'
 #   }
 
-DetailedBookSerializer.new.call(book, serializers: serializers)
+DetailedBookSerializer.new.call(book, context: context)
 #=> {
 #     'id'           => 0,
 #     'title'        => 'Nona The Ninth',
