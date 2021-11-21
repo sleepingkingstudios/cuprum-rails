@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails'
+require 'cuprum/rails/collection'
 
 module Cuprum::Rails
   # Value object representing a controller resource.
@@ -36,12 +37,12 @@ module Cuprum::Rails
 
       validate_permitted_attributes(options[:permitted_attributes])
 
-      @collection     = collection
       @options        = options
       @resource_class = resource_class
       @resource_name  = resource_name.to_s unless resource_name.nil?
       @routes         = routes
-      @singular       = !!singular
+      @singular       = !!singular # rubocop:disable Style/DoubleNegation
+      @collection     = collection || build_collection
     end
 
     # @return [Cuprum::Collections::Base] collection representing the resource
@@ -130,6 +131,16 @@ module Cuprum::Rails
     end
 
     private
+
+    def build_collection
+      return unless resource_class
+
+      Cuprum::Rails::Collection.new(
+        collection_name: resource_name,
+        member_name:     singular_resource_name,
+        record_class:    resource_class
+      )
+    end
 
     def routes_without_wildcards
       return @routes if @routes

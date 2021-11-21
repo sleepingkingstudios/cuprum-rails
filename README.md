@@ -738,7 +738,8 @@ resource.resource_name
 
 A resource must be initialized with either a `resource_class` or a `resource_name`. It defines the following properties:
 
-- `#collection`: A `Cuprum::Collections` collection, used to perform queries and persistence operations on the resource data.
+- `#base_url`: The base url for the collection, used when generating routes.
+- `#collection`: A `Cuprum::Collections` collection, used to perform queries and persistence operations on the resource data. If not given and the collection has a `#resource_class`, then a `Cuprum::Rails::Collection` is automatically generated.
 - `#resource_class`: The `Class` of items in the resource.
 - `#resource_name`: The name of the resource as a `String`. If the resource is initialized with a `resource_class`, the `resource_name` is derived from the given class.
 - `#routes`: A [Cuprum::Rails::Routes](#routes) object for the resource. If not given, a default routes object is generated for the resource.

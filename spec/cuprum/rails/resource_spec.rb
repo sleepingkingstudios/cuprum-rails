@@ -71,7 +71,15 @@ RSpec.describe Cuprum::Rails::Resource do
   end
 
   describe '#collection' do
-    include_examples 'should define reader', :collection, nil
+    include_examples 'should define reader', :collection
+
+    it { expect(resource.collection).to be_a Cuprum::Rails::Collection }
+
+    it { expect(resource.collection.collection_name).to be == 'books' }
+
+    it { expect(resource.collection.member_name).to be == 'book' }
+
+    it { expect(resource.collection.record_class).to be resource_class }
 
     context 'when initialized with a collection' do
       let(:collection) do
@@ -80,6 +88,34 @@ RSpec.describe Cuprum::Rails::Resource do
       let(:constructor_options) { super().merge(collection: collection) }
 
       it { expect(resource.collection).to be collection }
+    end
+
+    context 'when initialized with resource name: a string' do
+      let(:resource_name)       { 'tomes' }
+      let(:constructor_options) { super().merge(resource_name: resource_name) }
+
+      it { expect(resource.collection.collection_name).to be == 'tomes' }
+
+      it { expect(resource.collection.member_name).to be == 'tome' }
+
+      context 'when initialized without a resource class' do
+        let(:constructor_options) do
+          super().tap { |hsh| hsh.delete(:resource_class) }
+        end
+
+        it { expect(resource.collection).to be nil }
+      end
+    end
+
+    context 'when initialized with singular_resource_name: a string' do
+      let(:singular_resource_name) { 'grimoire' }
+      let(:constructor_options) do
+        super().merge(singular_resource_name: singular_resource_name)
+      end
+
+      it { expect(resource.collection.collection_name).to be == 'books' }
+
+      it { expect(resource.collection.member_name).to be == 'grimoire' }
     end
   end
 
