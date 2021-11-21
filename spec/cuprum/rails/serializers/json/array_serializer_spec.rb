@@ -22,12 +22,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
   describe '#call' do
     let(:object)      { nil }
     let(:serializers) { {} }
+    let(:context) do
+      Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+    end
 
     it 'should define the method' do
       expect(serializer)
         .to respond_to(:call)
         .with(1).argument
-        .and_keywords(:serializers)
+        .and_keywords(:context)
     end
 
     describe 'with nil' do
@@ -35,7 +38,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
       let(:error_message) { 'object must be an Array' }
 
       it 'should raise an exception' do
-        expect { serializer.call(object, serializers: serializers) }
+        expect { serializer.call(object, context: context) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -45,7 +48,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
       let(:error_message) { 'object must be an Array' }
 
       it 'should raise an exception' do
-        expect { serializer.call(object, serializers: serializers) }
+        expect { serializer.call(object, context: context) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -55,7 +58,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
       let(:expected) { [] }
 
       it 'should serialize the array' do
-        expect(serializer.call(object, serializers: serializers))
+        expect(serializer.call(object, context: context))
           .to be == expected
       end
     end
@@ -67,9 +70,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
         let(:error_message) { 'no serializer defined for Integer' }
 
         it 'should raise an exception' do
-          expect { serializer.call(object, serializers: serializers) }
+          expect { serializer.call(object, context: context) }
             .to raise_error(
-              described_class::UndefinedSerializerError,
+              Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
               error_message
             )
         end
@@ -84,9 +87,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
         let(:error_message) { 'no serializer defined for String' }
 
         it 'should raise an exception' do
-          expect { serializer.call(object, serializers: serializers) }
+          expect { serializer.call(object, context: context) }
             .to raise_error(
-              described_class::UndefinedSerializerError,
+              Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
               error_message
             )
         end
@@ -102,7 +105,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
         let(:expected) { %w[int str] }
 
         it 'should serialize the array' do
-          expect(serializer.call(object, serializers: serializers))
+          expect(serializer.call(object, context: context))
             .to be == expected
         end
       end
@@ -128,7 +131,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ArraySerializer do
       end
 
       it 'should serialize the array' do
-        expect(serializer.call(object, serializers: serializers))
+        expect(serializer.call(object, context: context))
           .to be == expected
       end
     end

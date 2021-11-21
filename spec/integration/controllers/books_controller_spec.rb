@@ -192,6 +192,14 @@ RSpec.describe BooksController do
       request_parameters:    params
     )
   end
+  let(:context) do
+    Cuprum::Rails::Serializers::Context.new(
+      serializers: Cuprum::Rails::Serializers::Json.default_serializers
+    )
+  end
+  let(:serializer) do
+    Spec::Support::Serializers::BookSerializer.new
+  end
 
   example_class 'Spec::Renderer' do |klass|
     klass.define_method(:redirect_to) { |*_, **_| nil }
@@ -280,7 +288,7 @@ RSpec.describe BooksController do
       let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
       let(:book_id) { book.id }
       let(:expected_data) do
-        { 'book' => book.as_json }
+        { 'book' => serializer.call(book, context: context) }
       end
 
       it 'should destroy the book' do
@@ -330,7 +338,11 @@ RSpec.describe BooksController do
       { '@books' => expected_books.to_a }
     end
     let(:expected_data) do
-      { 'books' => expected_books.map(&:as_json) }
+      {
+        'books' => expected_books.map do |book|
+          serializer.call(book, context: context)
+        end
+      }
     end
 
     it { expect(controller).to respond_to(:index).with(0).arguments }
@@ -395,7 +407,7 @@ RSpec.describe BooksController do
         { '@book' => book }
       end
       let(:expected_data) do
-        { 'book' => book.as_json }
+        { 'book' => serializer.call(book, context: context) }
       end
 
       wrap_examples 'should render the view'
@@ -463,7 +475,7 @@ RSpec.describe BooksController do
         let(:params)        { super().merge(book: attributes) }
         let(:expected_book) { book }
         let(:expected_data) do
-          { 'book' => book.reload.as_json }
+          { 'book' => serializer.call(book.reload, context: context) }
         end
 
         it 'should update the attributes' do

@@ -6,7 +6,6 @@ RSpec.describe Cuprum::Rails::Responders::Serialization do
   subject(:responder) { described_class.new(**constructor_options) }
 
   let(:described_class) { Spec::Responder }
-  let(:root_serializer) { instance_double(Spec::Serializer, call: nil) }
   let(:serializers) do
     {
       Object => Spec::Serializer.new
@@ -14,8 +13,7 @@ RSpec.describe Cuprum::Rails::Responders::Serialization do
   end
   let(:constructor_options) do
     {
-      root_serializer: root_serializer,
-      serializers:     serializers
+      serializers: serializers
     }
   end
 
@@ -36,33 +34,48 @@ RSpec.describe Cuprum::Rails::Responders::Serialization do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:root_serializer, :serializers)
+        .and_keywords(:serializers)
         .and_any_keywords
     end
   end
 
-  describe '#root_serializer' do
-    include_examples 'should define reader',
-      :root_serializer,
-      -> { root_serializer }
-  end
-
   describe '#serialize' do
-    let(:object) { Object.new.freeze }
-    let(:value)  { 'serialized' }
+    let(:object)  { Object.new.freeze }
+    let(:value)   { 'serialized' }
+    let(:context) { instance_double(Cuprum::Rails::Serializers::Context) }
+    let(:base_serializer) do
+      instance_double(
+        Cuprum::Rails::Serializers::BaseSerializer,
+        call: value
+      )
+    end
 
     before(:example) do
-      allow(root_serializer).to receive(:call).and_return(value)
+      allow(Cuprum::Rails::Serializers::BaseSerializer)
+        .to receive(:instance)
+        .and_return(base_serializer)
+
+      allow(Cuprum::Rails::Serializers::Context)
+        .to receive(:new)
+        .and_return(context)
     end
 
     it { expect(responder).to respond_to(:serialize).with(1).argument }
 
-    it 'should call the root serializer' do
+    it 'should build a serialization context' do
       responder.serialize(object)
 
-      expect(root_serializer)
+      expect(Cuprum::Rails::Serializers::Context)
+        .to have_received(:new)
+        .with(serializers: serializers)
+    end
+
+    it 'should call the base serializer' do
+      responder.serialize(object)
+
+      expect(base_serializer)
         .to have_received(:call)
-        .with(object, serializers: serializers)
+        .with(object, context: context)
     end
 
     it 'should return the serialized value' do

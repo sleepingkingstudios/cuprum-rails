@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/serializers/base_serializer'
 require 'cuprum/rails/serializers/json'
-require 'cuprum/rails/serializers/json/serializer'
 
 module Cuprum::Rails::Serializers::Json
   # Converts ActiveRecord record to JSON using the #as_json method.
-  class ActiveRecordSerializer < Cuprum::Rails::Serializers::Json::Serializer
+  class ActiveRecordSerializer < Cuprum::Rails::Serializers::BaseSerializer
     # Converts the ActiveRecord record to JSON.
     #
     # Calls and returns the #as_json method of the record.

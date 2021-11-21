@@ -30,8 +30,14 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     before(:example) { Spec::Serializer.attribute(:title, &title_block) }
   end
 
-  shared_context 'with a serializer with a block attribute with one arg' do
+  shared_context 'with a serializer with a block attribute with required arg' do
     let(:title_block) { ->(object) { object.inspect } }
+
+    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
+  end
+
+  shared_context 'with a serializer with a block attribute with optional arg' do
+    let(:title_block) { ->(object = nil) { object.inspect } }
 
     before(:example) { Spec::Serializer.attribute(:title, &title_block) }
   end
@@ -44,7 +50,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
 
   shared_context 'with a serializer with a block attribute with a keyword' do
     let(:title_block) do
-      ->(_, serializers:) { { serializers: serializers }.inspect }
+      ->(_, context:) { { serializers: context.serializers }.inspect }
     end
 
     before(:example) { Spec::Serializer.attribute(:title, &title_block) }
@@ -58,8 +64,8 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
 
   shared_context 'with a serializer with a block attribute with many params' do
     let(:title_block) do
-      lambda do |object, serializers:|
-        { object: object, serializers: serializers }.inspect
+      lambda do |object, context:|
+        { object: object, serializers: context.serializers }.inspect
       end
     end
 
@@ -70,7 +76,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     let(:author_serializer) { Spec::AuthorSerializer.new }
 
     example_class 'Spec::AuthorSerializer',
-      Cuprum::Rails::Serializers::Json::Serializer \
+      Cuprum::Rails::Serializers::BaseSerializer \
       do |klass|
         klass.define_method(:call) { |object, **_| "by: #{object}" }
       end
@@ -82,7 +88,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
 
   shared_context 'with a serializer with multiple attributes' do
     include_context 'with a serializer with a default attribute'
-    include_context 'with a serializer with a block attribute with one arg'
+    include_context 'with a serializer with a block attribute with required arg'
     include_context 'with a serializer with a serializer attribute'
 
     let(:title_block) { ->(object) { object.upcase } }
@@ -219,7 +225,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:expected)  { value }
 
         example_class 'Spec::StringSerializer',
-          Cuprum::Rails::Serializers::Json::Serializer \
+          Cuprum::Rails::Serializers::BaseSerializer \
           do |klass|
             klass.define_method(:call) { |object, **_| object.to_s }
           end
@@ -266,7 +272,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:expected)  { value }
 
         example_class 'Spec::StringSerializer',
-          Cuprum::Rails::Serializers::Json::Serializer \
+          Cuprum::Rails::Serializers::BaseSerializer \
           do |klass|
             klass.define_method(:call) { |object, **_| object.to_s }
           end
@@ -338,18 +344,98 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
   end
 
   describe '.attributes' do
+    shared_examples 'should set the default serializer for the attributes' do
+      def include_the_attributes
+        satisfy do |attributes|
+          attr_names.all? do |attr_name|
+            attributes.key?(attr_name.to_s) &&
+              attributes[attr_name.to_s].nil?
+          end
+        end
+      end
+
+      it 'should set the default serializer for the attributes' do
+        expect do
+          described_class.attributes(*attr_names)
+        end
+          .to change(described_class, :attributes)
+          .to include_the_attributes
+      end
+    end
+
+    let(:error_message) do
+      'AttributesSerializer is an abstract class - create a subclass to' \
+        ' define attributes'
+    end
+
     it 'should define the class method' do
       expect(described_class)
         .to respond_to(:attributes)
         .with(0).arguments
         .and_unlimited_arguments
-        .and_any_keywords
     end
 
     it { expect(described_class.attributes).to be == {} }
 
+    describe 'with an attribute name' do
+      let(:attr_name) { :series }
+
+      it 'should raise an exception' do
+        expect { described_class.attributes(attr_name) }
+          .to raise_error(
+            described_class::AbstractSerializerError,
+            error_message
+          )
+      end
+    end
+
+    describe 'with many attribute names' do
+      let(:attr_names) { %i[series category published_at] }
+
+      it 'should raise an exception' do
+        expect { described_class.attributes(*attr_names) }
+          .to raise_error(
+            described_class::AbstractSerializerError,
+            error_message
+          )
+      end
+    end
+
     wrap_context 'with a serializer class' do
       it { expect(described_class.attributes).to be == {} }
+
+      describe 'with an invalid attribute name' do
+        let(:error_message) { "attribute name can't be blank" }
+
+        it 'should raise an exception' do
+          expect { described_class.attributes(nil) }
+            .to raise_error ArgumentError, error_message
+        end
+      end
+
+      describe 'with a valid attribute name' do
+        let(:attr_names) { %i[series] }
+        let(:expected)   { { 'series' => nil } }
+
+        include_examples 'should set the default serializer for the attributes'
+
+        it { expect(described_class.attributes(*attr_names)).to be == expected }
+      end
+
+      describe 'with many valid attribute names' do
+        let(:attr_names) { %i[series category published_at] }
+        let(:expected) do
+          {
+            'series'       => nil,
+            'category'     => nil,
+            'published_at' => nil
+          }
+        end
+
+        include_examples 'should set the default serializer for the attributes'
+
+        it { expect(described_class.attributes(*attr_names)).to be == expected }
+      end
 
       wrap_context 'with a serializer with a default attribute' do
         let(:expected) { { 'id' => nil } }
@@ -364,7 +450,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with one arg' do
+      wrap_context 'with a serializer with a block attribute with required arg'\
+      do
+        let(:expected) { { 'title' => title_block } }
+
+        it { expect(described_class.attributes).to be == expected }
+      end
+
+      wrap_context 'with a serializer with a block attribute with optional arg'\
+      do
         let(:expected) { { 'title' => title_block } }
 
         it { expect(described_class.attributes).to be == expected }
@@ -415,11 +509,76 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         end
 
         it { expect(described_class.attributes).to be == expected }
+
+        describe 'with a valid attribute name' do
+          let(:attr_names) { %i[series] }
+          let(:expected)   { super().merge('series' => nil) }
+
+          include_examples \
+            'should set the default serializer for the attributes'
+
+          it 'should return the attributes' do
+            expect(described_class.attributes(*attr_names)).to be == expected
+          end
+        end
+
+        describe 'with many valid attribute names' do
+          let(:attr_names) { %i[series category published_at] }
+          let(:expected) do
+            super().merge(
+              {
+                'series'       => nil,
+                'category'     => nil,
+                'published_at' => nil
+              }
+            )
+          end
+
+          include_examples \
+            'should set the default serializer for the attributes'
+
+          it 'should return the attributes' do
+            expect(described_class.attributes(*attr_names)).to be == expected
+          end
+        end
       end
     end
 
     wrap_context 'with a serializer subclass' do
       it { expect(described_class.attributes).to be == {} }
+
+      describe 'with an invalid attribute name' do
+        let(:error_message) { "attribute name can't be blank" }
+
+        it 'should raise an exception' do
+          expect { described_class.attributes(nil) }
+            .to raise_error ArgumentError, error_message
+        end
+      end
+
+      describe 'with a valid attribute name' do
+        let(:attr_names) { %i[series] }
+        let(:expected)   { { 'series' => nil } }
+
+        include_examples 'should set the default serializer for the attributes'
+
+        it { expect(described_class.attributes(*attr_names)).to be == expected }
+      end
+
+      describe 'with many valid attribute names' do
+        let(:attr_names) { %i[series category published_at] }
+        let(:expected) do
+          {
+            'series'       => nil,
+            'category'     => nil,
+            'published_at' => nil
+          }
+        end
+
+        include_examples 'should set the default serializer for the attributes'
+
+        it { expect(described_class.attributes(*attr_names)).to be == expected }
+      end
 
       wrap_context 'with a serializer with a default attribute' do
         let(:expected) { { 'id' => nil } }
@@ -434,7 +593,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with one arg' do
+      wrap_context 'with a serializer with a block attribute with required arg'\
+      do
+        let(:expected) { { 'title' => title_block } }
+
+        it { expect(described_class.attributes).to be == expected }
+      end
+
+      wrap_context 'with a serializer with a block attribute with optional arg'\
+      do
         let(:expected) { { 'title' => title_block } }
 
         it { expect(described_class.attributes).to be == expected }
@@ -498,6 +665,38 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         end
 
         it { expect(described_class.attributes).to be == expected }
+
+        describe 'with a valid attribute name' do
+          let(:attr_names) { %i[series] }
+          let(:expected)   { super().merge('series' => nil) }
+
+          include_examples \
+            'should set the default serializer for the attributes'
+
+          it 'should return the attributes' do
+            expect(described_class.attributes(*attr_names)).to be == expected
+          end
+        end
+
+        describe 'with many valid attribute names' do
+          let(:attr_names) { %i[series category published_at] }
+          let(:expected) do
+            super().merge(
+              {
+                'series'       => nil,
+                'category'     => nil,
+                'published_at' => nil
+              }
+            )
+          end
+
+          include_examples \
+            'should set the default serializer for the attributes'
+
+          it 'should return the attributes' do
+            expect(described_class.attributes(*attr_names)).to be == expected
+          end
+        end
       end
     end
   end
@@ -505,7 +704,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
   describe '#call' do
     shared_examples 'should serialize the attributes' do
       it 'should serialize the attributes' do
-        expect(serializer.call(object, serializers: serializers))
+        expect(serializer.call(object, context: context))
           .to be == expected
       end
     end
@@ -523,13 +722,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     let(:serializers) do
       Cuprum::Rails::Serializers::Json.default_serializers
     end
+    let(:context) do
+      Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+    end
     let(:expected) { {} }
 
     it 'should define the method' do
       expect(serializer)
         .to respond_to(:call)
         .with(1).argument
-        .and_keywords(:serializers)
+        .and_keywords(:context)
     end
 
     include_examples 'should serialize the attributes'
@@ -549,7 +751,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           end
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error NoMethodError, error_message
           end
         end
@@ -559,9 +761,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           let(:error_message) { 'no serializer defined for Integer' }
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error(
-                described_class::UndefinedSerializerError,
+                Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
                 error_message
               )
           end
@@ -575,7 +777,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       end
 
       # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with one arg' do
+      wrap_context 'with a serializer with a block attribute with required arg'\
+      do
+        let(:expected) { { 'title' => object.title.inspect } }
+
+        include_examples 'should serialize the attributes'
+      end
+
+      wrap_context 'with a serializer with a block attribute with optional arg'\
+      do
         let(:expected) { { 'title' => object.title.inspect } }
 
         include_examples 'should serialize the attributes'
@@ -596,7 +806,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       wrap_context 'with a serializer with a block attribute with any' \
                    ' keywords' \
       do
-        let(:expected) { { 'title' => { serializers: serializers }.inspect } }
+        let(:expected) { { 'title' => { context: context }.inspect } }
 
         include_examples 'should serialize the attributes'
       end
@@ -651,7 +861,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           end
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error NoMethodError, error_message
           end
         end
@@ -661,9 +871,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
           let(:error_message) { 'no serializer defined for Integer' }
 
           it 'should raise an exception' do
-            expect { serializer.call(object, serializers: serializers) }
+            expect { serializer.call(object, context: context) }
               .to raise_error(
-                described_class::UndefinedSerializerError,
+                Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
                 error_message
               )
           end
@@ -677,7 +887,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       end
 
       # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with one arg' do
+      wrap_context 'with a serializer with a block attribute with required arg'\
+      do
+        let(:expected) { { 'title' => object.title.inspect } }
+
+        include_examples 'should serialize the attributes'
+      end
+
+      wrap_context 'with a serializer with a block attribute with optional arg'\
+      do
         let(:expected) { { 'title' => object.title.inspect } }
 
         include_examples 'should serialize the attributes'
@@ -698,7 +916,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       wrap_context 'with a serializer with a block attribute with any' \
                    ' keywords' \
       do
-        let(:expected) { { 'title' => { serializers: serializers }.inspect } }
+        let(:expected) { { 'title' => { context: context }.inspect } }
 
         include_examples 'should serialize the attributes'
       end

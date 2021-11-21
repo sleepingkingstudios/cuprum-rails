@@ -5,6 +5,7 @@ require 'cuprum/rails/responders/actions'
 require 'cuprum/rails/responders/matching'
 require 'cuprum/rails/responders/serialization'
 require 'cuprum/rails/responses/json_response'
+require 'cuprum/rails/serializers/base_serializer'
 require 'cuprum/rails/serializers/json'
 
 module Cuprum::Rails::Responders
@@ -65,12 +66,11 @@ module Cuprum::Rails::Responders
       **_options
     )
       super(
-        action_name:     action_name,
-        matcher:         matcher,
-        member_action:   member_action,
-        resource:        resource,
-        root_serializer: Cuprum::Rails::Serializers::Json::Serializer.instance,
-        serializers:     serializers
+        action_name:   action_name,
+        matcher:       matcher,
+        member_action: member_action,
+        resource:      resource,
+        serializers:   serializers
       )
     end
 

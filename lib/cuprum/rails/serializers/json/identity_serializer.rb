@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/serializers/base_serializer'
 require 'cuprum/rails/serializers/json'
-require 'cuprum/rails/serializers/json/serializer'
 
 module Cuprum::Rails::Serializers::Json
   # Serializer that returns a value object as itself.
-  class IdentitySerializer < Cuprum::Rails::Serializers::Json::Serializer
+  class IdentitySerializer < Cuprum::Rails::Serializers::BaseSerializer
     # Returns the object.
     #
     # This serializer should only be used with value objects: nil, true, false,

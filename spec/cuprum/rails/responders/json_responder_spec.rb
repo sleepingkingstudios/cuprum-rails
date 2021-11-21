@@ -161,7 +161,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
       describe 'with an unserializable value' do
         let(:error_class) do
-          Cuprum::Rails::Serializers::Json::Serializer::UndefinedSerializerError
+          Cuprum::Rails::Serializers::Context::UndefinedSerializerError
         end
         let(:error_message) do
           'no serializer defined for Object'
@@ -236,7 +236,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
     describe 'with an unserializable value' do
       let(:error_class) do
-        Cuprum::Rails::Serializers::Json::Serializer::UndefinedSerializerError
+        Cuprum::Rails::Serializers::Context::UndefinedSerializerError
       end
       let(:error_message) do
         'no serializer defined for Object'
@@ -345,7 +345,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
     describe 'with an unserializable value' do
       let(:error_class) do
-        Cuprum::Rails::Serializers::Json::Serializer::UndefinedSerializerError
+        Cuprum::Rails::Serializers::Context::UndefinedSerializerError
       end
       let(:error_message) do
         'no serializer defined for Object'
@@ -363,12 +363,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
       it { expect(response.status).to be 201 }
     end
-  end
-
-  describe '#root_serializer' do
-    include_examples 'should define reader',
-      :root_serializer,
-      -> { Cuprum::Rails::Serializers::Json::Serializer.instance }
   end
 
   describe '#serializers' do

@@ -1,5 +1,19 @@
 # Changelog
 
+## O.2.0
+
+### Controllers
+
+#### Serializers
+
+Implemented `Cuprum::Rails::Serializers::Context`.
+
+Refactored serializers to take a `context:` keyword instead of `serializers:`.
+
+Defined `Cuprum::Rails::RSpec::SerializersContracts`:
+
+- `SHOULD_SERIALIZE_ATTRIBUTES`: Verifies that the specified attributes are serialized with the expected values.
+
 ## 0.1.0
 
 Initial version.

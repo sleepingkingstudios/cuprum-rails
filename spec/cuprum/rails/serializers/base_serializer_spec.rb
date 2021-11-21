@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/serializers/json/serializer'
+require 'cuprum/rails/serializers/base_serializer'
+require 'cuprum/rails/serializers/context'
 
-RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
+RSpec.describe Cuprum::Rails::Serializers::BaseSerializer do
   subject(:serializer) { described_class.new }
 
   describe '::RecursiveSerializerError' do
@@ -14,18 +15,6 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
 
     it 'should inherit from StandardError' do
       expect(described_class::RecursiveSerializerError).to be < StandardError
-    end
-  end
-
-  describe '::UndefinedSerializerError' do
-    it 'should define the error class' do
-      expect(described_class)
-        .to define_constant(:UndefinedSerializerError)
-        .with_value(an_instance_of Class)
-    end
-
-    it 'should inherit from StandardError' do
-      expect(described_class::UndefinedSerializerError).to be < StandardError
     end
   end
 
@@ -53,6 +42,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
         Spec::RocketPart => rocket_part_serializer
       }
     end
+    let(:context) do
+      Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+    end
 
     example_class 'Spec::Part'
 
@@ -68,7 +60,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
       expect(serializer)
         .to respond_to(:call)
         .with(1).argument
-        .and_keywords(:serializers)
+        .and_keywords(:context)
+    end
+
+    it 'should delegate to the context' do
+      allow(context).to receive(:serialize)
+      allow(context).to receive(:serializer_for)
+
+      serializer.call(object, context: context)
+
+      expect(context).to have_received(:serialize).with(object)
     end
 
     context 'when the serializers are empty' do
@@ -78,9 +79,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
       end
 
       it 'should raise an exception' do
-        expect { serializer.call(object, serializers: serializers) }
+        expect { serializer.call(object, context: context) }
           .to raise_error(
-            described_class::UndefinedSerializerError,
+            Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
             error_message
           )
       end
@@ -90,9 +91,9 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
       let(:error_message) { 'no serializer defined for NilClass' }
 
       it 'should raise an exception' do
-        expect { serializer.call(object, serializers: serializers) }
+        expect { serializer.call(object, context: context) }
           .to raise_error(
-            described_class::UndefinedSerializerError,
+            Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
             error_message
           )
       end
@@ -103,15 +104,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
       let(:expected) { { 'type' => 'Spec::RocketPart' } }
 
       it 'should call the serializer' do
-        serializer.call(object, serializers: serializers)
+        serializer.call(object, context: context)
 
         expect(rocket_part_serializer)
           .to have_received(:call)
-          .with(object, serializers: serializers)
+          .with(object, context: context)
       end
 
       it 'should serialize the object' do
-        expect(serializer.call(object, serializers: serializers))
+        expect(serializer.call(object, context: context))
           .to be == expected
       end
     end
@@ -121,15 +122,15 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
       let(:expected) { { 'type' => 'Spec::RocketPart' } }
 
       it 'should call the serializer' do
-        serializer.call(object, serializers: serializers)
+        serializer.call(object, context: context)
 
         expect(rocket_part_serializer)
           .to have_received(:call)
-          .with(object, serializers: serializers)
+          .with(object, context: context)
       end
 
       it 'should serialize the object' do
-        expect(serializer.call(object, serializers: serializers))
+        expect(serializer.call(object, context: context))
           .to be == expected
       end
     end
@@ -144,11 +145,37 @@ RSpec.describe Cuprum::Rails::Serializers::Json::Serializer do
       example_class 'Spec::Serializer', described_class
 
       it 'should raise an exception' do
-        expect { serializer.call(object, serializers: serializers) }
+        expect { serializer.call(object, context: context) }
           .to raise_error(
             described_class::RecursiveSerializerError,
             error_message
           )
+      end
+    end
+
+    context 'with a recursive serializer subclass' do
+      let(:described_class) { HeadTailSerializer }
+      let(:serializers)     { { String => ->(str, **_) { str.upcase } } }
+      let(:object)          { %w[ichi ni san] }
+      let(:expected)        { %w[ICHI NI SAN] }
+
+      example_class 'HeadTailSerializer', described_class do |klass|
+        klass.define_method :call do |object, context:|
+          return [] if object.empty?
+
+          head, *tail = object
+
+          [super(head, context: context), *call(tail, context: context)]
+        end
+
+        klass.define_method :allow_recursion? do
+          true
+        end
+      end
+
+      it 'should serialize the object' do
+        expect(serializer.call(object, context: context))
+          .to be == expected
       end
     end
   end

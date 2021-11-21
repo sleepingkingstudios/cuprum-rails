@@ -67,6 +67,9 @@ Metrics/ModuleLength:
 Naming/RescuedExceptionsVariableName:
   PreferredName: exception
 
+Rails/IndexWith:
+  Enabled: false
+
 RSpec/ExampleWording:
   Enabled: false
 

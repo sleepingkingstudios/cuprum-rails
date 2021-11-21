@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/serializers/base_serializer'
 require 'cuprum/rails/serializers/json'
-require 'cuprum/rails/serializers/json/serializer'
 
 module Cuprum::Rails::Serializers::Json
   # Converts the object to JSON by serializing the specified attributes.
@@ -24,6 +24,9 @@ module Cuprum::Rails::Serializers::Json
   #     published_at: '2019-09-10'
   #   )
   #   serializers = Cuprum::Rails::Serializers::Json.default_serializers
+  #   context     = Cuprum::Rails::Serializers::Context.new(
+  #     serializers: serializers
+  #   )
   #
   #   RecordSerializer.new.call(book, serializers: serializers)
   #   #=> { id: 10 }
@@ -55,8 +58,8 @@ module Cuprum::Rails::Serializers::Json
   #         author:       'by: Tamsyn Muir',
   #         published_at: '2019-09-10'
   #       }
-  class AttributesSerializer < Cuprum::Rails::Serializers::Json::Serializer
-    # Error class used when a serializer calls itself.
+  class AttributesSerializer < Cuprum::Rails::Serializers::BaseSerializer
+    # Error class used when defining an attribute on an abstract class.
     class AbstractSerializerError < StandardError; end
 
     class << self
@@ -113,7 +116,9 @@ module Cuprum::Rails::Serializers::Json
 
       # @return [Hash<String, Object>] the defined attributes and respective
       #   serializers.
-      def attributes(*_, **_)
+      def attributes(*attr_names)
+        attr_names.each { |attr_name| attribute(attr_name) }
+
         all_attributes
       end
 
@@ -166,49 +171,57 @@ module Cuprum::Rails::Serializers::Json
     # Converts the defined attributes to JSON.
     #
     # @param object [Object] The object to convert to JSON.
-    # @param serializers [Hash<Class, #call>] The serializers for different
-    #   object types.
+    # @param context [Cuprum::Rails::Serializers::Context] The serialization
+    #   context, which includes the configured serializers for attributes or
+    #   collection items.
     #
     # @return [Hash<String, Object] a JSON-compatible representation of the
     #   object's attributes.
-    def call(object, serializers:)
+    def call(object, context:)
       self.class.attributes.each.with_object({}) \
       do |(attr_name, serializer), hsh|
         attr_value     = object.send(attr_name)
         hsh[attr_name] =
           serialize_attribute(
-            attr_value:  attr_value,
-            serializer:  serializer,
-            serializers: serializers
-          ) { super(attr_value, serializers: serializers) }
+            attr_value: attr_value,
+            context:    context,
+            serializer: serializer
+          ) { super(attr_value, context: context) }
       end
     end
 
     private
 
-    def apply_block(attr_value, block:, serializers:)
+    def allow_recursion?
+      # Call serializes the attributes, not the object itself.
+      true
+    end
+
+    def apply_block(attr_value, block:, context:)
       args   = block_argument?(block) ? [attr_value] : []
-      kwargs = block_keyword?(block)  ? { serializers: serializers } : {}
+      kwargs = block_keyword?(block)  ? { context: context } : {}
 
       kwargs.empty? ? block.call(*args) : block.call(*args, **kwargs)
     end
 
     def block_argument?(block)
-      block.parameters.any? { |type, _| type == :req || type == :rest } # rubocop:disable Style/MultipleComparison
+      block.parameters.any? do |type, _|
+        type == :opt || type == :req || type == :rest # rubocop:disable Style/MultipleComparison
+      end
     end
 
     def block_keyword?(block)
       block.parameters.any? do |type, name|
-        (type == :keyreq && name == :serializers) || type == :keyrest
+        (type == :keyreq && name == :context) || type == :keyrest
       end
     end
 
-    def serialize_attribute(attr_value:, serializer:, serializers:)
+    def serialize_attribute(attr_value:, context:, serializer:)
       case serializer
-      when Cuprum::Rails::Serializers::Json::Serializer
-        serializer.call(attr_value)
+      when Cuprum::Rails::Serializers::BaseSerializer
+        serializer.call(attr_value, context: context)
       when Proc
-        apply_block(attr_value, block: serializer, serializers: serializers)
+        apply_block(attr_value, block: serializer, context: context)
       else
         yield
       end
