@@ -53,7 +53,7 @@ module Spec::Support::Examples
             described_class.action(action_name, Spec::Action)
 
             expect(described_class.actions[action_name.intern])
-              .to be_a(Cuprum::Rails::ControllerAction)
+              .to be_a(Cuprum::Rails::Controllers::Action)
               .and(have_attributes(**expected))
           end
 
@@ -62,7 +62,7 @@ module Spec::Support::Examples
               described_class.action(action_name, Spec::Action, member: false)
 
               expect(described_class.actions[action_name.intern])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(have_attributes(**expected))
             end
           end
@@ -74,7 +74,7 @@ module Spec::Support::Examples
               described_class.action(action_name, Spec::Action, member: true)
 
               expect(described_class.actions[action_name.intern])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(have_attributes(**expected))
             end
           end
@@ -258,7 +258,7 @@ module Spec::Support::Examples
 
           it 'should define the action' do # rubocop:disable RSpec/ExampleLength
             expect(described_class.actions[:publish])
-              .to be_a(Cuprum::Rails::ControllerAction)
+              .to be_a(Cuprum::Rails::Controllers::Action)
               .and(
                 have_attributes(
                   action_class:   Spec::PublishAction,
@@ -284,7 +284,7 @@ module Spec::Support::Examples
 
           it 'should define the action' do # rubocop:disable RSpec/ExampleLength
             expect(described_class.actions[:published])
-              .to be_a(Cuprum::Rails::ControllerAction)
+              .to be_a(Cuprum::Rails::Controllers::Action)
               .and(
                 have_attributes(
                   action_class:   Spec::PublishedAction,
@@ -307,7 +307,7 @@ module Spec::Support::Examples
 
             it 'should define the publish action' do # rubocop:disable RSpec/ExampleLength
               expect(described_class.actions[:publish])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(
                   have_attributes(
                     action_class:   Spec::PublishAction,
@@ -319,7 +319,7 @@ module Spec::Support::Examples
 
             it 'should define the published action' do # rubocop:disable RSpec/ExampleLength
               expect(described_class.actions[:published])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(
                   have_attributes(
                     action_class:   Spec::PublishedAction,

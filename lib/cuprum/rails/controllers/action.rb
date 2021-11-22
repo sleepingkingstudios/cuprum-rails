@@ -4,16 +4,16 @@ require 'forwardable'
 
 require 'cuprum/middleware'
 
-require 'cuprum/rails'
+require 'cuprum/rails/controllers'
 
-module Cuprum::Rails
+module Cuprum::Rails::Controllers
   # @api private
   #
   # Implements a controller action.
   #
   # @note This class should not be initialized directly. Instead, use the
   #   Cuprum::Rails::Controller.action class method to define an action.
-  class ControllerAction
+  class Action
     extend Forwardable
 
     # @param configuration [Cuprum::Rails::Controllers::Configuration] the

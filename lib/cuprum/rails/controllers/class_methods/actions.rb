@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/controller_action'
+require 'cuprum/rails/controllers/action'
 require 'cuprum/rails/controllers/class_methods'
 
 module Cuprum::Rails::Controllers::ClassMethods
@@ -18,7 +18,7 @@ module Cuprum::Rails::Controllers::ClassMethods
       validate_class(action_class, as: 'action class')
 
       action_name              = action_name.intern
-      own_actions[action_name] = Cuprum::Rails::ControllerAction.new(
+      own_actions[action_name] = Cuprum::Rails::Controllers::Action.new(
         configuration,
         action_class:  action_class,
         action_name:   action_name,
@@ -28,7 +28,7 @@ module Cuprum::Rails::Controllers::ClassMethods
       define_action(action_name)
     end
 
-    # @return [Hash<Symbol, Cuprum::Rails::ControllerAction>] the actions
+    # @return [Hash<Symbol, Cuprum::Rails::Controllers::Action>] the actions
     #   defined for the controller.
     def actions
       ancestors

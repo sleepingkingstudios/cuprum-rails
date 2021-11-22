@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails'
-require 'cuprum/rails/controller_action'
 require 'cuprum/rails/controllers/class_methods/actions'
 require 'cuprum/rails/controllers/class_methods/configuration'
 require 'cuprum/rails/controllers/class_methods/middleware'

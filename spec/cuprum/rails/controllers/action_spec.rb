@@ -2,10 +2,10 @@
 
 require 'cuprum/middleware'
 
-require 'cuprum/rails/controller_action'
+require 'cuprum/rails/controllers/action'
 require 'cuprum/rails/controllers/middleware'
 
-RSpec.describe Cuprum::Rails::ControllerAction do
+RSpec.describe Cuprum::Rails::Controllers::Action do
   subject(:action) { described_class.new(configuration, **constructor_options) }
 
   let(:middleware) { [] }
