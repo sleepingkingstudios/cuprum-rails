@@ -18,6 +18,10 @@ module Cuprum::Rails::Controllers
     # @return [#resource, #responders] the controller to delegate configuration.
     attr_reader :controller
 
+    # @!method middleware
+    #   @return [Array<Cuprum::Rails::Controllers::Middleware>] the middleware
+    #     defined for the controller.
+
     # @!method resource
     #   @return [Cuprum::Rails::Resource] the resource defined for the
     #     controller.
@@ -31,9 +35,20 @@ module Cuprum::Rails::Controllers
     #     serializers for converting result values into serialized data.
 
     def_delegators :@controller,
+      :middleware,
       :resource,
       :responders,
       :serializers
+
+    # Finds the configured middleware for the requested action name.
+    #
+    # @param action_name [Symbol] The name of the action.
+    #
+    # @return [Array<Cuprum::Rails::Controllers::Middleware>] the configured
+    #   middleware for the action.
+    def middleware_for(action_name)
+      middleware.select { |item| item.matches?(action_name) }
+    end
 
     # Finds the configured responder for the requested format.
     #

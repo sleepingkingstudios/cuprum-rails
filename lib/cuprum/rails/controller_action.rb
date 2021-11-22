@@ -2,6 +2,8 @@
 
 require 'forwardable'
 
+require 'cuprum/middleware'
+
 require 'cuprum/rails'
 
 module Cuprum::Rails
@@ -83,6 +85,7 @@ module Cuprum::Rails
     def call(request)
       responder = build_responder(request)
       action    = action_class.new(resource: resource)
+      action    = apply_middleware(action)
       result    = action.call(request: request)
 
       responder.call(result)
@@ -95,6 +98,13 @@ module Cuprum::Rails
     end
 
     private
+
+    def apply_middleware(command)
+      Cuprum::Middleware.apply(
+        command:    command,
+        middleware: middleware
+      )
+    end
 
     def build_responder(request)
       responder_class = responder_for(request.format)
@@ -110,6 +120,12 @@ module Cuprum::Rails
     def merge_serializers_for(format)
       scoped_serializers(configuration.serializers, format: format)
         .merge(scoped_serializers(serializers, format: format))
+    end
+
+    def middleware
+      configuration
+        .middleware_for(action_name)
+        .map(&:command)
     end
 
     def scoped_serializers(serializers, format:)
