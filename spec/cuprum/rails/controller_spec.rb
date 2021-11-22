@@ -15,6 +15,8 @@ RSpec.describe Cuprum::Rails::Controller do
 
   example_class 'Spec::Controller', Struct.new(:request) do |klass|
     klass.include Cuprum::Rails::Controller # rubocop:disable RSpec/DescribedClass
+
+    klass.define_method(:controller_name) { 'api/books' }
   end
 
   describe '::UndefinedResourceError' do
@@ -32,4 +34,6 @@ RSpec.describe Cuprum::Rails::Controller do
   include_examples 'should implement the actions DSL'
 
   include_examples 'should implement the configuration DSL'
+
+  include_examples 'should implement the middleware DSL'
 end

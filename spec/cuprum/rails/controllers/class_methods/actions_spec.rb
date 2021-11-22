@@ -19,6 +19,8 @@ RSpec.describe Cuprum::Rails::Controllers::ClassMethods::Actions do
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Actions # rubocop:disable RSpec/DescribedClass
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Configuration
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Validations
+
+    klass.define_method(:controller_name) { 'api/books' }
   end
 
   include_examples 'should implement the actions DSL'

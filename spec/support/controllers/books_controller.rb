@@ -4,6 +4,7 @@ require 'cuprum/rails'
 
 require 'support/book'
 require 'support/controllers/base_controller'
+require 'support/middleware/profiling_middleware'
 require 'support/serializers/book_serializer'
 
 class BooksController < BaseController
@@ -20,6 +21,8 @@ class BooksController < BaseController
       Book => Spec::Support::Serializers::BookSerializer
     )
   end
+
+  middleware Spec::Support::Middleware::ProfilingMiddleware
 
   action :create,  Cuprum::Rails::Actions::Create
   action :destroy, Cuprum::Rails::Actions::Destroy

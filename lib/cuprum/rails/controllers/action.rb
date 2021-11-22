@@ -2,16 +2,18 @@
 
 require 'forwardable'
 
-require 'cuprum/rails'
+require 'cuprum/middleware'
 
-module Cuprum::Rails
+require 'cuprum/rails/controllers'
+
+module Cuprum::Rails::Controllers
   # @api private
   #
   # Implements a controller action.
   #
   # @note This class should not be initialized directly. Instead, use the
   #   Cuprum::Rails::Controller.action class method to define an action.
-  class ControllerAction
+  class Action
     extend Forwardable
 
     # @param configuration [Cuprum::Rails::Controllers::Configuration] the
@@ -77,12 +79,13 @@ module Cuprum::Rails
     # 3. Builds the responder with the resource and action metadata.
     # 4. Calls the responder with the action result.
     #
-    # @param request [ActionDispatch::Request] The request to process.
+    # @param request [Cuprum::Rails::Request] The request to process.
     #
     # @return [#call] The response object.
     def call(request)
       responder = build_responder(request)
       action    = action_class.new(resource: resource)
+      action    = apply_middleware(action)
       result    = action.call(request: request)
 
       responder.call(result)
@@ -95,6 +98,13 @@ module Cuprum::Rails
     end
 
     private
+
+    def apply_middleware(command)
+      Cuprum::Middleware.apply(
+        command:    command,
+        middleware: middleware
+      )
+    end
 
     def build_responder(request)
       responder_class = responder_for(request.format)
@@ -110,6 +120,12 @@ module Cuprum::Rails
     def merge_serializers_for(format)
       scoped_serializers(configuration.serializers, format: format)
         .merge(scoped_serializers(serializers, format: format))
+    end
+
+    def middleware
+      configuration
+        .middleware_for(action_name)
+        .map(&:command)
     end
 
     def scoped_serializers(serializers, format:)

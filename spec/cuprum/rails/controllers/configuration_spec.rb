@@ -3,29 +3,44 @@
 require 'cuprum/rails/controllers/class_methods/configuration'
 require 'cuprum/rails/controllers/class_methods/validations'
 require 'cuprum/rails/controllers/configuration'
+require 'cuprum/rails/controllers/middleware'
 require 'cuprum/rails/resource'
 
 RSpec.describe Cuprum::Rails::Controllers::Configuration do
   subject(:configuration) { described_class.new(controller) }
 
   let(:resource) { instance_double(Cuprum::Rails::Resource) }
+  let(:middleware) do
+    [
+      Cuprum::Rails::Controllers::Middleware.new(command: Cuprum::Command.new)
+    ]
+  end
   let(:responders) do
     { json: Spec::JsonResponder }
   end
   let(:serializers) do
     { Object => Spec::JsonSerializer }
   end
+  let(:controller_name) { 'api/books' }
   let(:controller) do
     instance_double(
       Spec::Controller,
-      resource:    resource,
-      responders:  responders,
-      serializers: serializers
+      controller_name: controller_name,
+      middleware:      middleware,
+      resource:        resource,
+      responders:      responders,
+      serializers:     serializers
     )
   end
 
   example_class 'Spec::Controller',
-    Struct.new(:resource, :responders, :serializers)
+    Struct.new(
+      :controller_name,
+      :middleware,
+      :resource,
+      :responders,
+      :serializers
+    )
 
   example_class 'Spec::JsonResponder'
 
@@ -37,6 +52,59 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
 
   describe '#controller' do
     include_examples 'should define reader', :controller, -> { controller }
+  end
+
+  describe '#controller_name' do
+    include_examples 'should define reader',
+      :controller_name,
+      -> { controller_name }
+  end
+
+  describe '#middleware' do
+    include_examples 'should define reader', :middleware, -> { middleware }
+  end
+
+  describe '#middleware_for' do
+    let(:action_name) { :publish }
+
+    it { expect(configuration).to respond_to(:middleware_for).with(1).argument }
+
+    context 'when the controller does not define middleware' do
+      let(:middleware) { [] }
+
+      it { expect(configuration.middleware_for action_name).to be == [] }
+    end
+
+    context 'when the controller defines middleware' do
+      let(:middleware) do
+        [
+          Cuprum::Rails::Controllers::Middleware.new(
+            command: Cuprum::Command.new
+          ),
+          Cuprum::Rails::Controllers::Middleware.new(
+            command: Cuprum::Command.new,
+            except:  %i[index show]
+          ),
+          Cuprum::Rails::Controllers::Middleware.new(
+            command: Cuprum::Command.new,
+            except:  %i[draft publish]
+          ),
+          Cuprum::Rails::Controllers::Middleware.new(
+            command: Cuprum::Command.new,
+            only:    %i[create update]
+          ),
+          Cuprum::Rails::Controllers::Middleware.new(
+            command: Cuprum::Command.new,
+            only:    %i[approve publish]
+          )
+        ]
+      end
+      let(:expected) do
+        middleware.select { |item| item.matches?(action_name) }
+      end
+
+      it { expect(configuration.middleware_for action_name).to be == expected }
+    end
   end
 
   describe '#resource' do

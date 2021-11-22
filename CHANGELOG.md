@@ -4,6 +4,17 @@
 
 ### Controllers
 
+Refactored `Cuprum::Rails::ControllerAction` to `Cuprum::Rails::Controllers::Action`.
+
+#### Middleware
+
+Implemented controller middleware.
+
+- `Cuprum::Rails::Controllers::Middleware`.
+- `Cuprum::Rails::Controllers::ClassMethods::Middleware`.
+
+Updated `Cuprum::Rails::Controllers::Action` to apply configured middleware.
+
 #### Resources
 
 Automatically generate a `Cuprum::Rails::Collection` when creating a resource with a `record_class` but no explicit `collection`.

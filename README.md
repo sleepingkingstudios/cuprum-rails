@@ -8,6 +8,7 @@ Cuprum::Rails defines the following objects:
     - [Commands](#commands): Each collection is comprised of `Cuprum` commands, which implement common collection operations such as inserting or querying data.
 - [Controllers](#controllers): Decouples controller responsibilities for precise control, reusability, and reduction of boilerplate code.
     - [Actions](#actions): Implement a controller's actions as a `Cuprum` command.
+    - [Middleware](#middleware): Wraps a controller's actions with additional functionality.
     - [Requests](#requests): Encapsulates a controller request.
     - [Resources](#resources) and [Routes](#routes): Configuration for a resourceful controller.
     - [Responders](#responders) and [Responses](#responses): Generate controller responses from action results.
@@ -484,6 +485,47 @@ class BooksController
 end
 ```
 
+<a id="controllers-defining-middleware"></a>
+
+#### Defining Middleware
+
+You can use [middleware](#middleware) to insert functionality before, after, or around controller actions. Think of it as a supercharged alternative to the traditional Rails `before_action` and `after_action` hooks, but without the magic behavior. Use cases for middleware include:
+
+- Authentication
+- Logging
+- Profiling
+
+Middleware commands have a specific interface. See [Middleware](#middleware), below, for how to define your own middleware commands.
+
+```ruby
+class BooksController
+  middleware LoggingMiddleware
+  middleware AuthenticationMiddleware, except: %i[index show]
+  middleware ProfilingMiddleware,      only:   %i[create update]
+end
+```
+
+Adding middleware to a controller is straightforward. In our example above, the `LoggingMiddleware` will run for all actions, the `AuthenticationMiddleware` will run for all actions except for `:index` and `:show`, and the `ProfilingMiddleware` will run for the `:create` and `:update` actions.
+
+Each middleware command can have functionality that runs before, after, or around the action (and subsequent middleware). Code that runs before the action has access to the `request:`, and can modify the request passed to the next command or even skip the action and return its own result. Code that runs after the action has access to the `request:` and the action `result`, and can modify or replace the result.
+
+The middleware is executed in the order it is defined. For the `BooksController#create` action, the code would run as follows:
+
+1. `LoggingMiddleware`: Any code that executes before the action.
+1. `AuthenticationMiddleware`: Any code that executes before the action.
+1. `ProfilingMiddleware`: Any code that executes before the action.
+1. `Books::CreateAction`
+1. `ProfilingMiddleware`: Any code that executes after the action.
+1. `AuthenticationMiddleware`: Any code that executes after the action.
+1. `LoggingMiddleware`: Any code that executes after the action.
+
+Code that runs before or around the action can skip the action and return its own result. For example, the `AuthenticationMiddleware` will check for a valid session. If there is not a valid session, it will return a failing result rather than calling the action. In this case, the code would run as follows:
+
+1. `LoggingMiddleware`: Any code that executes before the action.
+1. `AuthenticationMiddleware`: The session is not found, so the action is not called.
+1. `AuthenticationMiddleware`: Any code that executes after the action.
+1. `LoggingMiddleware`: Any code that executes after the action.
+
 <a id="controllers-action-lifecycle"></a>
 
 #### The Action Lifecycle
@@ -492,7 +534,8 @@ Inside a controller action, `Cuprum::Rails` splits up the responsibilities of re
 
 1. The Action
     1. The `action_class` is initialized, passing the controller `resource` to the constructor and returning the `action`.
-    2. The controller `#request` is wrapped in a `Cuprum::Rails::Request`, which is passed to the `action`'s `#call` method, returning the `result`.
+    2. The `action` is wrapped with any `middleware` that is defined by the controller for that action.
+    3. The controller `#request` is wrapped in a `Cuprum::Rails::Request`, which is passed to the `action`'s `#call` method, returning the `result`.
 2. The Responder
     1. The `responder_class` is found for the request based on the request's `format` and the configured `responders`.
     2. The `responder_class` is initialized with the `action_name`, `resource`, and `serializers`, returning the `responder`.
@@ -695,6 +738,98 @@ If the updated record is not valid, the action returns a failing result with a `
 If the params do not include attributes for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
 
 If the permitted attributes are not defined for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error.
+
+<a id="middleware"></a>
+
+### Middleware
+
+A middleware command takes two parameters. First, a `next_command` argument, which is the next item in the middleware chain (or the controller action if the middleware is the last one in the chain). Second, a `request:` keyword - this is the [request](#requests) passed down from the controller.
+
+See [Defining Middleware](#controllers-defining-middleware), above, for using middleware in a `Cuprum::Rails::Controller`, or see [Cuprum](github.com/sleepingkingstudios/cuprum) for more information on middleware.
+
+#### Before An Action
+
+Middleware commands can run before an action, similar to a native Rails `before_action` filter.
+
+```ruby
+class AuthenticationMiddleware < Cuprum::Command
+  include Cuprum::Middleware
+
+  private def process(next_command, request:)
+    step { Authentication::RequireUser.call(request: request) }
+
+    super
+  end
+end
+```
+
+Here, we are creating a basic middleware command. We call our authentication command in a `step`, meaning that if the authentication command returns a failing result, we will immediately return that result. This means that our action will not run if the session is invalid.
+
+If the authentication command returns a passing result, we call `super` to invoke the default behavior of `Cuprum::Middleware`. This calls `next_command.call(request: request)` to continue the middleware or invoke the action.
+
+#### After An Action
+
+Likewise, middleware commands can run after an action, similar to a native Rails `after_action` filter.
+
+```ruby
+class LoggingMiddleware < Cuprum::Command
+  include Cuprum::Middleware
+
+  private def process(next_command, request:)
+    result = next_command.call(request: request)
+
+    if result.success?
+      Rails.logger.info(
+        "Successful Request: controller: #{request.controller_name}, action:" \
+          " #{request.action_name}"
+      )
+    else
+      Rails.logger.error(
+        "Failed Request: controller: #{request.controller_name}, action:" \
+          " #{request.action_name}, error: #{result.error.as_json}"
+      )
+    end
+
+    result
+  end
+end
+```
+
+This middleware is a little more complicated. Instead of intercepting the request before the action, here we are taking the result of the action and implementing some custom behavior based on the success or failure of the action. Finally, make sure to return the result.
+
+Note that we are explicitly calling `next_command.call(request: request)` rather than relying on `super`. This is because `super` calls the next command inside a `step`, and will immediately return a failing result rather than continuing through `#process`. For our logging middleware, however, we actually want to handle both passing and failing results.
+
+#### Around An Action
+
+Finally, we can run middleware around an action, similiar to a native Rails `around_action` filter.
+
+```ruby
+class ProfilingMiddleware < Cuprum::Command
+  include Cuprum::Middleware
+
+  private
+
+  def process(next_command, request:)
+    start_time = Time.current
+
+    value = super(next_command, request: request)
+
+    return if value.nil?
+
+    end_time = Time.current
+
+    value.merge('time_elapsed' => time_elapsed(start_time, end_time))
+  end
+
+  def time_elapsed(start_time, end_time)
+    difference = ((end_time - start_time).round(3) * 1_000).to_i
+
+    "#{difference} milliseconds"
+  end
+end
+```
+
+We start by capturing the current time, before the action is run. We then call the action via `super`; this means that the middleware will return immediately on a failed result. Once the action has run, we calculate how long the action took to run and merge that into the result value. In a production environment, we would probably pass that data to a monitoring service.
 
 <a id="requests"></a>
 

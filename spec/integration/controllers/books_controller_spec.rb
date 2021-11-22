@@ -206,6 +206,14 @@ RSpec.describe BooksController do
     klass.define_method(:render)      { |*_, **_| nil }
   end
 
+  before(:example) do
+    current_time = Time.current
+
+    allow(Time)
+      .to receive(:current)
+      .and_return(current_time, current_time + 0.05)
+  end
+
   describe '#create' do
     let(:action_name) { :create }
     let(:method)      { :post }
@@ -259,7 +267,10 @@ RSpec.describe BooksController do
         Book.where(attributes).first
       end
       let(:expected_data) do
-        { 'book' => expected_book.as_json }
+        {
+          'book'         => expected_book.as_json,
+          'time_elapsed' => '50 milliseconds'
+        }
       end
       let(:status) { 201 }
 
@@ -288,7 +299,10 @@ RSpec.describe BooksController do
       let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
       let(:book_id) { book.id }
       let(:expected_data) do
-        { 'book' => serializer.call(book, context: context) }
+        {
+          'book'         => serializer.call(book, context: context),
+          'time_elapsed' => '50 milliseconds'
+        }
       end
 
       it 'should destroy the book' do
@@ -322,7 +336,10 @@ RSpec.describe BooksController do
       let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
       let(:book_id) { book.id }
       let(:expected_assigns) do
-        { '@book' => book }
+        {
+          '@book'         => book,
+          '@time_elapsed' => '50 milliseconds'
+        }
       end
 
       wrap_examples 'should render the view'
@@ -335,13 +352,17 @@ RSpec.describe BooksController do
     let(:path)           { '/books' }
     let(:expected_books) { [] }
     let(:expected_assigns) do
-      { '@books' => expected_books.to_a }
+      {
+        '@books'        => expected_books.to_a,
+        '@time_elapsed' => '50 milliseconds'
+      }
     end
     let(:expected_data) do
       {
-        'books' => expected_books.map do |book|
+        'books'        => expected_books.map do |book|
           serializer.call(book, context: context)
-        end
+        end,
+        'time_elapsed' => '50 milliseconds'
       }
     end
 
@@ -381,7 +402,10 @@ RSpec.describe BooksController do
     let(:method)      { :get }
     let(:path)        { '/books/new' }
     let(:expected_assigns) do
-      { '@book' => Book.new }
+      {
+        '@book'         => Book.new,
+        '@time_elapsed' => '50 milliseconds'
+      }
     end
 
     it { expect(controller).to respond_to(:new).with(0).arguments }
@@ -404,10 +428,16 @@ RSpec.describe BooksController do
       let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
       let(:book_id) { book.id }
       let(:expected_assigns) do
-        { '@book' => book }
+        {
+          '@book'         => book,
+          '@time_elapsed' => '50 milliseconds'
+        }
       end
       let(:expected_data) do
-        { 'book' => serializer.call(book, context: context) }
+        {
+          'book'         => serializer.call(book, context: context),
+          'time_elapsed' => '50 milliseconds'
+        }
       end
 
       wrap_examples 'should render the view'
@@ -475,7 +505,10 @@ RSpec.describe BooksController do
         let(:params)        { super().merge(book: attributes) }
         let(:expected_book) { book }
         let(:expected_data) do
-          { 'book' => serializer.call(book.reload, context: context) }
+          {
+            'book'         => serializer.call(book.reload, context: context),
+            'time_elapsed' => '50 milliseconds'
+          }
         end
 
         it 'should update the attributes' do

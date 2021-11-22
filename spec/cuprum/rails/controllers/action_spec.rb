@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/controller_action'
+require 'cuprum/middleware'
 
-RSpec.describe Cuprum::Rails::ControllerAction do
+require 'cuprum/rails/controllers/action'
+require 'cuprum/rails/controllers/middleware'
+
+RSpec.describe Cuprum::Rails::Controllers::Action do
   subject(:action) { described_class.new(configuration, **constructor_options) }
 
-  let(:resource) { instance_double(Cuprum::Rails::Resource) }
+  let(:middleware) { [] }
+  let(:resource)   { instance_double(Cuprum::Rails::Resource) }
   let(:responders) do
     { json: Spec::JsonResponder }
   end
@@ -13,9 +17,10 @@ RSpec.describe Cuprum::Rails::ControllerAction do
   let(:configuration) do
     instance_double(
       Cuprum::Rails::Controllers::Configuration,
-      resource:    resource,
-      responders:  responders,
-      serializers: configured_serializers
+      middleware_for: middleware,
+      resource:       resource,
+      responders:     responders,
+      serializers:    configured_serializers
     )
   end
   let(:action_class) { Cuprum::Rails::Action }
@@ -77,7 +82,7 @@ RSpec.describe Cuprum::Rails::ControllerAction do
     let(:action_class)    { Spec::Action }
     let(:member_action)   { false }
     let(:result)          { Cuprum::Result.new }
-    let(:implementation)  { instance_double(Spec::Action, call: result) }
+    let(:implementation)  { Spec::Action.new(resource: resource) }
     let(:responder_class) { Spec::Responder }
     let(:response)        { instance_double(Spec::Response, call: nil) }
     let(:responder)       { instance_double(Spec::Responder, call: response) }
@@ -108,6 +113,8 @@ RSpec.describe Cuprum::Rails::ControllerAction do
         .to receive(:responder_for)
         .with(format)
         .and_return(responder_class)
+
+      allow(implementation).to receive(:call).and_return(result)
     end
 
     it 'should define the method' do
@@ -141,6 +148,68 @@ RSpec.describe Cuprum::Rails::ControllerAction do
       let(:constructor_options) { super().merge(member_action: true) }
 
       include_examples 'should build the responder'
+    end
+
+    context 'when the controller defines middleware' do
+      let(:middleware_commands) do
+        Array.new(3) { Spec::Middleware.new }
+      end
+      let(:middleware) do
+        middleware_commands.map do |command|
+          instance_double(
+            Cuprum::Rails::Controllers::Middleware,
+            command: command
+          )
+        end
+      end
+      let(:expected_commands) { [*middleware_commands, implementation] }
+      let(:called_commands)   { [] }
+
+      example_class 'Spec::Middleware', 'Cuprum::Command' do |klass|
+        klass.include Cuprum::Middleware
+      end
+
+      before(:example) do
+        middleware_commands.each do |command|
+          allow(command)
+            .to receive(:call)
+            .and_wrap_original do |original, next_command, request:|
+              called_commands << command
+
+              original.call(next_command, request: request)
+            end
+        end
+
+        allow(implementation).to receive(:call) do
+          called_commands << implementation
+        end
+      end
+
+      it 'should build the action' do
+        action.call(request)
+
+        expect(action_class).to have_received(:new).with(resource: resource)
+      end
+
+      it 'should call the action' do
+        action.call(request)
+
+        expect(implementation).to have_received(:call).with(request: request)
+      end
+
+      it 'should call the middleware', :aggregate_failures do
+        action.call(request)
+
+        expect(middleware_commands)
+          .to all have_received(:call)
+            .with(a_kind_of(Cuprum::Command), request: request)
+      end
+
+      it 'should call the middleware in sequence' do
+        action.call(request)
+
+        expect(called_commands).to be == expected_commands
+      end
     end
 
     context 'when the controller defines scoped serializers' do

@@ -28,7 +28,6 @@ module Spec::Support::Examples
       before(:example) do
         allow(Cuprum::Rails::Request)
           .to receive(:build)
-          .with(request: native_request)
           .and_return(request)
       end
     end
@@ -53,7 +52,7 @@ module Spec::Support::Examples
             described_class.action(action_name, Spec::Action)
 
             expect(described_class.actions[action_name.intern])
-              .to be_a(Cuprum::Rails::ControllerAction)
+              .to be_a(Cuprum::Rails::Controllers::Action)
               .and(have_attributes(**expected))
           end
 
@@ -62,7 +61,7 @@ module Spec::Support::Examples
               described_class.action(action_name, Spec::Action, member: false)
 
               expect(described_class.actions[action_name.intern])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(have_attributes(**expected))
             end
           end
@@ -74,7 +73,7 @@ module Spec::Support::Examples
               described_class.action(action_name, Spec::Action, member: true)
 
               expect(described_class.actions[action_name.intern])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(have_attributes(**expected))
             end
           end
@@ -151,6 +150,18 @@ module Spec::Support::Examples
                   .and_return(resource)
 
                 allow(action).to receive(:call).and_return(response)
+              end
+
+              it 'should build the request' do # rubocop:disable RSpec/ExampleLength
+                controller.send(action_name)
+
+                expect(Cuprum::Rails::Request)
+                  .to have_received(:build)
+                  .with(
+                    action_name:     action_name.intern,
+                    controller_name: controller.controller_name,
+                    request:         native_request
+                  )
               end
 
               it 'should call the action' do
@@ -258,7 +269,7 @@ module Spec::Support::Examples
 
           it 'should define the action' do # rubocop:disable RSpec/ExampleLength
             expect(described_class.actions[:publish])
-              .to be_a(Cuprum::Rails::ControllerAction)
+              .to be_a(Cuprum::Rails::Controllers::Action)
               .and(
                 have_attributes(
                   action_class:   Spec::PublishAction,
@@ -284,7 +295,7 @@ module Spec::Support::Examples
 
           it 'should define the action' do # rubocop:disable RSpec/ExampleLength
             expect(described_class.actions[:published])
-              .to be_a(Cuprum::Rails::ControllerAction)
+              .to be_a(Cuprum::Rails::Controllers::Action)
               .and(
                 have_attributes(
                   action_class:   Spec::PublishedAction,
@@ -307,7 +318,7 @@ module Spec::Support::Examples
 
             it 'should define the publish action' do # rubocop:disable RSpec/ExampleLength
               expect(described_class.actions[:publish])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(
                   have_attributes(
                     action_class:   Spec::PublishAction,
@@ -319,7 +330,7 @@ module Spec::Support::Examples
 
             it 'should define the published action' do # rubocop:disable RSpec/ExampleLength
               expect(described_class.actions[:published])
-                .to be_a(Cuprum::Rails::ControllerAction)
+                .to be_a(Cuprum::Rails::Controllers::Action)
                 .and(
                   have_attributes(
                     action_class:   Spec::PublishedAction,
@@ -532,6 +543,265 @@ module Spec::Support::Examples
         include_examples 'should define class reader',
           :serializers,
           -> { be == expected }
+      end
+    end
+
+    shared_examples 'should implement the middleware DSL' do
+      shared_context 'when the controller defines middleware' do
+        let(:middleware) do
+          [
+            {
+              command: Spec::Middleware,
+              except:  [],
+              only:    []
+            },
+            {
+              command: Cuprum::Command.new,
+              except:  %i[destroy],
+              only:    []
+            },
+            {
+              command: Cuprum::Command.new,
+              except:  [],
+              only:    %i[index show]
+            }
+          ]
+        end
+
+        before(:example) do
+          middleware.each do |hsh|
+            described_class.middleware(
+              hsh[:command],
+              except: hsh[:except],
+              only:   hsh[:only]
+            )
+          end
+        end
+      end
+
+      describe '#middleware' do
+        shared_examples 'should define the middleware' do
+          describe 'with command: a command instance' do
+            let(:command) { Spec::Middleware.new }
+            let(:options) { {} }
+            let(:configured_middleware) do
+              super() + [
+                {
+                  command: command,
+                  except:  options.fetch(:except, []),
+                  only:    options.fetch(:only,   [])
+                }
+              ]
+            end
+
+            it 'should define the middleware' do
+              expect(described_class.middleware(command, **options))
+                .to be == expected
+            end
+
+            describe 'with except: value' do
+              let(:excepted_actions) { %i[index show] }
+              let(:options)          { super().merge(except: excepted_actions) }
+
+              it 'should define the middleware' do
+                expect(described_class.middleware(command, **options))
+                  .to be == expected
+              end
+            end
+
+            describe 'with only: value' do
+              let(:only_actions) { %i[create update] }
+              let(:options)      { super().merge(only: only_actions) }
+
+              it 'should define the middleware' do
+                expect(described_class.middleware(command, **options))
+                  .to be == expected
+              end
+            end
+          end
+
+          describe 'with command: a command class' do
+            let(:command) { Spec::Middleware }
+            let(:options) { {} }
+            let(:configured_middleware) do
+              super() + [
+                {
+                  command: command.new,
+                  except:  options.fetch(:except, []),
+                  only:    options.fetch(:only,   [])
+                }
+              ]
+            end
+
+            it 'should define the middleware' do
+              expect(described_class.middleware(command, **options))
+                .to be == expected
+            end
+
+            describe 'with except: value' do
+              let(:excepted_actions) { %i[index show] }
+              let(:options)          { super().merge(except: excepted_actions) }
+
+              it 'should define the middleware' do
+                expect(described_class.middleware(command, **options))
+                  .to be == expected
+              end
+            end
+
+            describe 'with only: value' do
+              let(:only_actions) { %i[create update] }
+              let(:options)      { super().merge(only: only_actions) }
+
+              it 'should define the middleware' do
+                expect(described_class.middleware(command, **options))
+                  .to be == expected
+              end
+            end
+          end
+        end
+
+        let(:configured_middleware) { [] }
+        let(:expected) do
+          configured_middleware.map do |hsh|
+            command = hsh[:command]
+            command = command.new if command.is_a?(Class)
+
+            Cuprum::Rails::Controllers::Middleware.new(
+              command: command,
+              except:  hsh[:except],
+              only:    hsh[:only]
+            )
+          end
+        end
+
+        example_class 'Spec::Middleware', 'Cuprum::Command' do |klass|
+          klass.define_method(:==) { |other| other.is_a?(Spec::Middleware) }
+        end
+
+        it 'should define the class method' do
+          expect(described_class)
+            .to respond_to(:middleware)
+            .with(0..1).arguments
+            .and_keywords(:except, :only)
+        end
+
+        it { expect(described_class.middleware).to be == [] }
+
+        include_examples 'should define the middleware'
+
+        describe 'with command: an object' do
+          let(:error_message) do
+            'command must be an instance of or subclass of Cuprum::Command'
+          end
+
+          it 'should raise an exception' do
+            expect { described_class.middleware Object.new.freeze }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with except: an object' do
+          let(:command) { Cuprum::Command.new }
+          let(:error_message) do
+            'except must be a list of action names'
+          end
+
+          it 'should raise an exception' do
+            expect do
+              described_class.middleware command, except: Object.new.freeze
+            end
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with except: an invalid array' do
+          let(:command) { Cuprum::Command.new }
+          let(:error_message) do
+            'except must be a list of action names'
+          end
+
+          it 'should raise an exception' do
+            expect do
+              described_class.middleware command, except: [nil]
+            end
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with only: an object' do
+          let(:command) { Cuprum::Command.new }
+          let(:error_message) do
+            'only must be a list of action names'
+          end
+
+          it 'should raise an exception' do
+            expect do
+              described_class.middleware command, only: Object.new.freeze
+            end
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        wrap_context 'when the controller defines middleware' do
+          let(:configured_middleware) { middleware }
+
+          it { expect(described_class.middleware).to be == expected }
+
+          include_examples 'should define the middleware'
+        end
+
+        context 'with a controller subclass' do
+          let(:described_class) { Spec::SubclassController }
+
+          example_class 'Spec::SubclassController', 'Spec::Controller'
+
+          it { expect(described_class.middleware).to be == [] }
+
+          include_examples 'should define the middleware'
+
+          wrap_context 'when the controller defines middleware' do
+            let(:configured_middleware) { middleware }
+
+            it { expect(described_class.middleware).to be == expected }
+
+            include_examples 'should define the middleware'
+          end
+
+          context 'when the subclass defines middleware' do
+            let(:subclass_middleware) do
+              [
+                {
+                  command: Spec::Middleware,
+                  except:  [],
+                  only:    %i[drafts published]
+                }
+              ]
+            end
+            let(:configured_middleware) { subclass_middleware }
+
+            before(:example) do
+              subclass_middleware.each do |hsh|
+                Spec::Controller.middleware(
+                  hsh[:command],
+                  except: hsh[:except],
+                  only:   hsh[:only]
+                )
+              end
+            end
+
+            it { expect(described_class.middleware).to be == expected }
+
+            include_examples 'should define the middleware'
+
+            wrap_context 'when the controller defines middleware' do
+              let(:configured_middleware) { super() + middleware }
+
+              it { expect(described_class.middleware).to be == expected }
+
+              include_examples 'should define the middleware'
+            end
+          end
+        end
       end
     end
   end
