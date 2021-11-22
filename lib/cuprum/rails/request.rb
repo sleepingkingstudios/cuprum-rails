@@ -19,18 +19,22 @@ module Cuprum::Rails
       # Generates a Request from a native Rails request.
       #
       # @param request [] The native request to build.
+      # @param action_name [Symbol] The name of the called action.
+      # @param controller_name [String] The name of the controller.
       #
       # @return [Cuprum::Rails::Request] the generated request.
-      def build(request:)
+      def build(request:, action_name: nil, controller_name: nil) # rubocop:disable Metrics/MethodLength
         new(
-          authorization: request.authorization,
-          body_params:   request.request_parameters,
-          format:        request.format.symbol,
-          headers:       filter_headers(request.headers),
-          method:        request.request_method_symbol,
-          params:        filter_params(request.params),
-          path:          request.fullpath,
-          query_params:  request.query_parameters
+          action_name:     action_name,
+          authorization:   request.authorization,
+          body_params:     request.request_parameters,
+          controller_name: controller_name,
+          format:          request.format.symbol,
+          headers:         filter_headers(request.headers),
+          method:          request.request_method_symbol,
+          params:          filter_params(request.params),
+          path:            request.fullpath,
+          query_params:    request.query_parameters
         )
       end
 
@@ -47,9 +51,11 @@ module Cuprum::Rails
       end
     end
 
+    # @param action_name [Symbol] The name of the called action.
     # @param authorization [String, nil] The authorization header, if any.
     # @param body_params [Hash<String, Object>] The parameters from the request
     #   body.
+    # @param controller_name [String] The name of the controller.
     # @param format [Symbol] The request format, e.g. :html or :json.
     # @param headers [Hash<String, String>] The request headers.
     # @param method [Symbol] The HTTP method used for the request.
@@ -63,17 +69,24 @@ module Cuprum::Rails
       params:,
       path:,
       query_params:,
-      authorization: nil
+      action_name:     nil,
+      authorization:   nil,
+      controller_name: nil
     )
-      @authorization = authorization
-      @body_params   = body_params
-      @format        = format
-      @headers       = headers
-      @method        = method
-      @path          = path
-      @params        = params
-      @query_params  = query_params
+      @action_name     = action_name
+      @authorization   = authorization
+      @controller_name = controller_name
+      @body_params     = body_params
+      @format          = format
+      @headers         = headers
+      @method          = method
+      @path            = path
+      @params          = params
+      @query_params    = query_params
     end
+
+    # @return [Symbol] the name of the called action.
+    attr_reader :action_name
 
     # @return [String, nil] the authorization header, if any.
     attr_reader :authorization
@@ -81,6 +94,9 @@ module Cuprum::Rails
     # @return [Hash<String, Object>] The parameters from the request body.
     attr_reader :body_params
     alias body_parameters body_params
+
+    # @return [String] the name of the controller.
+    attr_reader :controller_name
 
     # @return [Symbol] the request format, e.g. :html or :json.
     attr_reader :format

@@ -27,8 +27,10 @@ RSpec.describe Cuprum::Rails::Request do
   describe '.new' do
     let(:expected_keywords) do
       %i[
+        action_name
         authorization
         body_params
+        controller_name
         format
         headers
         method
@@ -83,11 +85,15 @@ RSpec.describe Cuprum::Rails::Request do
       expect(described_class)
         .to respond_to(:build)
         .with(0).arguments
-        .and_keywords(:request)
+        .and_keywords(:action_name, :request, :controller_name)
     end
 
     it 'should return a request' do
       expect(described_class.build request: request).to be_a described_class
+    end
+
+    it 'should set the request action name' do
+      expect(described_class.build(request: request).action_name).to be nil
     end
 
     it 'should set the request authorization' do
@@ -97,6 +103,10 @@ RSpec.describe Cuprum::Rails::Request do
     it 'should set the request body params' do
       expect(described_class.build(request: request).body_params)
         .to be == body_params
+    end
+
+    it 'should set the request controller name' do
+      expect(described_class.build(request: request).controller_name).to be nil
     end
 
     it 'should set the request format' do
@@ -135,6 +145,41 @@ RSpec.describe Cuprum::Rails::Request do
           .to be == authorization
       end
     end
+
+    describe 'with action_name: value' do
+      let(:action_name) { :published }
+
+      it 'should set the request action name' do
+        expect(
+          described_class
+            .build(request: request, action_name: action_name)
+            .action_name
+        ).to be action_name
+      end
+    end
+
+    describe 'with controller_name: value' do
+      let(:controller_name) { 'api/books' }
+
+      it 'should set the request controller name' do
+        expect(
+          described_class
+            .build(request: request, controller_name: controller_name)
+            .controller_name
+        ).to be == controller_name
+      end
+    end
+  end
+
+  describe '#action_name' do
+    include_examples 'should define reader', :action_name, nil
+
+    context 'when initialized with action_name: value' do
+      let(:action_name) { :publish }
+      let(:properties)  { super().merge(action_name: action_name) }
+
+      it { expect(request.action_name).to be action_name }
+    end
   end
 
   describe '#authorization' do
@@ -156,6 +201,17 @@ RSpec.describe Cuprum::Rails::Request do
     it 'should alias the method' do
       expect(described_class.instance_method(:body_parameters))
         .to be == described_class.instance_method(:body_params)
+    end
+  end
+
+  describe '#controller_name' do
+    include_examples 'should define reader', :controller_name, nil
+
+    context 'when initialized with controller_name: value' do
+      let(:controller_name) { 'api/books' }
+      let(:properties)      { super().merge(controller_name: controller_name) }
+
+      it { expect(request.controller_name).to be == controller_name }
     end
   end
 

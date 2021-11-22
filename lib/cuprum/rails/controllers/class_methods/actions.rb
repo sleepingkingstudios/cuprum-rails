@@ -47,7 +47,11 @@ module Cuprum::Rails::Controllers::ClassMethods
 
     def define_action(action_name)
       define_method(action_name) do
-        request  = Cuprum::Rails::Request.build(request: self.request)
+        request = Cuprum::Rails::Request.build(
+          action_name:     action_name,
+          controller_name: controller_name,
+          request:         self.request
+        )
         action   = self.class.actions[action_name]
         response = action.call(request)
         response.call(self)

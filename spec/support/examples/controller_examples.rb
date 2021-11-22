@@ -28,7 +28,6 @@ module Spec::Support::Examples
       before(:example) do
         allow(Cuprum::Rails::Request)
           .to receive(:build)
-          .with(request: native_request)
           .and_return(request)
       end
     end
@@ -151,6 +150,18 @@ module Spec::Support::Examples
                   .and_return(resource)
 
                 allow(action).to receive(:call).and_return(response)
+              end
+
+              it 'should build the request' do # rubocop:disable RSpec/ExampleLength
+                controller.send(action_name)
+
+                expect(Cuprum::Rails::Request)
+                  .to have_received(:build)
+                  .with(
+                    action_name:     action_name.intern,
+                    controller_name: controller.controller_name,
+                    request:         native_request
+                  )
               end
 
               it 'should call the action' do

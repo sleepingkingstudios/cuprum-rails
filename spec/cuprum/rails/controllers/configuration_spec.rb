@@ -21,18 +21,26 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
   let(:serializers) do
     { Object => Spec::JsonSerializer }
   end
+  let(:controller_name) { 'api/books' }
   let(:controller) do
     instance_double(
       Spec::Controller,
-      middleware:  middleware,
-      resource:    resource,
-      responders:  responders,
-      serializers: serializers
+      controller_name: controller_name,
+      middleware:      middleware,
+      resource:        resource,
+      responders:      responders,
+      serializers:     serializers
     )
   end
 
   example_class 'Spec::Controller',
-    Struct.new(:middleware, :resource, :responders, :serializers)
+    Struct.new(
+      :controller_name,
+      :middleware,
+      :resource,
+      :responders,
+      :serializers
+    )
 
   example_class 'Spec::JsonResponder'
 
@@ -44,6 +52,12 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
 
   describe '#controller' do
     include_examples 'should define reader', :controller, -> { controller }
+  end
+
+  describe '#controller_name' do
+    include_examples 'should define reader',
+      :controller_name,
+      -> { controller_name }
   end
 
   describe '#middleware' do

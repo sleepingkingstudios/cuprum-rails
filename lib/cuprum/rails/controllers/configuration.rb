@@ -18,6 +18,9 @@ module Cuprum::Rails::Controllers
     # @return [#resource, #responders] the controller to delegate configuration.
     attr_reader :controller
 
+    # @!method controller_name
+    #   @return [String] the name of the controller.
+
     # @!method middleware
     #   @return [Array<Cuprum::Rails::Controllers::Middleware>] the middleware
     #     defined for the controller.
@@ -35,6 +38,7 @@ module Cuprum::Rails::Controllers
     #     serializers for converting result values into serialized data.
 
     def_delegators :@controller,
+      :controller_name,
       :middleware,
       :resource,
       :responders,
