@@ -6,6 +6,23 @@ require 'cuprum/rails/controllers/middleware'
 module Cuprum::Rails::Controllers::ClassMethods
   # Provides a DSL for defining controller middleware.
   module Middleware
+    # @overload middleware
+    #   @return [Array<Cuprum::Rails::Controllers::Middleware>] the configured
+    #     middleware for the controller.
+    #
+    # @overload middleware(command, except: [], only: {]})
+    #   Defines middleware for the controller.
+    #
+    #   @param command [Class, Cuprum::Command] The middleware command.
+    #     Middleware commands must take two parameters: a next_command argument,
+    #     and a request: keyword.
+    #   @param except [Array<String, Symbol>] Action names to exclude. The
+    #     middleware will not be applied to actions on this list.
+    #   @param only [Array<String, Symbol>] Action names to include  If this is
+    #     not empty, the middleware will only be applied to actions on this
+    #     list.
+    #
+    #   @see Cuprum::Middleware
     def middleware(command = nil, except: [], only: [])
       unless command.nil?
         own_middleware <<
