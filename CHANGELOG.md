@@ -15,6 +15,12 @@ Implemented controller middleware.
 
 Updated `Cuprum::Rails::Controllers::Action` to apply configured middleware.
 
+#### Requests
+
+Added `#properties` method to access all request properties as a Hash.
+
+Renamed `#method` property to `#http_method`.
+
 #### Resources
 
 Automatically generate a `Cuprum::Rails::Collection` when creating a resource with a `record_class` but no explicit `collection`.
