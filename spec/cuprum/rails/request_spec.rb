@@ -95,8 +95,13 @@ RSpec.describe Cuprum::Rails::Request do
       )
     end
     let(:params) do
-      expected_params
-        .merge({ 'controller' => 'widgets', 'action' => 'purchase' })
+      expected_params.merge(
+        {
+          'action'     => 'purchase',
+          'controller' => 'widgets',
+          'format'     => 'xml'
+        }
+      )
     end
     let(:mime_type) { instance_double(Mime::Type, symbol: format) }
     let(:properties) do
@@ -121,7 +126,7 @@ RSpec.describe Cuprum::Rails::Request do
       expect(described_class)
         .to respond_to(:build)
         .with(0).arguments
-        .and_keywords(:action_name, :request, :controller_name)
+        .and_keywords(:request)
     end
 
     it 'should return a request' do
@@ -129,7 +134,8 @@ RSpec.describe Cuprum::Rails::Request do
     end
 
     it 'should set the request action name' do
-      expect(described_class.build(request: request).action_name).to be nil
+      expect(described_class.build(request: request).action_name)
+        .to be params['action'].intern
     end
 
     it 'should set the request authorization' do
@@ -142,7 +148,8 @@ RSpec.describe Cuprum::Rails::Request do
     end
 
     it 'should set the request controller name' do
-      expect(described_class.build(request: request).controller_name).to be nil
+      expect(described_class.build(request: request).controller_name)
+        .to be == params['controller']
     end
 
     it 'should set the request format' do
@@ -183,27 +190,31 @@ RSpec.describe Cuprum::Rails::Request do
       end
     end
 
-    describe 'with action_name: value' do
-      let(:action_name) { :published }
+    context 'when the body params includes a reserved key' do
+      let(:body_params) { super().merge({ 'action' => 'PG-13' }) }
 
-      it 'should set the request action name' do
-        expect(
-          described_class
-            .build(request: request, action_name: action_name)
-            .action_name
-        ).to be action_name
+      it 'should set the request body params' do
+        expect(described_class.build(request: request).body_params)
+          .to be == body_params
+      end
+
+      it 'should set and filter the request params' do
+        expect(described_class.build(request: request).params)
+          .to be == expected_params
       end
     end
 
-    describe 'with controller_name: value' do
-      let(:controller_name) { 'api/books' }
+    context 'when the query params includes a reserved key' do
+      let(:query_params) { super().merge({ 'format' => 'Betamax' }) }
 
-      it 'should set the request controller name' do
-        expect(
-          described_class
-            .build(request: request, controller_name: controller_name)
-            .controller_name
-        ).to be == controller_name
+      it 'should set and filter the request params' do
+        expect(described_class.build(request: request).params)
+          .to be == expected_params
+      end
+
+      it 'should set the request query params' do
+        expect(described_class.build(request: request).query_params)
+          .to be == query_params
       end
     end
   end

@@ -13,28 +13,26 @@ module Cuprum::Rails
       ].freeze
       private_constant :FILTERED_HEADER_PREFIXES
 
-      FILTERED_PARAMS = %w[controller action].freeze
-      private_constant :FILTERED_PARAMS
-
       # Generates a Request from a native Rails request.
       #
-      # @param request [] The native request to build.
-      # @param action_name [Symbol] The name of the called action.
-      # @param controller_name [String] The name of the controller.
+      # @param request [ActionDispatch::Request] The native request to build.
       #
       # @return [Cuprum::Rails::Request] the generated request.
-      def build(request:, action_name: nil, controller_name: nil) # rubocop:disable Metrics/MethodLength
+      def build(request:) # rubocop:disable Metrics/MethodLength
+        body_params  = request.request_parameters
+        query_params = request.query_parameters
+
         new(
-          action_name:     action_name,
+          action_name:     request.params['action']&.intern,
           authorization:   request.authorization,
-          body_params:     request.request_parameters,
-          controller_name: controller_name,
+          body_params:     body_params,
+          controller_name: request.params['controller'],
           format:          request.format.symbol,
           headers:         filter_headers(request.headers),
           http_method:     request.request_method_symbol,
-          params:          filter_params(request.params),
+          params:          body_params.merge(query_params),
           path:            request.fullpath,
-          query_params:    request.query_parameters
+          query_params:    query_params
         )
       end
 
@@ -44,10 +42,6 @@ module Cuprum::Rails
         headers.reject do |key, _|
           FILTERED_HEADER_PREFIXES.any? { |prefix| key.start_with?(prefix) }
         end
-      end
-
-      def filter_params(params)
-        params.reject { |key, _| FILTERED_PARAMS.include?(key) }
       end
 
       def property(property_name)
