@@ -852,6 +852,8 @@ Each request defines the following properties:
 - `#path`: The relative path of the request, including query params.
 - `#query_parameters`: (also `#query_params`) The query parameters for the request. A `Hash` with `String` keys.
 
+The request properties can also be accessed via the `#[]` method (using either String or Symbol keys), or updated via the `#[]=` method. The `#properties` method returns all of the request properties as a `Hash`.
+
 <a id="resources"></a>
 
 ### Resources

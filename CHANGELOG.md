@@ -4,6 +4,8 @@
 
 ### Controllers
 
+Implemented `.build_request` class method.
+
 Refactored `Cuprum::Rails::ControllerAction` to `Cuprum::Rails::Controllers::Action`.
 
 #### Middleware
@@ -14,6 +16,12 @@ Implemented controller middleware.
 - `Cuprum::Rails::Controllers::ClassMethods::Middleware`.
 
 Updated `Cuprum::Rails::Controllers::Action` to apply configured middleware.
+
+#### Requests
+
+Added `#properties` method to access all request properties as a Hash.
+
+**(Breaking Change)** Renamed `#method` property to `#http_method`.
 
 #### Resources
 

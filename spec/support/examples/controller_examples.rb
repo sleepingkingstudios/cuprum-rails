@@ -146,22 +146,22 @@ module Spec::Support::Examples
                 described_class.responder :html, Spec::HtmlResponder
 
                 allow(described_class)
+                  .to receive(:build_request)
+                  .and_return(request)
+
+                allow(described_class)
                   .to receive(:resource)
                   .and_return(resource)
 
                 allow(action).to receive(:call).and_return(response)
               end
 
-              it 'should build the request' do # rubocop:disable RSpec/ExampleLength
+              it 'should build the request' do
                 controller.send(action_name)
 
-                expect(Cuprum::Rails::Request)
-                  .to have_received(:build)
-                  .with(
-                    action_name:     action_name.intern,
-                    controller_name: controller.controller_name,
-                    request:         native_request
-                  )
+                expect(described_class)
+                  .to have_received(:build_request)
+                  .with(native_request: native_request)
               end
 
               it 'should call the action' do
@@ -174,6 +174,23 @@ module Spec::Support::Examples
                 controller.send(action_name)
 
                 expect(response).to have_received(:call).with(controller)
+              end
+
+              context 'when the controller overrides .build_request' do
+                let(:custom_request) { instance_double(Cuprum::Rails::Request) }
+
+                before(:example) do
+                  allow(described_class)
+                    .to receive(:build_request)
+                    .with(native_request: native_request)
+                    .and_return(custom_request)
+                end
+
+                it 'should call the action' do
+                  controller.send(action_name)
+
+                  expect(action).to have_received(:call).with(custom_request)
+                end
               end
             end
           end
@@ -340,6 +357,37 @@ module Spec::Support::Examples
                 )
             end
           end
+        end
+      end
+
+      describe '.build_request' do
+        let(:request) { instance_double(Cuprum::Rails::Request) }
+
+        before(:example) do
+          allow(Cuprum::Rails::Request)
+            .to receive(:build)
+            .with(request: native_request)
+            .and_return(request)
+        end
+
+        it 'should define the class method' do
+          expect(described_class)
+            .to respond_to(:build_request)
+            .with(0).arguments
+            .and_keywords(:native_request)
+        end
+
+        it 'should build the request' do
+          described_class.build_request(native_request: native_request)
+
+          expect(Cuprum::Rails::Request)
+            .to have_received(:build)
+            .with(request: native_request)
+        end
+
+        it 'should return the request' do
+          expect(described_class.build_request(native_request: native_request))
+            .to be request
         end
       end
     end

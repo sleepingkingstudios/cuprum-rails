@@ -26,10 +26,6 @@ class BaseController
     @assigns ||= {}
   end
 
-  def controller_name
-    self.class.name.underscore.sub(/_controller\z/, '')
-  end
-
   def instance_variable_set(variable, value)
     assigns[variable] = value
 
