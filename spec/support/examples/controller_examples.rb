@@ -177,7 +177,7 @@ module Spec::Support::Examples
               end
 
               context 'when the controller overrides .build_request' do
-                let(:custom_request) { instance_double(Cuprum::Rails::Request) }
+                let(:custom_request) { Cuprum::Rails::Request.new }
 
                 before(:example) do
                   allow(described_class)
@@ -190,6 +190,37 @@ module Spec::Support::Examples
                   controller.send(action_name)
 
                   expect(action).to have_received(:call).with(custom_request)
+                end
+              end
+
+              context 'when the request does not have a format' do
+                let(:format) { nil }
+
+                it 'should call the action' do
+                  controller.send(action_name)
+
+                  expect(action).to have_received(:call).with(request)
+                end
+
+                context 'when the controller has a default format' do
+                  let(:default_format) { :xml }
+
+                  before(:example) do
+                    allow(described_class)
+                      .to receive(:default_format)
+                      .and_return(default_format)
+                  end
+
+                  it 'should set the request format' do # rubocop:disable RSpec/ExampleLength
+                    controller.send(action_name)
+
+                    expect(action)
+                      .to have_received(:call)
+                      .with(
+                        be(request)
+                        .and(have_attributes(format: default_format))
+                      )
+                  end
                 end
               end
             end
@@ -393,6 +424,12 @@ module Spec::Support::Examples
     end
 
     shared_examples 'should implement the configuration DSL' do
+      shared_context 'when the controller defines a default format' do
+        let(:default_format) { :xml }
+
+        before(:example) { described_class.default_format default_format }
+      end
+
       shared_context 'when the controller defines a resource' do
         let(:resource) { Spec::Resource.new }
 
@@ -460,6 +497,115 @@ module Spec::Support::Examples
             it 'should return the configured responders' do
               expect(described_class.configuration.responders)
                 .to be == described_class.responders
+            end
+          end
+        end
+      end
+
+      describe '.default_format' do
+        it 'should define the class method' do
+          expect(described_class)
+            .to respond_to(:default_format)
+            .with(0..1).arguments
+        end
+
+        it { expect(described_class.default_format).to be nil }
+
+        describe 'with an Object' do
+          let(:error_message) { 'format must be a String or Symbol' }
+
+          it 'should raise an exception' do
+            expect { described_class.default_format Object.new.freeze }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with format: an empty String' do
+          let(:error_message) { "format can't be blank" }
+
+          it 'should raise an exception' do
+            expect { described_class.default_format '' }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with format: an empty Symbol' do
+          let(:error_message) { "format can't be blank" }
+
+          it 'should raise an exception' do
+            expect { described_class.default_format :'' }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with format: a String' do
+          let(:format) { 'yaml' }
+
+          it 'should set the default format' do
+            expect { described_class.default_format format }
+              .to change(described_class, :default_format)
+              .to be format.intern
+          end
+        end
+
+        describe 'with format: a Symbol' do
+          let(:format) { :yaml }
+
+          it 'should set the default format' do
+            expect { described_class.default_format format }
+              .to change(described_class, :default_format)
+              .to be format
+          end
+        end
+
+        wrap_context 'when the controller defines a default format' do
+          it { expect(described_class.default_format).to be default_format }
+
+          describe 'with format: a String' do
+            let(:format) { 'yaml' }
+
+            it 'should set the default format' do
+              expect { described_class.default_format format }
+                .to change(described_class, :default_format)
+                .to be format.intern
+            end
+          end
+
+          describe 'with format: a Symbol' do
+            let(:format) { :yaml }
+
+            it 'should set the default format' do
+              expect { described_class.default_format format }
+                .to change(described_class, :default_format)
+                .to be format
+            end
+          end
+        end
+
+        context 'with a controller subclass' do
+          let(:described_class) { Spec::SubclassController }
+
+          example_class 'Spec::SubclassController', 'Spec::Controller'
+
+          it { expect(described_class.default_format).to be nil }
+
+          wrap_context 'when the controller defines a default format' do
+            it { expect(described_class.default_format).to be default_format }
+          end
+
+          context 'when the parent class defines a default format' do
+            let(:parent_default_format) { :gopher }
+
+            before(:example) do
+              Spec::Controller.default_format parent_default_format
+            end
+
+            it 'should inherit the default format' do
+              expect(described_class.default_format).to be parent_default_format
+            end
+
+            wrap_context 'when the controller defines a default format' do
+              it { expect(described_class.default_format).to be default_format }
             end
           end
         end
@@ -815,7 +961,7 @@ module Spec::Support::Examples
             include_examples 'should define the middleware'
           end
 
-          context 'when the subclass defines middleware' do
+          context 'when the parent class defines middleware' do
             let(:subclass_middleware) do
               [
                 {

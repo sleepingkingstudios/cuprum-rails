@@ -465,6 +465,14 @@ The [Responders](#responders) determine what request formats are accepted by the
 
 The [Serializers](#serializers) are used in API responses (such as a JSON response) to convert application data into a serialized format. `Cuprum::Rails` defines a base set of serializers for simple data; applications can either set a generic serializer for records (as in `BooksController`, above) or set specific serializers for each record class on a per-controller basis. Serializers are defined by overriding the `.serializers` class method - make sure to call `super()` and merge the results, unless you specifically want to override the default values.
 
+You can also define `.default_format`, which sets a default value for when the request does not specify a format. For example, a request to `/api/books.html` specifies the `:html` format, while there is no format specified for `/api/books`.
+
+```ruby
+class BooksController
+  default_format :html
+end
+```
+
 #### Defining Actions
 
 A non-abstract controller should define at least one [Action](#actions), corresponding to a page, process, or API endpoint for the application. Actions are defined using the `.action` class method, which takes two parameters: an `action_name`, which should be either a string or a symbol (e.g. `:publish`), and an `action_class`, which is a subclass of `Cuprum::Rails::Action`.

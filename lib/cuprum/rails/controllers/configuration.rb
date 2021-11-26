@@ -21,6 +21,9 @@ module Cuprum::Rails::Controllers
     # @!method controller_name
     #   @return [String] the name of the controller.
 
+    # @!method default_format
+    #   @return [Symbol] the default format for controller requests.
+
     # @!method middleware
     #   @return [Array<Cuprum::Rails::Controllers::Middleware>] the middleware
     #     defined for the controller.
@@ -39,6 +42,7 @@ module Cuprum::Rails::Controllers
 
     def_delegators :@controller,
       :controller_name,
+      :default_format,
       :middleware,
       :resource,
       :responders,
