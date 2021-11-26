@@ -50,6 +50,12 @@ module Cuprum::Rails::Controllers::ClassMethods
     end
 
     # @private
+    def build_request_with_defaults(native_request:)
+      build_request(native_request: native_request)
+        .tap { |request| request.format ||= configuration.default_format }
+    end
+
+    # @private
     def own_actions
       @own_actions ||= {}
     end
@@ -58,7 +64,9 @@ module Cuprum::Rails::Controllers::ClassMethods
 
     def define_action(action_name)
       define_method(action_name) do
-        request  = self.class.build_request(native_request: self.request)
+        request = self.class.build_request_with_defaults(
+          native_request: self.request
+        )
         action   = self.class.actions[action_name]
         response = action.call(request)
         response.call(self)

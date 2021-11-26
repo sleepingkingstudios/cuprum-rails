@@ -6,6 +6,8 @@
 
 Implemented `.build_request` class method.
 
+Implemented `.default_format` configuration option.
+
 Refactored `Cuprum::Rails::ControllerAction` to `Cuprum::Rails::Controllers::Action`.
 
 #### Middleware

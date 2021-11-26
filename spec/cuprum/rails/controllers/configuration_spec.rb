@@ -9,7 +9,8 @@ require 'cuprum/rails/resource'
 RSpec.describe Cuprum::Rails::Controllers::Configuration do
   subject(:configuration) { described_class.new(controller) }
 
-  let(:resource) { instance_double(Cuprum::Rails::Resource) }
+  let(:default_format) { :json }
+  let(:resource)       { instance_double(Cuprum::Rails::Resource) }
   let(:middleware) do
     [
       Cuprum::Rails::Controllers::Middleware.new(command: Cuprum::Command.new)
@@ -26,6 +27,7 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
     instance_double(
       Spec::Controller,
       controller_name: controller_name,
+      default_format:  default_format,
       middleware:      middleware,
       resource:        resource,
       responders:      responders,
@@ -36,6 +38,7 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
   example_class 'Spec::Controller',
     Struct.new(
       :controller_name,
+      :default_format,
       :middleware,
       :resource,
       :responders,
@@ -58,6 +61,12 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
     include_examples 'should define reader',
       :controller_name,
       -> { controller_name }
+  end
+
+  describe '#default_format' do
+    include_examples 'should define reader',
+      :default_format,
+      -> { default_format }
   end
 
   describe '#middleware' do

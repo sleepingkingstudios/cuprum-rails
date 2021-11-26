@@ -13,6 +13,27 @@ module Cuprum::Rails::Controllers::ClassMethods
       Cuprum::Rails::Controllers::Configuration.new(self)
     end
 
+    # @overload default_format
+    #   @return [Symbol] the default format for controller requests.
+    #
+    # @overload default_format(format)
+    #   Sets the default format for controller requests.
+    #
+    #   @param format [String, Symbol] The format to set as default.
+    def default_format(format = nil)
+      if format.nil?
+        return @default_format if @default_format
+
+        return superclass.default_format if controller_class?(superclass)
+
+        return nil
+      end
+
+      validate_name(format, as: 'format')
+
+      @default_format = format.intern
+    end
+
     # @private
     def own_responders
       @own_responders ||= {}
@@ -59,6 +80,13 @@ module Cuprum::Rails::Controllers::ClassMethods
       {
         json: Cuprum::Rails::Serializers::Json.default_serializers
       }
+    end
+
+    private
+
+    def controller_class?(other)
+      other.singleton_class <
+        Cuprum::Rails::Controllers::ClassMethods::Configuration
     end
   end
 end
