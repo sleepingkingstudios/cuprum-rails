@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 require 'cuprum/command'
 
 require 'cuprum/rails'
@@ -7,6 +9,8 @@ require 'cuprum/rails'
 module Cuprum::Rails
   # Abstract command that implement a controller action.
   class Action < Cuprum::Command
+    extend Forwardable
+
     # @param options [Hash<Symbol, Object>] Additional options for the action.
     # @param repository [Cuprum::Collections::Repository] The repository
     #   containing the data collections for the application or scope.
@@ -29,6 +33,10 @@ module Cuprum::Rails
     #
     #   @return [Cuprum::Result] the result of the action.
 
+    # @!method params
+    #   @return [Hash<String, Object>] the request parameters.
+    def_delegators :@request, :params
+
     # @return [Hash<Symbol, Object>] additional options for the action.
     attr_reader :options
 
@@ -42,10 +50,6 @@ module Cuprum::Rails
     private
 
     attr_reader :request
-
-    def params
-      @params ||= ActionController::Parameters.new(request.params)
-    end
 
     def process(request:)
       @params  = nil

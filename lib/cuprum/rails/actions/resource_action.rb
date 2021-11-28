@@ -31,7 +31,7 @@ module Cuprum::Rails::Actions
 
     # @return [Object] the primary key for the resource.
     def resource_id
-      return success(params[:id]) if params[:id].present?
+      return success(params['id']) if params['id'].present?
 
       failure(missing_primary_key_error)
     end
@@ -40,9 +40,17 @@ module Cuprum::Rails::Actions
     def resource_params
       return failure(permitted_attributes_error) unless permitted_attributes?
 
-      success(raw_resource_params)
-    rescue ActionController::ParameterMissing
-      failure(missing_parameters_error)
+      resource_params = params.fetch(singular_resource_name, {})
+
+      unless resource_params.is_a?(Hash) && resource_params.present?
+        return failure(missing_parameters_error)
+      end
+
+      success(
+        resource_params
+        .select { |key, _| permitted_attributes.include?(key) }
+        .to_h
+      )
     end
 
     private
@@ -59,6 +67,11 @@ module Cuprum::Rails::Actions
       )
     end
 
+    def permitted_attributes
+      @permitted_attributes ||=
+        Set.new(resource.permitted_attributes.map(&:to_s))
+    end
+
     def permitted_attributes?
       !resource.permitted_attributes.nil?
     end
@@ -66,13 +79,6 @@ module Cuprum::Rails::Actions
     def permitted_attributes_error
       Cuprum::Rails::Errors::UndefinedPermittedAttributes
         .new(resource_name: singular_resource_name)
-    end
-
-    def raw_resource_params
-      params
-        .require(singular_resource_name)
-        .permit(*resource.permitted_attributes)
-        .to_hash
     end
   end
 end

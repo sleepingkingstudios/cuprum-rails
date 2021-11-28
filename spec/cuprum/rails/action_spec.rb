@@ -58,13 +58,9 @@ RSpec.describe Cuprum::Rails::Action do
   describe '#params' do
     include_context 'when the action is called with a request'
 
-    it 'should define the private method' do
-      expect(action).to respond_to(:params, true).with(0).arguments
-    end
+    it { expect(action).to respond_to(:params).with(0).arguments }
 
-    it { expect(action.send(:params)).to be_a ActionController::Parameters }
-
-    it { expect(action.send(:params).to_unsafe_hash).to be == params }
+    it { expect(action.params).to be == params }
 
     context 'when the request has parameters' do
       let(:params) do
@@ -76,7 +72,7 @@ RSpec.describe Cuprum::Rails::Action do
         }
       end
 
-      it { expect(action.send(:params).to_unsafe_hash).to be == params }
+      it { expect(action.params).to be == params }
     end
   end
 
