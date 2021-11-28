@@ -2,6 +2,8 @@
 
 require 'rspec/sleeping_king_studios/concerns/shared_example_group'
 
+require 'cuprum/rails/request'
+
 require 'support/examples'
 
 module Spec::Support::Examples
@@ -13,7 +15,7 @@ module Spec::Support::Examples
       let(:request) do
         next super() if defined?(super())
 
-        instance_double(ActionDispatch::Request, params: params)
+        instance_double(Cuprum::Rails::Request, params: params)
       end
       let(:action) { super().tap { |action| action.call(request: request) } }
     end
@@ -24,7 +26,8 @@ module Spec::Support::Examples
           expect(described_class)
             .to respond_to(:new)
             .with(0).arguments
-            .and_keywords(:resource)
+            .and_keywords(:repository, :resource)
+            .and_any_keywords
         end
 
         describe 'with a resource without a collection' do

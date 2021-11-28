@@ -12,8 +12,11 @@ module Cuprum::Rails::Actions
   class ResourceAction < Cuprum::Rails::Action
     extend Forwardable
 
+    # @param options [Hash<Symbol, Object>] Additional options for the action.
+    # @param repository [Cuprum::Collections::Repository] The repository
+    #   containing the data collections for the application or scope.
     # @param resource [Cuprum::Rails::Resource] The controller resource.
-    def initialize(resource:)
+    def initialize(resource:, repository: nil, **options)
       if resource.collection.nil?
         raise ArgumentError, 'resource must have a collection'
       end
