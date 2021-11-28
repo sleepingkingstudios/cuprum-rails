@@ -39,6 +39,14 @@ module Cuprum::Rails::Controllers::ClassMethods
       @own_responders ||= {}
     end
 
+    # Returns the repository defined for the controller.
+    #
+    # @return [Cuprum::Collections::Repository] the repository containing the
+    #   data collections for the application or scope.
+    def repository
+      nil
+    end
+
     # Returns the resource defined for the controller.
     #
     # Controller subclasses must override this method.

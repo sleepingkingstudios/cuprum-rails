@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/repository'
+
 require 'cuprum/rails/controllers/class_methods/configuration'
 require 'cuprum/rails/controllers/class_methods/validations'
 require 'cuprum/rails/controllers/configuration'
@@ -16,6 +18,9 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
       Cuprum::Rails::Controllers::Middleware.new(command: Cuprum::Command.new)
     ]
   end
+  let(:repository) do
+    Cuprum::Collections::Repository.new
+  end
   let(:responders) do
     { json: Spec::JsonResponder }
   end
@@ -29,6 +34,7 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
       controller_name: controller_name,
       default_format:  default_format,
       middleware:      middleware,
+      repository:      repository,
       resource:        resource,
       responders:      responders,
       serializers:     serializers
@@ -40,6 +46,7 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
       :controller_name,
       :default_format,
       :middleware,
+      :repository,
       :resource,
       :responders,
       :serializers
@@ -114,6 +121,10 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
 
       it { expect(configuration.middleware_for action_name).to be == expected }
     end
+  end
+
+  describe '#repository' do
+    include_examples 'should define reader', :repository, -> { repository }
   end
 
   describe '#resource' do

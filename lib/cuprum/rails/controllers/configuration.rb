@@ -28,6 +28,10 @@ module Cuprum::Rails::Controllers
     #   @return [Array<Cuprum::Rails::Controllers::Middleware>] the middleware
     #     defined for the controller.
 
+    # @!method repository
+    #   @return [Cuprum::Collections::Repository] the repository containing the
+    #     data collections for the application or scope.
+
     # @!method resource
     #   @return [Cuprum::Rails::Resource] the resource defined for the
     #     controller.
@@ -44,6 +48,7 @@ module Cuprum::Rails::Controllers
       :controller_name,
       :default_format,
       :middleware,
+      :repository,
       :resource,
       :responders,
       :serializers
