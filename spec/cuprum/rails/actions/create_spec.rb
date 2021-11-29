@@ -67,9 +67,9 @@ RSpec.describe Cuprum::Rails::Actions::Create do
       let(:permitted_attributes) { super() + %i[publisher] }
       let(:resource_params) do
         {
-          title:     'Gideon the Ninth',
-          author:    'Tamsyn Muir',
-          publisher: 'Tor'
+          'title'     => 'Gideon the Ninth',
+          'author'    => 'Tamsyn Muir',
+          'publisher' => 'Tor'
         }
       end
       let(:params) { { resource.singular_resource_name => resource_params } }
@@ -91,8 +91,8 @@ RSpec.describe Cuprum::Rails::Actions::Create do
     context 'when the resource params fail validation' do
       let(:resource_params) do
         {
-          title:  'Gideon the Ninth',
-          author: ''
+          'title'  => 'Gideon the Ninth',
+          'author' => ''
         }
       end
       let(:params) { { resource.singular_resource_name => resource_params } }
@@ -124,9 +124,9 @@ RSpec.describe Cuprum::Rails::Actions::Create do
       let(:resource_class)       { Tome }
       let(:resource_params) do
         {
-          uuid:   '00000000-0000-0000-0000-000000000000',
-          title:  'Harrow the Ninth',
-          author: 'Tamsyn Muir'
+          'uuid'   => '00000000-0000-0000-0000-000000000000',
+          'title'  => 'Harrow the Ninth',
+          'author' => 'Tamsyn Muir'
         }
       end
       let(:params) { { resource.singular_resource_name => resource_params } }
@@ -134,7 +134,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
         Cuprum::Collections::Errors::AlreadyExists.new(
           collection_name:    resource.resource_name,
           primary_key_name:   :uuid,
-          primary_key_values: resource_params[:uuid]
+          primary_key_values: resource_params['uuid']
         )
       end
 
@@ -156,8 +156,8 @@ RSpec.describe Cuprum::Rails::Actions::Create do
     context 'with valid parameters' do
       let(:resource_params) do
         {
-          title:  'Harrow the Ninth',
-          author: 'Tamsyn Muir'
+          'title'  => 'Harrow the Ninth',
+          'author' => 'Tamsyn Muir'
         }
       end
       let(:params) { { resource.singular_resource_name => resource_params } }

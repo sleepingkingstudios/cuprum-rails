@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/repository'
 require 'rspec/sleeping_king_studios/concerns/shared_example_group'
 
 require 'support/examples'
@@ -430,6 +431,16 @@ module Spec::Support::Examples
         before(:example) { described_class.default_format default_format }
       end
 
+      shared_context 'when the controller defines a repository' do
+        let(:repository) { Cuprum::Collections::Repository.new }
+
+        before(:example) do
+          value = repository
+
+          described_class.define_singleton_method(:repository) { value }
+        end
+      end
+
       shared_context 'when the controller defines a resource' do
         let(:resource) { Spec::Resource.new }
 
@@ -467,37 +478,39 @@ module Spec::Support::Examples
             .to be described_class
         end
 
+        it 'should return the configured repository' do
+          expect(described_class.configuration.repository)
+            .to be == described_class.repository
+        end
+
+        it 'should return the configured responders' do
+          expect(described_class.configuration.responders)
+            .to be == described_class.responders
+        end
+
+        it 'should return the configured serializers' do
+          expect(described_class.configuration.serializers)
+            .to be == described_class.serializers
+        end
+
+        wrap_context 'when the controller defines a repository' do
+          it 'should return the configured repository' do
+            expect(described_class.configuration.repository)
+              .to be == described_class.repository
+          end
+        end
+
         wrap_context 'when the controller defines a resource' do
-          it 'should return the controller configuration' do
-            expect(described_class.configuration)
-              .to be_a Cuprum::Rails::Controllers::Configuration
-          end
-
-          it 'should delegate to the controller' do
-            expect(described_class.configuration.controller)
-              .to be described_class
-          end
-
           it 'should return the configured resource' do
             expect(described_class.configuration.resource)
               .to be == described_class.resource
           end
+        end
 
+        wrap_context 'when the controller defines responders' do
           it 'should return the configured responders' do
             expect(described_class.configuration.responders)
               .to be == described_class.responders
-          end
-
-          it 'should return the configured serializers' do
-            expect(described_class.configuration.serializers)
-              .to be == described_class.serializers
-          end
-
-          wrap_context 'when the controller defines responders' do
-            it 'should return the configured responders' do
-              expect(described_class.configuration.responders)
-                .to be == described_class.responders
-            end
           end
         end
       end
@@ -609,6 +622,10 @@ module Spec::Support::Examples
             end
           end
         end
+      end
+
+      describe '.repository' do
+        include_examples 'should define class reader', :repository, nil
       end
 
       describe '.resource' do

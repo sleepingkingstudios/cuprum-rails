@@ -54,6 +54,10 @@ module Cuprum::Rails::Controllers
     #   serializers for converting result values into serialized data.
     attr_reader :serializers
 
+    # @!method repository
+    #   @return [Cuprum::Collections::Repository] the repository containing the
+    #     data collections for the application or scope.
+
     # @!method resource
     #   @return [Cuprum::Rails::Resource] the resource defined for the
     #     controller.
@@ -69,6 +73,7 @@ module Cuprum::Rails::Controllers
     #     does not define a responder for the given format.
 
     def_delegators :@configuration,
+      :repository,
       :resource,
       :responder_for
 
@@ -84,7 +89,7 @@ module Cuprum::Rails::Controllers
     # @return [#call] The response object.
     def call(request)
       responder = build_responder(request)
-      action    = action_class.new(resource: resource)
+      action    = action_class.new(repository: repository, resource: resource)
       action    = apply_middleware(action)
       result    = action.call(request: request)
 

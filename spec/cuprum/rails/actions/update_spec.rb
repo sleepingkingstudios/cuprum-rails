@@ -67,7 +67,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
     context 'when the resource does not define permitted attributes' do
       let(:primary_key_value)    { 0 }
       let(:permitted_attributes) { nil }
-      let(:params)               { { id: primary_key_value } }
+      let(:params)               { { 'id' => primary_key_value } }
       let(:expected_error) do
         Cuprum::Rails::Errors::UndefinedPermittedAttributes
           .new(resource_name: resource.singular_resource_name)
@@ -82,7 +82,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
 
     context 'when the parameters do not include params for the resource' do
       let(:primary_key_value) { 0 }
-      let(:params)            { { id: primary_key_value } }
+      let(:params)            { { 'id' => primary_key_value } }
       let(:expected_error) do
         Cuprum::Rails::Errors::MissingParameters
           .new(resource_name: resource.singular_resource_name)
@@ -105,7 +105,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       end
       let(:params) do
         {
-          id:                                primary_key_value,
+          'id'                            => primary_key_value,
           resource.singular_resource_name => resource_params
         }
       end
@@ -130,9 +130,9 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       let(:permitted_attributes) { super() + %i[publisher] }
       let(:resource_params) do
         {
-          title:     'Gideon the Ninth',
-          author:    'Tamsyn Muir',
-          publisher: 'Tor'
+          'title'     => 'Gideon the Ninth',
+          'author'    => 'Tamsyn Muir',
+          'publisher' => 'Tor'
         }
       end
       let(:expected_error) do
@@ -155,8 +155,8 @@ RSpec.describe Cuprum::Rails::Actions::Update do
 
       let(:resource_params) do
         {
-          title:  'Gideon the Ninth',
-          author: ''
+          'title'  => 'Gideon the Ninth',
+          'author' => ''
         }
       end
       let(:expected_value) do
@@ -194,8 +194,8 @@ RSpec.describe Cuprum::Rails::Actions::Update do
 
       let(:resource_params) do
         {
-          title:  'Harrow the Ninth',
-          author: 'Tamsyn Muir'
+          'title'  => 'Harrow the Ninth',
+          'author' => 'Tamsyn Muir'
         }
       end
       let(:expected_value) do

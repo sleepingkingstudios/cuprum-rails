@@ -226,7 +226,7 @@ RSpec.describe BooksController do
     include_examples 'should require a book parameter'
 
     describe 'with invalid attributes' do
-      let(:attributes)    { { title: 'Gideon the Ninth' } }
+      let(:attributes)    { { 'title' => 'Gideon the Ninth' } }
       let(:expected_book) { Book.new(attributes) }
       let(:expected_errors) do
         native_errors = expected_book.tap(&:valid?).errors
@@ -258,8 +258,8 @@ RSpec.describe BooksController do
     describe 'with valid attributes' do
       let(:attributes) do
         {
-          title:  'Gideon the Ninth',
-          author: 'Tamsyn Muir'
+          'title'  => 'Gideon the Ninth',
+          'author' => 'Tamsyn Muir'
         }
       end
       let(:params) { super().merge(book: attributes) }
@@ -464,7 +464,7 @@ RSpec.describe BooksController do
       let(:book_id) { book.id }
 
       describe 'with invalid attributes' do
-        let(:attributes) { { title: '' } }
+        let(:attributes) { { 'title' => '' } }
         let(:params)     { super().merge(book: attributes) }
         let(:expected_book) do
           book.tap { book.assign_attributes(attributes) }
@@ -501,7 +501,7 @@ RSpec.describe BooksController do
       end
 
       describe 'with valid attributes' do
-        let(:attributes)    { { category: 'Coming of Age' } }
+        let(:attributes)    { { 'category' => 'Coming of Age' } }
         let(:params)        { super().merge(book: attributes) }
         let(:expected_book) { book }
         let(:expected_data) do

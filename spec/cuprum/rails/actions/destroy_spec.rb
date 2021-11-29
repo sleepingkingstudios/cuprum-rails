@@ -46,7 +46,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
 
     context 'when the resource does not exist' do
       let(:primary_key_value) { 0 }
-      let(:params)            { { id: primary_key_value } }
+      let(:params)            { { 'id' => primary_key_value } }
       let(:expected_error) do
         Cuprum::Collections::Errors::NotFound.new(
           collection_name:    resource.resource_name,
@@ -70,7 +70,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
         )
       end
       let(:primary_key_value) { record.id }
-      let(:params)            { { id: primary_key_value } }
+      let(:params)            { { 'id' => primary_key_value } }
 
       it 'should return a passing result' do
         expect(action.call(request: request))

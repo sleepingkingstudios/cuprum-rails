@@ -82,6 +82,19 @@ module Cuprum::Rails
         .subclass(**command_options)
     end
 
+    # @param other [Object] The object to compare.
+    #
+    # @return [true, false] true if the other object is a collection with the
+    #   same options, otherwise false.
+    def ==(other)
+      return false unless other.is_a?(self.class)
+
+      other.collection_name == collection_name &&
+        other.member_name == member_name &&
+        other.record_class == record_class &&
+        other.options == options
+    end
+
     # A new Query instance, used for querying against the collection data.
     #
     # @return [Cuprum::Rails::Query] the query.

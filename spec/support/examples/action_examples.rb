@@ -2,6 +2,8 @@
 
 require 'rspec/sleeping_king_studios/concerns/shared_example_group'
 
+require 'cuprum/rails/request'
+
 require 'support/examples'
 
 module Spec::Support::Examples
@@ -13,7 +15,7 @@ module Spec::Support::Examples
       let(:request) do
         next super() if defined?(super())
 
-        instance_double(ActionDispatch::Request, params: params)
+        instance_double(Cuprum::Rails::Request, params: params)
       end
       let(:action) { super().tap { |action| action.call(request: request) } }
     end
@@ -24,7 +26,8 @@ module Spec::Support::Examples
           expect(described_class)
             .to respond_to(:new)
             .with(0).arguments
-            .and_keywords(:resource)
+            .and_keywords(:repository, :resource)
+            .and_any_keywords
         end
 
         describe 'with a resource without a collection' do
@@ -78,7 +81,7 @@ module Spec::Support::Examples
 
         context 'when the :id parameter is set' do
           let(:primary_key_value) { 0 }
-          let(:params)            { { id: primary_key_value } }
+          let(:params)            { { 'id' => primary_key_value } }
 
           it 'should return a passing result with the primary key value' do
             expect(action.resource_id)
@@ -131,6 +134,34 @@ module Spec::Support::Examples
           end
         end
 
+        context 'when the params for the resource are empty' do
+          let(:params) { { resource.singular_resource_name => {} } }
+          let(:expected_error) do
+            Cuprum::Rails::Errors::MissingParameters
+              .new(resource_name: resource.singular_resource_name)
+          end
+
+          it 'should return a failing result' do
+            expect(action.resource_params)
+              .to be_a_failing_result
+              .with_error(expected_error)
+          end
+        end
+
+        context 'when the parameter for the resource is not a Hash' do
+          let(:params) { { resource.singular_resource_name => 'invalid' } }
+          let(:expected_error) do
+            Cuprum::Rails::Errors::MissingParameters
+              .new(resource_name: resource.singular_resource_name)
+          end
+
+          it 'should return a failing result' do
+            expect(action.resource_params)
+              .to be_a_failing_result
+              .with_error(expected_error)
+          end
+        end
+
         context 'when the parameters include the params for resource' do
           let(:expected) do
             {
@@ -139,7 +170,12 @@ module Spec::Support::Examples
             }
           end
           let(:params) do
-            { resource.singular_resource_name.intern => expected, key: 'value' }
+            {
+              resource.singular_resource_name => expected.merge(
+                'series' => 'The Locked Tomb'
+              ),
+              'key'                           => 'value'
+            }
           end
 
           it 'should return a passing result with the resource params' do

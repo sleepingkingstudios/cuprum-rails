@@ -1,15 +1,21 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/action'
+require 'cuprum/rails/repository'
 
 require 'support/examples/action_examples'
 
 RSpec.describe Cuprum::Rails::Action do
   include Spec::Support::Examples::ActionExamples
 
-  subject(:action) { described_class.new(resource: resource) }
+  subject(:action) do
+    described_class.new(resource: resource, **constructor_options)
+  end
 
-  let(:resource) { Cuprum::Rails::Resource.new(resource_name: 'books') }
+  let(:resource) do
+    Cuprum::Rails::Resource.new(resource_name: 'books')
+  end
+  let(:constructor_options) { {} }
 
   def be_callable
     respond_to(:process, true)
@@ -20,7 +26,8 @@ RSpec.describe Cuprum::Rails::Action do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:resource)
+        .and_keywords(:repository, :resource)
+        .and_any_keywords
     end
   end
 
@@ -37,16 +44,23 @@ RSpec.describe Cuprum::Rails::Action do
     end
   end
 
+  describe '#options' do
+    include_examples 'should define reader', :options, -> { {} }
+
+    context 'when initialized with options' do
+      let(:options)             { { key: 'value' } }
+      let(:constructor_options) { super().merge(options) }
+
+      it { expect(action.options).to be == options }
+    end
+  end
+
   describe '#params' do
     include_context 'when the action is called with a request'
 
-    it 'should define the private method' do
-      expect(action).to respond_to(:params, true).with(0).arguments
-    end
+    it { expect(action).to respond_to(:params).with(0).arguments }
 
-    it { expect(action.send(:params)).to be_a ActionController::Parameters }
-
-    it { expect(action.send(:params).to_unsafe_hash).to be == params }
+    it { expect(action.params).to be == params }
 
     context 'when the request has parameters' do
       let(:params) do
@@ -58,11 +72,22 @@ RSpec.describe Cuprum::Rails::Action do
         }
       end
 
-      it { expect(action.send(:params).to_unsafe_hash).to be == params }
+      it { expect(action.params).to be == params }
     end
   end
 
   describe '#resource' do
     include_examples 'should define reader', :resource, -> { resource }
+  end
+
+  describe '#repository' do
+    include_examples 'should define reader', :repository, nil
+
+    context 'when initialized with a repository' do
+      let(:repository)          { Cuprum::Rails::Repository.new }
+      let(:constructor_options) { super().merge(repository: repository) }
+
+      it { expect(action.repository).to be repository }
+    end
   end
 end

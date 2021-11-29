@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/repository'
 require 'cuprum/middleware'
 
 require 'cuprum/rails/controllers/action'
@@ -9,6 +10,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
   subject(:action) { described_class.new(configuration, **constructor_options) }
 
   let(:middleware) { [] }
+  let(:repository) { nil }
   let(:resource)   { instance_double(Cuprum::Rails::Resource) }
   let(:responders) do
     { json: Spec::JsonResponder }
@@ -18,6 +20,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     instance_double(
       Cuprum::Rails::Controllers::Configuration,
       middleware_for: middleware,
+      repository:     repository,
       resource:       resource,
       responders:     responders,
       serializers:    configured_serializers
@@ -124,7 +127,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     it 'should build the action' do
       action.call(request)
 
-      expect(action_class).to have_received(:new).with(resource: resource)
+      expect(action_class)
+        .to have_received(:new)
+        .with(repository: nil, resource: resource)
     end
 
     it 'should call the action' do
@@ -188,7 +193,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       it 'should build the action' do
         action.call(request)
 
-        expect(action_class).to have_received(:new).with(resource: resource)
+        expect(action_class)
+          .to have_received(:new)
+          .with(repository: repository, resource: resource)
       end
 
       it 'should call the action' do
@@ -311,6 +318,18 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         include_examples 'should build the responder'
       end
     end
+
+    context 'when the controller defines a repository' do
+      let(:repository) { Cuprum::Collections::Repository.new }
+
+      it 'should build the action' do
+        action.call(request)
+
+        expect(action_class)
+          .to have_received(:new)
+          .with(repository: repository, resource: resource)
+      end
+    end
   end
 
   describe '#configuration' do
@@ -332,6 +351,16 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       let(:constructor_options) { super().merge(member_action: true) }
 
       it { expect(action.member_action?).to be true }
+    end
+  end
+
+  describe '#repository' do
+    include_examples 'should define reader', :repository, nil
+
+    context 'when the controller defines a repository' do
+      let(:repository) { Cuprum::Collections::Repository.new }
+
+      it { expect(action.repository).to be repository }
     end
   end
 
