@@ -10,7 +10,7 @@ require 'support/serializers/book_serializer'
 class BooksController < BaseController
   def self.resource
     @resource ||= Cuprum::Rails::Resource.new(
-      collection:           Cuprum::Rails::Collection.new(record_class: Book),
+      collection:           repository.find_or_create(record_class: Book),
       permitted_attributes: %i[title author series category published_at],
       resource_class:       Book
     )

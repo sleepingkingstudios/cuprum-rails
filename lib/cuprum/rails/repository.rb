@@ -8,7 +8,7 @@ require 'cuprum/rails/collection'
 module Cuprum::Rails
   # A repository represents a group of Rails collections.
   class Repository < Cuprum::Collections::Repository
-    # Adds a new collection with the given name to the repository.
+    # Adds a new collection with the given record class to the repository.
     #
     # @param record_class [Class] The ActiveRecord class for the collection.
     # @param options [Hash] Additional options to pass to Collection.new
@@ -16,13 +16,43 @@ module Cuprum::Rails
     # @return [Cuprum::Rails::Collection] the created collection.
     #
     # @see Cuprum::Rails::Collection#initialize.
-    def build(record_class:, **options)
+    #
+    # @raise [Cuprum::Collections::Repository::DuplicateCollectionError] if the
+    #   collection already exists in the repository.
+    def create(record_class:, **options)
       validate_record_class!(record_class)
 
       collection = Cuprum::Rails::Collection.new(
         record_class: record_class,
         **options
       )
+
+      add(collection)
+
+      collection
+    end
+
+    # Finds or adds a collection with the given record class.
+    #
+    # @param record_class [Class] The ActiveRecord class for the collection.
+    # @param options [Hash] Additional options to pass to Collection.new
+    #
+    # @return [Cuprum::Rails::Collection] the created collection.
+    #
+    # @see Cuprum::Rails::Collection#initialize.
+    def find_or_create(record_class:, **options) # rubocop:disable Metrics/MethodLength
+      validate_record_class!(record_class)
+
+      collection = Cuprum::Rails::Collection.new(
+        record_class: record_class,
+        **options
+      )
+
+      if key?(collection.collection_name)
+        other_collection = self[collection.collection_name]
+
+        return other_collection if collection == other_collection
+      end
 
       add(collection)
 

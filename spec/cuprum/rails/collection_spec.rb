@@ -6,6 +6,7 @@ require 'cuprum/rails/collection'
 require 'cuprum/rails/commands'
 
 require 'support/book'
+require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Collection do
   subject(:collection) do
@@ -46,6 +47,108 @@ RSpec.describe Cuprum::Rails::Collection do
 
   include_contract Cuprum::Collections::RSpec::COLLECTION_CONTRACT
 
+  describe '#==' do
+    let(:other_options) do
+      constructor_options.merge(record_class: record_class)
+    end
+    let(:other_collection) { described_class.new(**other_options) }
+
+    describe 'with nil' do
+      it { expect(collection == nil).to be false } # rubocop:disable Style/NilComparison
+    end
+
+    describe 'with an object' do
+      it { expect(collection == Object.new.freeze).to be false }
+    end
+
+    describe 'with another collection' do
+      it { expect(collection == other_collection).to be true }
+
+      context 'with a non-matching collection name' do
+        let(:other_options) { super().merge(collection_name: 'tomes') }
+
+        it { expect(collection == other_collection).to be false }
+      end
+
+      context 'with a non-matching member name' do
+        let(:other_options) { super().merge(member_name: 'grimoire') }
+
+        it { expect(collection == other_collection).to be false }
+      end
+
+      context 'with a non-matching record class' do
+        let(:other_options) { super().merge(record_class: Tome) }
+
+        it { expect(collection == other_collection).to be false }
+      end
+
+      context 'with non-matching options' do
+        let(:other_options) { super().merge(key: 'other value') }
+
+        it { expect(collection == other_collection).to be false }
+      end
+    end
+
+    context 'when initialized with collection_name: string' do
+      let(:collection_name) { 'tomes' }
+      let(:constructor_options) do
+        super().merge(collection_name: collection_name)
+      end
+
+      describe 'with another collection' do
+        context 'with a non-matching collection name' do
+          let(:other_options) { super().merge(collection_name: 'booms') }
+
+          it { expect(collection == other_collection).to be false }
+        end
+
+        context 'with a matching collection name' do
+          let(:other_options) { super().merge(collection_name: 'tomes') }
+
+          it { expect(collection == other_collection).to be true }
+        end
+      end
+    end
+
+    context 'when initialized with member_name: string' do
+      let(:member_name)         { 'tome' }
+      let(:constructor_options) { super().merge(member_name: member_name) }
+
+      describe 'with another collection' do
+        context 'with a non-matching member name' do
+          let(:other_options) { super().merge(member_name: 'grimoire') }
+
+          it { expect(collection == other_collection).to be false }
+        end
+
+        context 'with a matching member name' do
+          let(:other_options) { super().merge(member_name: 'tome') }
+
+          it { expect(collection == other_collection).to be true }
+        end
+      end
+    end
+
+    context 'when initialized with options' do
+      let(:constructor_options) { super().merge({ key: 'value' }) }
+      let(:expected_options)    { super().merge({ key: 'value' }) }
+
+      describe 'with another collection' do
+        context 'with non-matching options' do
+          let(:other_options) { super().merge(key: 'other value') }
+
+          it { expect(collection == other_collection).to be false }
+        end
+
+        context 'with matching options' do
+          let(:other_options) { super().merge(key: 'value') }
+
+          it { expect(collection == other_collection).to be true }
+        end
+      end
+    end
+  end
+
   describe '#collection_name' do
     let(:expected) { record_class.name.underscore.pluralize }
 
@@ -54,7 +157,7 @@ RSpec.describe Cuprum::Rails::Collection do
       -> { be == expected }
 
     context 'when initialized with collection_name: string' do
-      let(:collection_name) { 'books' }
+      let(:collection_name) { 'tomes' }
       let(:constructor_options) do
         super().merge(collection_name: collection_name)
       end
@@ -63,7 +166,7 @@ RSpec.describe Cuprum::Rails::Collection do
     end
 
     context 'when initialized with collection_name: symbol' do
-      let(:collection_name) { :books }
+      let(:collection_name) { :tomes }
       let(:constructor_options) do
         super().merge(collection_name: collection_name)
       end

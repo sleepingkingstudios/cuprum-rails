@@ -11,6 +11,10 @@ class BaseController
   responder :html, Cuprum::Rails::Responders::Html::PluralResource
   responder :json, Cuprum::Rails::Responders::Json::Resource
 
+  def self.repository
+    Cuprum::Rails::Repository.new
+  end
+
   def initialize(renderer:, request:)
     @renderer = renderer
     @request  = request

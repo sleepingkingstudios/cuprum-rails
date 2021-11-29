@@ -76,12 +76,12 @@ RSpec.describe Cuprum::Rails::Repository do
     end
   end
 
-  describe '#build' do
+  describe '#create' do
     let(:record_class) { Tome }
     let(:options)      { {} }
 
-    def build_collection
-      repository.build(
+    def create_collection
+      repository.create(
         record_class: record_class,
         **options
       )
@@ -89,7 +89,7 @@ RSpec.describe Cuprum::Rails::Repository do
 
     it 'should define the method' do
       expect(repository)
-        .to respond_to(:build)
+        .to respond_to(:create)
         .with_keywords(:record_class)
         .and_any_keywords
     end
@@ -101,7 +101,7 @@ RSpec.describe Cuprum::Rails::Repository do
       end
 
       it 'should raise an exception' do
-        expect { repository.build(record_class: record_class) }
+        expect { repository.create(record_class: record_class) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -113,7 +113,7 @@ RSpec.describe Cuprum::Rails::Repository do
       end
 
       it 'should raise an exception' do
-        expect { repository.build(record_class: record_class) }
+        expect { repository.create(record_class: record_class) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe Cuprum::Rails::Repository do
       end
 
       it 'should raise an exception' do
-        expect { repository.build(record_class: record_class) }
+        expect { repository.create(record_class: record_class) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -133,12 +133,12 @@ RSpec.describe Cuprum::Rails::Repository do
     describe 'with record class: an ActiveRecord model class' do
       let(:record_class) { Tome }
 
-      it { expect(build_collection).to be_a Cuprum::Rails::Collection }
+      it { expect(create_collection).to be_a Cuprum::Rails::Collection }
 
-      it { expect(build_collection.record_class).to be record_class }
+      it { expect(create_collection.record_class).to be record_class }
 
       it 'should add the collection to the repository' do
-        collection = build_collection
+        collection = create_collection
 
         expect(repository['tomes']).to be collection
       end
@@ -148,7 +148,152 @@ RSpec.describe Cuprum::Rails::Repository do
           super().merge(member_name: 'grimoire')
         end
 
-        it { expect(build_collection.member_name).to be == 'grimoire' }
+        it { expect(create_collection.member_name).to be == 'grimoire' }
+      end
+
+      context 'when a collection already exists' do
+        let(:existing_collection) do
+          Cuprum::Rails::Collection.new(record_class: Tome)
+        end
+        let(:error_class) do
+          Cuprum::Collections::Repository::DuplicateCollectionError
+        end
+        let(:error_message) do
+          "collection #{existing_collection.collection_name} already exists"
+        end
+
+        before(:example) do
+          repository.add(existing_collection)
+        end
+
+        it 'should raise an exception' do
+          expect { create_collection }
+            .to raise_error(error_class, error_message)
+        end
+      end
+    end
+  end
+
+  describe '#find_or_create' do
+    let(:record_class) { Tome }
+    let(:options)      { {} }
+
+    def find_or_create_collection
+      repository.find_or_create(
+        record_class: record_class,
+        **options
+      )
+    end
+
+    it 'should define the method' do
+      expect(repository)
+        .to respond_to(:find_or_create)
+        .with_keywords(:record_class)
+        .and_any_keywords
+    end
+
+    describe 'with record_class: nil' do
+      let(:record_class) { nil }
+      let(:error_message) do
+        'record class must be an ActiveRecord model'
+      end
+
+      it 'should raise an exception' do
+        expect { repository.find_or_create(record_class: record_class) }
+          .to raise_error ArgumentError, error_message
+      end
+    end
+
+    describe 'with record_class: an object' do
+      let(:record_class) { Object.new.freeze }
+      let(:error_message) do
+        'record class must be an ActiveRecord model'
+      end
+
+      it 'should raise an exception' do
+        expect { repository.find_or_create(record_class: record_class) }
+          .to raise_error ArgumentError, error_message
+      end
+    end
+
+    describe 'with record_class: a class' do
+      let(:record_class) { Class.new }
+      let(:error_message) do
+        'record class must be an ActiveRecord model'
+      end
+
+      it 'should raise an exception' do
+        expect { repository.find_or_create(record_class: record_class) }
+          .to raise_error ArgumentError, error_message
+      end
+    end
+
+    describe 'with record class: an ActiveRecord model class' do
+      let(:record_class) { Tome }
+
+      it { expect(find_or_create_collection).to be_a Cuprum::Rails::Collection }
+
+      it { expect(find_or_create_collection.record_class).to be record_class }
+
+      it 'should add the collection to the repository' do
+        collection = find_or_create_collection
+
+        expect(repository['tomes']).to be collection
+      end
+
+      describe 'with options' do
+        let(:options) do
+          super().merge(member_name: 'grimoire')
+        end
+
+        it { expect(find_or_create_collection.member_name).to be == 'grimoire' }
+      end
+
+      context 'when a collection already exists' do
+        let(:existing_options) { { record_class: Tome } }
+        let(:existing_collection) do
+          Cuprum::Rails::Collection.new(**existing_options)
+        end
+
+        before(:example) do
+          repository.add(existing_collection)
+        end
+
+        it { expect(find_or_create_collection).to be existing_collection }
+
+        context 'when the existing collection has another record class' do
+          let(:existing_options) do
+            super().merge(collection_name: 'tomes', record_class: Book)
+          end
+          let(:error_class) do
+            Cuprum::Collections::Repository::DuplicateCollectionError
+          end
+          let(:error_message) do
+            "collection #{existing_collection.collection_name} already exists"
+          end
+
+          it 'should raise an exception' do
+            expect { find_or_create_collection }
+              .to raise_error(error_class, error_message)
+          end
+        end
+
+        context 'when the existing collection has non-matching options' do
+          let(:existing_options) do
+            super().merge(key: 'other value')
+          end
+          let(:error_class) do
+            Cuprum::Collections::Repository::DuplicateCollectionError
+          end
+          let(:error_message) do
+            "collection #{existing_collection.collection_name} already exists"
+          end
+
+          it 'should raise an exception' do
+            expect { find_or_create_collection }
+              .to raise_error(error_class, error_message)
+          end
+        end
       end
     end
   end
