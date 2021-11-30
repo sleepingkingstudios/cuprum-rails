@@ -11,9 +11,10 @@ module Cuprum::Rails::Actions
     def process(request:)
       super
 
-      primary_key = step { resource_id }
-      entity      = step do
-        collection.find_one.call(primary_key: primary_key)
+      step { require_resource_id }
+
+      entity = step do
+        collection.find_one.call(primary_key: resource_id)
       end
 
       { singular_resource_name => entity }

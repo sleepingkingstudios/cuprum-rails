@@ -11,13 +11,12 @@ module Cuprum::Rails::Actions
     private
 
     def assign_resource
-      primary_key = step { resource_id }
-      attributes  = step { resource_params }
-      entity      = step do
-        collection.find_one.call(primary_key: primary_key)
+      entity = step do
+        collection.find_one.call(primary_key: resource_id)
       end
+
       step do
-        collection.assign_one.call(attributes: attributes, entity: entity)
+        collection.assign_one.call(attributes: resource_params, entity: entity)
       end
     end
 
@@ -28,6 +27,9 @@ module Cuprum::Rails::Actions
 
     def process(request:)
       super
+
+      step { require_resource_id }
+      step { require_resource_params }
 
       entity, result = update_resource
 

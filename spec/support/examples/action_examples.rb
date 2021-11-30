@@ -65,29 +65,16 @@ module Spec::Support::Examples
         it { expect(action).to respond_to(:resource_id).with(0).arguments }
 
         context 'when the parameters do not include a primary key' do
-          let(:expected_error) do
-            Cuprum::Rails::Errors::MissingPrimaryKey.new(
-              primary_key:   resource.primary_key,
-              resource_name: resource.singular_resource_name
-            )
-          end
+          let(:params) { {} }
 
-          it 'should return a failing result' do
-            expect(action.resource_id)
-              .to be_a_failing_result
-              .with_error(expected_error)
-          end
+          it { expect(action.resource_id).to be nil }
         end
 
         context 'when the :id parameter is set' do
           let(:primary_key_value) { 0 }
           let(:params)            { { 'id' => primary_key_value } }
 
-          it 'should return a passing result with the primary key value' do
-            expect(action.resource_id)
-              .to be_a_passing_result
-              .with_value(primary_key_value)
-          end
+          it { expect(action.resource_id).to be primary_key_value }
         end
       end
 
@@ -107,59 +94,22 @@ module Spec::Support::Examples
 
         it { expect(action).to respond_to(:resource_params).with(0).arguments }
 
-        context 'when the resource does not define permitted attributes' do
-          let(:permitted_attributes) { nil }
-          let(:expected_error) do
-            Cuprum::Rails::Errors::UndefinedPermittedAttributes
-              .new(resource_name: resource.singular_resource_name)
-          end
-
-          it 'should return a failing result' do
-            expect(action.resource_params)
-              .to be_a_failing_result
-              .with_error(expected_error)
-          end
-        end
-
         context 'when the parameters do not include params for the resource' do
-          let(:expected_error) do
-            Cuprum::Rails::Errors::MissingParameters
-              .new(resource_name: resource.singular_resource_name)
-          end
+          let(:params) { {} }
 
-          it 'should return a failing result' do
-            expect(action.resource_params)
-              .to be_a_failing_result
-              .with_error(expected_error)
-          end
+          it { expect(action.resource_params).to be == {} }
         end
 
         context 'when the params for the resource are empty' do
           let(:params) { { resource.singular_resource_name => {} } }
-          let(:expected_error) do
-            Cuprum::Rails::Errors::MissingParameters
-              .new(resource_name: resource.singular_resource_name)
-          end
 
-          it 'should return a failing result' do
-            expect(action.resource_params)
-              .to be_a_failing_result
-              .with_error(expected_error)
-          end
+          it { expect(action.resource_params).to be == {} }
         end
 
         context 'when the parameter for the resource is not a Hash' do
           let(:params) { { resource.singular_resource_name => 'invalid' } }
-          let(:expected_error) do
-            Cuprum::Rails::Errors::MissingParameters
-              .new(resource_name: resource.singular_resource_name)
-          end
 
-          it 'should return a failing result' do
-            expect(action.resource_params)
-              .to be_a_failing_result
-              .with_error(expected_error)
-          end
+          it { expect(action.resource_params).to be == 'invalid' }
         end
 
         context 'when the parameters include the params for resource' do
@@ -171,17 +121,16 @@ module Spec::Support::Examples
           end
           let(:params) do
             {
+
+              'key'                           => 'value',
               resource.singular_resource_name => expected.merge(
                 'series' => 'The Locked Tomb'
-              ),
-              'key'                           => 'value'
+              )
             }
           end
 
-          it 'should return a passing result with the resource params' do
-            expect(action.resource_params)
-              .to be_a_passing_result
-              .with_value(expected)
+          it 'should filter the resource params' do
+            expect(action.resource_params).to be == expected
           end
         end
       end

@@ -451,7 +451,7 @@ RSpec.describe BooksController do
     let(:method)       { :patch }
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
-    let(:attributes)   { { title: 'Gideon the Ninth' } }
+    let(:attributes)   { { 'title' => 'Gideon the Ninth' } }
     let(:query_params) { super().merge('id' => book_id) }
     let(:params)       { super().merge('book' => attributes) }
 

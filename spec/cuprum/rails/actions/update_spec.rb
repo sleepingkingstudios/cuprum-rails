@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/errors/not_found'
+
 require 'cuprum/rails/actions/update'
 
 require 'support/book'
@@ -99,8 +101,8 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       let(:primary_key_value) { 0 }
       let(:resource_params) do
         {
-          title:  'Gideon the Ninth',
-          author: 'Tamsyn Muir'
+          'title'  => 'Gideon the Ninth',
+          'author' => 'Tamsyn Muir'
         }
       end
       let(:params) do
