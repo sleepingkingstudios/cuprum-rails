@@ -13,10 +13,3 @@ gem 'cuprum-collections',
   git:    'https://github.com/sleepingkingstudios/cuprum-collections'
 
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
-
-group :rails do
-  gem 'database_cleaner-active_record'
-  gem 'pg'
-  gem 'rails', '~> 6.0'
-  gem 'rake'
-end

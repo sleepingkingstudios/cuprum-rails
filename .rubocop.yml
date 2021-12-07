@@ -9,6 +9,7 @@ AllCops:
   Exclude:
     - bin/rails
     - db/schema.rb
+    - gemfiles/*
     - vendor/**/*
 
 RSpec:

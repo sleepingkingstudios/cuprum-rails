@@ -16,10 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        gemfile: ['rails_6_0', 'rails_6_1']
         ruby-version: ['2.6', '2.7', '3.0']
 
     # Sets up the build environment.
     env:
+      BUNDLE_GEMFILE: "${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile"
       DATABASE_PORT:     5432
       DATABASE_USERNAME: postgres
       DATABASE_PASSWORD: postgres_password
