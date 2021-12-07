@@ -33,6 +33,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'rails', '~> 6.0'
   gem.add_runtime_dependency 'stannum', '~> 0.2'
 
+  gem.add_development_dependency 'appraisal', '~> 2.4'
   gem.add_development_dependency 'database_cleaner-active_record', '~> 2.0'
   gem.add_development_dependency 'pg', '~> 1.2'
   gem.add_development_dependency 'rspec', '~> 3.9'

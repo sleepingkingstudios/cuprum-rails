@@ -28,17 +28,45 @@ module Cuprum::Rails
 
     private
 
+    # :nocov:
     def map_errors(native_errors:)
+      if Rails.version < '6.1'
+        map_errors_hash(native_errors: native_errors)
+      else
+        map_errors_object(native_errors: native_errors)
+      end
+    end
+
+    def map_errors_hash(native_errors:) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      errors   = Stannum::Errors.new
+      details  = native_errors.details
+      messages = native_errors.messages
+
+      native_errors.keys.each do |attribute| # rubocop:disable Style/HashEachMethods
+        scoped = attribute == :base ? errors : errors[attribute]
+
+        details[attribute].each.with_index do |hsh, index|
+          message = messages[attribute][index]
+
+          scoped.add(hsh[:error], **hsh.except(:error).merge(message: message))
+        end
+      end
+
+      errors
+    end
+
+    def map_errors_object(native_errors:)
       errors = Stannum::Errors.new
 
       native_errors.each do |error|
         attribute = error.attribute
         scoped    = attribute == :base ? errors : errors[attribute]
 
-        scoped.add(error.type, message: error.message, **error.options)
+        scoped.add(error.type, **error.options.merge(message: error.message))
       end
 
       errors
     end
   end
+  # :nocov:
 end
