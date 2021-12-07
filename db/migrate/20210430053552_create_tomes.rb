@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateTomes < ActiveRecord::Migration[6.1]
+class CreateTomes < ActiveRecord::Migration[6.0]
   def change
     enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
 
