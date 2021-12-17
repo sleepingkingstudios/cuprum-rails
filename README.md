@@ -565,7 +565,7 @@ Let's walk through this step by step. We start by making a `POST` request to `/b
 
 <a id="actions"></a>
 
-### Actions
+### Controller Actions
 
 ```ruby
 require 'cuprum/rails/action'
@@ -598,8 +598,11 @@ class PublishBook < Cuprum::Rails::Actions::ResourceAction
   private
 
   def process(request)
-    book_id = step { resource_id }
-    book    = step { collection.find_one.call(entity_id: book_id) }
+    super
+
+    step { require_resource_id }
+
+    book = step { collection.find_one.call(primary_key: resource_id) }
 
     book.published_at = DateTime.current
 
@@ -615,9 +618,54 @@ end
 - `#resource_id`: Wraps `params[:id]` in a result, or returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
 - `#resource_params`: Wraps `params[singular_resource_name]` and filters them using `resource.permitted_attributes`. Returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error if the resource params are missing, or with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error if the resource does not define permitted attributes.
 
+#### Transactions
+
+`Cuprum::Rails` integrates with `ActiveRecord` to support database transactions. The `#transaction` method integrates native transactions with the `Cuprum` control flow:
+
+```ruby
+class ReturnBook < Cuprum::Rails::Actions::ResourceAction
+  private
+
+  def books_collection
+    @books_collection ||= repository['books']
+  end
+
+  def process(request)
+    super
+
+    step { require_resource_id }
+
+    loan = step { collection.find_one.call(primary_key: resource_id) }
+
+    transaction do
+      step { return_book(loan.book_id) }
+
+      step { collection.destroy_one.call(entity: loan) }
+    end
+  end
+
+  def return_book(book_id)
+    step do
+      books_collection.assign_one.call(
+        attributes: { 'borrowed' => false },
+        entity: book
+      )
+    end
+
+    books_collection.update_one.call(entity: book)
+  end
+end
+```
+
+Here, we are defining a custom action for returning a borrowed library book. Inside our transaction, we are defining two steps. First, we are marking the book as no longer borrowed, so other patrons will be able to check it out or request it. Second, we destroy the join model between the user and the book. If either of these steps returns a failing result, the transaction will automatically roll back.
+
+If you do not want to roll back on a failed step, use the native `ActiveRecord.transaction` method instead.
+
+#### Actions
+
 `Cuprum::Rails` also provides some pre-defined actions to implement classic resourceful controllers. Each resource action calls one or more commands from the resource collection to query or persist the record or records.
 
-#### Create
+##### Create
 
 The `Create` action passes the resource params to `collection.build_one`, validates the record using `collection.validate_one`, and finally inserts the new record into the collection using the `collection.insert_one` command. The action returns a Hash containing the created record.
 
@@ -640,7 +688,7 @@ If the params do not include attributes for the resource, the action returns a f
 
 If the permitted attributes are not defined for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error.
 
-#### Destroy
+##### Destroy
 
 The `Destroy` action removes the record from the collection via `collection.destroy_one`. The action returns a Hash containing the deleted record.
 
@@ -659,7 +707,7 @@ Book.where(id: 0).exist?
 
 If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
 
-#### Edit
+##### Edit
 
 The `Edit` action finds the record with the given primary key via `collection.find_one` and returns a Hash containing the found record.
 
@@ -675,7 +723,7 @@ result.value
 
 If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
 
-#### Index
+##### Index
 
 The `Index` action performs a query on the records using `collection.find_matching`, and returns a Hash containing the found records. You can pass `:limit`, `:offset`, `:order`, and `:where` parameters to filter the results.
 
@@ -693,7 +741,7 @@ result.value
 #=> { 'books' => [#<Book>, #<Book>, #<Book>] }
 ```
 
-#### New
+##### New
 
 The `New` action builds a new record with empty attributes using `collection.build_one`, and returns a Hash containing the new record.
 
@@ -706,7 +754,7 @@ result.value
 #=> { 'book' => #<Book> }
 ```
 
-#### Show
+##### Show
 
 The `Show` action finds the record with the given primary key via `collection.find_one` and returns a Hash containing the found record.
 
@@ -722,7 +770,7 @@ result.value
 
 If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
 
-#### Update
+##### Update
 
 The `Update` action finds the record with the given primary key via `collection.find_one`, assigns the given attributes using `collection.assign_one`, validates the record using `collection.validate_one`, and finally updates the record in the collection using the `collection.update_one` command. The action returns a Hash containing the created record.
 

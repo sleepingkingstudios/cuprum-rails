@@ -2,6 +2,12 @@
 
 ## O.2.0
 
+### Actions
+
+Implemented `#transaction` method.
+
+Refactored how actions handle required parameters.
+
 ### Controllers
 
 Implemented `.build_request` class method.
