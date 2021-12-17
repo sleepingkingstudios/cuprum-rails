@@ -5,6 +5,7 @@ require 'rspec/sleeping_king_studios/concerns/shared_example_group'
 require 'cuprum/rails/request'
 
 require 'support/examples'
+require 'support/book'
 
 module Spec::Support::Examples
   module ActionExamples
@@ -57,6 +58,12 @@ module Spec::Support::Examples
 
       describe '#collection' do
         include_examples 'should define reader', :collection, -> { collection }
+      end
+
+      describe '#resource_class' do
+        include_examples 'should define reader',
+          :resource_class,
+          -> { resource.resource_class }
       end
 
       describe '#resource_id' do
@@ -139,6 +146,89 @@ module Spec::Support::Examples
         include_examples 'should define reader',
           :singular_resource_name,
           -> { be == resource.singular_resource_name }
+      end
+
+      describe '#transaction' do
+        shared_examples 'should wrap the block in a transaction' do
+          it 'should yield the block' do
+            expect { |block| action.send(:transaction, &block) }
+              .to yield_control
+          end
+
+          it 'should wrap the block in a transaction' do # rubocop:disable RSpec/ExampleLength
+            in_transaction = false
+
+            allow(transaction_class).to receive(:transaction) do |&block|
+              in_transaction = true
+
+              block.call
+
+              in_transaction = false
+            end
+
+            action.send(:transaction) do
+              expect(in_transaction).to be true
+            end
+          end
+
+          context 'when the block contains a failing step' do
+            let(:expected_error) do
+              Cuprum::Error.new(message: 'Something went wrong.')
+            end
+
+            before(:example) do
+              action.define_singleton_method(:failing_step) do
+                error = Cuprum::Error.new(message: 'Something went wrong.')
+
+                step { failure(error) }
+              end
+            end
+
+            it 'should return the failing result' do
+              expect(action.send(:transaction) { action.failing_step })
+                .to be_a_failing_result
+                .with_error(expected_error)
+            end
+
+            it 'should roll back the transaction' do # rubocop:disable RSpec/ExampleLength
+              rollback = false
+
+              allow(transaction_class).to receive(:transaction) do |&block|
+                block.call
+              rescue ActiveRecord::Rollback
+                rollback = true
+              end
+
+              action.send(:transaction) { action.failing_step }
+
+              expect(rollback).to be true
+            end
+          end
+        end
+
+        it 'should define the private method' do
+          expect(action).to respond_to(:transaction, true).with(0).arguments
+        end
+
+        context 'when the resource class is not an ActiveRecord model' do
+          let(:transaction_class) { ActiveRecord::Base }
+          let(:resource_options) do
+            super().merge(resource_class: Spec::Entity)
+          end
+
+          example_class 'Spec::Entity'
+
+          include_examples 'should wrap the block in a transaction'
+        end
+
+        context 'when the resource class is an ActiveRecord model' do
+          let(:transaction_class) { Book }
+          let(:resource_options) do
+            super().merge(resource_class: Book)
+          end
+
+          include_examples 'should wrap the block in a transaction'
+        end
       end
     end
   end

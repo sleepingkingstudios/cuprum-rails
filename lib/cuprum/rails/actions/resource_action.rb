@@ -26,6 +26,7 @@ module Cuprum::Rails::Actions
 
     def_delegators :@resource,
       :collection,
+      :resource_class,
       :resource_name,
       :singular_resource_name
 
@@ -95,6 +96,24 @@ module Cuprum::Rails::Actions
       return if resource_params.is_a?(Hash) && resource_params.present?
 
       failure(missing_parameters_error)
+    end
+
+    def transaction(&block) # rubocop:disable Metrics/MethodLength
+      result            = nil
+      transaction_class =
+        if resource_class.is_a?(Class) && resource_class < ActiveRecord::Base
+          resource_class
+        else
+          ActiveRecord::Base
+        end
+
+      transaction_class.transaction do
+        result = steps { block.call }
+
+        raise ActiveRecord::Rollback if result.failure?
+      end
+
+      result
     end
   end
 end
