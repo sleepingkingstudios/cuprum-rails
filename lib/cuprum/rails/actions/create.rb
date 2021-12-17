@@ -14,8 +14,7 @@ module Cuprum::Rails::Actions
       entity = nil
 
       result = steps do
-        attributes = step { resource_params }
-        entity     = step { collection.build_one.call(attributes: attributes) }
+        entity = step { collection.build_one.call(attributes: resource_params) }
 
         step { collection.validate_one.call(entity: entity) }
 
@@ -34,6 +33,8 @@ module Cuprum::Rails::Actions
 
     def process(request:)
       super
+
+      step { require_resource_params }
 
       entity, result = create_resource
 
