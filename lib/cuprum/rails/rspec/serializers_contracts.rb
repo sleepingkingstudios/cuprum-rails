@@ -38,10 +38,9 @@ module Cuprum::Rails::RSpec
           tools = SleepingKingStudios::Tools::Toolbelt.instance
 
           attribute_names
-            .map do |attr_name|
+            .to_h do |attr_name|
               [attr_name, context.serialize(object.send(attr_name))]
             end # rubocop:disable Style/MultilineBlockChain
-            .to_h
             .merge(attribute_values)
             .yield_self { |hsh| tools.hash_tools.convert_keys_to_strings(hsh) }
         end
