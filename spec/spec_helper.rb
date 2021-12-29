@@ -13,6 +13,7 @@ require File.expand_path('../config/application', __dir__)
 Rails.application.initialize!
 
 require 'rspec/sleeping_king_studios/all'
+require 'rspec/sleeping_king_studios/concerns/include_contract'
 require 'byebug'
 require 'database_cleaner/active_record'
 
@@ -31,8 +32,6 @@ Stannum::RSpec::ValidateParameterMatcher.add_parameter_mapping(
 # Isolated namespace for defining spec-only or transient objects.
 module Spec; end
 
-require 'support/contract_helpers'
-
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
   include Cuprum::RSpec::Matchers
@@ -40,9 +39,9 @@ RSpec.configure do |config|
 
   config.extend  RSpec::SleepingKingStudios::Concerns::ExampleConstants
   config.extend  RSpec::SleepingKingStudios::Concerns::FocusExamples
+  config.extend  RSpec::SleepingKingStudios::Concerns::IncludeContract
   config.extend  RSpec::SleepingKingStudios::Concerns::WrapExamples
   config.include RSpec::SleepingKingStudios::Examples::PropertyExamples
-  config.extend  Spec::ContractHelpers
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction

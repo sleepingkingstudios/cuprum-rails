@@ -37,7 +37,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'database_cleaner-active_record', '~> 2.0'
   gem.add_development_dependency 'pg', '~> 1.2'
   gem.add_development_dependency 'rspec', '~> 3.9'
-  gem.add_development_dependency 'rspec-sleeping_king_studios', '~> 2.5'
+  gem.add_development_dependency 'rspec-sleeping_king_studios', '2.7.0.rc.0'
   gem.add_development_dependency 'rubocop', '~> 1.22'
   gem.add_development_dependency 'rubocop-rails', '~> 2.12'
   gem.add_development_dependency 'rubocop-rake', '~> 0.6'
