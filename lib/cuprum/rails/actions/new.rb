@@ -8,12 +8,24 @@ module Cuprum::Rails::Actions
   class New < Cuprum::Rails::Actions::ResourceAction
     private
 
+    attr_reader :entity
+
+    def build_entity
+      collection.build_one.call(attributes: {})
+    end
+
+    def build_response
+      { singular_resource_name => entity }
+    end
+
+    def perform_action
+      @entity = step { build_entity }
+    end
+
     def process(request:)
+      @entity = nil
+
       super
-
-      instance = step { collection.build_one.call(attributes: {}) }
-
-      { singular_resource_name => instance }
     end
   end
 end

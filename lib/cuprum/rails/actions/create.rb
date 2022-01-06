@@ -10,20 +10,20 @@ module Cuprum::Rails::Actions
   class Create < Cuprum::Rails::Actions::ResourceAction
     private
 
-    def create_resource
-      entity = nil
+    attr_reader :entity
 
-      result = steps do
-        entity = step { collection.build_one.call(attributes: resource_params) }
+    def build_response
+      { singular_resource_name => entity }
+    end
+
+    def create_entity(attributes:)
+      steps do
+        @entity = step { collection.build_one.call(attributes: attributes) }
 
         step { collection.validate_one.call(entity: entity) }
 
         step { collection.insert_one.call(entity: entity) }
-
-        { singular_resource_name => entity }
       end
-
-      [entity, result]
     end
 
     def failed_validation?(result)
@@ -31,12 +31,8 @@ module Cuprum::Rails::Actions
         result.error.is_a?(Cuprum::Collections::Errors::FailedValidation)
     end
 
-    def process(request:)
-      super
-
-      step { require_resource_params }
-
-      entity, result = create_resource
+    def handle_failed_validation
+      result = yield
 
       return result unless failed_validation?(result)
 
@@ -45,6 +41,22 @@ module Cuprum::Rails::Actions
         status: :failure,
         value:  { singular_resource_name => entity }
       )
+    end
+
+    def perform_action
+      handle_failed_validation do
+        create_entity(attributes: resource_params)
+      end
+    end
+
+    def process(request:)
+      @entity = nil
+
+      super
+    end
+
+    def validate_parameters
+      require_resource_params
     end
   end
 end

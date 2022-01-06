@@ -11,10 +11,25 @@ module Cuprum::Rails::Actions
 
     private
 
+    attr_reader :entities
+
+    def build_response
+      { resource_name => entities.to_a }
+    end
+
     # @note Overload this method to change how the filtering params are defined,
     #   or override the #limit, #offset, #order, #where methods directly.
     def filter_params
       tools.hash_tools.convert_keys_to_strings(request.params)
+    end
+
+    def find_entities(limit:, offset:, order:, &block)
+      collection.find_matching.call(
+        limit:  limit,
+        offset: offset,
+        order:  order,
+        &block
+      )
     end
 
     def limit
@@ -29,19 +44,24 @@ module Cuprum::Rails::Actions
       filter_params.fetch('order', default_order.presence)
     end
 
-    def process(request:)
-      super
-
+    def perform_action
       filters = where
       block   = where.present? ? -> { filters } : nil
 
-      collection.find_matching.call(
-        envelope: true,
-        limit:    limit,
-        offset:   offset,
-        order:    order,
-        &block
-      )
+      @entities = step do
+        find_entities(
+          limit:  limit,
+          offset: offset,
+          order:  order,
+          &block
+        )
+      end
+    end
+
+    def process(request:)
+      @entities = nil
+
+      super
     end
 
     def tools

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/errors/extra_attributes'
 require 'cuprum/collections/errors/not_found'
 
 require 'cuprum/rails/actions/update'

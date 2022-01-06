@@ -8,6 +8,8 @@ require 'support/serializers/book_serializer'
 # @note Integration spec for
 #   Cuprum::Rails::Serializers::Json::AttributesSerializer.
 RSpec.describe Spec::Support::Serializers::BookSerializer do
+  include Cuprum::Rails::RSpec::SerializersContracts
+
   let(:serializer) { described_class.new }
 
   describe '#call' do
@@ -21,8 +23,7 @@ RSpec.describe Spec::Support::Serializers::BookSerializer do
       )
     end
 
-    include_contract \
-      Cuprum::Rails::RSpec::SerializersContracts::SHOULD_SERIALIZE_ATTRIBUTES,
+    include_contract 'should serialize attributes',
       :id,
       :title,
       :author,
