@@ -8,16 +8,28 @@ module Cuprum::Rails::Actions
   class Destroy < Cuprum::Rails::Actions::ResourceAction
     private
 
-    def process(request:)
-      super
+    attr_reader :entity
 
-      step { require_resource_id }
-
-      entity = step do
-        collection.destroy_one.call(primary_key: resource_id)
-      end
-
+    def build_response
       { singular_resource_name => entity }
+    end
+
+    def destroy_entity(primary_key:)
+      collection.destroy_one.call(primary_key: primary_key)
+    end
+
+    def perform_action
+      @entity = step { destroy_entity(primary_key: resource_id) }
+    end
+
+    def process(request:)
+      @entity = nil
+
+      super
+    end
+
+    def validate_parameters
+      require_resource_id
     end
   end
 end

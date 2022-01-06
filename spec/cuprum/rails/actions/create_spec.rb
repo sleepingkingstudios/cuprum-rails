@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/errors/already_exists'
+require 'cuprum/collections/errors/extra_attributes'
 require 'stannum/errors'
 
 require 'cuprum/rails/actions/create'
