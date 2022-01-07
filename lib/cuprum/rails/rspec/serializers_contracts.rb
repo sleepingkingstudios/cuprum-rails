@@ -8,7 +8,7 @@ module Cuprum::Rails::RSpec
   # Namespace for contracts that specify serialization behavior.
   module SerializersContracts
     # Contract specifying that a serializer serializes the expected properties.
-    class ShouldSerializeAttributesContract
+    module ShouldSerializeAttributesContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @method apply(example_group, *attribute_names, **attribute_values)
@@ -23,7 +23,7 @@ module Cuprum::Rails::RSpec
       #     serialize. The value of the serialized attribute should match the
       #     given value.
 
-      contract do |*attribute_names, **attribute_values| # rubocop:disable Metrics/BlockLength
+      contract do |*attribute_names, **attribute_values|
         let(:serializers) do
           return super() if defined?(super())
 
