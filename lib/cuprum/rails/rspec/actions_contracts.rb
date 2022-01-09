@@ -164,6 +164,68 @@ module Cuprum::Rails::RSpec
       end
     end
 
+    # Contract asserting the action requires a valid entity.
+    module ShouldRequireExistingEntityContract
+      extend RSpec::SleepingKingStudios::Contract
+
+      # @!method apply(example_group, **options)
+      #   Adds the contract to the example group.
+      #
+      #   @param example_group [RSpec::Core::ExampleGroup] The example group to
+      #     which the contract is applied.
+      #
+      #   @option options [Object] primary_key_value The value of the primary
+      #     key for the missing entity.
+      #
+      #   @yield Additional configuration or examples.
+
+      contract do |**contract_options, &block|
+        describe '#call' do
+          include Cuprum::Rails::RSpec::ContractHelpers
+
+          let(:params) do
+            defined?(super()) ? super() : {}
+          end
+          let(:request) do
+            instance_double(Cuprum::Rails::Request, params: params)
+          end
+
+          context 'when the entity does not exist' do
+            let(:expected_error) do
+              Cuprum::Collections::Errors::NotFound.new(
+                collection_name:    resource.resource_name,
+                primary_key_name:   resource.primary_key,
+                primary_key_values: primary_key_value
+              )
+            end
+            let(:primary_key_value) do
+              option_with_default(
+                configured: contract_options[:primary_key_value],
+                context:    self,
+                default:    0
+              )
+            end
+            let(:params) { super().merge('id' => primary_key_value) }
+
+            before(:example) do
+              resource
+                .resource_class
+                .where(resource.primary_key => primary_key_value)
+                .destroy_all
+            end
+
+            it 'should return a failing result' do
+              expect(action.call(request: request))
+                .to be_a_failing_result
+                .with_error(expected_error)
+            end
+
+            instance_exec(&block) if block
+          end
+        end
+      end
+    end
+
     # Contract asserting the action requires resource parameters.
     module ShouldRequireParametersContract
       extend RSpec::SleepingKingStudios::Contract
@@ -242,6 +304,52 @@ module Cuprum::Rails::RSpec
               allow(action.resource)
                 .to receive(:permitted_attributes)
                 .and_return(nil)
+            end
+
+            it 'should return a failing result' do
+              expect(action.call(request: request))
+                .to be_a_failing_result
+                .with_error(expected_error)
+            end
+
+            instance_exec(&block) if block
+          end
+        end
+      end
+    end
+
+    # Contract asserting the action requires a primary key.
+    module ShouldRequirePrimaryKeyContract
+      extend RSpec::SleepingKingStudios::Contract
+
+      # @!method apply(example_group)
+      #   Adds the contract to the example group.
+      #
+      #   @param example_group [RSpec::Core::ExampleGroup] The example group to
+      #     which the contract is applied.
+      #
+      #   @yield Additional configuration or examples.
+
+      contract do |&block|
+        describe '#call' do
+          let(:params) do
+            defined?(super()) ? super() : {}
+          end
+          let(:request) do
+            instance_double(Cuprum::Rails::Request, params: params)
+          end
+
+          context 'when the parameters do not include a primary key' do
+            let(:params) do
+              super()
+                .dup
+                .tap { |hsh| hsh.delete('id') }
+            end
+            let(:expected_error) do
+              Cuprum::Rails::Errors::MissingPrimaryKey.new(
+                primary_key:   resource.primary_key,
+                resource_name: resource.singular_resource_name
+              )
             end
 
             it 'should return a failing result' do
