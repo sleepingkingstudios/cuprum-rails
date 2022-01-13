@@ -164,6 +164,70 @@ module Cuprum::Rails::RSpec
       end
     end
 
+    # Contract asserting the action finds and returns the requested entity.
+    module ShouldFindTheEntityContract
+      extend RSpec::SleepingKingStudios::Contract
+
+      # @method apply(example_group, existing_entity:, **options, &block)
+      #   Adds the contract to the example group.
+      #
+      #   @param example_group [RSpec::Core::ExampleGroup] The example group to
+      #     which the contract is applied.
+      #   @param existing_entity [Object] The existing entity to destroy.
+      #
+      #   @option options [Hash<String>] expected_value The expected value for
+      #     the passing result. Defaults to a Hash with the destroyed entity.
+      #
+      #   @yield Additional configuration or examples.
+
+      contract do |existing_entity:, **contract_options, &block|
+        contract_options = contract_options.merge(
+          existing_entity: existing_entity
+        )
+
+        describe '#call' do
+          include Cuprum::Rails::RSpec::ContractHelpers
+
+          let(:params) do
+            defined?(super()) ? super() : {}
+          end
+          let(:request) do
+            instance_double(Cuprum::Rails::Request, params: params)
+          end
+
+          context 'when the entity exists' do
+            let(:existing_entity) do
+              option_with_default(
+                configured: contract_options[:existing_entity],
+                context:    self
+              )
+            end
+            let(:primary_key) { resource.primary_key }
+            let(:params) do
+              super().merge('id' => self.existing_entity[primary_key])
+            end
+            let(:expected_value) do
+              option_with_default(
+                configured: contract_options[:expected_value],
+                context:    self,
+                default:    {
+                  action.resource.singular_resource_name => self.existing_entity
+                }
+              )
+            end
+
+            it 'should return a passing result' do
+              expect(action.call(request: request))
+                .to be_a_passing_result
+                .with_value(expected_value)
+            end
+
+            instance_exec(&block) if block
+          end
+        end
+      end
+    end
+
     # Contract asserting the action requires a valid entity.
     module ShouldRequireExistingEntityContract
       extend RSpec::SleepingKingStudios::Contract
