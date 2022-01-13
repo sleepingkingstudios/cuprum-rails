@@ -3,14 +3,17 @@
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/actions/index'
+require 'cuprum/rails/rspec/actions/index_contracts'
 
 require 'support/book'
-require 'support/examples/action_examples'
+require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Index do
-  include Spec::Support::Examples::ActionExamples
+  include Cuprum::Rails::RSpec::Actions::IndexContracts
 
-  subject(:action) { described_class.new(resource: resource) }
+  subject(:action) do
+    described_class.new(repository: repository, resource: resource)
+  end
 
   shared_context 'with a request with parameters' do
     let(:params)  { {} }
@@ -21,171 +24,71 @@ RSpec.describe Cuprum::Rails::Actions::Index do
     end
   end
 
-  let(:resource_class) { Book }
-  let(:collection) do
-    Cuprum::Rails::Collection.new(record_class: resource_class)
-  end
+  let(:repository) { Cuprum::Rails::Repository.new }
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      collection:     collection,
-      resource_class: resource_class,
+      collection:     repository.find_or_create(record_class: Book),
+      resource_class: Book,
       **resource_options
     )
   end
   let(:resource_options) { {} }
 
-  include_examples 'should define the ResourceAction methods'
+  include_contract 'index action contract',
+    existing_entities: []
 
-  describe '#call' do
-    let(:params)  { {} }
-    let(:request) { instance_double(ActionDispatch::Request, params: params) }
-    let(:data)    { [] }
-    let(:matching_data) do
-      resource_class.all
+  context 'when there are many entities' do
+    let(:entities) do
+      [
+        Book.new(
+          'title'  => 'Gideon the Ninth',
+          'author' => 'Tamsyn Muir',
+          'series' => 'The Locked Tomb'
+        ),
+        Book.new(
+          'title'  => 'Harrow the Ninth',
+          'author' => 'Tamsyn Muir',
+          'series' => 'The Locked Tomb'
+        ),
+        Book.new(
+          'title'  => 'Nona the Ninth',
+          'author' => 'Tamsyn Muir',
+          'series' => 'The Locked Tomb'
+        ),
+        Book.new(
+          'title'  => 'Alecto the Ninth',
+          'author' => 'Tamsyn Muir',
+          'series' => 'The Locked Tomb'
+        ),
+        Book.new(
+          'title'  => 'Princess Floralinda and the Forty Flight Tower',
+          'author' => 'Tamsyn Muir',
+          'series' => nil
+        )
+      ]
     end
-    let(:expected_value) do
-      { resource.resource_name => matching_data.to_a }
+    let(:resource_options) { super().merge(default_order: :id) }
+
+    before(:example) { entities.map(&:save!) }
+
+    include_contract 'should find the entities',
+      existing_entities: -> { entities.sort_by(&:id) }
+
+    describe 'with a filter' do
+      let(:params) { { 'where' => { 'series' => 'The Locked Tomb' } } }
+      let(:matching_entities) do
+        entities.select { |entity| entity.series == 'The Locked Tomb' }
+      end
+
+      include_contract 'should find the entities',
+        existing_entities: -> { matching_entities.sort_by(&:id) }
     end
 
-    before(:example) do
-      data.each do |attributes|
-        resource_class.create!(attributes.except('id'))
-      end
-    end
+    describe 'with an ordering' do
+      let(:params) { { 'order' => 'title' } }
 
-    it 'should return a passing result with the matching data' do
-      expect(action.call(request: request))
-        .to be_a_passing_result
-        .with_value(expected_value)
-    end
-
-    context 'when the collection has many items' do
-      let(:data) { Cuprum::Collections::RSpec::BOOKS_FIXTURES }
-
-      it 'should return a passing result with the matching data' do
-        expect(action.call(request: request))
-          .to be_a_passing_result
-          .with_value(expected_value)
-      end
-
-      context 'when the resource has a default order' do
-        let(:default_order) { { author: :asc, title: :asc } }
-        let(:resource_options) do
-          super().merge(default_order: default_order)
-        end
-        let(:matching_data) do
-          super().order(default_order)
-        end
-
-        it 'should return a passing result with the matching data' do
-          expect(action.call(request: request))
-            .to be_a_passing_result
-            .with_value(expected_value)
-        end
-
-        context 'when the request has an order parameter' do
-          let(:params)        { super().merge('order' => %w[author title]) }
-          let(:matching_data) { super().order(params['order']) }
-
-          it 'should return a passing result with the matching data' do
-            expect(action.call(request: request))
-              .to be_a_passing_result
-              .with_value(expected_value)
-          end
-        end
-
-        context 'when the request has filter parameters' do
-          let(:params) do
-            super().merge(
-              'limit'  => 3,
-              'offset' => 2,
-              'order'  => %w[author title],
-              'where'  => { 'series' => nil }
-            )
-          end
-          let(:matching_data) do
-            super()
-              .limit(params['limit'])
-              .offset(params['offset'])
-              .order(params['order'])
-              .where(params['where'])
-          end
-
-          it 'should return a passing result with the matching data' do
-            expect(action.call(request: request))
-              .to be_a_passing_result
-              .with_value(expected_value)
-          end
-        end
-      end
-
-      context 'when the request has a limit parameter' do
-        let(:params)        { super().merge('limit' => 3) }
-        let(:matching_data) { super().limit(params['limit']) }
-
-        it 'should return a passing result with the matching data' do
-          expect(action.call(request: request))
-            .to be_a_passing_result
-            .with_value(expected_value)
-        end
-      end
-
-      context 'when the request has an offset parameter' do
-        let(:params)        { super().merge('offset' => 1) }
-        let(:matching_data) { super().offset(params['offset']) }
-
-        it 'should return a passing result with the matching data' do
-          expect(action.call(request: request))
-            .to be_a_passing_result
-            .with_value(expected_value)
-        end
-      end
-
-      context 'when the request has an order parameter' do
-        let(:params)        { super().merge('order' => %w[author title]) }
-        let(:matching_data) { super().order(params['order']) }
-
-        it 'should return a passing result with the matching data' do
-          expect(action.call(request: request))
-            .to be_a_passing_result
-            .with_value(expected_value)
-        end
-      end
-
-      context 'when the request has a where parameter' do
-        let(:params)        { super().merge('where' => { 'series' => nil }) }
-        let(:matching_data) { super().where(params['where']) }
-
-        it 'should return a passing result with the matching data' do
-          expect(action.call(request: request))
-            .to be_a_passing_result
-            .with_value(expected_value)
-        end
-      end
-
-      context 'when the request has filter parameters' do
-        let(:params) do
-          super().merge(
-            'limit'  => 3,
-            'offset' => 2,
-            'order'  => %w[author title],
-            'where'  => { 'series' => nil }
-          )
-        end
-        let(:matching_data) do
-          super()
-            .limit(params['limit'])
-            .offset(params['offset'])
-            .order(params['order'])
-            .where(params['where'])
-        end
-
-        it 'should return a passing result with the matching data' do
-          expect(action.call(request: request))
-            .to be_a_passing_result
-            .with_value(expected_value)
-        end
-      end
+      include_contract 'should find the entities',
+        existing_entities: -> { entities.sort_by(&:title) }
     end
   end
 
@@ -321,6 +224,79 @@ RSpec.describe Cuprum::Rails::Actions::Index do
       end
 
       it { expect(action.send :where).to be == params['where'] }
+    end
+  end
+
+  context 'with a record class with UUID primary key' do
+    let(:resource) do
+      Cuprum::Rails::Resource.new(
+        collection:     repository.find_or_create(record_class: Tome),
+        resource_class: Tome,
+        **resource_options
+      )
+    end
+
+    include_contract 'index action contract',
+      existing_entities: []
+
+    context 'when there are many entities' do
+      let(:entities) do
+        [
+          Tome.new(
+            'uuid'   => SecureRandom.uuid,
+            'title'  => 'Gideon the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Tome.new(
+            'uuid'   => SecureRandom.uuid,
+            'title'  => 'Harrow the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Tome.new(
+            'uuid'   => SecureRandom.uuid,
+            'title'  => 'Nona the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Tome.new(
+            'uuid'   => SecureRandom.uuid,
+            'title'  => 'Alecto the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Tome.new(
+            'uuid'   => SecureRandom.uuid,
+            'title'  => 'Princess Floralinda and the Forty Flight Tower',
+            'author' => 'Tamsyn Muir',
+            'series' => nil
+          )
+        ]
+      end
+      let(:resource_options) { super().merge(default_order: :uuid) }
+
+      before(:example) { entities.map(&:save!) }
+
+      include_contract 'should find the entities',
+        existing_entities: -> { entities.sort_by(&:uuid) }
+
+      describe 'with a filter' do
+        let(:params) { { 'where' => { 'series' => 'The Locked Tomb' } } }
+        let(:matching_entities) do
+          entities.select { |entity| entity.series == 'The Locked Tomb' }
+        end
+
+        include_contract 'should find the entities',
+          existing_entities: -> { matching_entities.sort_by(&:id) }
+      end
+
+      describe 'with an ordering' do
+        let(:params) { { 'order' => 'title' } }
+
+        include_contract 'should find the entities',
+          existing_entities: -> { entities.sort_by(&:title) }
+      end
     end
   end
 end
