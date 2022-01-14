@@ -138,21 +138,13 @@ module Cuprum::Rails::RSpec::Actions
                 .first
             end
             let(:expected_value) do
-              expected      = contract_options[:expected_value]
-              default_value = {
-                action.resource.singular_resource_name => expected_entity
-              }
-
-              # :nocov:
-              case expected
-              when Proc
-                instance_exec(default_value, &expected)
-              when Hash
-                expected
-              else
-                default_value
-              end
-              # :nocov:
+              option_with_default(
+                configured: contract_options[:expected_value],
+                context:    self,
+                default:    {
+                  action.resource.singular_resource_name => expected_entity
+                }
+              )
             end
 
             it 'should return a passing result' do
