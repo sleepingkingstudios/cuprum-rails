@@ -1,82 +1,57 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/show'
+require 'cuprum/rails/rspec/actions/show_contracts'
 
 require 'support/book'
-require 'support/examples/action_examples'
+require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Show do
-  include Spec::Support::Examples::ActionExamples
+  include Cuprum::Rails::RSpec::Actions::ShowContracts
 
-  subject(:action) { described_class.new(resource: resource) }
-
-  let(:resource_class) { Book }
-  let(:collection) do
-    Cuprum::Rails::Collection.new(record_class: resource_class)
+  subject(:action) do
+    described_class.new(repository: repository, resource: resource)
   end
+
+  let(:repository) { Cuprum::Rails::Repository.new }
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      collection:     collection,
-      resource_class: resource_class,
-      **resource_options
+      collection:     repository.find_or_create(record_class: Book),
+      resource_class: Book
     )
   end
-  let(:resource_options) { {} }
+  let(:entity) do
+    Book.new(
+      'title'  => 'Gideon the Ninth',
+      'author' => 'Tamsyn Muir',
+      'series' => 'The Locked Tomb'
+    )
+  end
+  let(:params) { { 'id' => entity.id } }
 
-  include_examples 'should define the ResourceAction methods'
+  before(:example) { entity.save! }
 
-  describe '#call' do
-    let(:params)  { {} }
-    let(:request) { instance_double(ActionDispatch::Request, params: params) }
+  include_contract 'show action contract',
+    existing_entity: -> { entity }
 
-    context 'when the parameters do not include a primary key' do
-      let(:expected_error) do
-        Cuprum::Rails::Errors::MissingPrimaryKey.new(
-          primary_key:   resource.primary_key,
-          resource_name: resource.singular_resource_name
-        )
-      end
-
-      it 'should return a failing result' do
-        expect(action.call(request: request))
-          .to be_a_failing_result
-          .with_error(expected_error)
-      end
+  context 'with a record class with UUID primary key' do
+    let(:resource) do
+      Cuprum::Rails::Resource.new(
+        collection:     repository.find_or_create(record_class: Tome),
+        resource_class: Tome
+      )
+    end
+    let(:entity) do
+      Tome.new(
+        'uuid'   => SecureRandom.uuid,
+        'title'  => 'Gideon the Ninth',
+        'author' => 'Tamsyn Muir',
+        'series' => 'The Locked Tomb'
+      )
     end
 
-    context 'when the resource does not exist' do
-      let(:primary_key_value) { 0 }
-      let(:params)            { { 'id' => primary_key_value } }
-      let(:expected_error) do
-        Cuprum::Collections::Errors::NotFound.new(
-          collection_name:    resource.resource_name,
-          primary_key_name:   resource.primary_key,
-          primary_key_values: primary_key_value
-        )
-      end
-
-      it 'should return a failing result' do
-        expect(action.call(request: request))
-          .to be_a_failing_result
-          .with_error(expected_error)
-      end
-    end
-
-    context 'when the resource exists' do
-      let(:record) do
-        resource_class.create!(
-          title:  'Gideon the Ninth',
-          author: 'Tamsyn Muir'
-        )
-      end
-      let(:primary_key_value) { record.id }
-      let(:params)            { { 'id' => primary_key_value } }
-
-      it 'should return a passing result' do
-        expect(action.call(request: request))
-          .to be_a_passing_result
-          .with_value({ resource.singular_resource_name => record })
-      end
-    end
+    include_contract 'show action contract',
+      existing_entity:   -> { entity },
+      primary_key_value: -> { SecureRandom.uuid }
   end
 end
