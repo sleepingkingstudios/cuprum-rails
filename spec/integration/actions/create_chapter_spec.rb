@@ -40,6 +40,9 @@ RSpec.describe Spec::Support::Actions::CreateChapter do
   let(:params)             { { 'book_id' => book_id } }
 
   include_contract 'create action contract',
+    params:                         lambda {
+      { 'book_id' => book_id }
+    },
     invalid_attributes:             {
       'title' => ''
     },

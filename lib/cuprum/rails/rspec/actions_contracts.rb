@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/errors/not_found'
 require 'cuprum/collections/repository'
 require 'rspec/sleeping_king_studios/contract'
 
@@ -238,6 +239,8 @@ module Cuprum::Rails::RSpec
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to
       #     which the contract is applied.
       #
+      #   @option options [Hash<String>] params The parameters used to build the
+      #     request. Defaults to the id of the entity.
       #   @option options [Object] primary_key_value The value of the primary
       #     key for the missing entity.
       #
@@ -248,7 +251,10 @@ module Cuprum::Rails::RSpec
           include Cuprum::Rails::RSpec::ContractHelpers
 
           let(:params) do
-            defined?(super()) ? super() : {}
+            option_with_default(
+              configured: contract_options[:params],
+              default:    {}
+            )
           end
           let(:request) do
             instance_double(Cuprum::Rails::Request, params: params)
@@ -300,12 +306,20 @@ module Cuprum::Rails::RSpec
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to
       #     which the contract is applied.
       #
+      #   @option options [Hash<String>] params The parameters used to build the
+      #     request. Defaults to an empty Hash.
+      #
       #   @yield Additional configuration or examples.
 
-      contract do |&block|
+      contract do |**options, &block|
         describe '#call' do
+          include Cuprum::Rails::RSpec::ContractHelpers
+
           let(:params) do
-            defined?(super()) ? super() : {}
+            option_with_default(
+              configured: options[:params],
+              default:    {}
+            )
           end
           let(:request) do
             instance_double(Cuprum::Rails::Request, params: params)
@@ -341,18 +355,26 @@ module Cuprum::Rails::RSpec
     module ShouldRequirePermittedAttributesContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group)
+      # @!method apply(example_group, **options, &block)
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to
       #     which the contract is applied.
       #
+      #   @option options [Hash<String>] params The parameters used to build the
+      #     request. Defaults to an empty Hash.
+      #
       #   @yield Additional configuration or examples.
 
-      contract do |&block|
+      contract do |**options, &block|
         describe '#call' do
+          include Cuprum::Rails::RSpec::ContractHelpers
+
           let(:params) do
-            defined?(super()) ? super() : {}
+            option_with_default(
+              configured: options[:params],
+              default:    {}
+            )
           end
           let(:request) do
             instance_double(Cuprum::Rails::Request, params: params)
@@ -386,18 +408,26 @@ module Cuprum::Rails::RSpec
     module ShouldRequirePrimaryKeyContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group)
+      # @!method apply(example_group, **options, &block)
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to
       #     which the contract is applied.
       #
+      #   @option options [Hash<String>] params The parameters used to build the
+      #     request. Defaults to an empty Hash.
+      #
       #   @yield Additional configuration or examples.
 
-      contract do |&block|
+      contract do |**options, &block|
         describe '#call' do
+          include Cuprum::Rails::RSpec::ContractHelpers
+
           let(:params) do
-            defined?(super()) ? super() : {}
+            option_with_default(
+              configured: options[:params],
+              default:    {}
+            )
           end
           let(:request) do
             instance_double(Cuprum::Rails::Request, params: params)
@@ -432,15 +462,20 @@ module Cuprum::Rails::RSpec
     module ShouldValidateAttributesContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group, invalid_attributes:, expected_attributes: nil) # rubocop:disable Layout/LineLength
+      # @!method apply(example_group, invalid_attributes:, expected_attributes: nil, **options) # rubocop:disable Layout/LineLength
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to
       #     which the contract is applied.
       #   @param invalid_attributes [Hash<String>] A set of attributes that will
       #     fail validation.
-      #   @param expected_attributes [Hash<String>] The expected attributes for
-      #     the returned object. Defaults to the value of invalid_attributes.
+      #
+      #   @options options [Object] existing_entity The existing entity, if any.
+      #   @options options [Hash<String>] expected_attributes The expected
+      #     attributes for the returned object. Defaults to the value of
+      #     invalid_attributes.
+      #   @option options [Hash<String>] params The parameters used to build the
+      #     request. Defaults to the given attributes.
       #
       #   @yield Additional configuration or examples.
 
@@ -451,13 +486,21 @@ module Cuprum::Rails::RSpec
           include Cuprum::Rails::RSpec::ContractHelpers
 
           let(:params) do
-            defined?(super()) ? super() : {}
+            option_with_default(
+              configured: contract_options[:params],
+              default:    {}
+            )
           end
           let(:request) do
             instance_double(Cuprum::Rails::Request, params: params)
           end
 
           context 'when the resource params fail validation' do
+            let(:existing_entity) do
+              option_with_default(
+                configured: contract_options[:existing_entity]
+              )
+            end
             let(:invalid_attributes) do
               option_with_default(
                 configured: contract_options[:invalid_attributes],
@@ -468,7 +511,9 @@ module Cuprum::Rails::RSpec
               option_with_default(
                 configured: contract_options[:expected_attributes],
                 context:    self,
-                default:    self.invalid_attributes
+                default:    (existing_entity&.attributes || {}).merge(
+                  self.invalid_attributes
+                )
               )
             end
             let(:params) do
@@ -479,11 +524,24 @@ module Cuprum::Rails::RSpec
               })
             end
             let(:expected_entity) do
-              action
-                .resource
-                .resource_class
-                .new(expected_attributes)
-                .tap(&:valid?)
+              if existing_entity
+                action
+                  .resource
+                  .collection
+                  .assign_one
+                  .call(
+                    attributes: invalid_attributes,
+                    entity:     existing_entity.clone
+                  )
+                  .value
+                  .tap(&:valid?)
+              else
+                action
+                  .resource
+                  .resource_class
+                  .new(expected_attributes)
+                  .tap(&:valid?)
+              end
             end
             let(:expected_value) do
               matcher =

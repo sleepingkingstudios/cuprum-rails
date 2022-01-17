@@ -34,12 +34,31 @@ module Cuprum::Rails::RSpec::Actions
       #   @option options [Hash<String>] expected_value_on_success The expected
       #     value for the passing result. Defaults to a Hash with the created
       #     entity.
+      #   @option options [Hash<String>] params The parameters used to build the
+      #     request. Defaults to the given attributes.
       #   @option options [#to_proc] examples_on_success Extra examples to run
       #     for the passing case.
 
       contract do |invalid_attributes:, valid_attributes:, **options|
         include Cuprum::Rails::RSpec::ActionsContracts
         include Cuprum::Rails::RSpec::Actions::CreateContracts
+
+        options = options.merge(valid_attributes: valid_attributes)
+        configured_params = lambda do
+          attributes =
+            Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
+              configured: valid_attributes,
+              context:    self
+            )
+
+          Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
+            configured: options[:params],
+            context:    self,
+            default:    {
+              action.resource.singular_resource_name => attributes
+            }
+          )
+        end
 
         should_not_create_an_entity = lambda do
           it 'should not create an entity' do
@@ -52,11 +71,13 @@ module Cuprum::Rails::RSpec::Actions
 
         include_contract(
           'should require permitted attributes',
+          params: configured_params,
           &should_not_create_an_entity
         )
 
         include_contract(
           'should require parameters',
+          params: configured_params,
           &should_not_create_an_entity
         )
 
@@ -64,6 +85,7 @@ module Cuprum::Rails::RSpec::Actions
           'should validate attributes',
           expected_attributes: options[:expected_attributes_on_failure],
           invalid_attributes:  invalid_attributes,
+          params:              configured_params,
           &should_not_create_an_entity
         )
 
