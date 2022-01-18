@@ -32,7 +32,6 @@ RSpec.describe Spec::Support::Actions::DestroyBook do
       'series' => 'The Locked Tomb'
     )
   end
-  let(:params) { { 'id' => book.id } }
 
   before(:example) { book.save! }
 

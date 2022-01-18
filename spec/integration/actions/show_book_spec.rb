@@ -33,8 +33,6 @@ RSpec.describe Spec::Support::Actions::ShowBook do
     )
   end
 
-  let(:params) { { 'id' => book.id } }
-
   before(:example) { book.save! }
 
   include_contract 'show action contract',

@@ -30,18 +30,22 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       'series' => 'The Locked Tomb'
     )
   end
+  let(:invalid_attributes) do
+    { 'author' => '' }
+  end
+  let(:valid_attributes) do
+    {
+      'title'  => 'Princess Floralinda and the Forty Flight Tower',
+      'series' => nil
+    }
+  end
 
   before(:example) { entity.save! }
 
   include_contract 'update action contract',
     existing_entity:    -> { entity },
-    invalid_attributes: {
-      'author' => ''
-    },
-    valid_attributes:   {
-      'title'  => 'Princess Floralinda and the Forty Flight Tower',
-      'series' => nil
-    }
+    invalid_attributes: -> { invalid_attributes },
+    valid_attributes:   -> { valid_attributes }
 
   context 'with a record class with UUID primary key' do
     let(:resource) do
@@ -63,12 +67,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
     include_contract 'update action contract',
       existing_entity:    -> { entity },
       primary_key_value:  -> { SecureRandom.uuid },
-      invalid_attributes: {
-        'author' => ''
-      },
-      valid_attributes:   {
-        'title'  => 'Princess Floralinda and the Forty Flight Tower',
-        'series' => nil
-      }
+      invalid_attributes: -> { invalid_attributes },
+      valid_attributes:   -> { valid_attributes }
   end
 end

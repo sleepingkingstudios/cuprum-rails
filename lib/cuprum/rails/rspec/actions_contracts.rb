@@ -178,49 +178,44 @@ module Cuprum::Rails::RSpec
       #
       #   @option options [Hash<String>] expected_value The expected value for
       #     the passing result. Defaults to a Hash with the destroyed entity.
+      #   @option options [Hash<String>] params The parameters used to build the
+      #     request. Defaults to the id of the entity.
       #
       #   @yield Additional configuration or examples.
 
-      contract do |existing_entity:, **contract_options, &block|
-        contract_options = contract_options.merge(
-          existing_entity: existing_entity
-        )
-
+      contract do |existing_entity:, **options, &block|
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers
 
-          let(:params) do
-            defined?(super()) ? super() : {}
-          end
-          let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
-          end
-
           context 'when the entity exists' do
-            let(:existing_entity) do
+            let(:request) do
+              instance_double(Cuprum::Rails::Request, params: configured_params)
+            end
+            let(:configured_existing_entity) do
+              option_with_default(existing_entity)
+            end
+            let(:configured_params) do
+              resource_id =
+                configured_existing_entity[action.resource.primary_key]
+
               option_with_default(
-                configured: contract_options[:existing_entity],
-                context:    self
+                options[:params],
+                default: { 'id' => resource_id }
               )
             end
-            let(:primary_key) { resource.primary_key }
-            let(:params) do
-              super().merge('id' => self.existing_entity[primary_key])
-            end
-            let(:expected_value) do
+            let(:configured_expected_value) do
+              resource_name = action.resource.singular_resource_name
+
               option_with_default(
-                configured: contract_options[:expected_value],
-                context:    self,
-                default:    {
-                  action.resource.singular_resource_name => self.existing_entity
-                }
+                options[:expected_value],
+                default: { resource_name => configured_existing_entity }
               )
             end
 
             it 'should return a passing result' do
               expect(action.call(request: request))
                 .to be_a_passing_result
-                .with_value(expected_value)
+                .with_value(configured_expected_value)
             end
 
             instance_exec(&block) if block
@@ -246,41 +241,41 @@ module Cuprum::Rails::RSpec
       #
       #   @yield Additional configuration or examples.
 
-      contract do |**contract_options, &block|
+      contract do |**options, &block|
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers
 
-          let(:params) do
-            option_with_default(
-              configured: contract_options[:params],
-              default:    {}
-            )
-          end
-          let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
-          end
-
           context 'when the entity does not exist' do
+            let(:request) do
+              instance_double(Cuprum::Rails::Request, params: configured_params)
+            end
+            let(:configured_primary_key_value) do
+              option_with_default(
+                options[:primary_key_value],
+                default: 0
+              )
+            end
+            let(:configured_params) do
+              option_with_default(
+                options[:params],
+                default: {}
+              )
+                .merge({ 'id' => configured_primary_key_value })
+            end
             let(:expected_error) do
               Cuprum::Collections::Errors::NotFound.new(
-                collection_name:    resource.resource_name,
-                primary_key_name:   resource.primary_key,
-                primary_key_values: primary_key_value
+                collection_name:    action.resource.resource_name,
+                primary_key_name:   action.resource.primary_key,
+                primary_key_values: configured_primary_key_value
               )
             end
-            let(:primary_key_value) do
-              option_with_default(
-                configured: contract_options[:primary_key_value],
-                context:    self,
-                default:    0
-              )
-            end
-            let(:params) { super().merge('id' => primary_key_value) }
 
             before(:example) do
               resource
                 .resource_class
-                .where(resource.primary_key => primary_key_value)
+                .where(
+                  action.resource.primary_key => configured_primary_key_value
+                )
                 .destroy_all
             end
 
@@ -315,26 +310,19 @@ module Cuprum::Rails::RSpec
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers
 
-          let(:params) do
-            option_with_default(
-              configured: options[:params],
-              default:    {}
-            )
-          end
-          let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
-          end
-
           context 'when the parameters do not include params for the resource' \
           do
-            let(:params) do
-              super()
+            let(:request) do
+              instance_double(Cuprum::Rails::Request, params: configured_params)
+            end
+            let(:configured_params) do
+              option_with_default(options[:params], default: {})
                 .dup
                 .tap do |hsh|
                   hsh.delete(action.resource.singular_resource_name)
                 end
             end
-            let(:expected_error) do
+            let(:configured_expected_error) do
               Cuprum::Rails::Errors::MissingParameters
                 .new(resource_name: action.resource.singular_resource_name)
             end
@@ -342,7 +330,7 @@ module Cuprum::Rails::RSpec
             it 'should return a failing result' do
               expect(action.call(request: request))
                 .to be_a_failing_result
-                .with_error(expected_error)
+                .with_error(configured_expected_error)
             end
 
             instance_exec(&block) if block
@@ -370,20 +358,16 @@ module Cuprum::Rails::RSpec
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers
 
-          let(:params) do
-            option_with_default(
-              configured: options[:params],
-              default:    {}
-            )
-          end
-          let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
-          end
-
           context 'when the resource does not define permitted attributes' do
+            let(:request) do
+              instance_double(Cuprum::Rails::Request, params: configured_params)
+            end
+            let(:configured_params) do
+              option_with_default(options[:params], default: {})
+            end
             let(:expected_error) do
               Cuprum::Rails::Errors::UndefinedPermittedAttributes
-                .new(resource_name: resource.singular_resource_name)
+                .new(resource_name: action.resource.singular_resource_name)
             end
 
             before(:example) do
@@ -423,33 +407,26 @@ module Cuprum::Rails::RSpec
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers
 
-          let(:params) do
-            option_with_default(
-              configured: options[:params],
-              default:    {}
-            )
-          end
-          let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
-          end
-
           context 'when the parameters do not include a primary key' do
-            let(:params) do
-              super()
+            let(:request) do
+              instance_double(Cuprum::Rails::Request, params: configured_params)
+            end
+            let(:configured_params) do
+              option_with_default(options[:params], default: {})
                 .dup
                 .tap { |hsh| hsh.delete('id') }
             end
-            let(:expected_error) do
+            let(:configured_expected_error) do
               Cuprum::Rails::Errors::MissingPrimaryKey.new(
-                primary_key:   resource.primary_key,
-                resource_name: resource.singular_resource_name
+                primary_key:   action.resource.primary_key,
+                resource_name: action.resource.singular_resource_name
               )
             end
 
             it 'should return a failing result' do
               expect(action.call(request: request))
                 .to be_a_failing_result
-                .with_error(expected_error)
+                .with_error(configured_expected_error)
             end
 
             instance_exec(&block) if block
@@ -479,59 +456,45 @@ module Cuprum::Rails::RSpec
       #
       #   @yield Additional configuration or examples.
 
-      contract do |invalid_attributes:, **contract_options, &block|
-        contract_options.update(invalid_attributes: invalid_attributes)
-
+      contract do |invalid_attributes:, **options, &block|
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers
 
-          let(:params) do
-            option_with_default(
-              configured: contract_options[:params],
-              default:    {}
-            )
-          end
-          let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
-          end
-
           context 'when the resource params fail validation' do
-            let(:existing_entity) do
-              option_with_default(
-                configured: contract_options[:existing_entity]
-              )
+            let(:request) do
+              instance_double(Cuprum::Rails::Request, params: configured_params)
             end
-            let(:invalid_attributes) do
-              option_with_default(
-                configured: contract_options[:invalid_attributes],
-                context:    self
-              )
+            let(:configured_invalid_attributes) do
+              option_with_default(invalid_attributes)
             end
-            let(:expected_attributes) do
+            let(:configured_params) do
+              resource_name = action.resource.singular_resource_name
+
               option_with_default(
-                configured: contract_options[:expected_attributes],
-                context:    self,
-                default:    (existing_entity&.attributes || {}).merge(
-                  self.invalid_attributes
+                options[:params],
+                default: {}
+              ).merge({ resource_name => configured_invalid_attributes })
+            end
+            let(:configured_existing_entity) do
+              option_with_default(options[:existing_entity])
+            end
+            let(:configured_expected_attributes) do
+              option_with_default(
+                options[:expected_attributes],
+                default: (configured_existing_entity&.attributes || {}).merge(
+                  configured_invalid_attributes
                 )
               )
             end
-            let(:params) do
-              resource_name = action.resource.singular_resource_name
-
-              super().merge({
-                resource_name => self.invalid_attributes
-              })
-            end
-            let(:expected_entity) do
-              if existing_entity
+            let(:configured_expected_entity) do
+              if configured_existing_entity
                 action
                   .resource
                   .collection
                   .assign_one
                   .call(
-                    attributes: invalid_attributes,
-                    entity:     existing_entity.clone
+                    attributes: configured_invalid_attributes,
+                    entity:     configured_existing_entity.clone
                   )
                   .value
                   .tap(&:valid?)
@@ -539,27 +502,26 @@ module Cuprum::Rails::RSpec
                 action
                   .resource
                   .resource_class
-                  .new(expected_attributes)
+                  .new(configured_expected_attributes)
                   .tap(&:valid?)
               end
             end
-            let(:expected_value) do
+            let(:configured_expected_value) do
               matcher =
-                be_a(expected_entity.class)
-                  .and(have_attributes(expected_entity.attributes))
+                be_a(configured_expected_entity.class)
+                  .and(have_attributes(configured_expected_entity.attributes))
               option_with_default(
-                configured: contract_options[:expected_value],
-                context:    self,
-                default:    {
+                options[:expected_value],
+                default: {
                   action.resource.singular_resource_name => matcher
                 }
               )
             end
-            let(:expected_error) do
+            let(:configured_expected_error) do
               errors =
                 Cuprum::Rails::MapErrors
                   .instance
-                  .call(native_errors: expected_entity.errors)
+                  .call(native_errors: configured_expected_entity.errors)
 
               Cuprum::Collections::Errors::FailedValidation.new(
                 entity_class: action.resource.resource_class,
@@ -570,8 +532,8 @@ module Cuprum::Rails::RSpec
             it 'should return a failing result' do
               expect(action.call(request: request))
                 .to be_a_failing_result
-                .with_value(deep_match(expected_value))
-                .and_error(expected_error)
+                .with_value(deep_match(configured_expected_value))
+                .and_error(configured_expected_error)
             end
 
             instance_exec(&block) if block

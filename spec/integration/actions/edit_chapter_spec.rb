@@ -39,7 +39,6 @@ RSpec.describe Spec::Support::Actions::EditChapter do
       'chapter_index' => 0
     )
   end
-  let(:params) { { 'id' => chapter.id } }
 
   before(:example) do
     book.save!

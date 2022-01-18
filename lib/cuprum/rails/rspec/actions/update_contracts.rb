@@ -9,6 +9,30 @@ require 'cuprum/rails/rspec/contract_helpers'
 module Cuprum::Rails::RSpec::Actions
   # Namespace for RSpec update contracts, which validate update implementations.
   module UpdateContracts
+    # @private
+    def self.parameters(context:, resource:, **options) # rubocop:disable Metrics/MethodLength
+      attributes    =
+        Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
+          options[:valid_attributes],
+          context: context
+        )
+      entity        =
+        Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
+          options[:existing_entity],
+          context: context
+        )
+      resource_name = resource.singular_resource_name
+
+      Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
+        options[:params],
+        context: context,
+        default: {
+          'id'          => entity[resource.primary_key],
+          resource_name => attributes
+        }
+      )
+    end
+
     # Contract asserting the action implements the show action interface.
     module UpdateActionContract
       extend RSpec::SleepingKingStudios::Contract
@@ -24,8 +48,12 @@ module Cuprum::Rails::RSpec::Actions
       #   @param valid_attributes [Hash<String>] A set of attributes that will
       #     pass validation.
       #
+      #   @option options [#to_proc] examples_on_failure Extra examples to run
+      #     for the failing cases.
+      #   @option options [#to_proc] examples_on_success Extra examples to run
+      #     for the passing case.
       #   @option options [Hash<String>] expected_value_on_success The expected
-      #     value for the passing result. Defaults to a Hash with the found
+      #     value for the passing result. Defaults to a Hash with the updated
       #     entity.
       #   @option options [Hash<String>] expected_attributes_on_failure The
       #     expected attributes for a failed validation. Defaults to the value
@@ -36,37 +64,33 @@ module Cuprum::Rails::RSpec::Actions
       #   @option options [Hash<String>] expected_value_on_success The expected
       #     value for the passing result. Defaults to a Hash with the updated
       #     entity.
-      #   @option options [#to_proc] examples_on_success Extra examples to run
-      #     for the passing case.
       #   @option options [Hash<String>] params The parameters used to build the
       #     request. Defaults to the id of the entity and the given attributes.
       #   @option options [Object] primary_key_value The value of the primary
       #     key for the missing entity.
+      #
+      #   @yield Additional examples to run for the passing case.
 
-      contract do |existing_entity:, invalid_attributes:, valid_attributes:, **options| # rubocop:disable Layout/LineLength
+      contract do |existing_entity:, invalid_attributes:, valid_attributes:, **options, &block| # rubocop:disable Layout/LineLength
         include Cuprum::Rails::RSpec::ActionsContracts
         include Cuprum::Rails::RSpec::Actions::UpdateContracts
 
-        configured_params = lambda do
-          attributes =
-            Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
-              configured: valid_attributes,
-              context:    self
-            )
-          entity =
-            Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
-              configured: existing_entity,
-              context:    self
-            )
+        # :nocov:
+        if options[:examples_on_success] && block # rubocop:disable Style/GuardClause
+          raise ArgumentError, 'provide either :examples_on_success or a block'
+        elsif block
+          options[:examples_on_success] = block
+        end
 
-          resource = action.resource.singular_resource_name
-          Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
-            configured: options[:params],
-            context:    self,
-            default:    {
-              'id'     => entity[action.resource.primary_key],
-              resource => attributes
-            }
+        # :nocov:
+
+        configured_params = lambda do
+          Cuprum::Rails::RSpec::Actions::UpdateContracts.parameters(
+            context:          self,
+            existing_entity:  existing_entity,
+            resource:         action.resource,
+            valid_attributes: valid_attributes,
+            **options
           )
         end
 
@@ -78,6 +102,12 @@ module Cuprum::Rails::RSpec::Actions
             expect { action.call(request: request) }
               .not_to(change { entity.reload.attributes })
           end
+
+          # :nocov:
+          if options[:examples_on_failure]
+            instance_exec(&options[:examples_on_failure])
+          end
+          # :nocov:
         end
 
         include_contract 'resource action contract'
@@ -154,48 +184,46 @@ module Cuprum::Rails::RSpec::Actions
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers
 
-          let(:params) do
-            option_with_default(configured: options[:params])
-          end
-          let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
-          end
-
           context 'with valid parameters' do
-            let(:existing_entity) do
-              option_with_default(
-                configured: existing_entity,
-                context:    self
+            let(:request) do
+              instance_double(Cuprum::Rails::Request, params: configured_params)
+            end
+            let(:configured_params) do
+              Cuprum::Rails::RSpec::Actions::UpdateContracts.parameters(
+                context:          self,
+                existing_entity:  existing_entity,
+                resource:         action.resource,
+                valid_attributes: valid_attributes,
+                **options
               )
             end
-            let(:valid_attributes) do
-              option_with_default(configured: valid_attributes)
+            let(:configured_existing_entity) do
+              option_with_default(existing_entity)
             end
-            let(:expected_attributes) do
+            let(:configured_valid_attributes) do
+              option_with_default(valid_attributes)
+            end
+            let(:configured_expected_attributes) do
               option_with_default(
-                configured: options[:expected_attributes],
-                default:    self.existing_entity.attributes.merge(
-                  self.valid_attributes
+                options[:expected_attributes],
+                default: configured_existing_entity.attributes.merge(
+                  configured_valid_attributes
                 )
               )
             end
-            let(:params) do
-              super().merge({
-                action.resource.singular_resource_name => self.valid_attributes
-              })
-            end
-            let(:expected_entity) do
+            let(:configured_expected_entity) do
               action
                 .resource
                 .resource_class
-                .find(params['id'])
+                .find(configured_params['id'])
             end
-            let(:expected_value) do
+            let(:configured_expected_value) do
+              resource_name = action.resource.singular_resource_name
+
               option_with_default(
-                configured: options[:expected_value],
-                context:    self,
-                default:    {
-                  action.resource.singular_resource_name => expected_entity
+                options[:expected_value],
+                default: {
+                  resource_name => configured_expected_entity
                 }
               )
             end
@@ -203,13 +231,13 @@ module Cuprum::Rails::RSpec::Actions
             it 'should return a passing result' do
               expect(action.call(request: request))
                 .to be_a_passing_result
-                .with_value(expected_value)
+                .with_value(configured_expected_value)
             end
 
             it 'should update the entity' do
               expect { action.call(request: request) }
-                .to change { self.existing_entity.reload.attributes }
-                .to be <= expected_attributes
+                .to change { configured_existing_entity.reload.attributes }
+                .to be <= configured_expected_attributes
             end
 
             instance_exec(&block) if block

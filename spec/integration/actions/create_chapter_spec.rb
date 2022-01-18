@@ -37,7 +37,6 @@ RSpec.describe Spec::Support::Actions::CreateChapter do
   end
   let(:book_id)            { book.id }
   let(:next_chapter_index) { 0 }
-  let(:params)             { { 'book_id' => book_id } }
 
   include_contract 'create action contract',
     params:                         lambda {
@@ -75,6 +74,9 @@ RSpec.describe Spec::Support::Actions::CreateChapter do
     end
 
     include_contract 'should create the entity',
+      params:              lambda {
+        { 'book_id' => book_id }
+      },
       valid_attributes:    { 'title' => 'Chapter Title' },
       expected_attributes: lambda { |hsh|
         hsh.merge(

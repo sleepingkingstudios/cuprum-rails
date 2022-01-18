@@ -11,22 +11,22 @@ module Cuprum::Rails::RSpec
       # returns the configured value, or the given default if the configured
       # value is nil.
       #
-      # @param configured [Object] The configured value for the option.
+      # @param value [Object] The configured value for the option.
       # @param context [RSpec::SleepingKingStudios::ExampleGroup] The example
       #   group used as a context if the configured value is a Proc.
       # @param default [Object] An optional default value if the configured
       #   value is nil.
-      def option_with_default(configured:, context:, default: nil)
+      def option_with_default(value, context:, default: nil)
         # :nocov:
-        case configured
+        case value
         when Proc
-          return context.instance_exec(&configured) if configured.arity.zero?
+          return context.instance_exec(&value) if value.arity.zero?
 
-          context.instance_exec(default, &configured)
+          context.instance_exec(default, &value)
         when nil
           default
         else
-          configured
+          value
         end
         # :nocov:
       end
@@ -38,19 +38,20 @@ module Cuprum::Rails::RSpec
     # the example group and the resulting value returned. Otherwise, returns the
     # configured value, or the given default if the configured value is nil.
     #
-    # @param configured [Object] The configured value for the option.
+    # @param value [Object] The configured value for the option.
     # @param context [RSpec::SleepingKingStudios::ExampleGroup] The example
     #   group used as a context if the configured value is a Proc.
     # @param default [Object] An optional default value if the configured value
     #   is nil.
-    def option_with_default(configured:, context: nil, default: nil)
+    def option_with_default(value, context: nil, default: nil)
       # :nocov:
       Cuprum::Rails::RSpec::ContractHelpers
         .option_with_default(
-          configured: configured,
-          context:    context || self,
-          default:    default
+          value,
+          context: context || self,
+          default: default
         )
+      # :nocov:
     end
   end
 end

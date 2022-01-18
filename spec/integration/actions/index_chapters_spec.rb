@@ -93,6 +93,7 @@ RSpec.describe Spec::Support::Actions::IndexChapters do
       existing_entities:         -> { expected_chapters },
       expected_value_on_success: lambda { |hsh|
         hsh.merge('books' => books[0..0])
-      }
+      },
+      params:                    -> { params }
   end
 end

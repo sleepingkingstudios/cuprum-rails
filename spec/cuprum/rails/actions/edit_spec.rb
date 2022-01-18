@@ -27,7 +27,6 @@ RSpec.describe Cuprum::Rails::Actions::Edit do
       'series' => 'The Locked Tomb'
     )
   end
-  let(:params) { { 'id' => entity.id } }
 
   before(:example) { entity.save! }
 

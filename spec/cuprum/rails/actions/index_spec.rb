@@ -35,60 +35,60 @@ RSpec.describe Cuprum::Rails::Actions::Index do
   let(:resource_options) { {} }
 
   include_contract 'index action contract',
-    existing_entities: []
-
-  context 'when there are many entities' do
-    let(:entities) do
-      [
-        Book.new(
-          'title'  => 'Gideon the Ninth',
-          'author' => 'Tamsyn Muir',
-          'series' => 'The Locked Tomb'
-        ),
-        Book.new(
-          'title'  => 'Harrow the Ninth',
-          'author' => 'Tamsyn Muir',
-          'series' => 'The Locked Tomb'
-        ),
-        Book.new(
-          'title'  => 'Nona the Ninth',
-          'author' => 'Tamsyn Muir',
-          'series' => 'The Locked Tomb'
-        ),
-        Book.new(
-          'title'  => 'Alecto the Ninth',
-          'author' => 'Tamsyn Muir',
-          'series' => 'The Locked Tomb'
-        ),
-        Book.new(
-          'title'  => 'Princess Floralinda and the Forty Flight Tower',
-          'author' => 'Tamsyn Muir',
-          'series' => nil
-        )
-      ]
-    end
-    let(:resource_options) { super().merge(default_order: :id) }
-
-    before(:example) { entities.map(&:save!) }
-
-    include_contract 'should find the entities',
-      existing_entities: -> { entities.sort_by(&:id) }
-
-    describe 'with a filter' do
-      let(:params) { { 'where' => { 'series' => 'The Locked Tomb' } } }
-      let(:matching_entities) do
-        entities.select { |entity| entity.series == 'The Locked Tomb' }
+    existing_entities: [] \
+  do
+    context 'when there are many entities' do
+      let(:resource_options) { super().merge(default_order: :id) }
+      let(:entities) do
+        [
+          Book.new(
+            'title'  => 'Gideon the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Book.new(
+            'title'  => 'Harrow the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Book.new(
+            'title'  => 'Nona the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Book.new(
+            'title'  => 'Alecto the Ninth',
+            'author' => 'Tamsyn Muir',
+            'series' => 'The Locked Tomb'
+          ),
+          Book.new(
+            'title'  => 'Princess Floralinda and the Forty Flight Tower',
+            'author' => 'Tamsyn Muir',
+            'series' => nil
+          )
+        ]
       end
 
-      include_contract 'should find the entities',
-        existing_entities: -> { matching_entities.sort_by(&:id) }
-    end
-
-    describe 'with an ordering' do
-      let(:params) { { 'order' => 'title' } }
+      before(:example) { entities.map(&:save!) }
 
       include_contract 'should find the entities',
-        existing_entities: -> { entities.sort_by(&:title) }
+        existing_entities: -> { entities.sort_by(&:id) }
+
+      describe 'with a filter' do
+        let(:matching_entities) do
+          entities.select { |entity| entity.series == 'The Locked Tomb' }
+        end
+
+        include_contract 'should find the entities',
+          existing_entities: -> { matching_entities.sort_by(&:id) },
+          params:            { 'where' => { 'series' => 'The Locked Tomb' } }
+      end
+
+      describe 'with an ordering' do
+        include_contract 'should find the entities',
+          existing_entities: -> { entities.sort_by(&:title) },
+          params:            { 'order' => 'title' }
+      end
     end
   end
 
@@ -237,65 +237,65 @@ RSpec.describe Cuprum::Rails::Actions::Index do
     end
 
     include_contract 'index action contract',
-      existing_entities: []
+      existing_entities: [] \
+    do
+      context 'when there are many entities' do
+        let(:entities) do
+          [
+            Tome.new(
+              'uuid'   => SecureRandom.uuid,
+              'title'  => 'Gideon the Ninth',
+              'author' => 'Tamsyn Muir',
+              'series' => 'The Locked Tomb'
+            ),
+            Tome.new(
+              'uuid'   => SecureRandom.uuid,
+              'title'  => 'Harrow the Ninth',
+              'author' => 'Tamsyn Muir',
+              'series' => 'The Locked Tomb'
+            ),
+            Tome.new(
+              'uuid'   => SecureRandom.uuid,
+              'title'  => 'Nona the Ninth',
+              'author' => 'Tamsyn Muir',
+              'series' => 'The Locked Tomb'
+            ),
+            Tome.new(
+              'uuid'   => SecureRandom.uuid,
+              'title'  => 'Alecto the Ninth',
+              'author' => 'Tamsyn Muir',
+              'series' => 'The Locked Tomb'
+            ),
+            Tome.new(
+              'uuid'   => SecureRandom.uuid,
+              'title'  => 'Princess Floralinda and the Forty Flight Tower',
+              'author' => 'Tamsyn Muir',
+              'series' => nil
+            )
+          ]
+        end
+        let(:resource_options) { super().merge(default_order: :uuid) }
 
-    context 'when there are many entities' do
-      let(:entities) do
-        [
-          Tome.new(
-            'uuid'   => SecureRandom.uuid,
-            'title'  => 'Gideon the Ninth',
-            'author' => 'Tamsyn Muir',
-            'series' => 'The Locked Tomb'
-          ),
-          Tome.new(
-            'uuid'   => SecureRandom.uuid,
-            'title'  => 'Harrow the Ninth',
-            'author' => 'Tamsyn Muir',
-            'series' => 'The Locked Tomb'
-          ),
-          Tome.new(
-            'uuid'   => SecureRandom.uuid,
-            'title'  => 'Nona the Ninth',
-            'author' => 'Tamsyn Muir',
-            'series' => 'The Locked Tomb'
-          ),
-          Tome.new(
-            'uuid'   => SecureRandom.uuid,
-            'title'  => 'Alecto the Ninth',
-            'author' => 'Tamsyn Muir',
-            'series' => 'The Locked Tomb'
-          ),
-          Tome.new(
-            'uuid'   => SecureRandom.uuid,
-            'title'  => 'Princess Floralinda and the Forty Flight Tower',
-            'author' => 'Tamsyn Muir',
-            'series' => nil
-          )
-        ]
-      end
-      let(:resource_options) { super().merge(default_order: :uuid) }
+        before(:example) { entities.map(&:save!) }
 
-      before(:example) { entities.map(&:save!) }
+        include_contract 'should find the entities',
+          existing_entities: -> { entities.sort_by(&:uuid) }
 
-      include_contract 'should find the entities',
-        existing_entities: -> { entities.sort_by(&:uuid) }
+        describe 'with a filter' do
+          let(:matching_entities) do
+            entities.select { |entity| entity.series == 'The Locked Tomb' }
+          end
 
-      describe 'with a filter' do
-        let(:params) { { 'where' => { 'series' => 'The Locked Tomb' } } }
-        let(:matching_entities) do
-          entities.select { |entity| entity.series == 'The Locked Tomb' }
+          include_contract 'should find the entities',
+            existing_entities: -> { matching_entities.sort_by(&:id) },
+            params:            { 'where' => { 'series' => 'The Locked Tomb' } }
         end
 
-        include_contract 'should find the entities',
-          existing_entities: -> { matching_entities.sort_by(&:id) }
-      end
-
-      describe 'with an ordering' do
-        let(:params) { { 'order' => 'title' } }
-
-        include_contract 'should find the entities',
-          existing_entities: -> { entities.sort_by(&:title) }
+        describe 'with an ordering' do
+          include_contract 'should find the entities',
+            existing_entities: -> { entities.sort_by(&:title) },
+            params:            { 'order' => 'title' }
+        end
       end
     end
   end
