@@ -447,8 +447,8 @@ module Cuprum::Rails::RSpec
       #   @param invalid_attributes [Hash<String>] A set of attributes that will
       #     fail validation.
       #
-      #   @options options [Object] existing_entity The existing entity, if any.
-      #   @options options [Hash<String>] expected_attributes The expected
+      #   @option options [Object] existing_entity The existing entity, if any.
+      #   @option options [Hash<String>] expected_attributes The expected
       #     attributes for the returned object. Defaults to the value of
       #     invalid_attributes.
       #   @option options [Hash<String>] params The parameters used to build the

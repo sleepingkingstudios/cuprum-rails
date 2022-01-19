@@ -35,6 +35,20 @@ Added `#properties` method to access all request properties as a Hash.
 
 Automatically generate a `Cuprum::Rails::Collection` when creating a resource with a `record_class` but no explicit `collection`.
 
+#### RSpec
+
+Implemented contracts for Cuprum::Rails actions
+
+- `Cuprum::Rails::RSpec::Actions::CreateContracts`
+- `Cuprum::Rails::RSpec::Actions::DestroyContracts`
+- `Cuprum::Rails::RSpec::Actions::EditContracts`
+- `Cuprum::Rails::RSpec::Actions::IndexContracts`
+- `Cuprum::Rails::RSpec::Actions::NewContracts`
+- `Cuprum::Rails::RSpec::Actions::ShowContracts`
+- `Cuprum::Rails::RSpec::Actions::UpdateContracts`
+
+Contracts allow libraries or applications to verify their actions implement the action specifications.
+
 #### Serializers
 
 Implemented `Cuprum::Rails::Serializers::Context`.
