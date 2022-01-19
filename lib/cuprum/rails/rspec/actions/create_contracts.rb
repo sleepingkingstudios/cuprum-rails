@@ -29,6 +29,8 @@ module Cuprum::Rails::RSpec::Actions
       #     for the failing cases.
       #   @option options [#to_proc] examples_on_success Extra examples to run
       #     for the passing case.
+      #   @option options [Hash<String>] expected_attributes The expected
+      #     attributes for both a failed validation and a returned entity.
       #   @option options [Hash<String>] expected_attributes_on_failure The
       #     expected attributes for a failed validation. Defaults to the value
       #     of invalid_attributes.
@@ -40,6 +42,8 @@ module Cuprum::Rails::RSpec::Actions
       #     entity.
       #   @option options [Hash<String>] params The parameters used to build the
       #     request. Defaults to the given attributes.
+      #
+      #   @yield Additional examples to run for the passing case.
 
       contract do |invalid_attributes:, valid_attributes:, **options, &block|
         include Cuprum::Rails::RSpec::ActionsContracts
@@ -100,7 +104,10 @@ module Cuprum::Rails::RSpec::Actions
 
         include_contract(
           'should validate attributes',
-          expected_attributes: options[:expected_attributes_on_failure],
+          expected_attributes: options.fetch(
+            :expected_attributes,
+            options[:expected_attributes_on_failure]
+          ),
           invalid_attributes:  invalid_attributes,
           params:              configured_params,
           &should_not_create_an_entity
@@ -116,7 +123,10 @@ module Cuprum::Rails::RSpec::Actions
         end
 
         include_contract 'should create the entity',
-          expected_attributes: options[:expected_attributes_on_success],
+          expected_attributes: options.fetch(
+            :expected_attributes,
+            options[:expected_attributes_on_success]
+          ),
           expected_value:      options[:expected_value_on_success],
           params:              configured_params,
           valid_attributes:    valid_attributes,

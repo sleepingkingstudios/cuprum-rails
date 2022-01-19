@@ -55,6 +55,8 @@ module Cuprum::Rails::RSpec::Actions
       #   @option options [Hash<String>] expected_value_on_success The expected
       #     value for the passing result. Defaults to a Hash with the updated
       #     entity.
+      #   @option options [Hash<String>] expected_attributes The expected
+      #     attributes for both a failed validation and a returned entity.
       #   @option options [Hash<String>] expected_attributes_on_failure The
       #     expected attributes for a failed validation. Defaults to the value
       #     of invalid_attributes.
@@ -140,7 +142,10 @@ module Cuprum::Rails::RSpec::Actions
         include_contract(
           'should validate attributes',
           existing_entity:     existing_entity,
-          expected_attributes: options[:expected_attributes_on_failure],
+          expected_attributes: options.fetch(
+            :expected_attributes,
+            options[:expected_attributes_on_failure]
+          ),
           invalid_attributes:  invalid_attributes,
           params:              configured_params,
           &should_not_update_the_entity
@@ -149,7 +154,10 @@ module Cuprum::Rails::RSpec::Actions
         include_contract(
           'should update the entity',
           existing_entity:     existing_entity,
-          expected_attributes: options[:expected_attributes_on_success],
+          expected_attributes: options.fetch(
+            :expected_attributes,
+            options[:expected_attributes_on_success]
+          ),
           expected_value:      options[:expected_value_on_success],
           valid_attributes:    valid_attributes,
           params:              configured_params,
@@ -204,11 +212,14 @@ module Cuprum::Rails::RSpec::Actions
               option_with_default(valid_attributes)
             end
             let(:configured_expected_attributes) do
+              existing_attributes =
+                configured_existing_entity
+                  .attributes
+                  .tap { |hsh| hsh.delete('updated_at') }
+
               option_with_default(
                 options[:expected_attributes],
-                default: configured_existing_entity.attributes.merge(
-                  configured_valid_attributes
-                )
+                default: existing_attributes.merge(configured_valid_attributes)
               )
             end
             let(:configured_expected_entity) do
@@ -236,8 +247,15 @@ module Cuprum::Rails::RSpec::Actions
 
             it 'should update the entity' do
               expect { action.call(request: request) }
-                .to change { configured_existing_entity.reload.attributes }
-                .to be <= configured_expected_attributes
+                .to(
+                  change do
+                    configured_existing_entity
+                      .reload
+                      .attributes
+                      .tap { |hsh| hsh.delete('updated_at') }
+                  end
+                  .to(be <= configured_expected_attributes)
+                )
             end
 
             instance_exec(&block) if block
