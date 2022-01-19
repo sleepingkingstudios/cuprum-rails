@@ -48,7 +48,9 @@ RSpec.describe Spec::Support::Actions::CreateBook do
       ]
     end
     let(:expected_chapters) do
-      Book.where(title: 'Gideon the Ninth').first.chapters.to_a
+      Chapter
+        .where(book: Book.where(title: 'Gideon the Ninth').first)
+        .order(:id)
     end
 
     include_contract 'should create the entity',

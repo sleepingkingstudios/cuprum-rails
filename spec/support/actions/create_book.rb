@@ -35,11 +35,14 @@ module Spec::Support::Actions
     end
 
     def create_chapters
-      chapter_params.map.with_index do |chapter_attributes, index|
-        create_chapter(
-          chapter_attributes.merge('book' => entity, 'chapter_index' => index)
-        )
-      end
+      chapter_params
+        .map
+        .with_index do |chapter_attributes, index|
+          create_chapter(
+            chapter_attributes.merge('book' => entity, 'chapter_index' => index)
+          )
+        end
+        .sort_by(&:id)
     end
 
     def perform_action
