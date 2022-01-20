@@ -29,6 +29,8 @@ Updated `Cuprum::Rails::Controllers::Action` to apply configured middleware.
 
 Added `#properties` method to access all request properties as a Hash.
 
+Added `#path_params` method and properly handle parameters from the request path.
+
 **(Breaking Change)** Renamed `#method` property to `#http_method`.
 
 #### Resources

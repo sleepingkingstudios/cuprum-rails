@@ -18,6 +18,10 @@ module Spec::Support::Examples
           format:                instance_double(Mime::Type, symbol: format),
           fullpath:              '/books',
           headers:               { 'HTTP_HOST' => 'www.example.com' },
+          path_parameters:       {
+            'action'     => 'index',
+            'controller' => 'books'
+          },
           params:                { 'key' => 'value', 'param' => 'value' },
           query_parameters:      { 'param' => 'value' },
           request_method_symbol: :get,

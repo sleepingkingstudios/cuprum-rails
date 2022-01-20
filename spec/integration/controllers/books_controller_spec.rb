@@ -140,7 +140,7 @@ RSpec.describe BooksController do
 
   shared_examples 'should require a valid book id' do |api: true|
     describe 'with a missing book id' do
-      let(:query_params) { super().tap { |hsh| hsh.delete('id') } }
+      let(:path_params) { super().tap { |hsh| hsh.delete('id') } }
       let(:expected_error) do
         Cuprum::Error.new(
           message: 'Something went wrong when processing the request'
@@ -154,8 +154,8 @@ RSpec.describe BooksController do
     end
 
     describe 'with an invalid book id' do
-      let(:book_id)      { (Book.last&.id || -1) + 1 }
-      let(:query_params) { super().merge('id' => book_id) }
+      let(:book_id)     { (Book.last&.id || -1) + 1 }
+      let(:path_params) { super().merge('id' => book_id) }
       let(:expected_error) do
         Cuprum::Collections::Errors::NotFound.new(
           collection_name:    'books',
@@ -176,6 +176,7 @@ RSpec.describe BooksController do
   let(:headers)      { {} }
   let(:params)       { {} }
   let(:query_params) { {} }
+  let(:path_params)  { {} }
   let(:renderer) do
     instance_double(Spec::Renderer, redirect_to: nil, render: nil)
   end
@@ -187,6 +188,7 @@ RSpec.describe BooksController do
       fullpath:              path,
       headers:               headers,
       params:                query_params.merge(params),
+      path_parameters:       path_params,
       query_parameters:      query_params,
       request_method_symbol: method,
       request_parameters:    params
@@ -289,7 +291,7 @@ RSpec.describe BooksController do
     let(:method)       { :delete }
     let(:path)         { "/books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
-    let(:query_params) { super().merge('id' => book_id) }
+    let(:path_params)  { super().merge('id' => book_id) }
 
     it { expect(controller).to respond_to(:destroy).with(0).arguments }
 
@@ -326,7 +328,7 @@ RSpec.describe BooksController do
     let(:method)       { :get }
     let(:path)         { "books/#{book_id}/edit" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
-    let(:query_params) { super().merge('id' => book_id) }
+    let(:path_params)  { super().merge('id' => book_id) }
 
     it { expect(controller).to respond_to(:edit).with(0).arguments }
 
@@ -418,7 +420,7 @@ RSpec.describe BooksController do
     let(:method)       { :get }
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
-    let(:query_params) { super().merge('id' => book_id) }
+    let(:path_params)  { super().merge('id' => book_id) }
 
     it { expect(controller).to respond_to(:show).with(0).arguments }
 
@@ -452,7 +454,7 @@ RSpec.describe BooksController do
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:attributes)   { { 'title' => 'Gideon the Ninth' } }
-    let(:query_params) { super().merge('id' => book_id) }
+    let(:path_params)  { super().merge('id' => book_id) }
     let(:params)       { super().merge('book' => attributes) }
 
     it { expect(controller).to respond_to(:update).with(0).arguments }

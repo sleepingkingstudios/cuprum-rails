@@ -45,9 +45,21 @@ RSpec.describe Cuprum::Rails::Request do
   let(:format)       { :json }
   let(:headers)      { { 'HTTP_HOST' => 'www.example.com' } }
   let(:http_method)  { :post }
-  let(:params)       { body_params.merge(query_params) }
   let(:path)         { '/projects/1/tasks/2' }
   let(:query_params) { { 'key' => 'value' } }
+  let(:path_params) do
+    {
+      'action'     => 'update',
+      'controller' => 'tasks',
+      'id'         => 2,
+      'project_id' => 1
+    }
+  end
+  let(:params) do
+    filtered = path_params.except('action', 'controller')
+
+    body_params.merge(query_params).merge(filtered)
+  end
   let(:properties) do
     {
       body_params:  body_params,
@@ -72,6 +84,7 @@ RSpec.describe Cuprum::Rails::Request do
         method
         params
         path
+        path_params
         query_params
       ]
     end
@@ -111,6 +124,7 @@ RSpec.describe Cuprum::Rails::Request do
         fullpath:              path,
         headers:               headers,
         params:                params,
+        path_parameters:       path_params,
         query_parameters:      query_params,
         request_method_symbol: http_method,
         request_parameters:    body_params
@@ -120,7 +134,11 @@ RSpec.describe Cuprum::Rails::Request do
     let(:expected_headers) do
       { 'HTTP_HOST' => 'www.example.com' }
     end
-    let(:expected_params) { body_params.merge(query_params) }
+    let(:expected_params) do
+      filtered = path_params.except('action', 'controller')
+
+      body_params.merge(query_params).merge(filtered)
+    end
 
     it 'should define the class method' do
       expect(described_class)
@@ -173,6 +191,11 @@ RSpec.describe Cuprum::Rails::Request do
 
     it 'should set the request path' do
       expect(described_class.build(request: request).path).to be == path
+    end
+
+    it 'should set the request path params' do
+      expect(described_class.build(request: request).path_params)
+        .to be == path_params.except('action', 'controller')
     end
 
     it 'should set the request query params' do
@@ -257,6 +280,10 @@ RSpec.describe Cuprum::Rails::Request do
   include_examples 'should define request property',
     :path,
     value: '/api/books/0/publish'
+
+  include_examples 'should define request property',
+    :path_params,
+    value: { 'foo' => 'bar' }
 
   include_examples 'should define request property',
     :query_params,
@@ -431,6 +458,22 @@ RSpec.describe Cuprum::Rails::Request do
     it 'should alias the method' do
       expect(described_class.instance_method(:parameters=))
         .to be == described_class.instance_method(:params=)
+    end
+  end
+
+  describe '#path_parameters' do
+    it 'should alias the method' do
+      expect(request)
+        .to have_aliased_method(:path_parameters)
+        .as(:path_params)
+    end
+  end
+
+  describe '#path_parameters=' do
+    it 'should alias the method' do
+      expect(request)
+        .to have_aliased_method(:path_parameters=)
+        .as(:path_params=)
     end
   end
 

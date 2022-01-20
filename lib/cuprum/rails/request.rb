@@ -18,9 +18,10 @@ module Cuprum::Rails
       # @param request [ActionDispatch::Request] The native request to build.
       #
       # @return [Cuprum::Rails::Request] the generated request.
-      def build(request:) # rubocop:disable Metrics/MethodLength
+      def build(request:) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         body_params  = request.request_parameters
         query_params = request.query_parameters
+        path_params  = filter_path_parameters(request.path_parameters)
 
         new(
           action_name:     request.params['action']&.intern,
@@ -30,8 +31,9 @@ module Cuprum::Rails
           format:          request.format.symbol,
           headers:         filter_headers(request.headers),
           http_method:     request.request_method_symbol,
-          params:          body_params.merge(query_params),
+          params:          body_params.merge(query_params).merge(path_params),
           path:            request.fullpath,
+          path_params:     path_params,
           query_params:    query_params
         )
       end
@@ -42,6 +44,10 @@ module Cuprum::Rails
         headers.reject do |key, _|
           FILTERED_HEADER_PREFIXES.any? { |prefix| key.start_with?(prefix) }
         end
+      end
+
+      def filter_path_parameters(path_parameters)
+        path_parameters.except('action', 'controller')
       end
 
       def property(property_name)
@@ -115,6 +121,12 @@ module Cuprum::Rails
     # @!attribute path
     #   @return [String] the relative path of the request, including params.
     property :path
+
+    # @!attribute path_params
+    #   @return [Hash<String, Object>] the path parameters.
+    property :path_params
+    alias path_parameters  path_params
+    alias path_parameters= path_params=
 
     # @!attribute query_params
     #   @return [Hash<String, Object>] the query parameters.
