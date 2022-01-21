@@ -906,6 +906,7 @@ Each request defines the following properties:
 - `#method`: The HTTP method used for the request as a `Symbol`, e.g. `:get` or `:post`.
 - `#parameters`: (also `#params`) The complete parameters for the request, including both params from the request body and from the query string. A `Hash` with `String` keys.
 - `#path`: The relative path of the request, including query params.
+- `#path_parameters`: (also `#path_params`) The path parameters for the request, minus the Rails-provided `action` and `controller` params. A `Hash` with `String` keys.
 - `#query_parameters`: (also `#query_params`) The query parameters for the request. A `Hash` with `String` keys.
 
 The request properties can also be accessed via the `#[]` method (using either String or Symbol keys), or updated via the `#[]=` method. The `#properties` method returns all of the request properties as a `Hash`.
