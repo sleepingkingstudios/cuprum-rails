@@ -47,8 +47,8 @@ module Cuprum::Rails::Responders
       render_success(result.value)
     end
 
-    match :failure do
-      render_failure(GENERIC_ERROR)
+    match :failure do |result|
+      render_failure(Rails.env.development? ? result.error : GENERIC_ERROR)
     end
 
     # @param action_name [String, Symbol] The name of the action to match.

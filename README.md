@@ -1074,7 +1074,7 @@ Provides some additional response handling for singular resources.
 Provides default responses for JSON requests.
 
 - For a successful result, serializes the result value and generates a JSON object of the form `{ ok: true, data: serialized_value }`.
-- For a failing result, creates and serializes a generic error and generates a JSON object of the form `{ ok: false, error: serialized_error }` and a status of `500 Internal Server Error`.
+- For a failing result, creates and serializes a generic error and generates a JSON object of the form `{ ok: false, error: serialized_error }` and a status of `500 Internal Server Error`. If the Rails environment is `:development`, it will instead serialize the error from the result.
 
 **Cuprum::Rails::Responders::Json::Resource**
 

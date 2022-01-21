@@ -112,6 +112,25 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
       it { expect(response.data).to be == expected }
 
       it { expect(response.status).to be 500 }
+
+      context 'when the environment is development' do
+        let(:expected) do
+          {
+            'ok'    => false,
+            'error' => error.as_json
+          }
+        end
+
+        before(:example) do
+          allow(Rails.env).to receive(:development?).and_return(true)
+        end
+
+        it { expect(response).to be_a response_class }
+
+        it { expect(response.data).to be == expected }
+
+        it { expect(response.status).to be 500 }
+      end
     end
 
     describe 'with a passing result' do
