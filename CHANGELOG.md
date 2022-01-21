@@ -37,6 +37,10 @@ Added `#path_params` method and properly handle parameters from the request path
 
 Automatically generate a `Cuprum::Rails::Collection` when creating a resource with a `record_class` but no explicit `collection`.
 
+#### Responders
+
+Updated `JsonResponder` to display full error messages in the development environment.
+
 #### RSpec
 
 Implemented contracts for Cuprum::Rails actions
