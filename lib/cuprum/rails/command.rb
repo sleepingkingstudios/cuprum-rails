@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections'
+
 require 'cuprum/rails'
 
 module Cuprum::Rails
