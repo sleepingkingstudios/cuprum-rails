@@ -226,7 +226,7 @@ module Cuprum::Rails::RSpec::Actions
               action
                 .resource
                 .resource_class
-                .find(configured_params['id'])
+                .find(configured_existing_entity[action.resource.primary_key])
             end
             let(:configured_expected_value) do
               resource_name = action.resource.singular_resource_name
