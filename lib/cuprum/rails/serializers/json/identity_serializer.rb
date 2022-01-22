@@ -13,7 +13,7 @@ module Cuprum::Rails::Serializers::Json
     #
     # @param object [Object] The object to convert to JSON.
     #
-    # @return [Object] a JSON-compatible Hash representation of the object.
+    # @return [Object] a JSON representation of the object.
     def call(object, **_)
       object
     end

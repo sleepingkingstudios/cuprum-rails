@@ -28,7 +28,7 @@ module Cuprum::Rails::Serializers::Json
   #     serializers: serializers
   #   )
   #
-  #   RecordSerializer.new.call(book, serializers: serializers)
+  #   RecordSerializer.new.call(book, context: context)
   #   #=> { id: 10 }
   #
   # @example Defining A Record Serializer
@@ -39,7 +39,7 @@ module Cuprum::Rails::Serializers::Json
   #     end
   #   end
   #
-  #   BookSerializer.new.call(book, serializers: serializers)
+  #   BookSerializer.new.call(book, context: context)
   #   #=> {
   #         id:     10,
   #         title:  'Gideon the Ninth',
@@ -51,7 +51,7 @@ module Cuprum::Rails::Serializers::Json
   #     attribute :published_at
   #   end
   #
-  #   PublishedBookSerializer.new.call(book, serializers: serializers)
+  #   PublishedBookSerializer.new.call(book, context: context)
   #   #=> {
   #         id:           10,
   #         title:        'Gideon the Ninth',
