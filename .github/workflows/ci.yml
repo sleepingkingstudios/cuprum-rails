@@ -12,12 +12,20 @@ on:
   - pull_request
 
 jobs:
-  test:
+  rspec:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         gemfile: ['rails_6_0', 'rails_6_1']
-        ruby-version: ['2.6', '2.7', '3.0']
+        ruby-version: ['2.6', '2.7', '3.0', '3.1']
+        include:
+          - gemfile: rails_7_0
+            ruby-version: '2.7'
+          - gemfile: rails_7_0
+            ruby-version: '3.0'
+          - gemfile: rails_7_0
+            ruby-version: '3.1'
 
     # Sets up the build environment.
     env:
@@ -64,6 +72,81 @@ jobs:
     - name: Set up RSpec configuration
       run: cp .rspec.example .rspec
 
-    # Run the CI suite.
-    - name: Run tests
-      run: bundle exec thor ci:steps
+    # Run the entire RSpec suite.
+    - name: Run test suite
+      run: bundle exec thor ci:rspec
+
+  rspec_each:
+    runs-on: ubuntu-latest
+
+    # Sets up the build environment.
+    env:
+      DATABASE_PORT:     5432
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres_password
+      DATABASE_URL:      localhost
+
+    services:
+      # Initialize a PostgreSQL service on postgres:5432.
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    # Downloads a copy of the code in your repository before running CI tests
+    - uses: actions/checkout@v2
+
+    # Sets up the Ruby environment and runs `bundle install'.
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.4
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        cache-version: 1
+
+    # Smoke check to ensure database connection is established.
+    - name: Query database
+      run: psql "postgresql://postgres:postgres_password@localhost:5432/postgres" -c 'SELECT 1;'
+
+    # Create the test database and set the schema.
+    - name: Set up Database
+      run: bundle exec rails db:create db:schema:load db:test:prepare
+
+    # Set up local configuration files.
+    - name: Set up RSpec configuration
+      run: cp .rspec.example .rspec
+
+    # Run the individual RSpec tests.
+    - name: Run each test
+      run: bundle exec thor ci:rspec_each
+
+  rubocop:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Downloads a copy of the code in your repository before running CI tests
+    - uses: actions/checkout@v2
+
+    # Sets up the Ruby environment and runs `bundle install'.
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.4
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        cache-version: 1
+
+    # Set up local configuration files.
+    - name: Set up RuboCop configuration
+      run: cp .rubocop.example .rubocop
+
+    # Run the RuboCop linter tool.
+    - name: Lint Ruby
+      run: bundle exec rubocop

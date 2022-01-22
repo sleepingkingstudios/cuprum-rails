@@ -30,7 +30,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency 'cuprum', '>= 0.11.0', '< 2.0'
   gem.add_runtime_dependency 'cuprum-collections', '~> 0.2'
-  gem.add_runtime_dependency 'rails', '~> 6.0'
+  gem.add_runtime_dependency 'rails', '>= 6.0', '< 8'
   gem.add_runtime_dependency 'stannum', '~> 0.2'
 
   gem.add_development_dependency 'appraisal', '~> 2.4'
