@@ -32,7 +32,7 @@ The second benefit is *reusability*. Breaking down a controller into its constit
 
 ### Compatibility
 
-Cuprum::Collections is tested against Ruby (MRI) 2.6 through 3.0.
+Cuprum::Rails is tested against Ruby (MRI) 2.6 through 3.1, and Rails 6.0 through 7.0.
 
 ### Documentation
 
@@ -40,7 +40,7 @@ Documentation is generated using [YARD](https://yardoc.org/), and can be generat
 
 ### License
 
-Copyright (c) 2021 Rob Smith
+Copyright (c) 2021-2022 Rob Smith
 
 Stannum is released under the [MIT License](https://opensource.org/licenses/MIT).
 
