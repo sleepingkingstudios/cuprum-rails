@@ -264,9 +264,10 @@ module Cuprum::Rails::RSpec
             end
             let(:expected_error) do
               Cuprum::Collections::Errors::NotFound.new(
-                collection_name:    action.resource.resource_name,
-                primary_key_name:   action.resource.primary_key,
-                primary_key_values: configured_primary_key_value
+                attribute_name:  action.resource.primary_key.intern,
+                attribute_value: configured_primary_key_value,
+                collection_name: action.resource.resource_name,
+                primary_key:     true
               )
             end
 

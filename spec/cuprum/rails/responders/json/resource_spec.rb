@@ -69,9 +69,10 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
       describe 'with an AlreadyExists error' do
         let(:error) do
           Cuprum::Collections::Errors::AlreadyExists.new(
-            collection_name:    'books',
-            primary_key_name:   :id,
-            primary_key_values: [0]
+            attribute_name:  :id,
+            attribute_value: 0,
+            collection_name: 'books',
+            primary_key:     true
           )
         end
         let(:expected) do
@@ -144,9 +145,10 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
       describe 'with a NotFound error' do
         let(:error) do
           Cuprum::Collections::Errors::NotFound.new(
-            collection_name:    'books',
-            primary_key_name:   :id,
-            primary_key_values: [0]
+            attribute_name:  :id,
+            attribute_value: 0,
+            collection_name: 'books',
+            primary_key:     true
           )
         end
         let(:expected) do

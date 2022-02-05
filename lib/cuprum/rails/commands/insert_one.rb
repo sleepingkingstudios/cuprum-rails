@@ -23,6 +23,15 @@ module Cuprum::Rails::Commands
 
     private
 
+    def already_exists_error(primary_key)
+      Cuprum::Collections::Errors::AlreadyExists.new(
+        attribute_name:  primary_key_name,
+        attribute_value: primary_key,
+        collection_name: collection_name,
+        primary_key:     true
+      )
+    end
+
     def process(entity:)
       step { validate_entity(entity) }
 
@@ -30,12 +39,7 @@ module Cuprum::Rails::Commands
 
       entity
     rescue ActiveRecord::RecordNotUnique
-      error = Cuprum::Collections::Errors::AlreadyExists.new(
-        collection_name:    collection_name,
-        primary_key_name:   primary_key_name,
-        primary_key_values: entity[primary_key_name]
-      )
-      failure(error)
+      failure(already_exists_error(entity[primary_key_name]))
     end
   end
 end
