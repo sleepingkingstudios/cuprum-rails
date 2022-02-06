@@ -271,9 +271,10 @@ module Cuprum::Rails::RSpec::Actions
               primary_key_value = configured_duplicate_entity[primary_key_name]
 
               Cuprum::Collections::Errors::AlreadyExists.new(
-                collection_name:    action.resource.resource_name,
-                primary_key_name:   primary_key_name,
-                primary_key_values: primary_key_value
+                attribute_name:  primary_key_name,
+                attribute_value: primary_key_value,
+                collection_name: action.resource.resource_name,
+                primary_key:     true
               )
             end
 

@@ -28,12 +28,16 @@ module Cuprum::Rails::Commands
 
       return if query.exists?
 
-      error = Cuprum::Collections::Errors::NotFound.new(
-        collection_name:    collection_name,
-        primary_key_name:   primary_key_name,
-        primary_key_values: primary_key
+      failure(not_found_error(primary_key))
+    end
+
+    def not_found_error(primary_key)
+      Cuprum::Collections::Errors::NotFound.new(
+        attribute_name:  primary_key_name,
+        attribute_value: primary_key,
+        collection_name: collection_name,
+        primary_key:     true
       )
-      failure(error)
     end
 
     def process(entity:)

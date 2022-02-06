@@ -8,6 +8,10 @@ group :development, :test do
   gem 'byebug', '~> 11.0'
 end
 
+gem 'cuprum',
+  branch: 'main',
+  git:    'https://github.com/sleepingkingstudios/cuprum'
+
 gem 'cuprum-collections',
   branch: 'main',
   git:    'https://github.com/sleepingkingstudios/cuprum-collections'

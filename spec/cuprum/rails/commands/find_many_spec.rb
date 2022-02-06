@@ -20,7 +20,9 @@ RSpec.describe Cuprum::Rails::Commands::FindMany do
   end
 
   let(:expected_data) do
-    matching_data.map { |attributes| record_class.new(attributes) }
+    matching_data.map do |attributes|
+      attributes ? record_class.new(attributes) : nil
+    end
   end
 
   include_contract Cuprum::Rails::RSpec::COMMAND_CONTRACT

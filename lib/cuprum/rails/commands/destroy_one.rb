@@ -25,6 +25,15 @@ module Cuprum::Rails::Commands
 
     private
 
+    def not_found_error(primary_key)
+      Cuprum::Collections::Errors::NotFound.new(
+        attribute_name:  primary_key_name,
+        attribute_value: primary_key,
+        collection_name: collection_name,
+        primary_key:     true
+      )
+    end
+
     def process(primary_key:)
       step { validate_primary_key(primary_key) }
 
@@ -32,12 +41,7 @@ module Cuprum::Rails::Commands
 
       entity.destroy
     rescue ActiveRecord::RecordNotFound
-      error = Cuprum::Collections::Errors::NotFound.new(
-        collection_name:    collection_name,
-        primary_key_name:   primary_key_name,
-        primary_key_values: [primary_key]
-      )
-      Cuprum::Result.new(error: error)
+      Cuprum::Result.new(error: not_found_error(primary_key))
     end
   end
 end
