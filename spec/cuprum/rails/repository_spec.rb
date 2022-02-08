@@ -18,6 +18,7 @@ RSpec.describe Cuprum::Rails::Repository do
     let(:magazines_collection) do
       Cuprum::Rails::Collection.new(
         collection_name: 'magazines',
+        qualified_name:  'magazines',
         record_class:    Spec::Magazine
       )
     end
@@ -29,9 +30,9 @@ RSpec.describe Cuprum::Rails::Repository do
     end
     let(:collections) do
       {
-        'books'       => books_collection,
-        'magazines'   => magazines_collection,
-        'periodicals' => periodicals_collection
+        'books'            => books_collection,
+        'magazines'        => magazines_collection,
+        'spec/periodicals' => periodicals_collection
       }
     end
 
@@ -55,7 +56,7 @@ RSpec.describe Cuprum::Rails::Repository do
     it { expect(described_class).to respond_to(:new).with(0).arguments }
   end
 
-  include_contract Cuprum::Collections::RSpec::REPOSITORY_CONTRACT
+  include_contract Cuprum::Collections::RSpec::RepositoryContract
 
   describe '#add' do
     describe 'with an invalid collection' do
@@ -149,6 +150,40 @@ RSpec.describe Cuprum::Rails::Repository do
         end
 
         it { expect(create_collection.member_name).to be == 'grimoire' }
+      end
+
+      describe 'with qualified_name: value' do
+        let(:options) do
+          super().merge(qualified_name: 'grimoires')
+        end
+
+        it { expect(create_collection.qualified_name).to be == 'grimoires' }
+      end
+
+      describe 'with a scoped record class' do
+        let(:record_class) { Spec::ScopedBook }
+
+        example_class 'Spec::ScopedBook', Book
+
+        it 'should add the collection to the repository' do
+          collection = create_collection
+
+          expect(repository['spec/scoped_books']).to be collection
+        end
+
+        describe 'with qualified_name: value' do
+          let(:options) do
+            super().merge(qualified_name: 'grimoires')
+          end
+
+          it { expect(create_collection.qualified_name).to be == 'grimoires' }
+
+          it 'should add the collection to the repository' do
+            collection = create_collection
+
+            expect(repository['grimoires']).to be collection
+          end
+        end
       end
 
       context 'when a collection already exists' do
@@ -249,6 +284,45 @@ RSpec.describe Cuprum::Rails::Repository do
         it { expect(find_or_create_collection.member_name).to be == 'grimoire' }
       end
 
+      describe 'with qualified_name: value' do
+        let(:options) do
+          super().merge(qualified_name: 'grimoires')
+        end
+
+        it 'should return the collection' do
+          expect(find_or_create_collection.qualified_name).to be == 'grimoires'
+        end
+      end
+
+      describe 'with a scoped record class' do
+        let(:record_class) { Spec::ScopedBook }
+
+        example_class 'Spec::ScopedBook', Book
+
+        it 'should add the collection to the repository' do
+          collection = find_or_create_collection
+
+          expect(repository['spec/scoped_books']).to be collection
+        end
+
+        describe 'with qualified_name: value' do
+          let(:options) do
+            super().merge(qualified_name: 'grimoires')
+          end
+
+          it 'should return the collection' do
+            expect(find_or_create_collection.qualified_name)
+              .to be == 'grimoires'
+          end
+
+          it 'should add the collection to the repository' do
+            collection = find_or_create_collection
+
+            expect(repository['grimoires']).to be collection
+          end
+        end
+      end
+
       context 'when a collection already exists' do
         let(:existing_options) { { record_class: Tome } }
         let(:existing_collection) do
@@ -261,9 +335,40 @@ RSpec.describe Cuprum::Rails::Repository do
 
         it { expect(find_or_create_collection).to be existing_collection }
 
+        describe 'with qualified_name: value' do
+          let(:existing_options) { super().merge(qualified_name: 'grimoires') }
+          let(:options)          { super().merge(qualified_name: 'grimoires') }
+
+          it { expect(find_or_create_collection).to be existing_collection }
+        end
+
+        describe 'with a scoped record class' do
+          let(:existing_options) { { record_class: Spec::ScopedBook } }
+          let(:record_class)     { Spec::ScopedBook }
+
+          example_class 'Spec::ScopedBook', Book
+
+          it { expect(find_or_create_collection).to be existing_collection }
+
+          describe 'with qualified_name: value' do # rubocop:disable RSpec/NestedGroups
+            let(:existing_options) do
+              super().merge(qualified_name: 'grimoires')
+            end
+            let(:options) do
+              super().merge(qualified_name: 'grimoires')
+            end
+
+            it { expect(find_or_create_collection).to be existing_collection }
+          end
+        end
+
         context 'when the existing collection has another record class' do
           let(:existing_options) do
-            super().merge(collection_name: 'tomes', record_class: Book)
+            super().merge(
+              collection_name: 'tomes',
+              qualified_name:  'tomes',
+              record_class:    Book
+            )
           end
           let(:error_class) do
             Cuprum::Collections::Repository::DuplicateCollectionError

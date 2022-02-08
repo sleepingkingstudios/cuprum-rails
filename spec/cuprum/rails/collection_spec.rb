@@ -45,7 +45,7 @@ RSpec.describe Cuprum::Rails::Collection do
     end
   end
 
-  include_contract Cuprum::Collections::RSpec::COLLECTION_CONTRACT
+  include_contract Cuprum::Collections::RSpec::CollectionContract
 
   describe '#==' do
     let(:other_options) do
@@ -150,7 +150,7 @@ RSpec.describe Cuprum::Rails::Collection do
   end
 
   describe '#collection_name' do
-    let(:expected) { record_class.name.underscore.pluralize }
+    let(:expected) { record_class.name.split('::').last.underscore.pluralize }
 
     include_examples 'should define reader',
       :collection_name,
@@ -172,6 +172,14 @@ RSpec.describe Cuprum::Rails::Collection do
       end
 
       it { expect(collection.collection_name).to be == collection_name.to_s }
+    end
+
+    context 'when initialized with resource_class: a scoped Class' do
+      let(:record_class) { Spec::ScopedBook }
+
+      example_class 'Spec::ScopedBook', Book
+
+      it { expect(collection.collection_name).to be == expected }
     end
   end
 
@@ -226,6 +234,40 @@ RSpec.describe Cuprum::Rails::Collection do
       let(:expected_options)    { super().merge({ key: 'value' }) }
 
       it { expect(collection.options).to be == expected_options }
+    end
+  end
+
+  describe '#qualified_name' do
+    let(:expected) { record_class.name.underscore.pluralize }
+
+    include_examples 'should define reader',
+      :qualified_name,
+      -> { be == expected }
+
+    context 'when initialized with qualified_name: a String' do
+      let(:qualified_name) { 'tomes' }
+      let(:constructor_options) do
+        super().merge(qualified_name: qualified_name)
+      end
+
+      it { expect(collection.qualified_name).to be == qualified_name }
+    end
+
+    context 'when initialized with qualified_name: a Symbol' do
+      let(:qualified_name) { :tomes }
+      let(:constructor_options) do
+        super().merge(qualified_name: qualified_name)
+      end
+
+      it { expect(collection.qualified_name).to be == qualified_name.to_s }
+    end
+
+    context 'when initialized with resource_class: a scoped Class' do
+      let(:record_class) { Spec::ScopedBook }
+
+      example_class 'Spec::ScopedBook', Book
+
+      it { expect(collection.qualified_name).to be == expected }
     end
   end
 
