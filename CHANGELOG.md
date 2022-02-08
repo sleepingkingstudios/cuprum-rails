@@ -8,6 +8,10 @@ Implemented `#transaction` method.
 
 Refactored how actions handle required parameters.
 
+### Collections
+
+Implemented `Collection#qualified_path`, and added qualified path support to `Repository`.
+
 ### Controllers
 
 Implemented `.build_request` class method.

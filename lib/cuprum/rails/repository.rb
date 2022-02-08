@@ -48,8 +48,8 @@ module Cuprum::Rails
         **options
       )
 
-      if key?(collection.collection_name)
-        other_collection = self[collection.collection_name]
+      if key?(collection.qualified_name)
+        other_collection = self[collection.qualified_name]
 
         return other_collection if collection == other_collection
       end

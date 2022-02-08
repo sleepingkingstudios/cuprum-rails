@@ -111,6 +111,7 @@ Initializing a collection requires the `:record_class` keyword, which should be 
 - The `:member_name` parameter is used to create an envelope for singular query commands such as the `FindOne` command. If not given, the member name will be generated automatically as a singular form of the collection name.
 - The `:primary_key_name` parameter specifies the attribute that serves as the primary key for the collection entities. The default value is `:id`.
 - The `:primary_key_type` parameter specifies the type of the primary key attribute. The default value is `Integer`.
+- The `:qualified_name` parameter acts as a unique identifier for the collection. It is used as the unique key in repositories.
 
 <a id="commands"></a>
 
@@ -389,19 +390,38 @@ require 'cuprum/rails/repository'
 A `Cuprum::Rails::Repository` is a group of Rails collections. A single repository might represent all or a subset of the tables in your database.
 
 ```ruby
-repository = Cuprum::Collections::Repository.new
+repository = Cuprum::Rails::Repository.new
 repository.key?('books')
 #=> false
 
-repository.add(books_collection)
-
-repository.key?('books')
-#=> true
-repository.keys
-#=> ['books']
+collection = repository.find_or_create(record_class: Book)
+#=> a Cuprum::Rails::Collection
+collection.collection_name
+#=> 'books'
+collection.qualified_name
+#=> 'books'
 repository['books']
 #=> the books collection
 ```
+
+If the model has a namespace, e.g. `Authentication::User`, the `#collection_name` will be based on the last name segment, while the `#qualified_name` will be based on the entire name.
+
+```ruby
+repository = Cuprum::Rails::Repository.new
+repository.key?('authentication/users')
+#=> false
+
+collection = repository.find_or_create(record_class: Authentication::User)
+#=> a Cuprum::Rails::Collection
+collection.collection_name
+#=> 'users'
+collection.qualified_name
+#=> 'authentication/users'
+repository['authentication/users']
+#=> the users collection
+```
+
+You can also pass the `#collection_name` and `#qualified_name` as parameters.
 
 <a id="controllers"></a>
 

@@ -10,18 +10,22 @@ module Cuprum::Rails
     # @param collection_name [String, Symbol] The name of the collection.
     # @param member_name [String] The name of a collection entity.
     # @param options [Hash<Symbol>] Additional options for the command.
+    # @param qualified_name [String] The qualified name of the collection, which
+    #   should be unique. Defaults to the collection name.
     # @param record_class [Class] The ActiveRecord class for the collection.
     def initialize(
       record_class:,
       collection_name: nil,
       member_name:     nil,
+      qualified_name:  nil,
       **options
     )
       super()
 
-      @collection_name = resolve_collection_name(collection_name, record_class)
-      @member_name     = resolve_member_name(@collection_name, member_name)
       @record_class    = record_class
+      @collection_name = resolve_collection_name(collection_name)
+      @member_name     = resolve_member_name(member_name)
+      @qualified_name  = resolve_qualified_name(qualified_name)
       @options         = options
     end
 
@@ -33,6 +37,10 @@ module Cuprum::Rails
 
     # @return [Hash<Symbol>] additional options for the command.
     attr_reader :options
+
+    # @return [String] the qualified name of the collection, which should be
+    #   unique.
+    attr_reader :qualified_name
 
     # @return [Class] the ActiveRecord class for the collection.
     attr_reader :record_class
@@ -113,16 +121,22 @@ module Cuprum::Rails
       }
     end
 
-    def resolve_collection_name(collection_name, record_class)
+    def resolve_collection_name(collection_name)
       return collection_name.to_s unless collection_name.nil?
 
-      record_class.name.underscore.pluralize
+      record_class.name.split('::').last.underscore.pluralize
     end
 
-    def resolve_member_name(collection_name, member_name)
+    def resolve_member_name(member_name)
       return member_name.to_s unless member_name.nil?
 
       collection_name.singularize
+    end
+
+    def resolve_qualified_name(qualified_name)
+      return qualified_name.to_s unless qualified_name.nil?
+
+      record_class.name.underscore.pluralize
     end
   end
 end
