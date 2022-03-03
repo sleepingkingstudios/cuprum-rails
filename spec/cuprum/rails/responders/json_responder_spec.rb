@@ -131,6 +131,41 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
         it { expect(response.status).to be 500 }
       end
+
+      context 'with a subclass with custom generic error' do
+        let(:described_class) { Spec::ExampleResponder }
+        let(:generic_error) do
+          Cuprum::Error.new(
+            message: 'The magic smoke is escaping!',
+            type:    'spec.example_error'
+          )
+        end
+        let(:expected) do
+          {
+            'ok'    => false,
+            'error' => generic_error.as_json
+          }
+        end
+
+        # rubocop:disable RSpec/DescribedClass
+        example_class 'Spec::ExampleResponder',
+          Cuprum::Rails::Responders::JsonResponder \
+        do |klass|
+          klass.define_method(:generic_error) do
+            Cuprum::Error.new(
+              message: 'The magic smoke is escaping!',
+              type:    'spec.example_error'
+            )
+          end
+        end
+        # rubocop:enable RSpec/DescribedClass
+
+        it { expect(response).to be_a response_class }
+
+        it { expect(response.data).to be == expected }
+
+        it { expect(response.status).to be 500 }
+      end
     end
 
     describe 'with a passing result' do
@@ -197,6 +232,18 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
   describe '#format' do
     include_examples 'should define reader', :format, :json
+  end
+
+  describe '#generic_error' do
+    let(:generic_error) do
+      Cuprum::Error.new(
+        message: 'Something went wrong when processing the request'
+      )
+    end
+
+    include_examples 'should define reader',
+      :generic_error,
+      -> { be == generic_error }
   end
 
   describe '#render' do

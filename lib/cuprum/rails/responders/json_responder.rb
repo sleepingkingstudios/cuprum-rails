@@ -48,7 +48,7 @@ module Cuprum::Rails::Responders
     end
 
     match :failure do |result|
-      render_failure(Rails.env.development? ? result.error : GENERIC_ERROR)
+      render_failure(Rails.env.development? ? result.error : generic_error)
     end
 
     # @param action_name [String, Symbol] The name of the action to match.
@@ -80,6 +80,11 @@ module Cuprum::Rails::Responders
     # @return [Symbol] the format of the responder.
     def format
       :json
+    end
+
+    # @return [Cuprum::Error] a generic error for generating failure responses.
+    def generic_error
+      GENERIC_ERROR
     end
 
     # Creates a JsonResponse based on the given data and options.
