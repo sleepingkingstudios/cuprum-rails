@@ -114,7 +114,15 @@ module Cuprum::Rails::Controllers
     def build_middleware(command)
       return command unless command.is_a?(Class)
 
-      command.new
+      keywords = {}
+
+      if responds_to_keyword?(command, :repository)
+        keywords[:repository] = repository
+      end
+
+      keywords[:resource] = resource if responds_to_keyword?(command, :resource)
+
+      command.new(**keywords)
     end
 
     def build_responder(request)
@@ -137,6 +145,13 @@ module Cuprum::Rails::Controllers
       configuration
         .middleware_for(action_name)
         .map { |middleware| build_middleware(middleware.command) }
+    end
+
+    def responds_to_keyword?(klass, keyword)
+      klass.instance_method(:initialize).parameters.any? do |type, value|
+        type == :keyrest ||
+          (value == keyword && (type == :key || type == :keyreq)) # rubocop:disable Style/MultipleComparison
+      end
     end
 
     def scoped_serializers(serializers, format:)

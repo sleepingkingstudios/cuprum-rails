@@ -172,6 +172,18 @@ RSpec.describe BooksController do
     end
   end
 
+  shared_examples 'should log the action' do
+    before(:example) { Spec::Support::Middleware::LoggingMiddleware.clear_logs }
+
+    it 'should log the action' do
+      controller.send(action_name)
+
+      expect(Spec::Support::Middleware::LoggingMiddleware.logs.string)
+        .to be == expected_logs
+    end
+  end
+
+  let(:action_name)  { nil }
   let(:assigns)      { controller.assigns }
   let(:format)       { :html }
   let(:headers)      { {} }
@@ -182,13 +194,18 @@ RSpec.describe BooksController do
     instance_double(Spec::Renderer, redirect_to: nil, render: nil)
   end
   let(:request) do
+    combined_params =
+      query_params
+        .merge(params)
+        .merge('action' => action_name, 'controller' => 'books')
+
     instance_double(
       ActionDispatch::Request,
       authorization:         nil,
       format:                instance_double(Mime::Type, symbol: format),
       fullpath:              path,
       headers:               headers,
-      params:                query_params.merge(params),
+      params:                combined_params,
       path_parameters:       path_params,
       query_parameters:      query_params,
       request_method_symbol: method,
@@ -247,6 +264,13 @@ RSpec.describe BooksController do
           '@errors' => expected_errors
         }
       end
+      let(:expected_logs) do
+        <<~RAW
+          [ERROR] Action failure: books#create (Book failed validation)
+          - repository_keys: books
+          - resource_name: books
+        RAW
+      end
       let(:status) { 422 }
 
       it 'should not create a book' do
@@ -256,6 +280,8 @@ RSpec.describe BooksController do
       wrap_examples 'should render the view', :new
 
       wrap_examples 'should serialize the error'
+
+      wrap_examples 'should log the action'
     end
 
     describe 'with valid attributes' do
@@ -275,6 +301,13 @@ RSpec.describe BooksController do
           'time_elapsed' => '50 milliseconds'
         }
       end
+      let(:expected_logs) do
+        <<~RAW
+          [INFO] Action success: books#create
+          - repository_keys: books
+          - resource_name: books
+        RAW
+      end
       let(:status) { 201 }
 
       it 'should create a book' do
@@ -284,6 +317,8 @@ RSpec.describe BooksController do
       wrap_examples 'should redirect to the show page'
 
       wrap_examples 'should serialize the data'
+
+      wrap_examples 'should log the action'
     end
   end
 
@@ -307,6 +342,13 @@ RSpec.describe BooksController do
           'time_elapsed' => '50 milliseconds'
         }
       end
+      let(:expected_logs) do
+        <<~RAW
+          [INFO] Action success: books#destroy
+          - repository_keys: books
+          - resource_name: books
+        RAW
+      end
 
       it 'should destroy the book' do
         expect { controller.destroy }.to change(Book, :count).by(-1)
@@ -321,6 +363,8 @@ RSpec.describe BooksController do
       wrap_examples 'should redirect to the index page'
 
       wrap_examples 'should serialize the data'
+
+      wrap_examples 'should log the action'
     end
   end
 
@@ -491,6 +535,13 @@ RSpec.describe BooksController do
             errors:       expected_errors
           )
         end
+        let(:expected_logs) do
+          <<~RAW
+            [ERROR] Action failure: books#update (Book failed validation)
+            - repository_keys: books
+            - resource_name: books
+          RAW
+        end
         let(:status) { 422 }
 
         it 'should not update the attributes' do
@@ -501,6 +552,8 @@ RSpec.describe BooksController do
         wrap_examples 'should render the view', :edit
 
         wrap_examples 'should serialize the error'
+
+        wrap_examples 'should log the action'
       end
 
       describe 'with valid attributes' do
@@ -513,6 +566,13 @@ RSpec.describe BooksController do
             'time_elapsed' => '50 milliseconds'
           }
         end
+        let(:expected_logs) do
+          <<~RAW
+            [INFO] Action success: books#update
+            - repository_keys: books
+            - resource_name: books
+          RAW
+        end
 
         it 'should update the attributes' do
           expect { controller.update }
@@ -523,6 +583,8 @@ RSpec.describe BooksController do
         wrap_examples 'should redirect to the show page'
 
         wrap_examples 'should serialize the data'
+
+        wrap_examples 'should log the action'
       end
     end
   end

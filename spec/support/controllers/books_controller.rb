@@ -4,10 +4,19 @@ require 'cuprum/rails'
 
 require 'support/book'
 require 'support/controllers/base_controller'
+require 'support/middleware/logging_middleware'
 require 'support/middleware/profiling_middleware'
 require 'support/serializers/book_serializer'
 
 class BooksController < BaseController
+  def self.repository
+    repository = super
+
+    repository.find_or_create(record_class: Book)
+
+    repository
+  end
+
   def self.resource
     @resource ||= Cuprum::Rails::Resource.new(
       collection:           repository.find_or_create(record_class: Book),
@@ -22,6 +31,8 @@ class BooksController < BaseController
     )
   end
 
+  middleware Spec::Support::Middleware::LoggingMiddleware,
+    only: %i[create destroy update]
   middleware Spec::Support::Middleware::ProfilingMiddleware
 
   action :create,  Cuprum::Rails::Actions::Create
