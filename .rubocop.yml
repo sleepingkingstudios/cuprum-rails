@@ -73,6 +73,9 @@ Naming/RescuedExceptionsVariableName:
 Rails/IndexWith:
   Enabled: false
 
+RSpec/BeNil:
+  Enabled: false
+
 RSpec/ExampleWording:
   Enabled: false
 
