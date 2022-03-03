@@ -111,6 +111,12 @@ module Cuprum::Rails::Controllers
       )
     end
 
+    def build_middleware(command)
+      return command unless command.is_a?(Class)
+
+      command.new
+    end
+
     def build_responder(request)
       responder_class = responder_for(request.format)
 
@@ -130,7 +136,7 @@ module Cuprum::Rails::Controllers
     def middleware
       configuration
         .middleware_for(action_name)
-        .map(&:command)
+        .map { |middleware| build_middleware(middleware.command) }
     end
 
     def scoped_serializers(serializers, format:)
