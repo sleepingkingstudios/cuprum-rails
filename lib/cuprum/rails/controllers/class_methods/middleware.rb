@@ -49,7 +49,7 @@ module Cuprum::Rails::Controllers::ClassMethods
       validate_action_names!(only,   as: 'only')
 
       Cuprum::Rails::Controllers::Middleware.new(
-        command: command.is_a?(Class) ? command.new : command,
+        command: command,
         except:  except,
         only:    only
       )

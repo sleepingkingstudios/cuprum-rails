@@ -841,7 +841,7 @@ module Spec::Support::Examples
             let(:configured_middleware) do
               super() + [
                 {
-                  command: command.new,
+                  command: command,
                   except:  options.fetch(:except, []),
                   only:    options.fetch(:only,   [])
                 }
@@ -878,11 +878,8 @@ module Spec::Support::Examples
         let(:configured_middleware) { [] }
         let(:expected) do
           configured_middleware.map do |hsh|
-            command = hsh[:command]
-            command = command.new if command.is_a?(Class)
-
             Cuprum::Rails::Controllers::Middleware.new(
-              command: command,
+              command: hsh[:command],
               except:  hsh[:except],
               only:    hsh[:only]
             )

@@ -60,7 +60,7 @@ Please note that the `Cuprum::Collections` project is released with a [Contribut
 
 ## Reference
 
-<a id="collections"></a>
+<span id="collections"></span>
 
 ### Collections
 
@@ -822,6 +822,23 @@ If the permitted attributes are not defined for the resource, the action returns
 A middleware command takes two parameters. First, a `next_command` argument, which is the next item in the middleware chain (or the controller action if the middleware is the last one in the chain). Second, a `request:` keyword - this is the [request](#requests) passed down from the controller.
 
 See [Defining Middleware](#controllers-defining-middleware), above, for using middleware in a `Cuprum::Rails::Controller`, or see [Cuprum](github.com/sleepingkingstudios/cuprum) for more information on middleware.
+
+#### Creating Middleware
+
+Each middleware class should be a subclass of `Cuprum::Command` and include `Cuprum::Middleware`. The constructor can optionally take either `:repository` and `:resource` keywords; if these are defined, they are passed the relevant controller property when the middleware is initialized.
+
+```ruby
+class ExampleMiddleware < Cuprum::Command
+  include Cuprum::Middleware
+
+  def initialize(repository:, resource:)
+    super()
+
+    @repository = repository
+    @resource   = resource
+  end
+end
+```
 
 #### Before An Action
 

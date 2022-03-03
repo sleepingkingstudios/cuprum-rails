@@ -217,6 +217,113 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
 
         expect(called_commands).to be == expected_commands
       end
+
+      describe 'with middleware classes' do
+        let(:middleware_commands) do
+          [
+            Spec::FirstMiddleware.new,
+            Spec::SecondMiddleware.new(repository: repository),
+            Spec::ThirdMiddleware.new(
+              repository: repository,
+              resource:   resource
+            )
+          ]
+        end
+        let(:middleware) do
+          [
+            instance_double(
+              Cuprum::Rails::Controllers::Middleware,
+              command: Spec::FirstMiddleware
+            ),
+            instance_double(
+              Cuprum::Rails::Controllers::Middleware,
+              command: Spec::SecondMiddleware
+            ),
+            instance_double(
+              Cuprum::Rails::Controllers::Middleware,
+              command: Spec::ThirdMiddleware
+            )
+          ]
+        end
+
+        example_class 'Spec::FirstMiddleware', 'Spec::Middleware'
+        example_class 'Spec::SecondMiddleware', 'Spec::Middleware' do |klass|
+          klass.define_method(:initialize) { |repository:| nil } # rubocop:disable Link/UnusedBlockArgument
+        end
+        example_class 'Spec::ThirdMiddleware', 'Spec::Middleware' do |klass|
+          klass.define_method(:initialize) { |**_| nil }
+        end
+
+        before(:example) do
+          allow(Spec::FirstMiddleware)
+            .to receive(:new)
+            .and_return(middleware_commands[0])
+
+          allow(Spec::SecondMiddleware)
+            .to receive(:new)
+            .and_return(middleware_commands[1])
+
+          allow(Spec::ThirdMiddleware)
+            .to receive(:new)
+            .and_return(middleware_commands[2])
+        end
+
+        it 'should build the action' do
+          action.call(request)
+
+          expect(action_class)
+            .to have_received(:new)
+            .with(repository: repository, resource: resource)
+        end
+
+        it 'should call the action' do
+          action.call(request)
+
+          expect(implementation).to have_received(:call).with(request: request)
+        end
+
+        it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
+          action.call(request)
+
+          expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
+          expect(Spec::SecondMiddleware)
+            .to have_received(:new)
+            .with(repository: repository)
+          expect(Spec::ThirdMiddleware)
+            .to have_received(:new)
+            .with(repository: repository, resource: resource)
+        end
+
+        it 'should call the middleware', :aggregate_failures do
+          action.call(request)
+
+          expect(middleware_commands)
+            .to all have_received(:call)
+              .with(a_kind_of(Cuprum::Command), request: request)
+        end
+
+        it 'should call the middleware in sequence' do
+          action.call(request)
+
+          expect(called_commands).to be == expected_commands
+        end
+
+        context 'when the controller defines a repository' do
+          let(:repository) { Cuprum::Collections::Repository.new }
+
+          it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
+            action.call(request)
+
+            expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
+            expect(Spec::SecondMiddleware)
+              .to have_received(:new)
+              .with(repository: repository)
+            expect(Spec::ThirdMiddleware)
+              .to have_received(:new)
+              .with(repository: repository, resource: resource)
+          end
+        end
+      end
     end
 
     context 'when the controller defines scoped serializers' do
