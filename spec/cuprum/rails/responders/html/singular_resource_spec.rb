@@ -23,6 +23,31 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
   example_class 'Spec::ResourceResponder',
     Cuprum::Rails::Responders::Html::SingularResource # rubocop:disable RSpec/DescribedClass
 
+  before(:example) do
+    allow(SleepingKingStudios::Tools::CoreTools).to receive(:deprecate)
+  end
+
+  describe '.new' do
+    it 'should define the constructor' do
+      expect(described_class)
+        .to respond_to(:new)
+        .with(0).arguments
+        .and_keywords(:action_name, :matcher, :member_action, :resource)
+        .and_any_keywords
+    end
+
+    it 'should display a deprecation warning' do # rubocop:disable RSpec/ExampleLength
+      described_class.new(**constructor_options)
+
+      expect(SleepingKingStudios::Tools::CoreTools)
+        .to have_received(:deprecate)
+        .with(
+          'Cuprum::Rails::Responders::Html::SingularResource',
+          message: 'use Cuprum::Rails::Responders::Html::Resource'
+        )
+    end
+  end
+
   describe '#call' do
     shared_examples 'should redirect to the parent resource page' do
       let(:response) { responder.call(result) }

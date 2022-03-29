@@ -43,6 +43,11 @@ Automatically generate a `Cuprum::Rails::Collection` when creating a resource wi
 
 #### Responders
 
+Implemented `Responders::Html::Resource` to handle both singular and plural resources.
+
+- `Cuprum::Rails::Responders::Html::PluralResource` is now deprecated.
+- `Cuprum::Rails::Responders::Html::SingularResource` is now deprecated.
+
 Updated `JsonResponder` to display full error messages in the development environment.
 
 #### RSpec

@@ -22,7 +22,7 @@ module Cuprum::Rails
   #   class BooksController
   #     include Cuprum::Rails::Controller
   #
-  #     responder :html, Cuprum::Rails::Responders::Html::PluralResource
+  #     responder :html, Cuprum::Rails::Responders::Html::Resource
   #
   #     action :index,     Cuprum::Rails::Actions::Index
   #     action :show,      Cuprum::Rails::Actions::Show, member: true

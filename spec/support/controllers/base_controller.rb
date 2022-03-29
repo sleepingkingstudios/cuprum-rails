@@ -8,7 +8,7 @@ class BaseController
   extend  Forwardable
   include Cuprum::Rails::Controller
 
-  responder :html, Cuprum::Rails::Responders::Html::PluralResource
+  responder :html, Cuprum::Rails::Responders::Html::Resource
   responder :json, Cuprum::Rails::Responders::Json::Resource
 
   def self.repository
