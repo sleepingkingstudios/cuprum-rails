@@ -460,7 +460,7 @@ class BooksController
     )
   end
 
-  responder :html, Cuprum::Rails::Responders::Html::PluralResource
+  responder :html, Cuprum::Rails::Responders::Html::Resource
   responder :json, Cuprum::Rails::Responders::Json::Resource
 
   action :create,  Cuprum::Rails::Actions::Create
@@ -577,8 +577,8 @@ Let's walk through this step by step. We start by making a `POST` request to `/b
     1. We initialize our configured action class, which is `Cuprum::Rails::Actions::Index`.
     2. We wrap the request in a `Cuprum::Rails::Request`, and call our `action` with the wrapped `request`. The action performs the business logic (building, validating, and persisting a new `Book`) and returns an instance of `Cuprum::Result`. In our case, the book's attributes are valid, so the result has a `:status` of `:success` and a value of `{ 'book' => #<Book id: 0, title: 'Gideon the Ninth'> }`.
 2. The Responder
-    1. We're making an HTML request, so our controller will use the responder configured for the `:html` format. In our case, this is `Cuprum::Rails::Responders::Html::PluralResource`, which defines default behavior for responding to resourceful requests.
-    2. Our `Responders::Html::PluralResource` is initialized, giving us a `responder`.
+    1. We're making an HTML request, so our controller will use the responder configured for the `:html` format. In our case, this is `Cuprum::Rails::Responders::Html::Resource`, which defines default behavior for responding to resourceful requests.
+    2. Our `Responders::Html::Resource` is initialized, giving us a `responder`.
     3. The `responder` is called with our `result`. There is a match for a successful `:create` action, which returns an instance of `Cuprum::Rails::Responses::Html::RedirectResponse` with a `path` of `/books/0`.
 3. The Response
     1. Finally, our `response` object is called. The `RedirectResponse` directs the controller to redirect to `/books/0`, which is the `:show` page for our newly created `Book`.
@@ -1085,9 +1085,11 @@ Provides default responses for HTML requests.
 - For a successful result, renders the template for the action and assigns the result value as local variables.
 - For a failing result, redirects to the resource `:index` page (for a collection action) or the resource `:show` page (for a member action).
 
-**Cuprum::Rails::Responders::Html::PluralResource**
+**Cuprum::Rails::Responders::Html::Resource**
 
-Provides some additional response handling for plural resources.
+Provides some additional response handling for resources.
+
+If the resource is plural:
 
 - For a failed `#create` result, renders the `:new` template.
 - For a successful `#create` result, redirects to the `:show` page.
@@ -1096,9 +1098,7 @@ Provides some additional response handling for plural resources.
 - For a failed `#update` result, renders the `:edit` template.
 - For a successful `#update` result, redirects to the `:show` page.
 
-**Cuprum::Rails::Responders::Html::SingularResource**
-
-Provides some additional response handling for singular resources.
+If the resource is singular:
 
 - For a failed `#create` result, renders the `:new` template.
 - For a successful `#create` result, redirects to the `:show` page.
