@@ -80,7 +80,7 @@ module Cuprum::Rails::RSpec
         describe '#resource_id' do
           let(:params) { {} }
           let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
+            Cuprum::Rails::Request.new(params: params)
           end
           let(:action) do
             super().tap { |action| action.call(request: request) }
@@ -111,7 +111,7 @@ module Cuprum::Rails::RSpec
         describe '#resource_params' do
           let(:params) { {} }
           let(:request) do
-            instance_double(Cuprum::Rails::Request, params: params)
+            Cuprum::Rails::Request.new(params: params)
           end
           let(:action) do
             super().tap { |action| action.call(request: request) }
@@ -189,7 +189,7 @@ module Cuprum::Rails::RSpec
 
           context 'when the entity exists' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_existing_entity) do
               option_with_default(existing_entity)
@@ -247,7 +247,7 @@ module Cuprum::Rails::RSpec
 
           context 'when the entity does not exist' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_primary_key_value) do
               option_with_default(
@@ -314,7 +314,7 @@ module Cuprum::Rails::RSpec
           context 'when the parameters do not include params for the resource' \
           do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_params) do
               option_with_default(options[:params], default: {})
@@ -361,7 +361,7 @@ module Cuprum::Rails::RSpec
 
           context 'when the resource does not define permitted attributes' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_params) do
               option_with_default(options[:params], default: {})
@@ -410,7 +410,7 @@ module Cuprum::Rails::RSpec
 
           context 'when the parameters do not include a primary key' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_params) do
               option_with_default(options[:params], default: {})
@@ -463,7 +463,7 @@ module Cuprum::Rails::RSpec
 
           context 'when the resource params fail validation' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_invalid_attributes) do
               option_with_default(invalid_attributes)

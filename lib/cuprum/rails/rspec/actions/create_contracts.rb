@@ -162,7 +162,7 @@ module Cuprum::Rails::RSpec::Actions
 
           context 'with valid parameters' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_valid_attributes) do
               option_with_default(valid_attributes)
@@ -249,7 +249,7 @@ module Cuprum::Rails::RSpec::Actions
 
           context 'with duplicate parameters' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_valid_attributes) do
               option_with_default(valid_attributes)
