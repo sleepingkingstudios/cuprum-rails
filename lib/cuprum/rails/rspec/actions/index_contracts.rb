@@ -76,7 +76,7 @@ module Cuprum::Rails::RSpec::Actions
           include Cuprum::Rails::RSpec::ContractHelpers
 
           let(:request) do
-            instance_double(Cuprum::Rails::Request, params: configured_params)
+            Cuprum::Rails::Request.new(params: configured_params)
           end
           let(:configured_params) do
             option_with_default(options[:params], default: {})

@@ -110,7 +110,7 @@ module Cuprum::Rails::RSpec::Actions
 
           context 'when the entity exists' do
             let(:request) do
-              instance_double(Cuprum::Rails::Request, params: configured_params)
+              Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_existing_entity) do
               option_with_default(existing_entity)
