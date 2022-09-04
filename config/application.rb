@@ -14,7 +14,20 @@ Bundler.require(*Rails.groups)
 
 class Application < Rails::Application
   # Initialize configuration defaults for originally generated Rails version.
-  config.load_defaults 6.0
+
+  # :nocov:
+  if Rails.version >= '7.0'
+    config.load_defaults 7.0
+  elsif Rails.version >= '6.1'
+    config.load_defaults 6.1
+  else
+    config.load_defaults 6.0
+  end
+  # :nocov:
+
+  if Rails.version >= '6.1'
+    config.active_record.legacy_connection_handling = false
+  end
 
   # Settings in config/environments/* take precedence over those specified here.
   # Application configuration can go into files in config/initializers

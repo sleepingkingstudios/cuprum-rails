@@ -18,6 +18,7 @@ module Cuprum
     autoload :Commands,    'cuprum/rails/commands'
     autoload :Controller,  'cuprum/rails/controller'
     autoload :Controllers, 'cuprum/rails/controllers'
+    autoload :Errors,      'cuprum/rails/errors'
     autoload :Query,       'cuprum/rails/query'
     autoload :Repository,  'cuprum/rails/repository'
     autoload :Request,     'cuprum/rails/request'

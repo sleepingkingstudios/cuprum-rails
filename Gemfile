@@ -21,8 +21,10 @@ gem 'cuprum-collections',
   branch: 'main',
   git:    'https://github.com/sleepingkingstudios/cuprum-collections'
 
+gem 'stannum',
+  branch: 'main',
+  git:    'https://github.com/sleepingkingstudios/stannum'
+
 gem 'rails', '~> 7.0'
 
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
-
-gem 'sleeping_king_studios-tools'

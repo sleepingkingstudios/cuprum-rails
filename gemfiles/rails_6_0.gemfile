@@ -2,12 +2,19 @@
 
 source "https://rubygems.org"
 
+gem "cuprum", branch: "main", git: "https://github.com/sleepingkingstudios/cuprum"
 gem "cuprum-collections", branch: "main", git: "https://github.com/sleepingkingstudios/cuprum-collections"
-gem "sleeping_king_studios-tasks", "~> 0.4", ">= 0.4.1"
+gem "stannum", branch: "main", git: "https://github.com/sleepingkingstudios/stannum"
 gem "rails", "~> 6.0.0"
+gem "sleeping_king_studios-tasks", "~> 0.4", ">= 0.4.1"
 
 group :development, :test do
   gem "byebug", "~> 11.0"
+end
+
+group :doc do
+  gem "commonmarker", "~> 0.23", require: false
+  gem "yard", "~> 0.9", require: false
 end
 
 gemspec path: "../"
