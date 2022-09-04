@@ -22,3 +22,5 @@ gem 'cuprum-collections',
   git:    'https://github.com/sleepingkingstudios/cuprum-collections'
 
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
+
+gem 'sleeping_king_studios-tools'

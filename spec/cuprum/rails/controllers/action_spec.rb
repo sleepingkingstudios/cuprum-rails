@@ -248,7 +248,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
 
         example_class 'Spec::FirstMiddleware', 'Spec::Middleware'
         example_class 'Spec::SecondMiddleware', 'Spec::Middleware' do |klass|
-          klass.define_method(:initialize) { |repository:| nil } # rubocop:disable Link/UnusedBlockArgument
+          klass.define_method(:initialize) { |repository:| nil } # rubocop:disable Lint/UnusedBlockArgument
         end
         example_class 'Spec::ThirdMiddleware', 'Spec::Middleware' do |klass|
           klass.define_method(:initialize) { |**_| nil }

@@ -138,8 +138,8 @@ RSpec.describe Cuprum::Rails::Serializers::BaseSerializer do
     context 'when the matching serializer is a instance of Json::Serializer' do
       let(:serializers) { { Object => Spec::Serializer.new } }
       let(:error_message) do
-        'invalid serializer for NilClass - recursive calls to' \
-          ' Spec::Serializer#call'
+        'invalid serializer for NilClass - recursive calls to ' \
+          'Spec::Serializer#call'
       end
 
       example_class 'Spec::Serializer', described_class

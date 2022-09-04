@@ -130,8 +130,8 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     let(:block)      { nil }
     let(:expected)   { nil }
     let(:error_message) do
-      'AttributesSerializer is an abstract class - create a subclass to' \
-        ' define attributes'
+      'AttributesSerializer is an abstract class - create a subclass to ' \
+        'define attributes'
     end
 
     it 'should define the method' do
@@ -364,8 +364,8 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     end
 
     let(:error_message) do
-      'AttributesSerializer is an abstract class - create a subclass to' \
-        ' define attributes'
+      'AttributesSerializer is an abstract class - create a subclass to ' \
+        'define attributes'
     end
 
     it 'should define the class method' do
@@ -450,14 +450,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with required arg'\
+      wrap_context 'with a serializer with a block attribute with required ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => title_block } }
 
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with optional arg'\
+      wrap_context 'with a serializer with a block attribute with optional ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => title_block } }
 
@@ -476,16 +478,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with any' \
-                   ' keywords' \
+      wrap_context 'with a serializer with a block attribute with any ' \
+                   'keywords' \
       do
         let(:expected) { { 'title' => title_block } }
 
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with many' \
-                   ' params' \
+      wrap_context 'with a serializer with a block attribute with many ' \
+                   'params' \
       do
         let(:expected) { { 'title' => title_block } }
 
@@ -593,14 +595,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with required arg'\
+      wrap_context 'with a serializer with a block attribute with required ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => title_block } }
 
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with optional arg'\
+      wrap_context 'with a serializer with a block attribute with optional ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => title_block } }
 
@@ -619,16 +623,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with any' \
-                   ' keywords' \
+      wrap_context 'with a serializer with a block attribute with any ' \
+                   'keywords' \
       do
         let(:expected) { { 'title' => title_block } }
 
         it { expect(described_class.attributes).to be == expected }
       end
 
-      wrap_context 'with a serializer with a block attribute with many' \
-                   ' params' \
+      wrap_context 'with a serializer with a block attribute with many ' \
+                   'params' \
       do
         let(:expected) { { 'title' => title_block } }
 
@@ -777,14 +781,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       end
 
       # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with required arg'\
+      wrap_context 'with a serializer with a block attribute with required ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => object.title.inspect } }
 
         include_examples 'should serialize the attributes'
       end
 
-      wrap_context 'with a serializer with a block attribute with optional arg'\
+      wrap_context 'with a serializer with a block attribute with optional ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => object.title.inspect } }
 
@@ -803,8 +809,8 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the attributes'
       end
 
-      wrap_context 'with a serializer with a block attribute with any' \
-                   ' keywords' \
+      wrap_context 'with a serializer with a block attribute with any ' \
+                   'keywords' \
       do
         let(:expected) { { 'title' => { context: context }.inspect } }
 
@@ -812,8 +818,8 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       end
       # rubocop:enable RSpec/RepeatedExampleGroupBody
 
-      wrap_context 'with a serializer with a block attribute with many' \
-                   ' params' \
+      wrap_context 'with a serializer with a block attribute with many ' \
+                   'params' \
       do
         let(:expected) do
           {
@@ -887,14 +893,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       end
 
       # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with required arg'\
+      wrap_context 'with a serializer with a block attribute with required ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => object.title.inspect } }
 
         include_examples 'should serialize the attributes'
       end
 
-      wrap_context 'with a serializer with a block attribute with optional arg'\
+      wrap_context 'with a serializer with a block attribute with optional ' \
+                   'arg' \
       do
         let(:expected) { { 'title' => object.title.inspect } }
 
@@ -913,16 +921,16 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the attributes'
       end
 
-      wrap_context 'with a serializer with a block attribute with any' \
-                   ' keywords' \
+      wrap_context 'with a serializer with a block attribute with any ' \
+                   'keywords' \
       do
         let(:expected) { { 'title' => { context: context }.inspect } }
 
         include_examples 'should serialize the attributes'
       end
 
-      wrap_context 'with a serializer with a block attribute with many' \
-                   ' params' \
+      wrap_context 'with a serializer with a block attribute with many ' \
+                   'params' \
       do
         let(:expected) do
           {

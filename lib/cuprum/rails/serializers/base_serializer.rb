@@ -53,8 +53,8 @@ module Cuprum::Rails::Serializers
       return unless context.serializer_for(object).instance_of?(self.class)
 
       raise RecursiveSerializerError,
-        "invalid serializer for #{object.class.name} - recursive calls to" \
-        " #{self.class.name}#call"
+        "invalid serializer for #{object.class.name} - recursive calls to " \
+        "#{self.class.name}#call"
     end
   end
 end

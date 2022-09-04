@@ -42,7 +42,7 @@ module Cuprum::Rails::RSpec
               [attr_name, context.serialize(object.send(attr_name))]
             end # rubocop:disable Style/MultilineBlockChain
             .merge(attribute_values)
-            .yield_self { |hsh| tools.hash_tools.convert_keys_to_strings(hsh) }
+            .then { |hsh| tools.hash_tools.convert_keys_to_strings(hsh) }
         end
         let(:serialized) { serializer.call(object, context: context) }
 
