@@ -65,7 +65,7 @@ module Cuprum::Rails::Controllers::ClassMethods
       end
     end
 
-    def validate_action_names!(action_names, as:) # rubocop:disable Naming/MethodParameterName
+    def validate_action_names!(action_names, as:)
       return if action_names.nil?
 
       return if valid_action_names?(action_names)

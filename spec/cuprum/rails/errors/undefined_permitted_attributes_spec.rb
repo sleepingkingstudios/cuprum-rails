@@ -36,8 +36,8 @@ RSpec.describe Cuprum::Rails::Errors::UndefinedPermittedAttributes do
 
   describe '#message' do
     let(:expected) do
-      "Resource #{resource_name.inspect} does not define" \
-        ' permitted attributes'
+      "Resource #{resource_name.inspect} does not define " \
+        'permitted attributes'
     end
 
     include_examples 'should define reader', :message, -> { be == expected }

@@ -146,7 +146,7 @@ module Cuprum::Rails::RSpec
                 action
                   .resource
                   .permitted_attributes
-                  .yield_self { |ary| ary || [] }
+                  .then { |ary| ary || [] }
                   .to_h { |attr_name| [attr_name.to_s, "#{attr_name} value"] }
 
               { action.resource.singular_resource_name => resource_params }

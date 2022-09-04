@@ -163,8 +163,8 @@ module Cuprum::Rails::Serializers::Json
         end
 
         raise AbstractSerializerError,
-          'AttributesSerializer is an abstract class - create a subclass to' \
-          ' define attributes'
+          'AttributesSerializer is an abstract class - create a subclass to ' \
+          'define attributes'
       end
     end
 

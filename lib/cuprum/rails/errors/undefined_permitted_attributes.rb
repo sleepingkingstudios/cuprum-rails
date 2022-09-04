@@ -27,8 +27,8 @@ module Cuprum::Rails::Errors
     end
 
     def default_message
-      "Resource #{resource_name.inspect} does not define" \
-        ' permitted attributes'
+      "Resource #{resource_name.inspect} does not define " \
+        'permitted attributes'
     end
   end
 end

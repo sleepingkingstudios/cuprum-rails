@@ -85,7 +85,7 @@ module Cuprum::Rails
       @primary_key ||=
         options
           .fetch(:primary_key) { resource_class&.primary_key }
-          .yield_self { |value| value.nil? ? nil : value.to_s }
+          .then { |value| value.nil? ? nil : value.to_s }
     end
 
     # @return [String] the name of the resource.

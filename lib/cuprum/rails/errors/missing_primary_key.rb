@@ -39,8 +39,8 @@ module Cuprum::Rails::Errors
     end
 
     def default_message
-      "Unable to find #{resource_name} because the #{primary_key.inspect}" \
-        ' parameter is missing or empty'
+      "Unable to find #{resource_name} because the #{primary_key.inspect} " \
+        'parameter is missing or empty'
     end
   end
 end

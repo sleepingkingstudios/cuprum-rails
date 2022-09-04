@@ -45,8 +45,8 @@ RSpec.describe Cuprum::Rails::Errors::MissingPrimaryKey do
 
   describe '#message' do
     let(:expected) do
-      "Unable to find #{resource_name} because the #{primary_key.inspect}" \
-        ' parameter is missing or empty'
+      "Unable to find #{resource_name} because the #{primary_key.inspect} " \
+        'parameter is missing or empty'
     end
 
     include_examples 'should define reader', :message, -> { be == expected }

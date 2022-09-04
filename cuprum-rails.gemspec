@@ -26,7 +26,7 @@ Gem::Specification.new do |gem|
   gem.require_path = 'lib'
   gem.files        = Dir['lib/**/*.rb', 'LICENSE', '*.md']
 
-  gem.required_ruby_version = '>= 2.6'
+  gem.required_ruby_version = '>= 2.7'
 
   gem.add_runtime_dependency 'cuprum', '>= 0.11.0', '< 2.0'
   gem.add_runtime_dependency 'cuprum-collections', '~> 0.2'
@@ -38,10 +38,10 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'pg', '~> 1.2'
   gem.add_development_dependency 'rspec', '~> 3.9'
   gem.add_development_dependency 'rspec-sleeping_king_studios', '2.7.0.rc.0'
-  gem.add_development_dependency 'rubocop', '~> 1.24'
-  gem.add_development_dependency 'rubocop-rails', '~> 2.13'
+  gem.add_development_dependency 'rubocop', '~> 1.36'
+  gem.add_development_dependency 'rubocop-rails', '~> 2.15'
   gem.add_development_dependency 'rubocop-rake', '~> 0.6'
-  gem.add_development_dependency 'rubocop-rspec', '~> 2.7'
+  gem.add_development_dependency 'rubocop-rspec', '~> 2.12'
   gem.add_development_dependency 'simplecov', '~> 0.18'
-  gem.add_development_dependency 'sleeping_king_studios-tools', '~> 1.0'
+  gem.add_development_dependency 'sleeping_king_studios-tools', '~> 1.1'
 end
