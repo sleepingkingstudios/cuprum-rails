@@ -55,6 +55,10 @@ module Cuprum::Rails::Actions
       super
     end
 
+    def require_permitted_attributes?
+      true
+    end
+
     def validate_parameters
       require_resource_params
     end

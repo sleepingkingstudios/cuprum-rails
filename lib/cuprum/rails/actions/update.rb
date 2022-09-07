@@ -53,6 +53,10 @@ module Cuprum::Rails::Actions
       super
     end
 
+    def require_permitted_attributes?
+      true
+    end
+
     def update_entity(attributes:)
       steps do
         step do

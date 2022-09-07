@@ -88,13 +88,8 @@ module Cuprum::Rails::RSpec::Actions
           # :nocov:
         end
 
-        include_contract 'resource action contract'
-
-        include_contract(
-          'should require permitted attributes',
-          params: configured_params,
-          &should_not_create_an_entity
-        )
+        include_contract 'resource action contract',
+          require_permitted_attributes: true
 
         include_contract(
           'should require parameters',
