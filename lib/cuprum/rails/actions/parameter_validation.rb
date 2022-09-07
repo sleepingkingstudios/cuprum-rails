@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'sleeping_king_studios/tools/toolbox/mixin'
-require 'stannum/contracts/indifferent_hash_contract'
 
 require 'cuprum/rails/actions'
+require 'cuprum/rails/constraints/parameters_contract'
 
 module Cuprum::Rails::Actions
   # Mixin for adding parameter validation to an Action.
@@ -24,11 +24,7 @@ module Cuprum::Rails::Actions
       #   @yield Used to create an indifferent hash contract to validate the
       #     request parameters.
       def validate_parameters(contract = nil, &block)
-        contract ||=
-          Stannum::Contracts::IndifferentHashContract.new(
-            allow_extra_keys: true,
-            &block
-          )
+        contract ||= Cuprum::Rails::Constraints::ParametersContract.new(&block)
 
         define_method(:parameters_contract) { contract }
       end

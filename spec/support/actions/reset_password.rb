@@ -10,7 +10,7 @@ module Spec::Support::Actions
     include Cuprum::Rails::Actions::ParameterValidation
 
     CONTRACT =
-      Stannum::Contracts::IndifferentHashContract.new(allow_extra_keys: true) do
+      Cuprum::Rails::Constraints::ParametersContract.new do
         key :password,     Stannum::Constraints::Presence.new
         key :confirmation, Stannum::Constraints::Presence.new
       end

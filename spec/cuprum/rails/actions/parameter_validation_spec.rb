@@ -191,7 +191,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
     wrap_context 'when .validate_parameters is called with a block' do
       it 'should return the contract' do
         expect(action.send :parameters_contract)
-          .to be_a Stannum::Contracts::IndifferentHashContract
+          .to be_a Cuprum::Rails::Constraints::ParametersContract
       end
     end
 
