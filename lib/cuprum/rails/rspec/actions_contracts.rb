@@ -88,11 +88,12 @@ module Cuprum::Rails::RSpec
 
           describe 'with a resource with permitted_attributes: nil' do
             let(:resource) do
-              collection = Cuprum::Rails::Collection.new(record_class: Book)
+              resource = super()
+
               Cuprum::Rails::Resource.new(
-                collection:           collection,
+                collection:           resource.collection,
                 permitted_attributes: nil,
-                resource_name:        'books'
+                resource_name:        resource.resource_name
               )
             end
             let(:error_message) do
@@ -115,11 +116,12 @@ module Cuprum::Rails::RSpec
           describe 'with a resource with permitted_attributes: an empty Array' \
           do
             let(:resource) do
-              collection = Cuprum::Rails::Collection.new(record_class: Book)
+              resource = super()
+
               Cuprum::Rails::Resource.new(
-                collection:           collection,
-                permitted_attributes: nil,
-                resource_name:        'books'
+                collection:           resource.collection,
+                permitted_attributes: [],
+                resource_name:        resource.resource_name
               )
             end
             let(:error_message) do
