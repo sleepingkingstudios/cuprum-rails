@@ -3,6 +3,7 @@
 require 'cuprum/errors/uncaught_exception'
 
 require 'cuprum/rails/action'
+require 'cuprum/rails/actions/parameter_validation'
 
 module Cuprum::Rails::Actions
   # Abstract base class for resourceful actions.
@@ -10,9 +11,6 @@ module Cuprum::Rails::Actions
   # Each ResourceAction defines a series of steps used to validate and process
   # the action. Each step is performed in order:
   #
-  # - The #validate_parameters step checks whether the request params are valid.
-  #   For example, it may assert that the primary key is given for a member
-  #   action, or that the attributes for a create or update action are present.
   # - The #find_required_entities step locates any dependent entities and
   #   ensures that the entities exist. For example, it may find the requested
   #   entity for a show action, or the parent entity for a create action on a
@@ -29,6 +27,8 @@ module Cuprum::Rails::Actions
   # result, or wrap the exception in a failing result with a
   # Cuprum::Errors::UncaughtException error.
   class ResourceAction < Cuprum::Rails::Action
+    include Cuprum::Rails::Actions::ParameterValidation
+
     # @param options [Hash<Symbol, Object>] Additional options for the action.
     # @param repository [Cuprum::Collections::Repository] The repository
     #   containing the data collections for the application or scope.
@@ -92,25 +92,9 @@ module Cuprum::Rails::Actions
       failure(error)
     end
 
-    def missing_parameters_error
-      Cuprum::Rails::Errors::MissingParameters
-        .new(resource_name: singular_resource_name)
-    end
-
-    def missing_primary_key_error
-      Cuprum::Rails::Errors::MissingPrimaryKey.new(
-        primary_key:   resource.primary_key,
-        resource_name: singular_resource_name
-      )
-    end
-
     def permitted_attributes
       @permitted_attributes ||=
         Set.new(resource.permitted_attributes.map(&:to_s))
-    end
-
-    def permitted_attributes?
-      !resource.permitted_attributes.nil?
     end
 
     def perform_action; end
@@ -122,7 +106,6 @@ module Cuprum::Rails::Actions
       @resource_params = nil
 
       handle_exceptions do
-        step { validate_parameters }
         step { find_required_entities }
         step { perform_action }
         step { build_response }
@@ -131,20 +114,6 @@ module Cuprum::Rails::Actions
 
     def require_permitted_attributes?
       false
-    end
-
-    def require_resource_id
-      return if resource_id.present?
-
-      failure(missing_primary_key_error)
-    end
-
-    def require_resource_params
-      return failure(permitted_attributes_error) unless permitted_attributes?
-
-      return if resource_params.is_a?(Hash) && resource_params.present?
-
-      failure(missing_parameters_error)
     end
 
     def transaction(&block) # rubocop:disable Metrics/MethodLength
@@ -164,7 +133,5 @@ module Cuprum::Rails::Actions
 
       result
     end
-
-    def validate_parameters; end
   end
 end

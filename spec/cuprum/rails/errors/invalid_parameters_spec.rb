@@ -29,15 +29,57 @@ RSpec.describe Cuprum::Rails::Errors::InvalidParameters do
   end
 
   describe '#as_json' do
+    let(:expected_errors) do
+      {
+        'title' => [
+          {
+            'data'    => {},
+            'path'    => ['title'],
+            'message' => "can't be blank",
+            'type'    => 'spec.error'
+          }
+        ]
+      }
+    end
     let(:expected) do
       {
-        'data'    => { 'errors' => errors.group_by_path },
+        'data'    => { 'errors' => expected_errors },
         'message' => error.message,
         'type'    => error.type
       }
     end
 
     include_examples 'should define reader', :as_json, -> { be == expected }
+
+    context 'with nested errors' do
+      let(:errors) do
+        super().tap do |err|
+          err['author']['name'].add('spec.error', message: "can't be blank")
+        end
+      end
+      let(:expected_errors) do
+        {
+          'author.name' => [
+            {
+              'data'    => {},
+              'path'    => %w[author name],
+              'message' => "can't be blank",
+              'type'    => 'spec.error'
+            }
+          ],
+          'title'       => [
+            {
+              'data'    => {},
+              'path'    => %w[title],
+              'message' => "can't be blank",
+              'type'    => 'spec.error'
+            }
+          ]
+        }
+      end
+
+      it { expect(error.as_json).to be == expected }
+    end
   end
 
   describe '#errors' do

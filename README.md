@@ -635,8 +635,8 @@ end
 
 `ResourceAction` delegates `#collection`, `#resource_name`, and `#singular_resource_name` to the `#resource`. In addition, it defines the following helper methods. Each method returns a `Cuprum::Result`, so you can use the `#step` control flow to handle command errors.
 
-- `#resource_id`: Wraps `params[:id]` in a result, or returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
-- `#resource_params`: Wraps `params[singular_resource_name]` and filters them using `resource.permitted_attributes`. Returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error if the resource params are missing, or with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error if the resource does not define permitted attributes.
+- `#resource_id`: Returns `params[:id]`.
+- `#resource_params`: Filters `params[singular_resource_name]` and using `resource.permitted_attributes`.
 
 #### Transactions
 
@@ -702,11 +702,9 @@ Book.where(title: 'Gideon the Ninth').exist?
 #=> true
 ```
 
+If the params do not include attributes for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::InvalidParameters` error.
+
 If the created record is not valid, the action returns a failing result with a `Cuprum::Collections::Errors::FailedValidation` error.
-
-If the params do not include attributes for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
-
-If the permitted attributes are not defined for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error.
 
 ##### Destroy
 
@@ -725,6 +723,8 @@ Book.where(id: 0).exist?
 #=> false
 ```
 
+If the params do not include a primary key for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::InvalidParameters` error.
+
 If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
 
 ##### Edit
@@ -740,6 +740,8 @@ result.success?
 result.value
 #=> { 'book' => #<Book id: 0> }
 ```
+
+If the params do not include a primary key for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::InvalidParameters` error.
 
 If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
 
@@ -788,6 +790,8 @@ result.value
 #=> { 'book' => #<Book id: 0> }
 ```
 
+If the params do not include a primary key for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::InvalidParameters` error.
+
 If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
 
 ##### Update
@@ -807,13 +811,11 @@ Book.find(0).title
 #=> 'Gideon the Ninth'
 ```
 
+If the params do not include a primary key and attributes for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::InvalidParameters` error.
+
 If the record with the given primary key does not exist, the action returns a failing result with a `Cuprum::Collections::Errors::NotFound` error.
 
 If the updated record is not valid, the action returns a failing result with a `Cuprum::Collections::Errors::FailedValidation` error.
-
-If the params do not include attributes for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::MissingParameters` error.
-
-If the permitted attributes are not defined for the resource, the action returns a failing result with a `Cuprum::Rails::Errors::UndefinedPermittedAttributes` error.
 
 <a id="middleware"></a>
 
@@ -1118,7 +1120,7 @@ Provides default responses for JSON requests.
 - For a successful `#create` result, serializes the result value with a status of `201 Created`.
 - For a failed result with an `AlreadyExists` error, serializes the error with a status of `422 Unprocessable Entity`.
 - For a failed result with a `FailedValidation` error, serializes the error with a status of `422 Unprocessable Entity`.
-- For a failed result with a `MissingParameters` error, serializes the error with a status of `400 Bad Request`.
+- For a failed result with an `InvalidParameters` error, serializes the error with a status of `400 Bad Request`.
 - For a failed result with a `NotFound` error, serializes the error with a status of `404 Not Found`.
 
 <a id="responses"></a>

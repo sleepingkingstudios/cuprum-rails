@@ -6,7 +6,7 @@ require 'support/actions/destroy_book'
 require 'support/book'
 require 'support/chapter'
 
-# @note Integration spec for Cuprum::Rails::RSpec::Actions::CreateContracts.
+# @note Integration spec for Cuprum::Rails::RSpec::Actions::DestroyContracts.
 RSpec.describe Spec::Support::Actions::DestroyBook do
   include Cuprum::Rails::RSpec::Actions::DestroyContracts
 

@@ -126,9 +126,13 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
         it { expect(response.status).to be 422 }
       end
 
-      describe 'with a MissingParameters error' do
+      describe 'with an InvalidParameters error' do
         let(:error) do
-          Cuprum::Rails::Errors::MissingParameters.new(resource_name: 'books')
+          errors = Stannum::Errors.new.tap do |err|
+            err['id'].add(Stannum::Constraints::Presence::TYPE)
+          end
+
+          Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
         end
         let(:expected) do
           {

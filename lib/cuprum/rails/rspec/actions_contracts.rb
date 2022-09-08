@@ -462,8 +462,42 @@ module Cuprum::Rails::RSpec
                 end
             end
             let(:configured_expected_error) do
-              Cuprum::Rails::Errors::MissingParameters
-                .new(resource_name: action.resource.singular_resource_name)
+              errors = Stannum::Errors.new.tap do |err|
+                err[action.resource.singular_resource_name]
+                  .add(Stannum::Constraints::Presence::TYPE)
+              end
+
+              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
+            end
+
+            it 'should return a failing result' do
+              expect(action.call(request: request))
+                .to be_a_failing_result
+                .with_error(configured_expected_error)
+            end
+
+            instance_exec(&block) if block
+          end
+
+          context 'when the resource parameters are not a Hash' do
+            let(:request) do
+              Cuprum::Rails::Request.new(params: configured_params)
+            end
+            let(:configured_params) do
+              option_with_default(options[:params], default: {})
+                .merge(action.resource.singular_resource_name => 'invalid')
+            end
+            let(:configured_expected_error) do
+              errors = Stannum::Errors.new.tap do |err|
+                err[action.resource.singular_resource_name].add(
+                  Stannum::Constraints::Type::TYPE,
+                  allow_empty: true,
+                  required:    true,
+                  type:        Hash
+                )
+              end
+
+              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
             end
 
             it 'should return a failing result' do
@@ -507,10 +541,11 @@ module Cuprum::Rails::RSpec
                 .tap { |hsh| hsh.delete('id') }
             end
             let(:configured_expected_error) do
-              Cuprum::Rails::Errors::MissingPrimaryKey.new(
-                primary_key:   action.resource.primary_key,
-                resource_name: action.resource.singular_resource_name
-              )
+              errors = Stannum::Errors.new.tap do |err|
+                err['id'].add(Stannum::Constraints::Presence::TYPE)
+              end
+
+              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
             end
 
             it 'should return a failing result' do

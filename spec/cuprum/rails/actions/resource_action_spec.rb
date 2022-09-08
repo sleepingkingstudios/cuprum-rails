@@ -164,7 +164,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     let(:request) { instance_double(ActionDispatch::Request, params: params) }
     let(:action_steps) do
       %i[
-        validate_parameters
         find_required_entities
         perform_action
         build_response
@@ -187,7 +186,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     it 'should call each action step', :aggregate_failures do
       mocked_action.call(request: request)
 
-      expect(mocked_action).to have_received(:validate_parameters)
       expect(mocked_action).to have_received(:find_required_entities)
       expect(mocked_action).to have_received(:perform_action)
       expect(mocked_action).to have_received(:build_response)
@@ -196,10 +194,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     include_examples 'should call the action step', :build_response
 
     include_examples 'should call the action step', :find_required_entities
-
-    include_examples 'should call the action step', :perform_action
-
-    include_examples 'should call the action step', :validate_parameters
   end
 
   describe '#transaction' do

@@ -14,12 +14,12 @@ module Spec::Support::Actions
       @book ||= find_book.value
     end
 
-    def book_id
-      params['book_id']
-    end
-
     def books_collection
       repository['books']
+    end
+
+    def book_id
+      params['book_id']
     end
 
     def build_response
@@ -58,6 +58,19 @@ module Spec::Support::Actions
         .limit(1)
     end
 
+    def parameters_contract
+      return @parameters_contract if @parameters_contract
+
+      parent_contract = super
+
+      @parameters_contract =
+        Cuprum::Rails::Constraints::ParametersContract.new do
+          concat parent_contract
+
+          key 'book_id', Stannum::Constraints::Presence.new
+        end
+    end
+
     def process(request:)
       @book    = nil
       @book_id = nil
@@ -67,22 +80,6 @@ module Spec::Support::Actions
 
     def require_book
       @book || find_book
-    end
-
-    def require_book_id
-      return if book_id.present?
-
-      failure(
-        Cuprum::Rails::Errors::MissingPrimaryKey.new(
-          primary_key:   :id,
-          resource_name: 'book'
-        )
-      )
-    end
-
-    def validate_parameters
-      step { require_book_id }
-      step { require_resource_params }
     end
   end
 end

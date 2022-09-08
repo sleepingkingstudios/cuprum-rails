@@ -114,8 +114,12 @@ RSpec.describe BooksController do
     describe 'with a missing book parameter' do
       let(:params) { super().tap { |hsh| hsh.delete('book') } }
       let(:expected_error) do
-        Cuprum::Rails::Errors::MissingParameters
-          .new(resource_name: 'book')
+        errors = Stannum::Errors.new.tap do |err|
+          err['book'].add(Stannum::Constraints::Presence::TYPE)
+        end
+
+        Cuprum::Rails::Errors::InvalidParameters
+          .new(errors: errors)
           .as_json
       end
 
@@ -127,8 +131,12 @@ RSpec.describe BooksController do
     describe 'with an empty book parameter' do
       let(:params) { super().merge('book' => {}) }
       let(:expected_error) do
-        Cuprum::Rails::Errors::MissingParameters
-          .new(resource_name: 'book')
+        errors = Stannum::Errors.new.tap do |err|
+          err['book'].add(Stannum::Constraints::Presence::TYPE)
+        end
+
+        Cuprum::Rails::Errors::InvalidParameters
+          .new(errors: errors)
           .as_json
       end
 
@@ -142,11 +150,15 @@ RSpec.describe BooksController do
     describe 'with a missing book id' do
       let(:path_params) { super().tap { |hsh| hsh.delete('id') } }
       let(:expected_error) do
-        Cuprum::Error.new(
-          message: 'Something went wrong when processing the request'
-        )
+        errors = Stannum::Errors.new.tap do |err|
+          err['id'].add(Stannum::Constraints::Presence::TYPE)
+        end
+
+        Cuprum::Rails::Errors::InvalidParameters
+          .new(errors: errors)
+          .as_json
       end
-      let(:status) { 500 }
+      let(:status) { 400 }
 
       wrap_examples 'should redirect to the index page'
 
