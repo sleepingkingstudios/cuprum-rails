@@ -2,11 +2,10 @@
 
 require 'cuprum/rails/action'
 require 'cuprum/rails/repository'
-
-require 'support/examples/action_examples'
+require 'cuprum/rails/rspec/actions_contracts'
 
 RSpec.describe Cuprum::Rails::Action do
-  include Spec::Support::Examples::ActionExamples
+  include Cuprum::Rails::RSpec::ActionsContracts
 
   subject(:action) do
     described_class.new(resource: resource, **constructor_options)
@@ -16,10 +15,6 @@ RSpec.describe Cuprum::Rails::Action do
     Cuprum::Rails::Resource.new(resource_name: 'books')
   end
   let(:constructor_options) { {} }
-
-  def be_callable
-    respond_to(:process, true)
-  end
 
   describe '.new' do
     it 'should define the constructor' do
@@ -56,7 +51,9 @@ RSpec.describe Cuprum::Rails::Action do
   end
 
   describe '#params' do
-    include_context 'when the action is called with a request'
+    let(:params)  { {} }
+    let(:request) { instance_double(Cuprum::Rails::Request, params: params) }
+    let(:action)  { super().tap { |action| action.call(request: request) } }
 
     it { expect(action).to respond_to(:params).with(0).arguments }
 

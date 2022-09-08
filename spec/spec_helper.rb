@@ -17,6 +17,7 @@ require 'rspec/sleeping_king_studios/concerns/include_contract'
 require 'byebug'
 require 'database_cleaner/active_record'
 
+require 'cuprum/rspec/be_callable'
 require 'cuprum/rspec/be_a_result'
 require 'stannum/rspec/validate_parameter'
 

@@ -43,6 +43,18 @@ module Cuprum::Rails::Actions
       )
     end
 
+    def parameters_contract
+      return @parameters_contract if @parameters_contract
+
+      resource_name         = resource.singular_resource_name
+      parameters_constraint = require_parameters_constraint
+
+      @parameters_contract =
+        Cuprum::Rails::Constraints::ParametersContract.new do
+          key resource_name, parameters_constraint
+        end
+    end
+
     def perform_action
       handle_failed_validation do
         create_entity(attributes: resource_params)
@@ -55,8 +67,15 @@ module Cuprum::Rails::Actions
       super
     end
 
-    def validate_parameters
-      require_resource_params
+    def require_parameters_constraint
+      Stannum::Contract.new do
+        constraint Stannum::Constraints::Presence.new, sanity: true
+        constraint Stannum::Constraints::Types::HashType.new
+      end
+    end
+
+    def require_permitted_attributes?
+      true
     end
   end
 end

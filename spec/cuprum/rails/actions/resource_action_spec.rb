@@ -1,26 +1,29 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/resource_action'
+require 'cuprum/rails/rspec/actions_contracts'
 
 require 'support/book'
-require 'support/examples/action_examples'
 
 RSpec.describe Cuprum::Rails::Actions::ResourceAction do
-  include Spec::Support::Examples::ActionExamples
+  include Cuprum::Rails::RSpec::ActionsContracts
 
-  subject(:action) { described_class.new(resource: resource) }
+  subject(:action) do
+    described_class.new(resource: resource, repository: repository)
+  end
 
-  let(:collection) { Cuprum::Rails::Collection.new(record_class: Book) }
+  let(:repository) { Cuprum::Rails::Repository.new }
+  let(:collection) { repository.find_or_create(record_class: Book) }
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      collection:     collection,
+      collection:     repository.find_or_create(record_class: Book),
       resource_class: Book,
       **resource_options
     )
   end
   let(:resource_options) { {} }
 
-  include_examples 'should define the ResourceAction methods'
+  include_contract 'resource action contract'
 
   describe '#call' do
     shared_examples 'should call the previous action steps' do |method_name|
@@ -161,7 +164,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     let(:request) { instance_double(ActionDispatch::Request, params: params) }
     let(:action_steps) do
       %i[
-        validate_parameters
         find_required_entities
         perform_action
         build_response
@@ -184,7 +186,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     it 'should call each action step', :aggregate_failures do
       mocked_action.call(request: request)
 
-      expect(mocked_action).to have_received(:validate_parameters)
       expect(mocked_action).to have_received(:find_required_entities)
       expect(mocked_action).to have_received(:perform_action)
       expect(mocked_action).to have_received(:build_response)
@@ -193,9 +194,88 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     include_examples 'should call the action step', :build_response
 
     include_examples 'should call the action step', :find_required_entities
+  end
 
-    include_examples 'should call the action step', :perform_action
+  describe '#transaction' do
+    shared_examples 'should wrap the block in a transaction' do
+      it 'should yield the block' do
+        expect { |block| action.send(:transaction, &block) }
+          .to yield_control
+      end
 
-    include_examples 'should call the action step', :validate_parameters
+      it 'should wrap the block in a transaction' do # rubocop:disable RSpec/ExampleLength
+        in_transaction = false
+
+        allow(transaction_class).to receive(:transaction) do |&block|
+          in_transaction = true
+
+          block.call
+
+          in_transaction = false
+        end
+
+        action.send(:transaction) do
+          expect(in_transaction).to be true
+        end
+      end
+
+      context 'when the block contains a failing step' do
+        let(:expected_error) do
+          Cuprum::Error.new(message: 'Something went wrong.')
+        end
+
+        before(:example) do
+          action.define_singleton_method(:failing_step) do
+            error = Cuprum::Error.new(message: 'Something went wrong.')
+
+            step { failure(error) }
+          end
+        end
+
+        it 'should return the failing result' do
+          expect(action.send(:transaction) { action.failing_step })
+            .to be_a_failing_result
+            .with_error(expected_error)
+        end
+
+        it 'should roll back the transaction' do # rubocop:disable RSpec/ExampleLength
+          rollback = false
+
+          allow(transaction_class).to receive(:transaction) do |&block|
+            block.call
+          rescue ActiveRecord::Rollback
+            rollback = true
+          end
+
+          action.send(:transaction) { action.failing_step }
+
+          expect(rollback).to be true
+        end
+      end
+    end
+
+    it 'should define the private method' do
+      expect(action).to respond_to(:transaction, true).with(0).arguments
+    end
+
+    context 'when the resource class is not an ActiveRecord model' do
+      let(:transaction_class) { ActiveRecord::Base }
+      let(:resource_options) do
+        super().merge(resource_class: Spec::Entity)
+      end
+
+      example_class 'Spec::Entity'
+
+      include_examples 'should wrap the block in a transaction'
+    end
+
+    context 'when the resource class is an ActiveRecord model' do
+      let(:transaction_class) { Book }
+      let(:resource_options) do
+        super().merge(resource_class: Book)
+      end
+
+      include_examples 'should wrap the block in a transaction'
+    end
   end
 end

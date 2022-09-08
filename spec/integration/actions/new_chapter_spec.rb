@@ -6,7 +6,7 @@ require 'support/actions/new_chapter'
 require 'support/book'
 require 'support/chapter'
 
-# @note Integration spec for Cuprum::Rails::RSpec::Actions::EditContracts.
+# @note Integration spec for Cuprum::Rails::RSpec::Actions::NewContracts.
 RSpec.describe Spec::Support::Actions::NewChapter do
   include Cuprum::Rails::RSpec::Actions::NewContracts
 

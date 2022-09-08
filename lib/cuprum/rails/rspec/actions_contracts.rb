@@ -11,16 +11,15 @@ require 'cuprum/rails/rspec/contract_helpers'
 module Cuprum::Rails::RSpec
   # Namespace for RSpec action contracts, which validate action implementations.
   module ActionsContracts
-    # Contract validating the interface for a resourceful action.
-    module ResourceActionContract
+    # Contract validating the interface for an action.
+    module ActionContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @!method apply(example_group)
       #   Adds the contract to the example group.
       #
-      #   @param example_group [RSpec::Core::ExampleGroup] The example group to
+      #   @param example_group [RSpec::Core::ExampleGroup] the example group to
       #     which the contract is applied.
-
       contract do
         describe '.new' do
           it 'should define the constructor' do
@@ -30,7 +29,49 @@ module Cuprum::Rails::RSpec
               .and_keywords(:repository, :resource)
               .and_any_keywords
           end
+        end
 
+        describe '#call' do
+          it 'should define the method' do
+            expect(action)
+              .to be_callable
+              .with(0).arguments
+              .and_keywords(:request)
+          end
+        end
+
+        describe '#repository' do
+          include_examples 'should define reader',
+            :repository,
+            -> { be_a Cuprum::Collections::Repository }
+        end
+
+        describe '#resource' do
+          include_examples 'should define reader',
+            :resource,
+            -> { be_a Cuprum::Rails::Resource }
+        end
+      end
+    end
+
+    # Contract validating the interface for a resourceful action.
+    module ResourceActionContract
+      extend RSpec::SleepingKingStudios::Contract
+
+      # @!method apply(example_group)
+      #   Adds the contract to the example group.
+      #
+      #   @param example_group [RSpec::Core::ExampleGroup] the example group to
+      #     which the contract is applied.
+      #   @param require_permitted_attributes [Boolean] if true, should require
+      #     the resource to define permitted attributes as a non-empty Array.
+
+      contract do |require_permitted_attributes: false|
+        include Cuprum::Rails::RSpec::ActionsContracts
+
+        include_contract ActionContract
+
+        describe '.new' do
           describe 'with a resource without a collection' do
             let(:resource) do
               Cuprum::Rails::Resource.new(resource_name: 'books')
@@ -44,18 +85,58 @@ module Cuprum::Rails::RSpec
                 .to raise_error ArgumentError, error_message
             end
           end
-        end
 
-        describe '#call' do
-          def be_callable
-            respond_to(:process, true)
+          describe 'with a resource with permitted_attributes: nil' do
+            let(:resource) do
+              collection = Cuprum::Rails::Collection.new(record_class: Book)
+              Cuprum::Rails::Resource.new(
+                collection:           collection,
+                permitted_attributes: nil,
+                resource_name:        'books'
+              )
+            end
+            let(:error_message) do
+              'resource must define permitted attributes'
+            end
+
+            if require_permitted_attributes
+              it 'should raise an exception' do
+                expect { described_class.new(resource: resource) }
+                  .to raise_error ArgumentError, error_message
+              end
+            else
+              it 'should not raise an exception' do
+                expect { described_class.new(resource: resource) }
+                  .not_to raise_error
+              end
+            end
           end
 
-          it 'should define the method' do
-            expect(action)
-              .to be_callable
-              .with(0).arguments
-              .and_keywords(:request)
+          describe 'with a resource with permitted_attributes: an empty Array' \
+          do
+            let(:resource) do
+              collection = Cuprum::Rails::Collection.new(record_class: Book)
+              Cuprum::Rails::Resource.new(
+                collection:           collection,
+                permitted_attributes: nil,
+                resource_name:        'books'
+              )
+            end
+            let(:error_message) do
+              'resource must define permitted attributes'
+            end
+
+            if require_permitted_attributes
+              it 'should raise an exception' do
+                expect { described_class.new(resource: resource) }
+                  .to raise_error ArgumentError, error_message
+              end
+            else
+              it 'should not raise an exception' do
+                expect { described_class.new(resource: resource) }
+                  .not_to raise_error
+              end
+            end
           end
         end
 
@@ -65,16 +146,10 @@ module Cuprum::Rails::RSpec
             -> { action.resource.collection }
         end
 
-        describe '#repository' do
+        describe '#resource_class' do
           include_examples 'should define reader',
-            :repository,
-            -> { be_a Cuprum::Collections::Repository }
-        end
-
-        describe '#resource' do
-          include_examples 'should define reader',
-            :resource,
-            -> { be_a Cuprum::Rails::Resource }
+            :resource_class,
+            -> { resource.resource_class }
         end
 
         describe '#resource_id' do
@@ -161,6 +236,69 @@ module Cuprum::Rails::RSpec
           include_examples 'should define reader',
             :singular_resource_name,
             -> { action.resource.singular_resource_name }
+        end
+
+        describe '#transaction' do
+          let(:transaction_class) { resource.resource_class }
+
+          it 'should define the private method' do
+            expect(action).to respond_to(:transaction, true).with(0).arguments
+          end
+
+          it 'should yield the block' do
+            expect { |block| action.send(:transaction, &block) }
+              .to yield_control
+          end
+
+          it 'should wrap the block in a transaction' do
+            in_transaction = false
+
+            allow(transaction_class).to receive(:transaction) do |&block|
+              in_transaction = true
+
+              block.call
+
+              in_transaction = false
+            end
+
+            action.send(:transaction) do
+              expect(in_transaction).to be true
+            end
+          end
+
+          context 'when the block contains a failing step' do
+            let(:expected_error) do
+              Cuprum::Error.new(message: 'Something went wrong.')
+            end
+
+            before(:example) do
+              action.define_singleton_method(:failing_step) do
+                error = Cuprum::Error.new(message: 'Something went wrong.')
+
+                step { failure(error) }
+              end
+            end
+
+            it 'should return the failing result' do
+              expect(action.send(:transaction) { action.failing_step })
+                .to be_a_failing_result
+                .with_error(expected_error)
+            end
+
+            it 'should roll back the transaction' do
+              rollback = false
+
+              allow(transaction_class).to receive(:transaction) do |&block|
+                block.call
+              rescue ActiveRecord::Rollback
+                rollback = true
+              end
+
+              action.send(:transaction) { action.failing_step }
+
+              expect(rollback).to be true
+            end
+          end
         end
       end
     end
@@ -324,8 +462,12 @@ module Cuprum::Rails::RSpec
                 end
             end
             let(:configured_expected_error) do
-              Cuprum::Rails::Errors::MissingParameters
-                .new(resource_name: action.resource.singular_resource_name)
+              errors = Stannum::Errors.new.tap do |err|
+                err[action.resource.singular_resource_name]
+                  .add(Stannum::Constraints::Presence::TYPE)
+              end
+
+              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
             end
 
             it 'should return a failing result' do
@@ -336,51 +478,32 @@ module Cuprum::Rails::RSpec
 
             instance_exec(&block) if block
           end
-        end
-      end
-    end
 
-    # Contract asserting the action requires permitted attributes.
-    module ShouldRequirePermittedAttributesContract
-      extend RSpec::SleepingKingStudios::Contract
-
-      # @!method apply(example_group, **options, &block)
-      #   Adds the contract to the example group.
-      #
-      #   @param example_group [RSpec::Core::ExampleGroup] The example group to
-      #     which the contract is applied.
-      #
-      #   @option options [Hash<String>] params The parameters used to build the
-      #     request. Defaults to an empty Hash.
-      #
-      #   @yield Additional configuration or examples.
-
-      contract do |**options, &block|
-        describe '#call' do
-          include Cuprum::Rails::RSpec::ContractHelpers
-
-          context 'when the resource does not define permitted attributes' do
+          context 'when the resource parameters are not a Hash' do
             let(:request) do
               Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_params) do
               option_with_default(options[:params], default: {})
+                .merge(action.resource.singular_resource_name => 'invalid')
             end
-            let(:expected_error) do
-              Cuprum::Rails::Errors::UndefinedPermittedAttributes
-                .new(resource_name: action.resource.singular_resource_name)
-            end
+            let(:configured_expected_error) do
+              errors = Stannum::Errors.new.tap do |err|
+                err[action.resource.singular_resource_name].add(
+                  Stannum::Constraints::Type::TYPE,
+                  allow_empty: true,
+                  required:    true,
+                  type:        Hash
+                )
+              end
 
-            before(:example) do
-              allow(action.resource)
-                .to receive(:permitted_attributes)
-                .and_return(nil)
+              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
             end
 
             it 'should return a failing result' do
               expect(action.call(request: request))
                 .to be_a_failing_result
-                .with_error(expected_error)
+                .with_error(configured_expected_error)
             end
 
             instance_exec(&block) if block
@@ -418,10 +541,11 @@ module Cuprum::Rails::RSpec
                 .tap { |hsh| hsh.delete('id') }
             end
             let(:configured_expected_error) do
-              Cuprum::Rails::Errors::MissingPrimaryKey.new(
-                primary_key:   action.resource.primary_key,
-                resource_name: action.resource.singular_resource_name
-              )
+              errors = Stannum::Errors.new.tap do |err|
+                err['id'].add(Stannum::Constraints::Presence::TYPE)
+              end
+
+              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
             end
 
             it 'should return a failing result' do

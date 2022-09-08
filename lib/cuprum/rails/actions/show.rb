@@ -18,6 +18,13 @@ module Cuprum::Rails::Actions
       collection.find_one.call(primary_key: primary_key)
     end
 
+    def parameters_contract
+      @parameters_contract ||=
+        Cuprum::Rails::Constraints::ParametersContract.new do
+          key 'id', Stannum::Constraints::Presence.new
+        end
+    end
+
     def perform_action
       @entity = step { find_entity(primary_key: resource_id) }
     end
@@ -26,10 +33,6 @@ module Cuprum::Rails::Actions
       @entity = nil
 
       super
-    end
-
-    def validate_parameters
-      require_resource_id
     end
   end
 end
