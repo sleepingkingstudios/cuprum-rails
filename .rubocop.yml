@@ -47,6 +47,8 @@ Layout/HashAlignment:
   EnforcedHashRocketStyle: table
 
 Layout/LineLength:
+  AllowedPatterns:
+    - '\A\s*#'
   Max: 80
 
 Layout/MultilineMethodCallIndentation:

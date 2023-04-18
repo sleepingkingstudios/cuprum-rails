@@ -12,7 +12,7 @@ module Cuprum::Rails::Commands
   class FindMany < Cuprum::Rails::Command
     include Cuprum::Collections::Commands::AbstractFindMany
 
-    # @!method call(primary_keys:, allow_partial: false, envelope: false, scope: nil) # rubocop:disable Layout/LineLength
+    # @!method call(primary_keys:, allow_partial: false, envelope: false, scope: nil)
     #   Queries the collection for the records with the given primary keys.
     #
     #   The command will find and return the entities with the given primary

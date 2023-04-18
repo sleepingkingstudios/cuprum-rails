@@ -13,7 +13,7 @@ module Cuprum::Rails::Serializers::Json
   # to extend existing serializers with additional functionality.
   #
   # @example Defining A Base Serializer
-  #   class RecordSerializer < Cuprum::Rails::Serializers::Json::AttributesSerializer # rubocop:disable Layout/LineLength
+  #   class RecordSerializer < Cuprum::Rails::Serializers::Json::AttributesSerializer
   #     attribute :id
   #   end
   #
@@ -33,7 +33,7 @@ module Cuprum::Rails::Serializers::Json
   #
   # @example Defining A Record Serializer
   #   class BookSerializer < RecordSerializer
-  #     attribute :title, Cuprum::Rails::Serializers::Json::IdentitySerializer.instance # rubocop:disable Layout/LineLength
+  #     attribute :title, Cuprum::Rails::Serializers::Json::IdentitySerializer.instance
   #     attribute :author do |author|
   #       "by: #{author}"
   #     end
