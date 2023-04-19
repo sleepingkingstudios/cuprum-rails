@@ -90,7 +90,7 @@ RSpec.describe Cuprum::Rails::QueryBuilder do
 
         it { expect(native_query.size).to be 3 }
 
-        it { expect(native_query.pluck(:title)).to contain_exactly(*expected) }
+        it { expect(native_query.pluck(:title)).to match_array(expected) }
       end
     end
   end

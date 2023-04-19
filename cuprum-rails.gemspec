@@ -38,10 +38,10 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'pg', '~> 1.2'
   gem.add_development_dependency 'rspec', '~> 3.9'
   gem.add_development_dependency 'rspec-sleeping_king_studios', '2.7.0.rc.0'
-  gem.add_development_dependency 'rubocop', '~> 1.36'
-  gem.add_development_dependency 'rubocop-rails', '~> 2.15'
+  gem.add_development_dependency 'rubocop', '~> 1.50'
+  gem.add_development_dependency 'rubocop-rails', '~> 2.19'
   gem.add_development_dependency 'rubocop-rake', '~> 0.6'
-  gem.add_development_dependency 'rubocop-rspec', '~> 2.12'
+  gem.add_development_dependency 'rubocop-rspec', '~> 2.20'
   gem.add_development_dependency 'simplecov', '~> 0.18'
   gem.add_development_dependency 'sleeping_king_studios-tools', '~> 1.1'
 end

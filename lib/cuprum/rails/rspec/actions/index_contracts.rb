@@ -32,12 +32,11 @@ module Cuprum::Rails::RSpec::Actions
         include Cuprum::Rails::RSpec::Actions::IndexContracts
 
         # :nocov:
-        if options[:examples_on_success] && block # rubocop:disable Style/GuardClause
+        if options[:examples_on_success] && block
           raise ArgumentError, 'provide either :examples_on_success or a block'
         elsif block
           options[:examples_on_success] = block
-        end
-
+        end # rubocop:disable Layout/EmptyLineAfterGuardClause
         # :nocov:
 
         include_contract 'resource action contract'
