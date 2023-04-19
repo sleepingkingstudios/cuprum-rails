@@ -24,7 +24,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json do
       -> { an_instance_of(Hash) }
 
     it 'should define the default serializers' do
-      expect(default_serializers.keys).to contain_exactly(*expected_keys)
+      expect(default_serializers.keys).to match_array(expected_keys)
     end
 
     it 'should define the Array serializer' do

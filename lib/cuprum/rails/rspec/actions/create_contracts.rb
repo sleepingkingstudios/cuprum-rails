@@ -67,12 +67,11 @@ module Cuprum::Rails::RSpec::Actions
         end
 
         # :nocov:
-        if options[:examples_on_success] && block # rubocop:disable Style/GuardClause
+        if options[:examples_on_success] && block
           raise ArgumentError, 'provide either :examples_on_success or a block'
         elsif block
           options[:examples_on_success] = block
-        end
-
+        end # rubocop:disable Layout/EmptyLineAfterGuardClause
         # :nocov:
 
         should_not_create_an_entity = lambda do

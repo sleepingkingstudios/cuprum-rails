@@ -682,7 +682,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
     it { expect(matchers).to be == expected }
 
     context 'when the responder defines matches' do
-      let(:expected) { super().concat([described_class.send(:matcher)]) }
+      let(:expected) { super().push(described_class.send(:matcher)) }
 
       before(:example) do
         Spec::Responder.match(:failure, error: Spec::CustomError) do
@@ -707,7 +707,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
       it { expect(matchers).to be == expected }
 
       context 'when the responder defines matches' do
-        let(:expected) { super().concat([described_class.send(:matcher)]) }
+        let(:expected) { super().push(described_class.send(:matcher)) }
 
         before(:example) do
           Spec::Responder.match(:failure, error: Spec::CustomError) do
@@ -735,7 +735,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
       context 'when the responder defines matches' do
         let(:expected) do
-          super().concat([Spec::CustomResponder.send(:matcher)])
+          super().push(Spec::CustomResponder.send(:matcher))
         end
 
         before(:example) do
@@ -747,7 +747,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
       context 'when the superclass defines matches' do
         let(:expected) do
-          super().concat([Spec::Responder.send(:matcher)])
+          super().push(Spec::Responder.send(:matcher))
         end
 
         before(:example) do
@@ -759,11 +759,9 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
       context 'when the responder and superclass define matchers' do
         let(:expected) do
-          super().concat(
-            [
-              Spec::CustomResponder.send(:matcher),
-              Spec::Responder.send(:matcher)
-            ]
+          super().push(
+            Spec::CustomResponder.send(:matcher),
+            Spec::Responder.send(:matcher)
           )
         end
 
@@ -785,11 +783,9 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
         context 'when the responder and superclass define matchers' do
           let(:expected) do
-            super().concat(
-              [
-                Spec::CustomResponder.send(:matcher),
-                Spec::Responder.send(:matcher)
-              ]
+            super().push(
+              Spec::CustomResponder.send(:matcher),
+              Spec::Responder.send(:matcher)
             )
           end
 
