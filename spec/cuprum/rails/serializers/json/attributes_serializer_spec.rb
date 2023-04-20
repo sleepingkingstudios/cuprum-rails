@@ -3,724 +3,781 @@
 require 'cuprum/rails/serializers/json/attributes_serializer'
 
 require 'support/book'
+require 'support/examples/serializers/json_serializer_examples'
 
 RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
-  shared_context 'with a serializer class' do
-    let(:described_class) { Spec::Serializer }
-
-    example_class 'Spec::Serializer',
-      Cuprum::Rails::Serializers::Json::AttributesSerializer # rubocop:disable RSpec/DescribedClass
-  end
-
-  shared_context 'with a serializer subclass' do
-    include_context 'with a serializer class'
-
-    let(:described_class) { Spec::SerializerSubclass }
-
-    example_class 'Spec::SerializerSubclass', 'Spec::Serializer'
-  end
-
-  shared_context 'with a serializer with a default attribute' do
-    before(:example) { Spec::Serializer.attribute :id }
-  end
-
-  shared_context 'with a serializer with a block attribute with no args' do
-    let(:title_block) { -> { 'block with no args' } }
-
-    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
-  end
-
-  shared_context 'with a serializer with a block attribute with required arg' do
-    let(:title_block) { ->(object) { object.inspect } }
-
-    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
-  end
-
-  shared_context 'with a serializer with a block attribute with optional arg' do
-    let(:title_block) { ->(object = nil) { object.inspect } }
-
-    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
-  end
-
-  shared_context 'with a serializer with a block attribute with any args' do
-    let(:title_block) { ->(*args) { args.first.inspect } }
-
-    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
-  end
-
-  shared_context 'with a serializer with a block attribute with a keyword' do
-    let(:title_block) do
-      ->(_, context:) { { serializers: context.serializers }.inspect }
-    end
-
-    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
-  end
-
-  shared_context 'with a serializer with a block attribute with any keywords' do
-    let(:title_block) { ->(_, **keywords) { keywords.inspect } }
-
-    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
-  end
-
-  shared_context 'with a serializer with a block attribute with many params' do
-    let(:title_block) do
-      lambda do |object, context:|
-        { object: object, serializers: context.serializers }.inspect
-      end
-    end
-
-    before(:example) { Spec::Serializer.attribute(:title, &title_block) }
-  end
-
-  shared_context 'with a serializer with a serializer attribute' do
-    let(:author_serializer) { Spec::AuthorSerializer.new }
-
-    example_class 'Spec::AuthorSerializer',
-      Cuprum::Rails::Serializers::BaseSerializer \
-      do |klass|
-        klass.define_method(:call) { |object, **_| "by: #{object}" }
-      end
-
-    before(:example) do
-      Spec::Serializer.attribute :author, author_serializer
-    end
-  end
-
-  shared_context 'with a serializer with multiple attributes' do
-    include_context 'with a serializer with a default attribute'
-    include_context 'with a serializer with a block attribute with required arg'
-    include_context 'with a serializer with a serializer attribute'
-
-    let(:title_block) { ->(object) { object.upcase } }
-  end
-
-  shared_context 'with a serializer subclass with additional attribute' do
-    include_context 'with a serializer with multiple attributes'
-
-    before(:example) { Spec::SerializerSubclass.attribute(:category) }
-  end
+  include Spec::Support::Examples::Serializers::JsonSerializerExamples
 
   subject(:serializer) { described_class.new }
 
-  describe '::AbstractSerializerError' do
-    it 'should define the error class' do
-      expect(described_class)
-        .to define_constant(:AbstractSerializerError)
-        .with_value(an_instance_of Class)
-    end
-
-    it 'should inherit from StandardError' do
-      expect(described_class::AbstractSerializerError).to be < StandardError
+  shared_context 'when the serializer defines attributes' do
+    before(:example) do
+      Spec::Serializer.attribute(:fuel_type)
+      Spec::Serializer.attribute(:fuel_quantity) { |value| "#{value} tonnes" }
     end
   end
 
+  shared_context 'when the serializer subclass defines attributes' do
+    include_context 'when the serializer defines attributes'
+
+    before(:example) do
+      Spec::Serializer.attribute(:cryogenic)
+    end
+  end
+
+  describe '.new' do
+    it { expect(described_class).to be_constructible.with(0).arguments }
+  end
+
+  include_examples 'should implement the PropertiesSerializer methods'
+
   describe '.attribute' do
-    shared_examples 'should add the serializer to attributes' do
-      it 'should add the serializer to attributes' do
-        expect do
-          described_class.attribute(*[attr_name, value].compact, &block)
-        end
-          .to change(described_class, :attributes)
-          .to(satisfy { |attributes| attributes[attr_name.to_s] == expected })
+    shared_examples 'should serialize the attribute' do
+      let(:property) do
+        key = define_attribute
+
+        described_class.properties[key]
       end
+      let(:expected_mapping) do
+        attribute_mapping || :itself.to_proc
+      end
+      let(:expected_serializer) do
+        defined?(attribute_serializer) ? attribute_serializer : nil
+      end
+
+      it { expect(define_attribute).to be attribute_name.intern }
+
+      it 'should define the attribute' do
+        expect { define_attribute }
+          .to change(described_class, :properties)
+          .to have_key(attribute_name.intern)
+      end
+
+      it { expect(property.name).to be == attribute_name.to_s }
+
+      it { expect(property.mapping).to be == expected_mapping }
+
+      it { expect(property.scope).to be == attribute_name }
+
+      it { expect(property.serializer).to be == expected_serializer }
     end
 
-    let(:attr_name)  { :series }
-    let(:value)      { nil }
-    let(:block)      { nil }
-    let(:expected)   { nil }
+    let(:attribute_name)    { 'type' }
+    let(:attribute_mapping) { nil }
+    let(:options)           { {} }
+    let(:error_class) do
+      abstract_class =
+        Cuprum::Rails::Serializers::Json::PropertiesSerializer
+
+      abstract_class::AbstractSerializerError
+    end
     let(:error_message) do
-      'AttributesSerializer is an abstract class - create a subclass to ' \
-        'define attributes'
+      "#{described_class.name} is an abstract class - create a subclass " \
+        'to serialize properties'
     end
 
-    it 'should define the method' do
+    def define_attribute
+      described_class.attribute(attribute_name, **options, &attribute_mapping)
+    end
+
+    it 'should define the class method' do
       expect(described_class)
         .to respond_to(:attribute)
-        .with(1..2).arguments
+        .with(1).argument
+        .and_keywords(:serializer)
         .and_a_block
     end
 
     it 'should raise an exception' do
-      expect { described_class.attribute(attr_name) }
-        .to raise_error(
-          described_class::AbstractSerializerError,
-          error_message
-        )
+      expect { define_attribute }.to raise_error(error_class, error_message)
+    end
+
+    context 'with an abstract subclass' do
+      include_context 'with a serializer class', described_class
+
+      before(:example) do
+        Spec::Serializer.instance_exec do
+          @abstract_class = true
+        end
+      end
+
+      it 'should raise an exception' do
+        expect { define_attribute }.to raise_error(error_class, error_message)
+      end
     end
 
     wrap_context 'with a serializer class' do
-      describe 'with nil' do
-        let(:error_message) { "attribute name can't be blank" }
+      it { expect { define_attribute }.not_to raise_error }
+
+      describe 'with attribute_name: nil' do
+        let(:attribute_name) { nil }
+        let(:error_message) do
+          "property name can't be blank"
+        end
 
         it 'should raise an exception' do
-          expect { described_class.attribute(nil) }
-            .to raise_error ArgumentError, error_message
+          expect { define_attribute }
+            .to raise_error(ArgumentError, error_message)
         end
       end
 
-      describe 'with an object' do
-        let(:error_message) { 'attribute name must be a string or symbol' }
+      describe 'with attribute_name: an Object' do
+        let(:attribute_name) { Object.new }
+        let(:error_message) do
+          'property name is not a String or a Symbol'
+        end
 
         it 'should raise an exception' do
-          expect { described_class.attribute(Object.new.freeze) }
-            .to raise_error ArgumentError, error_message
+          expect { define_attribute }
+            .to raise_error(ArgumentError, error_message)
         end
       end
 
-      describe 'with an empty string' do
-        let(:error_message) { "attribute name can't be blank" }
+      describe 'with attribute_name: an empty String' do
+        let(:attribute_name) { '' }
+        let(:error_message) do
+          "property name can't be blank"
+        end
 
         it 'should raise an exception' do
-          expect { described_class.attribute('') }
-            .to raise_error ArgumentError, error_message
+          expect { define_attribute }
+            .to raise_error(ArgumentError, error_message)
         end
       end
 
-      describe 'with an empty symbol' do
-        let(:error_message) { "attribute name can't be blank" }
+      describe 'with attribute_name: an empty Symbol' do
+        let(:attribute_name) { :'' }
+        let(:error_message) do
+          "property name can't be blank"
+        end
 
         it 'should raise an exception' do
-          expect { described_class.attribute(:'') }
-            .to raise_error ArgumentError, error_message
+          expect { define_attribute }
+            .to raise_error(ArgumentError, error_message)
         end
       end
 
-      describe 'with a string' do
-        let(:attr_name) { 'series' }
+      describe 'with attribute_name: a String' do
+        let(:attribute_name) { 'type' }
 
-        include_examples 'should add the serializer to attributes'
+        include_examples 'should serialize the attribute'
       end
 
-      describe 'with a string and an object' do
-        let(:attr_name)     { 'series' }
-        let(:value)         { Object.new.freeze }
-        let(:error_message) { 'serializer must respond to #call' }
+      describe 'with attribute_name: a Symbol' do
+        let(:attribute_name) { :type }
+
+        include_examples 'should serialize the attribute'
+      end
+
+      describe 'with serializer: nil' do
+        let(:attribute_serializer) { nil }
+        let(:options) do
+          super().merge(serializer: attribute_serializer)
+        end
+
+        include_examples 'should serialize the attribute'
+      end
+
+      describe 'with serializer: an Object' do
+        let(:attribute_serializer) { Object.new.freeze }
+        let(:options) do
+          super().merge(serializer: attribute_serializer)
+        end
+        let(:error_message) { 'serializer does not respond to #call' }
 
         it 'should raise an exception' do
-          expect { described_class.attribute(attr_name, value) }
-            .to raise_error ArgumentError, error_message
+          expect { define_attribute }
+            .to raise_error(ArgumentError, error_message)
         end
       end
 
-      describe 'with a string and a block' do
-        let(:attr_name) { 'series' }
-        let(:block)     { ->(object, **_) { object.to_s } }
-        let(:expected)  { block }
-
-        include_examples 'should add the serializer to attributes'
-      end
-
-      describe 'with a string and a proc' do
-        let(:attr_name) { 'series' }
-        let(:value)     { ->(object, **_) { object.to_s } }
-        let(:expected)  { value }
-
-        include_examples 'should add the serializer to attributes'
-      end
-
-      describe 'with a string and a serializer' do
-        let(:attr_name) { 'series' }
-        let(:value)     { Spec::StringSerializer.new }
-        let(:expected)  { value }
-
-        example_class 'Spec::StringSerializer',
-          Cuprum::Rails::Serializers::BaseSerializer \
-          do |klass|
-            klass.define_method(:call) { |object, **_| object.to_s }
-          end
-
-        include_examples 'should add the serializer to attributes'
-      end
-
-      describe 'with a symbol' do
-        let(:attr_name) { :series }
-
-        include_examples 'should add the serializer to attributes'
-      end
-
-      describe 'with a symbol and an object' do
-        let(:attr_name)     { :series }
-        let(:value)         { Object.new.freeze }
-        let(:error_message) { 'serializer must respond to #call' }
-
-        it 'should raise an exception' do
-          expect { described_class.attribute(attr_name, value) }
-            .to raise_error ArgumentError, error_message
+      describe 'with serializer: a Serializer instance' do
+        let(:attribute_serializer) do
+          Spec::Support::Serializers::BigDecimalSerializer.new
         end
+        let(:options) { super().merge(serializer: attribute_serializer) }
+
+        include_examples 'should serialize the attribute'
       end
 
-      describe 'with a symbol and a block' do
-        let(:attr_name) { :series }
-        let(:block)     { ->(object, **_) { object.to_s } }
-        let(:expected)  { block }
-
-        include_examples 'should add the serializer to attributes'
-      end
-
-      describe 'with a symbol and a proc' do
-        let(:attr_name) { :series }
-        let(:value)     { ->(object, **_) { object.to_s } }
-        let(:expected)  { value }
-
-        include_examples 'should add the serializer to attributes'
-      end
-
-      describe 'with a symbol and a serializer' do
-        let(:attr_name) { :series }
-        let(:value)     { Spec::StringSerializer.new }
-        let(:expected)  { value }
-
-        example_class 'Spec::StringSerializer',
-          Cuprum::Rails::Serializers::BaseSerializer \
-          do |klass|
-            klass.define_method(:call) { |object, **_| object.to_s }
-          end
-
-        include_examples 'should add the serializer to attributes'
+      wrap_context 'when the serializer defines attributes' do
+        include_examples 'should serialize the attribute'
       end
     end
 
     wrap_context 'with a serializer subclass' do
-      shared_examples 'should not update the parent class attributes' do
-        it 'should not update the parent class attributes' do
-          expect do
-            described_class.attribute(*[attr_name, value].compact, &block)
-          end
-            .not_to change(described_class.superclass, :attributes)
-        end
+      it { expect { define_attribute }.not_to raise_error }
+
+      include_examples 'should serialize the attribute'
+
+      it 'should not change the parent class properties' do
+        expect { define_attribute }
+          .not_to change(Spec::Serializer, :properties)
       end
 
-      describe 'with a string' do
-        let(:attr_name) { 'series' }
-
-        include_examples 'should add the serializer to attributes'
-
-        include_examples 'should not update the parent class attributes'
+      # rubocop:disable RSpec/RepeatedExampleGroupBody
+      wrap_context 'when the serializer defines attributes' do
+        include_examples 'should serialize the attribute'
       end
 
-      describe 'with a symbol' do
-        let(:attr_name) { :series }
-
-        include_examples 'should add the serializer to attributes'
-
-        include_examples 'should not update the parent class attributes'
+      wrap_context 'when the serializer subclass defines attributes' do
+        include_examples 'should serialize the attribute'
       end
-
-      wrap_context 'with a serializer with multiple attributes' do
-        describe 'with a string' do
-          let(:attr_name) { 'series' }
-
-          include_examples 'should add the serializer to attributes'
-
-          include_examples 'should not update the parent class attributes'
-        end
-
-        describe 'with a string that is the name of an existing attribute' do
-          let(:attr_name) { 'author' }
-
-          include_examples 'should add the serializer to attributes'
-
-          include_examples 'should not update the parent class attributes'
-        end
-
-        describe 'with a symbol' do
-          let(:attr_name) { :series }
-
-          include_examples 'should add the serializer to attributes'
-
-          include_examples 'should not update the parent class attributes'
-        end
-
-        describe 'with a symbol that is the name of an existing attribute' do
-          let(:attr_name) { :author }
-
-          include_examples 'should add the serializer to attributes'
-
-          include_examples 'should not update the parent class attributes'
-        end
-      end
+      # rubocop:enable RSpec/RepeatedExampleGroupBody
     end
   end
 
   describe '.attributes' do
-    shared_examples 'should set the default serializer for the attributes' do
-      def include_the_attributes
-        satisfy do |attributes|
-          attr_names.all? do |attr_name|
-            attributes.key?(attr_name.to_s) &&
-              attributes[attr_name.to_s].nil?
-          end
-        end
-      end
+    let(:attribute_names)    { [] }
+    let(:attribute_mappings) { {} }
+    let(:error_class) do
+      abstract_class =
+        Cuprum::Rails::Serializers::Json::PropertiesSerializer
 
-      it 'should set the default serializer for the attributes' do
-        expect do
-          described_class.attributes(*attr_names)
-        end
-          .to change(described_class, :attributes)
-          .to include_the_attributes
-      end
+      abstract_class::AbstractSerializerError
+    end
+    let(:error_message) do
+      "#{described_class.name} is an abstract class - create a subclass " \
+        'to serialize properties'
     end
 
-    let(:error_message) do
-      'AttributesSerializer is an abstract class - create a subclass to ' \
-        'define attributes'
+    def define_attributes
+      described_class.attributes(*attribute_names, **attribute_mappings)
+    end
+
+    def ignore_exceptions
+      yield
+    rescue StandardError
+      # Do nothing
     end
 
     it 'should define the class method' do
       expect(described_class)
         .to respond_to(:attributes)
-        .with(0).arguments
-        .and_unlimited_arguments
+        .with_unlimited_arguments
+        .and_arbitrary_keywords
     end
 
-    it { expect(described_class.attributes).to be == {} }
+    it 'should raise an exception' do
+      expect { define_attributes }.to raise_error(error_class, error_message)
+    end
 
-    describe 'with an attribute name' do
-      let(:attr_name) { :series }
+    context 'with an abstract subclass' do
+      include_context 'with a serializer class', described_class
 
-      it 'should raise an exception' do
-        expect { described_class.attributes(attr_name) }
-          .to raise_error(
-            described_class::AbstractSerializerError,
-            error_message
-          )
+      before(:example) do
+        Spec::Serializer.instance_exec do
+          @abstract_class = true
+        end
       end
-    end
-
-    describe 'with many attribute names' do
-      let(:attr_names) { %i[series category published_at] }
 
       it 'should raise an exception' do
-        expect { described_class.attributes(*attr_names) }
-          .to raise_error(
-            described_class::AbstractSerializerError,
-            error_message
-          )
+        expect { define_attributes }.to raise_error(error_class, error_message)
       end
     end
 
     wrap_context 'with a serializer class' do
-      it { expect(described_class.attributes).to be == {} }
+      it { expect { define_attributes }.not_to raise_error }
 
-      describe 'with an invalid attribute name' do
-        let(:error_message) { "attribute name can't be blank" }
+      describe 'with no parameters' do
+        it 'should not define any attributes' do
+          expect { define_attributes }
+            .not_to change(described_class, :properties)
+        end
+      end
+
+      describe 'with attribute_name: nil' do
+        let(:attribute_names) { [:fuel_type, nil, :fuel_quantity] }
+
+        let(:error_message) do
+          "property name can't be blank"
+        end
 
         it 'should raise an exception' do
-          expect { described_class.attributes(nil) }
-            .to raise_error ArgumentError, error_message
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
         end
       end
 
-      describe 'with a valid attribute name' do
-        let(:attr_names) { %i[series] }
-        let(:expected)   { { 'series' => nil } }
-
-        include_examples 'should set the default serializer for the attributes'
-
-        it { expect(described_class.attributes(*attr_names)).to be == expected }
-      end
-
-      describe 'with many valid attribute names' do
-        let(:attr_names) { %i[series category published_at] }
-        let(:expected) do
-          {
-            'series'       => nil,
-            'category'     => nil,
-            'published_at' => nil
-          }
+      describe 'with attribute_name: an Object' do
+        let(:attribute_names) do
+          [:fuel_type, Object.new.freeze, :fuel_quantity]
         end
 
-        include_examples 'should set the default serializer for the attributes'
-
-        it { expect(described_class.attributes(*attr_names)).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a default attribute' do
-        let(:expected) { { 'id' => nil } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with no args' do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with required ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with optional ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with any args' do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with a keyword' do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with any ' \
-                   'keywords' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with many ' \
-                   'params' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-      # rubocop:enable RSpec/RepeatedExampleGroupBody
-
-      wrap_context 'with a serializer with a serializer attribute' do
-        let(:expected) { { 'author' => author_serializer } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with multiple attributes' do
-        let(:expected) do
-          {
-            'id'     => nil,
-            'title'  => title_block,
-            'author' => author_serializer
-          }
+        let(:error_message) do
+          'property name is not a String or a Symbol'
         end
-
-        it { expect(described_class.attributes).to be == expected }
-
-        describe 'with a valid attribute name' do
-          let(:attr_names) { %i[series] }
-          let(:expected)   { super().merge('series' => nil) }
-
-          include_examples \
-            'should set the default serializer for the attributes'
-
-          it 'should return the attributes' do
-            expect(described_class.attributes(*attr_names)).to be == expected
-          end
-        end
-
-        describe 'with many valid attribute names' do
-          let(:attr_names) { %i[series category published_at] }
-          let(:expected) do
-            super().merge(
-              {
-                'series'       => nil,
-                'category'     => nil,
-                'published_at' => nil
-              }
-            )
-          end
-
-          include_examples \
-            'should set the default serializer for the attributes'
-
-          it 'should return the attributes' do
-            expect(described_class.attributes(*attr_names)).to be == expected
-          end
-        end
-      end
-    end
-
-    wrap_context 'with a serializer subclass' do
-      it { expect(described_class.attributes).to be == {} }
-
-      describe 'with an invalid attribute name' do
-        let(:error_message) { "attribute name can't be blank" }
 
         it 'should raise an exception' do
-          expect { described_class.attributes(nil) }
-            .to raise_error ArgumentError, error_message
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
         end
       end
 
-      describe 'with a valid attribute name' do
-        let(:attr_names) { %i[series] }
-        let(:expected)   { { 'series' => nil } }
+      describe 'with attribute_name: an empty String' do
+        let(:attribute_names) { ['fuel_type', '', 'fuel_quantity'] }
 
-        include_examples 'should set the default serializer for the attributes'
+        let(:error_message) do
+          "property name can't be blank"
+        end
 
-        it { expect(described_class.attributes(*attr_names)).to be == expected }
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
       end
 
-      describe 'with many valid attribute names' do
-        let(:attr_names) { %i[series category published_at] }
-        let(:expected) do
+      describe 'with attribute_name: an empty Symbol' do
+        let(:attribute_names) { [:fuel_type, :'', :fuel_quantity] }
+
+        let(:error_message) do
+          "property name can't be blank"
+        end
+
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
+      end
+
+      describe 'with attribute_mapping key: nil' do
+        let(:attribute_mappings) do
           {
-            'series'       => nil,
-            'category'     => nil,
-            'published_at' => nil
+            fuel_type:     :itself,
+            nil         => :itself,
+            fuel_quantity: :itself
           }
         end
 
-        include_examples 'should set the default serializer for the attributes'
+        let(:error_message) do
+          "property name can't be blank"
+        end
 
-        it { expect(described_class.attributes(*attr_names)).to be == expected }
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
       end
 
-      wrap_context 'with a serializer with a default attribute' do
-        let(:expected) { { 'id' => nil } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with no args' do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with required ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with optional ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with any args' do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with a keyword' do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with any ' \
-                   'keywords' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with a block attribute with many ' \
-                   'params' \
-      do
-        let(:expected) { { 'title' => title_block } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-      # rubocop:enable RSpec/RepeatedExampleGroupBody
-
-      wrap_context 'with a serializer with a serializer attribute' do
-        let(:expected) { { 'author' => author_serializer } }
-
-        it { expect(described_class.attributes).to be == expected }
-      end
-
-      wrap_context 'with a serializer with multiple attributes' do
-        let(:expected) do
+      describe 'with attribute_mapping key: an Object' do
+        let(:attribute_mappings) do
           {
-            'id'     => nil,
-            'title'  => title_block,
-            'author' => author_serializer
+            fuel_type:           :itself,
+            Object.new.freeze => :itself,
+            fuel_quantity:       :itself
           }
         end
 
-        it { expect(described_class.attributes).to be == expected }
+        let(:error_message) do
+          'property name is not a String or a Symbol'
+        end
+
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
       end
 
-      wrap_context 'with a serializer subclass with additional attribute' do
-        let(:expected) do
+      describe 'with attribute_mapping key: an empty String' do
+        let(:attribute_mappings) do
           {
-            'id'       => nil,
-            'title'    => title_block,
-            'author'   => author_serializer,
-            'category' => nil
+            'fuel_type'     => :itself,
+            ''              => :itself,
+            'fuel_quantity' => :itself
           }
         end
 
-        it { expect(described_class.attributes).to be == expected }
-
-        describe 'with a valid attribute name' do
-          let(:attr_names) { %i[series] }
-          let(:expected)   { super().merge('series' => nil) }
-
-          include_examples \
-            'should set the default serializer for the attributes'
-
-          it 'should return the attributes' do
-            expect(described_class.attributes(*attr_names)).to be == expected
-          end
+        let(:error_message) do
+          "property name can't be blank"
         end
 
-        describe 'with many valid attribute names' do
-          let(:attr_names) { %i[series category published_at] }
-          let(:expected) do
-            super().merge(
-              {
-                'series'       => nil,
-                'category'     => nil,
-                'published_at' => nil
-              }
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
+      end
+
+      describe 'with attribute_mapping key: an empty Symbol' do
+        let(:attribute_mappings) do
+          {
+            fuel_type:     :itself,
+            '':            :itself,
+            fuel_quantity: :itself
+          }
+        end
+
+        let(:error_message) do
+          "property name can't be blank"
+        end
+
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
+      end
+
+      describe 'with attribute_mapping value: nil' do
+        let(:attribute_mappings) do
+          {
+            fuel_type:     :itself,
+            fuel_quantity: nil
+          }
+        end
+
+        let(:error_message) do
+          'property mapping must respond to #to_proc'
+        end
+
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
+      end
+
+      describe 'with attribute_mapping value: an Object' do
+        let(:attribute_mappings) do
+          {
+            fuel_type:     :itself,
+            fuel_quantity: Object.new.freeze
+          }
+        end
+
+        let(:error_message) do
+          'property mapping must respond to #to_proc'
+        end
+
+        it 'should raise an exception' do
+          expect { define_attributes }
+            .to raise_error(ArgumentError, error_message)
+        end
+
+        it 'should not define any attributes' do
+          expect { ignore_exceptions { define_attributes } }
+            .not_to change(described_class, :properties)
+        end
+      end
+
+      describe 'with attribute names: Strings' do
+        let(:attribute_names) { %w[name type mass] }
+
+        it 'should define the attributes' do # rubocop:disable RSpec/ExampleLength
+          expect { define_attributes }
+            .to change(described_class, :properties)
+            .to(
+              satisfy do |properties|
+                attribute_names.all? { |name| properties.key?(name.intern) }
+              end
             )
-          end
+        end
 
-          include_examples \
-            'should set the default serializer for the attributes'
+        it 'should set the property mappings', :aggregate_failures do
+          define_attributes
 
-          it 'should return the attributes' do
-            expect(described_class.attributes(*attr_names)).to be == expected
+          attribute_names.each do |name|
+            property = described_class.properties[name.intern]
+
+            expect(property.mapping).to be == :itself.to_proc
           end
+        end
+
+        it 'should set the property names', :aggregate_failures do
+          define_attributes
+
+          attribute_names.each do |name|
+            property = described_class.properties[name.intern]
+
+            expect(property.name).to be == name
+          end
+        end
+
+        it 'should set the property scopes', :aggregate_failures do
+          define_attributes
+
+          attribute_names.each do |name|
+            property = described_class.properties[name.intern]
+
+            expect(property.scope).to be == name
+          end
+        end
+
+        it 'should set the property serializers', :aggregate_failures do
+          define_attributes
+
+          attribute_names.each do |name|
+            property = described_class.properties[name.intern]
+
+            expect(property.serializer).to be nil
+          end
+        end
+      end
+
+      describe 'with attribute names: Symbols' do
+        let(:attribute_names) { %i[name type mass] }
+
+        it 'should define the attributes' do # rubocop:disable RSpec/ExampleLength
+          expect { define_attributes }
+            .to change(described_class, :properties)
+            .to(
+              satisfy do |properties|
+                attribute_names.all? { |name| properties.key?(name) }
+              end
+            )
+        end
+
+        it 'should set the property mappings', :aggregate_failures do
+          define_attributes
+
+          attribute_names.each do |name|
+            property = described_class.properties[name]
+
+            expect(property.mapping).to be == :itself.to_proc
+          end
+        end
+
+        it 'should set the property names', :aggregate_failures do
+          define_attributes
+
+          attribute_names.each do |name|
+            property = described_class.properties[name]
+
+            expect(property.name).to be == name.to_s
+          end
+        end
+
+        it 'should set the property scopes', :aggregate_failures do
+          define_attributes
+
+          attribute_names.each do |name|
+            property = described_class.properties[name]
+
+            expect(property.scope).to be == name
+          end
+        end
+
+        it 'should set the property serializers', :aggregate_failures do
+          define_attributes
+
+          attribute_names.each do |name|
+            property = described_class.properties[name]
+
+            expect(property.serializer).to be nil
+          end
+        end
+      end
+
+      describe 'with attribute mappings: with String keys' do
+        let(:quantity_mapping) { ->(value) { "#{value} tonnes" } }
+        let(:attribute_mappings) do
+          {
+            'fuel_type'     => :to_s,
+            'fuel_quantity' => quantity_mapping
+          }
+        end
+
+        it 'should define the attributes' do # rubocop:disable RSpec/ExampleLength
+          expect { define_attributes }
+            .to change(described_class, :properties)
+            .to(
+              satisfy do |properties|
+                attribute_mappings.each_key.all? do |name|
+                  properties.key?(name.intern)
+                end
+              end
+            )
+        end
+
+        it 'should set the property mappings', :aggregate_failures do
+          define_attributes
+
+          property = described_class.properties[:fuel_type]
+          expect(property.mapping).to be == :to_s.to_proc
+
+          property = described_class.properties[:fuel_quantity]
+          expect(property.mapping).to be == quantity_mapping
+        end
+
+        it 'should set the property names', :aggregate_failures do
+          define_attributes
+
+          attribute_mappings.each_key do |name|
+            property = described_class.properties[name.intern]
+
+            expect(property.name).to be == name
+          end
+        end
+
+        it 'should set the property scopes', :aggregate_failures do
+          define_attributes
+
+          attribute_mappings.each_key do |name|
+            property = described_class.properties[name.intern]
+
+            expect(property.scope).to be == name
+          end
+        end
+
+        it 'should set the property serializers', :aggregate_failures do
+          define_attributes
+
+          attribute_mappings.each_key do |name|
+            property = described_class.properties[name.intern]
+
+            expect(property.serializer).to be nil
+          end
+        end
+      end
+
+      describe 'with attribute mappings: with Symbol keys' do
+        let(:quantity_mapping) { ->(value) { "#{value} tonnes" } }
+        let(:attribute_mappings) do
+          {
+            fuel_type:     :to_s,
+            fuel_quantity: quantity_mapping
+          }
+        end
+
+        it 'should define the attributes' do # rubocop:disable RSpec/ExampleLength
+          expect { define_attributes }
+            .to change(described_class, :properties)
+            .to(
+              satisfy do |properties|
+                attribute_mappings.each_key.all? do |name|
+                  properties.key?(name)
+                end
+              end
+            )
+        end
+
+        it 'should set the property mappings', :aggregate_failures do
+          define_attributes
+
+          property = described_class.properties[:fuel_type]
+          expect(property.mapping).to be == :to_s.to_proc
+
+          property = described_class.properties[:fuel_quantity]
+          expect(property.mapping).to be == quantity_mapping
+        end
+
+        it 'should set the property names', :aggregate_failures do
+          define_attributes
+
+          attribute_mappings.each_key do |name|
+            property = described_class.properties[name]
+
+            expect(property.name).to be == name.to_s
+          end
+        end
+
+        it 'should set the property scopes', :aggregate_failures do
+          define_attributes
+
+          attribute_mappings.each_key do |name|
+            property = described_class.properties[name]
+
+            expect(property.scope).to be == name
+          end
+        end
+
+        it 'should set the property serializers', :aggregate_failures do
+          define_attributes
+
+          attribute_mappings.each_key do |name|
+            property = described_class.properties[name]
+
+            expect(property.serializer).to be nil
+          end
+        end
+      end
+
+      describe 'with attribute names and mappings' do
+        let(:quantity_mapping) { ->(value) { "#{value} tonnes" } }
+        let(:attribute_names)  { %i[name type mass] }
+        let(:attribute_mappings) do
+          {
+            fuel_type:     :to_s,
+            fuel_quantity: quantity_mapping
+          }
+        end
+
+        it 'should define the attributes' do # rubocop:disable RSpec/ExampleLength
+          expect { define_attributes }
+            .to change(described_class, :properties)
+            .to(
+              satisfy do |properties|
+                attribute_names.all? { |name| properties.key?(name) } &&
+                  attribute_mappings.each_key.all? do |name|
+                    properties.key?(name)
+                  end
+              end
+            )
         end
       end
     end
   end
 
   describe '#call' do
-    shared_examples 'should serialize the attributes' do
-      it 'should serialize the attributes' do
+    shared_examples 'should serialize the properties' do
+      it 'should serialize the properties' do
         expect(serializer.call(object, context: context))
           .to be == expected
       end
     end
 
     let(:object) do
-      Book.new(
-        id:           0,
-        title:        'Gideon the Ninth',
-        author:       'Tamsyn Muir',
-        series:       'The Locked Tomb',
-        category:     'Science Fiction & Fantasy',
-        published_at: '2019-09-10'
+      Spec::Part.new(
+        name:          'Small Fuel Tank',
+        type:          'propellant_tank',
+        mass:          10,
+        cost:          BigDecimal('100.0'),
+        fuel_type:     'helium_3',
+        fuel_quantity: 5,
+        cryogenic:     true,
+        inspected_at:  Date.new(1977, 5, 25)
       )
     end
     let(:serializers) do
@@ -731,249 +788,176 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
     end
     let(:expected) { {} }
 
-    it 'should define the method' do
-      expect(serializer)
-        .to respond_to(:call)
-        .with(1).argument
-        .and_keywords(:context)
-    end
-
-    include_examples 'should serialize the attributes'
+    example_class 'Spec::Part', Struct.new(
+      :name,
+      :type,
+      :mass,
+      :cost,
+      :fuel_type,
+      :fuel_quantity,
+      :cryogenic,
+      :inspected_at,
+      keyword_init: true
+    )
 
     wrap_context 'with a serializer class' do
-      include_examples 'should serialize the attributes'
-
-      wrap_context 'with a serializer with a default attribute' do
-        let(:expected) { { 'id' => object.id } }
-
-        include_examples 'should serialize the attributes'
-
-        context 'when the object does not define the attribute' do
-          let(:object) { Object.new.freeze }
-          let(:error_message) do
-            "undefined method `id' for #{object.inspect}"
-          end
-
-          it 'should raise an exception' do
-            expect { serializer.call(object, context: context) }
-              .to raise_error NoMethodError, error_message
-          end
-        end
-
-        context 'when there is no serializer for the attribute' do
-          let(:serializers)   { {} }
-          let(:error_message) { 'no serializer defined for Integer' }
-
-          it 'should raise an exception' do
-            expect { serializer.call(object, context: context) }
-              .to raise_error(
-                Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
-                error_message
-              )
-          end
-        end
-      end
-
-      wrap_context 'with a serializer with a block attribute with no args' do
-        let(:expected) { { 'title' => 'block with no args' } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with required ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => object.title.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with optional ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => object.title.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with any args' do
-        let(:expected) { { 'title' => object.title.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with a keyword' do
-        let(:expected) { { 'title' => { serializers: serializers }.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with any ' \
-                   'keywords' \
-      do
-        let(:expected) { { 'title' => { context: context }.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-      # rubocop:enable RSpec/RepeatedExampleGroupBody
-
-      wrap_context 'with a serializer with a block attribute with many ' \
-                   'params' \
-      do
+      wrap_context 'when the serializer defines attributes' do
         let(:expected) do
           {
-            'title' => {
-              object:      object.title,
-              serializers: serializers
-            }.inspect
+            'fuel_type'     => object[:fuel_type],
+            'fuel_quantity' => "#{object[:fuel_quantity]} tonnes"
           }
         end
 
-        include_examples 'should serialize the attributes'
+        include_examples 'should serialize the properties'
+
+        describe 'with nil' do
+          it { expect(serializer.call(nil, context: context)).to be nil }
+        end
+
+        describe 'with a hash object' do
+          let(:object) { super().to_h }
+
+          include_examples 'should serialize the properties'
+        end
       end
 
-      wrap_context 'with a serializer with a serializer attribute' do
-        let(:expected) { { 'author' => "by: #{object.author}" } }
+      context 'when the serializer defines attributes and properties' do
+        include_context 'when the serializer defines attributes'
+        include_context 'when the serializer defines properties'
 
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with multiple attributes' do
         let(:expected) do
+          checksum = Digest::MD5.hexdigest(object[:name])
+
           {
-            'id'     => object.id,
-            'title'  => object.title.upcase,
-            'author' => "by: #{object.author}"
+            'name'          => object[:name],
+            'mass'          => object[:mass],
+            'cost'          => object[:cost].to_s,
+            'checksum'      => checksum,
+            'fuel_type'     => object[:fuel_type],
+            'fuel_quantity' => "#{object[:fuel_quantity]} tonnes"
           }
         end
 
-        include_examples 'should serialize the attributes'
+        include_examples 'should serialize the properties'
+
+        describe 'with nil' do
+          it { expect(serializer.call(nil, context: context)).to be nil }
+        end
+
+        describe 'with a hash object' do
+          let(:object) { super().to_h }
+
+          include_examples 'should serialize the properties'
+        end
       end
     end
 
     wrap_context 'with a serializer subclass' do
-      include_examples 'should serialize the attributes'
-
-      wrap_context 'with a serializer with a default attribute' do
-        let(:expected) { { 'id' => object.id } }
-
-        include_examples 'should serialize the attributes'
-
-        context 'when the object does not define the attribute' do
-          let(:object) { Object.new.freeze }
-          let(:error_message) do
-            "undefined method `id' for #{object.inspect}"
-          end
-
-          it 'should raise an exception' do
-            expect { serializer.call(object, context: context) }
-              .to raise_error NoMethodError, error_message
-          end
-        end
-
-        context 'when there is no serializer for the attribute' do
-          let(:serializers)   { {} }
-          let(:error_message) { 'no serializer defined for Integer' }
-
-          it 'should raise an exception' do
-            expect { serializer.call(object, context: context) }
-              .to raise_error(
-                Cuprum::Rails::Serializers::Context::UndefinedSerializerError,
-                error_message
-              )
-          end
-        end
-      end
-
-      wrap_context 'with a serializer with a block attribute with no args' do
-        let(:expected) { { 'title' => 'block with no args' } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      # rubocop:disable RSpec/RepeatedExampleGroupBody
-      wrap_context 'with a serializer with a block attribute with required ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => object.title.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with optional ' \
-                   'arg' \
-      do
-        let(:expected) { { 'title' => object.title.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with any args' do
-        let(:expected) { { 'title' => object.title.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with a keyword' do
-        let(:expected) { { 'title' => { serializers: serializers }.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with any ' \
-                   'keywords' \
-      do
-        let(:expected) { { 'title' => { context: context }.inspect } }
-
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with a block attribute with many ' \
-                   'params' \
-      do
+      wrap_context 'when the serializer defines attributes' do
         let(:expected) do
           {
-            'title' => {
-              object:      object.title,
-              serializers: serializers
-            }.inspect
+            'fuel_type'     => object[:fuel_type],
+            'fuel_quantity' => "#{object[:fuel_quantity]} tonnes"
           }
         end
 
-        include_examples 'should serialize the attributes'
+        include_examples 'should serialize the properties'
+
+        describe 'with nil' do
+          it { expect(serializer.call(nil, context: context)).to be nil }
+        end
+
+        describe 'with a hash object' do
+          let(:object) { super().to_h }
+
+          include_examples 'should serialize the properties'
+        end
       end
-      # rubocop:enable RSpec/RepeatedExampleGroupBody
 
-      wrap_context 'with a serializer with a serializer attribute' do
-        let(:expected) { { 'author' => "by: #{object.author}" } }
+      context 'when the serializer defines attributes and properties' do
+        include_context 'when the serializer defines attributes'
+        include_context 'when the serializer defines properties'
 
-        include_examples 'should serialize the attributes'
-      end
-
-      wrap_context 'with a serializer with multiple attributes' do
         let(:expected) do
+          checksum = Digest::MD5.hexdigest(object[:name])
+
           {
-            'id'     => object.id,
-            'title'  => object.title.upcase,
-            'author' => "by: #{object.author}"
+            'name'          => object[:name],
+            'mass'          => object[:mass],
+            'cost'          => object[:cost].to_s,
+            'checksum'      => checksum,
+            'fuel_type'     => object[:fuel_type],
+            'fuel_quantity' => "#{object[:fuel_quantity]} tonnes"
           }
         end
 
-        include_examples 'should serialize the attributes'
+        include_examples 'should serialize the properties'
+
+        describe 'with nil' do
+          it { expect(serializer.call(nil, context: context)).to be nil }
+        end
+
+        describe 'with a hash object' do
+          let(:object) { super().to_h }
+
+          include_examples 'should serialize the properties'
+        end
       end
 
-      wrap_context 'with a serializer subclass with additional attribute' do
+      wrap_context 'when the serializer subclass defines attributes' do
         let(:expected) do
           {
-            'id'       => object.id,
-            'title'    => object.title.upcase,
-            'author'   => "by: #{object.author}",
-            'category' => object.category
+            'fuel_type'     => object[:fuel_type],
+            'fuel_quantity' => "#{object[:fuel_quantity]} tonnes",
+            'cryogenic'     => true
           }
         end
 
-        include_examples 'should serialize the attributes'
+        include_examples 'should serialize the properties'
+
+        describe 'with nil' do
+          it { expect(serializer.call(nil, context: context)).to be nil }
+        end
+
+        describe 'with a hash object' do
+          let(:object) { super().to_h }
+
+          include_examples 'should serialize the properties'
+        end
+      end
+
+      context 'when the serializer subclass defines attributes and properties' \
+      do
+        include_context 'when the serializer subclass defines attributes'
+        include_context 'when the serializer subclass defines properties'
+
+        let(:expected) do
+          checksum = Digest::MD5.hexdigest(object[:name])
+
+          {
+            'name'          => object[:name],
+            'mass'          => object[:mass],
+            'cost'          => object[:cost].to_s,
+            'checksum'      => checksum,
+            'inspected_at'  => object[:inspected_at].iso8601,
+            'fuel_type'     => object[:fuel_type],
+            'fuel_quantity' => "#{object[:fuel_quantity]} tonnes",
+            'cryogenic'     => true
+          }
+        end
+
+        include_examples 'should serialize the properties'
+
+        describe 'with nil' do
+          it { expect(serializer.call(nil, context: context)).to be nil }
+        end
+
+        describe 'with a hash object' do
+          let(:object) { super().to_h }
+
+          include_examples 'should serialize the properties'
+        end
       end
     end
   end

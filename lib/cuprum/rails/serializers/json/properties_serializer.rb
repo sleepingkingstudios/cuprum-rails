@@ -75,7 +75,12 @@ module Cuprum::Rails::Serializers::Json
         def value_for(object)
           return object if scope.nil?
 
-          object.dig(*Array(scope))
+          return object.dig(*Array(scope)) if object.respond_to?(:dig)
+
+          SleepingKingStudios::Tools::Toolbelt
+            .instance
+            .object_tools
+            .dig(object, *Array(scope))
         end
       end
 
