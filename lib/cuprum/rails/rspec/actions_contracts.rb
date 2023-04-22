@@ -58,7 +58,7 @@ module Cuprum::Rails::RSpec
     module ResourceActionContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group)
+      # @!method apply(example_group, require_permitted_attributes: false)
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] the example group to
@@ -566,7 +566,7 @@ module Cuprum::Rails::RSpec
     module ShouldValidateAttributesContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group, invalid_attributes:, expected_attributes: nil, **options) # rubocop:disable Layout/LineLength
+      # @!method apply(example_group, invalid_attributes:, expected_attributes: nil, **options)
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to

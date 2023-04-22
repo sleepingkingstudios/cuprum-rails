@@ -17,6 +17,8 @@ module Cuprum::Rails::Serializers
       'cuprum/rails/serializers/json/hash_serializer'
     autoload :IdentitySerializer,
       'cuprum/rails/serializers/json/identity_serializer'
+    autoload :PropertiesSerializer,
+      'cuprum/rails/serializers/json/properties_serializer'
 
     # Default serializers for handling value objects and data structures.
     #

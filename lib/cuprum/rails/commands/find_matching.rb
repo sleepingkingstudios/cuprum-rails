@@ -12,7 +12,7 @@ module Cuprum::Rails::Commands
   class FindMatching < Cuprum::Rails::Command
     include Cuprum::Collections::Commands::AbstractFindMatching
 
-    # @!method call(envelope: false, limit: nil, offset: nil, order: nil, scope: nil, where: nil, &block) # rubocop:disable Layout/LineLength
+    # @!method call(envelope: false, limit: nil, offset: nil, order: nil, scope: nil, where: nil, &block)
     #   Queries the collection for records matching the given conditions.
     #
     #   @param envelope [Boolean] If true, wraps the result value in a Hash.

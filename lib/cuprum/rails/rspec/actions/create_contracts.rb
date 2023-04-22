@@ -13,7 +13,7 @@ module Cuprum::Rails::RSpec::Actions
     module CreateActionContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @method apply(example_group, invalid_attributes:, valid_attributes:, **options) # rubocop:disable Layout/LineLength
+      # @method apply(example_group, invalid_attributes:, valid_attributes:, **options)
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to
