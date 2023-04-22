@@ -64,15 +64,19 @@ Implemented contracts for Cuprum::Rails actions
 
 Contracts allow libraries or applications to verify their actions implement the action specifications.
 
+Defined `Cuprum::Rails::RSpec::SerializersContracts`:
+
+- `SHOULD_SERIALIZE_ATTRIBUTES`: Verifies that the specified attributes are serialized with the expected values.
+
 #### Serializers
 
 Implemented `Cuprum::Rails::Serializers::Context`.
 
-Refactored serializers to take a `context:` keyword instead of `serializers:`.
+- Refactored serializers to take a `context:` keyword instead of `serializers:`.
 
-Defined `Cuprum::Rails::RSpec::SerializersContracts`:
+Implemented `Cuprum::Rails::Serializers::Json::PropertiesSerializer`.
 
-- `SHOULD_SERIALIZE_ATTRIBUTES`: Verifies that the specified attributes are serialized with the expected values.
+- Refactored `AttributesSerializer` to inherit from `PropertiesSerializer`. This is a breaking change for certain serializers with a block passed to `.attribute`.
 
 ## 0.1.0
 

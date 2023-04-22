@@ -5,11 +5,11 @@ require 'digest'
 
 require 'rspec/sleeping_king_studios/concerns/shared_example_group'
 
-require 'support/examples/serializers'
+require 'support/examples/serializers/json'
 require 'support/serializers/big_decimal_serializer'
 
-module Spec::Support::Examples::Serializers
-  module JsonSerializerExamples
+module Spec::Support::Examples::Serializers::Json
+  module PropertiesSerializerExamples
     extend RSpec::SleepingKingStudios::Concerns::SharedExampleGroup
 
     shared_context 'with a serializer class' do
@@ -50,11 +50,25 @@ module Spec::Support::Examples::Serializers
 
     shared_examples 'should implement the PropertiesSerializer methods' do
       describe '.property' do
+        shared_examples 'should require at least one optional parameter' do
+          let(:error_message) do
+            'must provide a scope, a serializer, or a mapping block'
+          end
+
+          it 'should raise an exception' do
+            expect { define_property }
+              .to raise_error(ArgumentError, error_message)
+          end
+        end
+
         shared_examples 'should serialize the property' do
           let(:property) do
             key = define_property
 
             described_class.properties[key]
+          end
+          let(:expected_mapping) do
+            property_mapping || :itself.to_proc
           end
           let(:expected_scope) do
             defined?(property_scope) ? property_scope : nil
@@ -73,18 +87,16 @@ module Spec::Support::Examples::Serializers
 
           it { expect(property.name).to be == property_name.to_s }
 
-          it { expect(property.mapping).to be == property_mapping }
+          it { expect(property.mapping).to be == expected_mapping }
 
           it { expect(property.scope).to be == expected_scope }
 
           it { expect(property.serializer).to be == expected_serializer }
         end
 
-        let(:property_name) { 'checksum' }
-        let(:property_mapping) do
-          ->(object) { Digest::SHA256.hexdigest(object.name) }
-        end
-        let(:options) { {} }
+        let(:property_name)    { 'checksum' }
+        let(:property_mapping) { nil }
+        let(:options)          { {} }
         let(:error_class) do
           abstract_class =
             Cuprum::Rails::Serializers::Json::PropertiesSerializer
@@ -128,7 +140,7 @@ module Spec::Support::Examples::Serializers
         end
 
         wrap_context 'with a serializer class' do
-          it { expect { define_property }.not_to raise_error }
+          include_examples 'should require at least one optional parameter'
 
           describe 'with property_name: nil' do
             let(:property_name) { nil }
@@ -181,20 +193,44 @@ module Spec::Support::Examples::Serializers
           describe 'with property_name: a String' do
             let(:property_name) { 'checksum' }
 
-            include_examples 'should serialize the property'
+            include_examples 'should require at least one optional parameter'
+
+            context 'with a block' do
+              let(:property_mapping) do
+                ->(object) { Digest::SHA256.hexdigest(object.name) }
+              end
+
+              include_examples 'should serialize the property'
+            end
           end
 
           describe 'with property_name: a Symbol' do
             let(:property_name) { :checksum }
 
-            include_examples 'should serialize the property'
+            include_examples 'should require at least one optional parameter'
+
+            context 'with a block' do
+              let(:property_mapping) do
+                ->(object) { Digest::SHA256.hexdigest(object.name) }
+              end
+
+              include_examples 'should serialize the property'
+            end
           end
 
           describe 'with scope: nil' do
             let(:property_scope) { nil }
             let(:options)        { super().merge(scope: property_scope) }
 
-            include_examples 'should serialize the property'
+            include_examples 'should require at least one optional parameter'
+
+            context 'with a block' do
+              let(:property_mapping) do
+                ->(object) { Digest::SHA256.hexdigest(object.name) }
+              end
+
+              include_examples 'should serialize the property'
+            end
           end
 
           describe 'with scope: an Object' do
@@ -308,7 +344,15 @@ module Spec::Support::Examples::Serializers
               super().merge(serializer: property_serializer)
             end
 
-            include_examples 'should serialize the property'
+            include_examples 'should require at least one optional parameter'
+
+            context 'with a block' do
+              let(:property_mapping) do
+                ->(object) { Digest::SHA256.hexdigest(object.name) }
+              end
+
+              include_examples 'should serialize the property'
+            end
           end
 
           describe 'with serializer: an Object' do
@@ -334,27 +378,57 @@ module Spec::Support::Examples::Serializers
           end
 
           wrap_context 'when the serializer defines properties' do
-            include_examples 'should serialize the property'
+            include_examples 'should require at least one optional parameter'
+
+            context 'with a block' do
+              let(:property_mapping) do
+                ->(object) { Digest::SHA256.hexdigest(object.name) }
+              end
+
+              include_examples 'should serialize the property'
+            end
           end
         end
 
         wrap_context 'with a serializer subclass' do
-          it { expect { define_property }.not_to raise_error }
+          include_examples 'should require at least one optional parameter'
 
-          include_examples 'should serialize the property'
+          context 'with a block' do
+            let(:property_mapping) do
+              ->(object) { Digest::SHA256.hexdigest(object.name) }
+            end
 
-          it 'should not change the parent class properties' do
-            expect { define_property }
-              .not_to change(Spec::Serializer, :properties)
+            include_examples 'should serialize the property'
+
+            it 'should not change the parent class properties' do
+              expect { define_property }
+                .not_to change(Spec::Serializer, :properties)
+            end
           end
 
           # rubocop:disable RSpec/RepeatedExampleGroupBody
           wrap_context 'when the serializer defines properties' do
-            include_examples 'should serialize the property'
+            include_examples 'should require at least one optional parameter'
+
+            context 'with a block' do
+              let(:property_mapping) do
+                ->(object) { Digest::SHA256.hexdigest(object.name) }
+              end
+
+              include_examples 'should serialize the property'
+            end
           end
 
           wrap_context 'when the serializer subclass defines properties' do
-            include_examples 'should serialize the property'
+            include_examples 'should require at least one optional parameter'
+
+            context 'with a block' do
+              let(:property_mapping) do
+                ->(object) { Digest::SHA256.hexdigest(object.name) }
+              end
+
+              include_examples 'should serialize the property'
+            end
           end
           # rubocop:enable RSpec/RepeatedExampleGroupBody
         end

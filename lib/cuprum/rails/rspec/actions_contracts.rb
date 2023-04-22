@@ -58,7 +58,7 @@ module Cuprum::Rails::RSpec
     module ResourceActionContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group)
+      # @!method apply(example_group, require_permitted_attributes: false)
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] the example group to

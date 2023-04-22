@@ -65,13 +65,29 @@ module Cuprum::Rails::Serializers::Json
   #   #=> {
   #     'department' => 'Engineering'
   #   }
-  class PropertiesSerializer < Cuprum::Rails::Serializers::BaseSerializer
+  #
+  # @example Using a custom mapping.
+  #   User = Struct.new(:first_name, :last_name, :hire_date)
+  #   class HireDateSerializer < Cuprum::Rails::Serializers::Json::PropertySerializer
+  #     property(:hire_date, scope: :hire_date) { |value| value&.iso8601 }
+  #   end
+  #
+  #   user       = User.new('Alan', 'Bradley', Date.new(1977, 5, 25))
+  #   serializer = HireDateSerializer.new
+  #   serializer.call(user, context: context)
+  #   #=> {
+  #     'hire_date' => '1977-05-25'
+  #   }
+  class PropertiesSerializer < Cuprum::Rails::Serializers::BaseSerializer # rubocop:disable Metrics/ClassLength
     # Error class used when defining an attribute on an abstract class.
     class AbstractSerializerError < StandardError; end
 
     # Data class that configures how an attribute is serialized.
     SerializedProperty =
       Struct.new(:mapping, :name, :scope, :serializer, keyword_init: true) do
+        # Extracts the scoped value from the given object.
+        #
+        # @api private
         def value_for(object)
           return object if scope.nil?
 
@@ -102,12 +118,20 @@ module Cuprum::Rails::Serializers::Json
       # @yieldreturn [Object] the transformed value.
       #
       # @raise AbstractSerializerError when attempting to define a serialized
-      #   property on an abstract class.
-      def property(name, serializer: nil, scope: nil, &block) # rubocop:disable Metrics/MethodLength
+      #   attribute on an abstract class.
+      # @raise ArgumentError unless a scope, serializer, or block is given.
+      #
+      # @see Cuprum::Rails::Serializers::Json::PropertiesSerializer::ClassMethods#property
+      def property(name, scope: nil, serializer: nil, &block) # rubocop:disable Metrics/MethodLength
         require_concrete_class!
         validate_property_name!(name)
         validate_scope!(scope)
         validate_serializer!(serializer)
+
+        unless scope || serializer || block_given?
+          raise ArgumentError,
+            'must provide a scope, a serializer, or a mapping block'
+        end
 
         prop_key   = name.intern
         serialized = SerializedProperty.new(
@@ -121,6 +145,8 @@ module Cuprum::Rails::Serializers::Json
         prop_key
       end
 
+      # Enumerates the properties defined for the class and its ancestors.
+      #
       # @api private
       def properties
         ancestors
