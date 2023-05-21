@@ -5,7 +5,7 @@ require 'cuprum/rails/serializers/json/properties_serializer'
 require 'support/examples/serializers/json/properties_serializer_examples'
 
 RSpec.describe Cuprum::Rails::Serializers::Json::PropertiesSerializer do
-  include Spec::Support::Examples::Serializers::Json::PropertiesSerializerExamples # rubocop:disable Metrics/LineLength
+  include Spec::Support::Examples::Serializers::Json::PropertiesSerializerExamples # rubocop:disable Layout/LineLength
 
   subject(:serializer) { described_class.new }
 
