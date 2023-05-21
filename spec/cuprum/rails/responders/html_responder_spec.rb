@@ -18,6 +18,10 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
   it { expect(described_class).to be < Cuprum::Rails::Responders::Matching }
 
+  it 'should include the rendering methods' do
+    expect(described_class).to be < Cuprum::Rails::Responders::Html::Rendering
+  end
+
   describe '.new' do
     it 'should define the constructor' do
       expect(described_class)
@@ -407,6 +411,26 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
   describe '#format' do
     include_examples 'should define reader', :format, :html
+  end
+
+  describe '#head' do
+    let(:status)   { 500 }
+    let(:options)  { { status: 500 } }
+    let(:response) { responder.head(**options) }
+    let(:response_class) do
+      Cuprum::Rails::Responses::HeadResponse
+    end
+
+    it 'should define the method' do
+      expect(responder)
+        .to respond_to(:head)
+        .with(0).arguments
+        .and_keywords(:status)
+    end
+
+    it { expect(response).to be_a response_class }
+
+    it { expect(response.status).to be 500 }
   end
 
   describe '#redirect_to' do
