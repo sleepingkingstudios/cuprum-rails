@@ -50,6 +50,12 @@ Implemented `Responders::Html::Resource` to handle both singular and plural reso
 
 Updated `JsonResponder` to display full error messages in the development environment.
 
+Extracted `Responders::Html::Rendering`.
+
+#### Responses
+
+Implemented `Responses::HeadResponse`.
+
 #### RSpec
 
 Implemented contracts for Cuprum::Rails actions

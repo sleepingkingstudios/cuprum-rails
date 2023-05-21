@@ -36,6 +36,7 @@ module Cuprum::Rails::Responders
   # @see Cuprum::Rails::Responders::Actions::ClassMethods#action
   # @see Cuprum::Rails::Responders::Matching::ClassMethods#match
   class HtmlResponder
+    include Cuprum::Rails::Responders::Html::Rendering
     include Cuprum::Rails::Responders::Matching
     include Cuprum::Rails::Responders::Actions
 
@@ -59,54 +60,7 @@ module Cuprum::Rails::Responders
       :html
     end
 
-    # Creates a RedirectResponse based on the given path and HTTP status.
-    #
-    # @param path [String] The path or url to redirect to.
-    # @param status [Integer] The HTTP status of the response.
-    #
-    # @return [Cuprum::Rails::Responses::Html::RedirectResponse] the response.
-    def redirect_to(path, status: 302)
-      Cuprum::Rails::Responses::Html::RedirectResponse.new(path, status: status)
-    end
-
-    # Creates a RenderResponse based on the given template and parameters.
-    #
-    # @param assigns [Hash] Variables to assign when rendering the template.
-    # @param layout [String] The layout to render.
-    # @param status [Integer] The HTTP status of the response.
-    # @param template [String, Symbol] The template to render.
-    #
-    # @return [Cuprum::Rails::Responses::Html::RenderResponse] the response.
-    def render(template, assigns: nil, layout: nil, status: 200)
-      Cuprum::Rails::Responses::Html::RenderResponse.new(
-        template,
-        assigns: assigns || default_assigns,
-        layout:  layout,
-        status:  status
-      )
-    end
-
     private
-
-    def default_assigns
-      return nil if result.nil?
-
-      assigns = default_value
-
-      assigns[:error] = result.error unless result.error.nil?
-
-      assigns
-    end
-
-    def default_value
-      if result.value.is_a?(Hash)
-        result.value
-      elsif !result.value.nil?
-        { value: result.value }
-      else
-        {}
-      end
-    end
 
     def resource_entity
       if result.value.is_a?(Hash)
