@@ -15,7 +15,8 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
     }
   end
 
-  example_class 'Spec::Responder' do |klass|
+  example_class 'Spec::Responder', Cuprum::Rails::Responders::BaseResponder \
+  do |klass|
     klass.include Cuprum::Rails::Responders::Matching # rubocop:disable RSpec/DescribedClass
 
     klass.define_method(:render) { |str| str }

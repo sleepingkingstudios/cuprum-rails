@@ -2,6 +2,7 @@
 
 require 'cuprum/rails/responders'
 require 'cuprum/rails/responders/actions'
+require 'cuprum/rails/responders/base_responder'
 require 'cuprum/rails/responders/matching'
 require 'cuprum/rails/responders/serialization'
 require 'cuprum/rails/responses/json_response'
@@ -33,7 +34,7 @@ module Cuprum::Rails::Responders
   #       render_failure(error, status: 403)
   #     end
   #   end
-  class JsonResponder
+  class JsonResponder < BaseResponder
     include Cuprum::Rails::Responders::Matching
     include Cuprum::Rails::Responders::Actions
     include Cuprum::Rails::Responders::Serialization

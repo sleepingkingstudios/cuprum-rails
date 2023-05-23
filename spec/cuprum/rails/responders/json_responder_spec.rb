@@ -67,6 +67,10 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     end
   end
 
+  describe '#action_name' do
+    include_examples 'should define reader', :action_name, -> { action_name }
+  end
+
   describe '#call' do
     it { expect(responder).to respond_to(:call).with(1).argument }
 
@@ -244,6 +248,16 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     include_examples 'should define reader',
       :generic_error,
       -> { be == generic_error }
+  end
+
+  describe '#member_action?' do
+    include_examples 'should define predicate', :member_action?, false
+
+    context 'when initialized with member_action: true' do
+      let(:constructor_options) { super().merge(member_action: true) }
+
+      it { expect(responder.member_action?).to be true }
+    end
   end
 
   describe '#render' do
@@ -429,6 +443,14 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
       it { expect(response.status).to be 201 }
     end
+  end
+
+  describe '#resource' do
+    include_examples 'should define reader', :resource, -> { resource }
+  end
+
+  describe '#result' do
+    include_examples 'should define reader', :result, nil
   end
 
   describe '#serializers' do

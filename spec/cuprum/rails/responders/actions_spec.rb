@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/actions'
+require 'cuprum/rails/responders/base_responder'
 require 'cuprum/rails/responders/matching'
 
 RSpec.describe Cuprum::Rails::Responders::Actions do
@@ -16,7 +17,9 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
     }
   end
 
-  example_class 'Spec::ActionResponder' do |klass|
+  example_class 'Spec::ActionResponder',
+    Cuprum::Rails::Responders::BaseResponder \
+  do |klass|
     klass.include Cuprum::Rails::Responders::Matching
     klass.include Cuprum::Rails::Responders::Actions # rubocop:disable RSpec/DescribedClass
   end
