@@ -28,14 +28,16 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     end
   end
 
-  let(:action_name) { :published }
-  let(:resource)    { Cuprum::Rails::Resource.new(resource_name: 'books') }
-  let(:serializers) { Cuprum::Rails::Serializers::Json.default_serializers }
+  let(:action_name)     { :published }
+  let(:controller_name) { 'Spec::CustomController' }
+  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
+  let(:serializers)     { Cuprum::Rails::Serializers::Json.default_serializers }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource,
-      serializers: serializers
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource,
+      serializers:     serializers
     }
   end
 
@@ -51,6 +53,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     let(:expected_keywords) do
       %i[
         action_name
+        controller_name
         matcher
         member_action
         resource
@@ -232,6 +235,12 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         end
       end
     end
+  end
+
+  describe '#controller_name' do
+    include_examples 'should define reader',
+      :controller_name,
+      -> { controller_name }
   end
 
   describe '#format' do

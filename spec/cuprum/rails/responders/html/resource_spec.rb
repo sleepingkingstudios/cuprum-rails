@@ -7,11 +7,13 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
   let(:described_class) { Spec::ResourceResponder }
   let(:action_name)     { :publish }
+  let(:controller_name) { 'Spec::CustomController' }
   let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource
     }
   end
 

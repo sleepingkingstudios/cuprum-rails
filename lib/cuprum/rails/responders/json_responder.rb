@@ -53,6 +53,7 @@ module Cuprum::Rails::Responders
     end
 
     # @param action_name [String, Symbol] The name of the action to match.
+    # @param controller_name [String] the name of the called controller.
     # @param matcher [Cuprum::Matcher] An optional matcher specific to the
     #   action. This will be matched before any of the generic matchers.
     # @param member_action [Boolean] True if the action acts on a collection
@@ -60,6 +61,7 @@ module Cuprum::Rails::Responders
     # @param resource [Cuprum::Rails::Resource] The resource for the controller.
     def initialize( # rubocop:disable Metrics/ParameterLists
       action_name:,
+      controller_name:,
       resource:,
       serializers:,
       matcher:       nil,
@@ -67,11 +69,12 @@ module Cuprum::Rails::Responders
       **_options
     )
       super(
-        action_name:   action_name,
-        matcher:       matcher,
-        member_action: member_action,
-        resource:      resource,
-        serializers:   serializers
+        action_name:     action_name,
+        controller_name: controller_name,
+        matcher:         matcher,
+        member_action:   member_action,
+        resource:        resource,
+        serializers:     serializers
       )
     end
 

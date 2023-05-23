@@ -9,11 +9,13 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
 
   let(:described_class) { Spec::ActionResponder }
   let(:action_name)     { :published }
+  let(:controller_name) { 'Spec::CustomController' }
   let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource
     }
   end
 

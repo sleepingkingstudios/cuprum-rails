@@ -6,6 +6,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
   subject(:responder) { described_class.new(**constructor_options) }
 
   let(:described_class) { Spec::ResourceResponder }
+  let(:controller_name) { 'Spec::CustomController' }
   let(:action_name)     { :publish }
   let(:resource) do
     Cuprum::Rails::Resource.new(
@@ -15,8 +16,9 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
   end
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource
     }
   end
 

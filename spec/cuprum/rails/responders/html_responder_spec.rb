@@ -5,12 +5,14 @@ require 'cuprum/rails/responders/html_responder'
 RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
   subject(:responder) { described_class.new(**constructor_options) }
 
-  let(:action_name) { :published }
-  let(:resource)    { Cuprum::Rails::Resource.new(resource_name: 'books') }
+  let(:action_name)     { :published }
+  let(:controller_name) { 'Spec::CustomController' }
+  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource
     }
   end
 
@@ -23,11 +25,15 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
   end
 
   describe '.new' do
+    let(:expected_keywords) do
+      %i[action_name controller_name matcher member_action resource]
+    end
+
     it 'should define the constructor' do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:action_name, :matcher, :member_action, :resource)
+        .and_keywords(*expected_keywords)
         .and_any_keywords
     end
   end
@@ -411,6 +417,12 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
         end
       end
     end
+  end
+
+  describe '#controller_name' do
+    include_examples 'should define reader',
+      :controller_name,
+      -> { controller_name }
   end
 
   describe '#format' do

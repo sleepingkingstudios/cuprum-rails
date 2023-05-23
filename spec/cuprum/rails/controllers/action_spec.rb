@@ -26,12 +26,14 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       serializers:    configured_serializers
     )
   end
-  let(:action_class) { Cuprum::Rails::Action }
-  let(:action_name)  { :process }
+  let(:action_class)    { Cuprum::Rails::Action }
+  let(:action_name)     { :process }
+  let(:controller_name) { 'Spec::CustomController' }
   let(:constructor_options) do
     {
-      action_class: action_class,
-      action_name:  action_name
+      action_class:    action_class,
+      action_name:     action_name,
+      controller_name: controller_name
     }
   end
 
@@ -42,6 +44,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       %i[
         action_class
         action_name
+        controller_name
         member_action
         serializers
       ]
@@ -71,10 +74,11 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         expect(responder_class)
           .to have_received(:new)
           .with(
-            action_name:   action_name,
-            member_action: member_action,
-            resource:      resource,
-            serializers:   expected_serializers
+            action_name:     action_name,
+            controller_name: controller_name,
+            member_action:   member_action,
+            resource:        resource,
+            serializers:     expected_serializers
           )
       end
     end
@@ -443,6 +447,12 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     include_examples 'should define reader',
       :configuration,
       -> { configuration }
+  end
+
+  describe '#controller_name' do
+    include_examples 'should define reader',
+      :controller_name,
+      -> { controller_name }
   end
 
   describe '#member_action?' do

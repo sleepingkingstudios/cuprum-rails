@@ -42,9 +42,10 @@ module Spec::Support::Examples
         shared_examples 'should define the action' do
           let(:expected) do
             {
-              action_class:   Spec::Action,
-              action_name:    action_name.intern,
-              member_action?: false
+              action_class:    Spec::Action,
+              action_name:     action_name.intern,
+              controller_name: described_class.name,
+              member_action?:  false
             }
           end
 
