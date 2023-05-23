@@ -50,7 +50,11 @@ Implemented `Responders::Html::Resource` to handle both singular and plural reso
 
 Updated `JsonResponder` to display full error messages in the development environment.
 
+Extracted `Responders::BaseResponder`.
+
 Extracted `Responders::Html::Rendering`.
+
+**(Breaking Change)** Responders now require a `:controller_name` parameter on initialization. This populates the `#controller_name` reader with the name of the initializing controller.
 
 #### Responses
 
