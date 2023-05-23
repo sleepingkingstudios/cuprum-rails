@@ -7,15 +7,18 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
   let(:described_class) { Spec::Responder }
   let(:action_name)     { :published }
+  let(:controller_name) { 'Spec::CustomController' }
   let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource
     }
   end
 
-  example_class 'Spec::Responder' do |klass|
+  example_class 'Spec::Responder', Cuprum::Rails::Responders::BaseResponder \
+  do |klass|
     klass.include Cuprum::Rails::Responders::Matching # rubocop:disable RSpec/DescribedClass
 
     klass.define_method(:render) { |str| str }
@@ -98,11 +101,15 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
   end
 
   describe '.new' do
+    let(:expected_keywords) do
+      %i[action_name controller_name matcher member_action resource]
+    end
+
     it 'should define the constructor' do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:action_name, :matcher, :member_action, :resource)
+        .and_keywords(*expected_keywords)
         .and_any_keywords
     end
   end

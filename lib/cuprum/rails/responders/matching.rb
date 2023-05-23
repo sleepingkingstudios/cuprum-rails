@@ -54,35 +54,33 @@ module Cuprum::Rails::Responders
     end
 
     # @param action_name [String, Symbol] The name of the action to match.
+    # @param controller_name [String] the name of the called controller.
     # @param matcher [Cuprum::Matcher] An optional matcher specific to the
     #   action. This will be matched before any of the generic matchers.
     # @param member_action [Boolean] True if the action acts on a collection
     #   item, not on the collection as a whole.
     # @param resource [Cuprum::Rails::Resource] The resource for the controller.
-    def initialize(
+    def initialize( # rubocop:disable Metrics/ParameterLists
       action_name:,
+      controller_name:,
       resource:,
       matcher: nil,
       member_action: false,
-      **_options
+      **options
     )
-      @action_name   = action_name
-      @matcher       = matcher
-      @member_action = !!member_action # rubocop:disable Style/DoubleNegation
-      @resource      = resource
-    end
+      super(
+        action_name:     action_name,
+        controller_name: controller_name,
+        member_action:   member_action,
+        resource:        resource,
+        **options
+      )
 
-    # @return [String, Symbol] the name of the action to match.
-    attr_reader :action_name
+      @matcher = matcher
+    end
 
     # @return [Cuprum::Matcher] an optional matcher specific to the action.
     attr_reader :matcher
-
-    # @return [Cuprum::Rails::Resource] the resource for the controller.
-    attr_reader :resource
-
-    # @return [Cuprum::Result] the result of calling the action.
-    attr_reader :result
 
     # Finds and calls the response clause that matches the given result.
     #
@@ -96,8 +94,9 @@ module Cuprum::Rails::Responders
     #     error or a value.
     # 4.  If there is no matching response clause, raises an exception.
     #
-    # @return [#call, #renderer] The response object from the matching response
-    #   clause.
+    # @param result [Cuprum::Result] the result of the action call.
+    #
+    # @return [#call] the response object from the matching response clause.
     #
     # @raise [Cuprum::Matching::NoMatchError] if none of the response clauses
     #   match the result.

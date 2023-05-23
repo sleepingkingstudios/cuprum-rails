@@ -2,6 +2,7 @@
 
 require 'cuprum/rails/responders'
 require 'cuprum/rails/responders/actions'
+require 'cuprum/rails/responders/base_responder'
 require 'cuprum/rails/responders/matching'
 require 'cuprum/rails/responders/serialization'
 require 'cuprum/rails/responses/json_response'
@@ -33,7 +34,7 @@ module Cuprum::Rails::Responders
   #       render_failure(error, status: 403)
   #     end
   #   end
-  class JsonResponder
+  class JsonResponder < BaseResponder
     include Cuprum::Rails::Responders::Matching
     include Cuprum::Rails::Responders::Actions
     include Cuprum::Rails::Responders::Serialization
@@ -52,6 +53,7 @@ module Cuprum::Rails::Responders
     end
 
     # @param action_name [String, Symbol] The name of the action to match.
+    # @param controller_name [String] the name of the called controller.
     # @param matcher [Cuprum::Matcher] An optional matcher specific to the
     #   action. This will be matched before any of the generic matchers.
     # @param member_action [Boolean] True if the action acts on a collection
@@ -59,6 +61,7 @@ module Cuprum::Rails::Responders
     # @param resource [Cuprum::Rails::Resource] The resource for the controller.
     def initialize( # rubocop:disable Metrics/ParameterLists
       action_name:,
+      controller_name:,
       resource:,
       serializers:,
       matcher:       nil,
@@ -66,11 +69,12 @@ module Cuprum::Rails::Responders
       **_options
     )
       super(
-        action_name:   action_name,
-        matcher:       matcher,
-        member_action: member_action,
-        resource:      resource,
-        serializers:   serializers
+        action_name:     action_name,
+        controller_name: controller_name,
+        matcher:         matcher,
+        member_action:   member_action,
+        resource:        resource,
+        serializers:     serializers
       )
     end
 

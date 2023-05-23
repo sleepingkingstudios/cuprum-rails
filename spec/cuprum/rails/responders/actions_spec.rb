@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/actions'
+require 'cuprum/rails/responders/base_responder'
 require 'cuprum/rails/responders/matching'
 
 RSpec.describe Cuprum::Rails::Responders::Actions do
@@ -8,15 +9,19 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
 
   let(:described_class) { Spec::ActionResponder }
   let(:action_name)     { :published }
+  let(:controller_name) { 'Spec::CustomController' }
   let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource
     }
   end
 
-  example_class 'Spec::ActionResponder' do |klass|
+  example_class 'Spec::ActionResponder',
+    Cuprum::Rails::Responders::BaseResponder \
+  do |klass|
     klass.include Cuprum::Rails::Responders::Matching
     klass.include Cuprum::Rails::Responders::Actions # rubocop:disable RSpec/DescribedClass
   end

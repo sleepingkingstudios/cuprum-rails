@@ -5,12 +5,14 @@ require 'cuprum/rails/responders/html_responder'
 RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
   subject(:responder) { described_class.new(**constructor_options) }
 
-  let(:action_name) { :published }
-  let(:resource)    { Cuprum::Rails::Resource.new(resource_name: 'books') }
+  let(:action_name)     { :published }
+  let(:controller_name) { 'Spec::CustomController' }
+  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource
     }
   end
 
@@ -23,13 +25,21 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
   end
 
   describe '.new' do
+    let(:expected_keywords) do
+      %i[action_name controller_name matcher member_action resource]
+    end
+
     it 'should define the constructor' do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:action_name, :matcher, :member_action, :resource)
+        .and_keywords(*expected_keywords)
         .and_any_keywords
     end
+  end
+
+  describe '#action_name' do
+    include_examples 'should define reader', :action_name, -> { action_name }
   end
 
   describe '#call' do
@@ -409,6 +419,12 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
     end
   end
 
+  describe '#controller_name' do
+    include_examples 'should define reader',
+      :controller_name,
+      -> { controller_name }
+  end
+
   describe '#format' do
     include_examples 'should define reader', :format, :html
   end
@@ -431,6 +447,16 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
     it { expect(response).to be_a response_class }
 
     it { expect(response.status).to be 500 }
+  end
+
+  describe '#member_action?' do
+    include_examples 'should define predicate', :member_action?, false
+
+    context 'when initialized with member_action: true' do
+      let(:constructor_options) { super().merge(member_action: true) }
+
+      it { expect(responder.member_action?).to be true }
+    end
   end
 
   describe '#redirect_to' do
@@ -562,5 +588,13 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
       it { expect(response.status).to be status }
     end
+  end
+
+  describe '#resource' do
+    include_examples 'should define reader', :resource, -> { resource }
+  end
+
+  describe '#result' do
+    include_examples 'should define reader', :result, nil
   end
 end

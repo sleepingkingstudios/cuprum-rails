@@ -7,14 +7,16 @@ require 'support/book'
 RSpec.describe Cuprum::Rails::Responders::Json::Resource do
   subject(:responder) { described_class.new(**constructor_options) }
 
-  let(:action_name) { :published }
-  let(:resource)    { Cuprum::Rails::Resource.new(resource_name: 'books') }
-  let(:serializers) { Cuprum::Rails::Serializers::Json.default_serializers }
+  let(:action_name)     { :published }
+  let(:controller_name) { 'Spec::CustomController' }
+  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
+  let(:serializers)     { Cuprum::Rails::Serializers::Json.default_serializers }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      resource:    resource,
-      serializers: serializers
+      action_name:     action_name,
+      controller_name: controller_name,
+      resource:        resource,
+      serializers:     serializers
     }
   end
 
@@ -22,6 +24,7 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
     let(:expected_keywords) do
       %i[
         action_name
+        controller_name
         matcher
         member_action
         resource

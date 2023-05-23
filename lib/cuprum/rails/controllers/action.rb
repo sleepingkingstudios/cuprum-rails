@@ -18,26 +18,29 @@ module Cuprum::Rails::Controllers
 
     # @param configuration [Cuprum::Rails::Controllers::Configuration] the
     #   configuration for the originating controller.
-    # @param action_class [Class] The class of the action command. Must be
+    # @param action_class [Class] the class of the action command. Must be
     #   constructible with keyword :resource.
-    # @param action_name [String, Symbol] The name of the action.
-    # @param member_action [Boolean] True if the action acts on a collection
+    # @param action_name [String, Symbol] the name of the action.
+    # @param controller_name [String] the name of the instantiating controller.
+    # @param member_action [Boolean] true if the action acts on a collection
     #   item, not on the collection as a whole.
     # @param serializers
-    #   [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] The serializers
+    #   [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the serializers
     #   for converting result values into serialized data.
-    def initialize(
+    def initialize( # rubocop:disable Metrics/ParameterLists
       configuration,
       action_class:,
       action_name:,
+      controller_name:,
       member_action: false,
       serializers:   {}
     )
-      @configuration = configuration
-      @action_class  = action_class
-      @action_name   = action_name
-      @member_action = !!member_action # rubocop:disable Style/DoubleNegation
-      @serializers   = serializers
+      @configuration   = configuration
+      @action_class    = action_class
+      @action_name     = action_name
+      @controller_name = controller_name
+      @member_action   = !!member_action # rubocop:disable Style/DoubleNegation
+      @serializers     = serializers
     end
 
     # @return [Class] the class of the action command.
@@ -49,6 +52,9 @@ module Cuprum::Rails::Controllers
     # @return [Cuprum::Rails::Controllers::Configuration] the configuration for
     #   the originating controller.
     attr_reader :configuration
+
+    # @return [String] the name of the instantiating controller.
+    attr_reader :controller_name
 
     # @return [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the
     #   serializers for converting result values into serialized data.
@@ -129,10 +135,11 @@ module Cuprum::Rails::Controllers
       responder_class = responder_for(request.format)
 
       responder_class.new(
-        action_name:   action_name,
-        member_action: member_action?,
-        resource:      resource,
-        serializers:   merge_serializers_for(request.format)
+        action_name:     action_name,
+        controller_name: controller_name,
+        member_action:   member_action?,
+        resource:        resource,
+        serializers:     merge_serializers_for(request.format)
       )
     end
 

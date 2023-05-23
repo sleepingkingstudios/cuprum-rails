@@ -566,7 +566,7 @@ Inside a controller action, `Cuprum::Rails` splits up the responsibilities of re
     3. The controller `#request` is wrapped in a `Cuprum::Rails::Request`, which is passed to the `action`'s `#call` method, returning the `result`.
 2. The Responder
     1. The `responder_class` is found for the request based on the request's `format` and the configured `responders`.
-    2. The `responder_class` is initialized with the `action_name`, `resource`, and `serializers`, returning the `responder`.
+    2. The `responder_class` is initialized with the `action_name`, `controller_name`, `resource`, and `serializers`, returning the `responder`.
     3. The `responder` is called with the action `result`, and finds a matching `response` based on the action name, the result's success or failure, and the result error (if any).
 3. The Response
     1. The `response` is then called with the controller, which allows it to reference native Rails controller methods for rendering or redirecting.

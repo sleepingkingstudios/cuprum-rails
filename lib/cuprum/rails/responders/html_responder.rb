@@ -3,6 +3,8 @@
 require 'cuprum/rails/responses/html/redirect_response'
 require 'cuprum/rails/responders'
 require 'cuprum/rails/responders/actions'
+require 'cuprum/rails/responders/base_responder'
+require 'cuprum/rails/responders/html/rendering'
 require 'cuprum/rails/responders/matching'
 
 module Cuprum::Rails::Responders
@@ -35,7 +37,7 @@ module Cuprum::Rails::Responders
   #
   # @see Cuprum::Rails::Responders::Actions::ClassMethods#action
   # @see Cuprum::Rails::Responders::Matching::ClassMethods#match
-  class HtmlResponder
+  class HtmlResponder < BaseResponder
     include Cuprum::Rails::Responders::Html::Rendering
     include Cuprum::Rails::Responders::Matching
     include Cuprum::Rails::Responders::Actions
