@@ -39,35 +39,38 @@ module Cuprum::Rails::Controllers::ClassMethods
         .reduce(&:merge)
     end
 
+    # @private
+    def apply_request_defaults(request)
+      request.format ||= configuration.default_format
+    end
+
     # Generates a Cuprum::Rails::Request from a native request.
     #
     # Override this method to generate a request subclass.
     #
-    # @param native_request [ActionDispatch::Request] The native Rails request.
+    # @param context [#request] the controller or controller context.
     #
     # @return [Cuprum::Rails::Request] the generated request.
-    def build_request(native_request:)
-      Cuprum::Rails::Request.build(request: native_request)
-    end
-
-    # @private
-    def build_request_with_defaults(native_request:)
-      build_request(native_request: native_request)
-        .tap { |request| request.format ||= configuration.default_format }
+    def build_request(context)
+      Cuprum::Rails::Request.build(context: context, request: context.request)
     end
 
     # @private
     def own_actions
+      # :nocov:
       @own_actions ||= {}
+      # :nocov:
     end
 
     private
 
     def define_action(action_name)
       define_method(action_name) do
-        request = self.class.build_request_with_defaults(
-          native_request: self.request
-        )
+        request =
+          self
+            .class
+            .build_request(self)
+            .tap { |req| self.class.apply_request_defaults(req) }
         action   = self.class.actions[action_name]
         response = action.call(request)
         response.call(self)

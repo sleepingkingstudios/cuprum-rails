@@ -18,7 +18,7 @@ module Cuprum::Rails
       # @param request [ActionDispatch::Request] The native request to build.
       #
       # @return [Cuprum::Rails::Request] the generated request.
-      def build(request:) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def build(request:, **options) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         body_params  = request.request_parameters
         query_params = request.query_parameters
         path_params  = filter_path_parameters(request.path_parameters)
@@ -34,7 +34,8 @@ module Cuprum::Rails
           params:          body_params.merge(query_params).merge(path_params),
           path:            request.fullpath,
           path_params:     path_params,
-          query_params:    query_params
+          query_params:    query_params,
+          **options
         )
       end
 
@@ -61,23 +62,29 @@ module Cuprum::Rails
       end
     end
 
-    # @option properties [Symbol] :action_name The name of the called action.
-    # @option properties [String, nil] :authorization The authorization header,
+    # @param context [Object] the controller or request context.
+    #
+    # @option properties [Symbol] :action_name the name of the called action.
+    # @option properties [String, nil] :authorization the authorization header,
     #   if any.
-    # @option properties [Hash<String, Object>] :body_params The parameters from
+    # @option properties [Hash<String, Object>] :body_params the parameters from
     #   the request body.
-    # @option properties [String] :controller_name The name of the controller.
-    # @option properties [Symbol] :format The request format, e.g. :html or
+    # @option properties [String] :controller_name the name of the controller.
+    # @option properties [Symbol] :format the request format, e.g. :html or
     #   :json.
-    # @option properties [Hash<String, String>] :headers The request headers.
-    # @option properties [Symbol] :method The HTTP method used for the request.
-    # @option properties [Hash<String, Object>] :params The merged GET and POST
+    # @option properties [Hash<String, String>] :headers the request headers.
+    # @option properties [Symbol] :method the HTTP method used for the request.
+    # @option properties [Hash<String, Object>] :params the merged GET and POST
     #   parameters.
-    # @option properties [Hash<String, Object>] :query_params The query
+    # @option properties [Hash<String, Object>] :query_params the query
     #   parameters.
-    def initialize(**properties)
+    def initialize(context: nil, **properties)
+      @context    = context
       @properties = properties
     end
+
+    # @return [Object] the controller or request context.
+    attr_reader :context
 
     # @return [Hash<Symbol, Object>] the properties of the request.
     attr_reader :properties
@@ -134,7 +141,7 @@ module Cuprum::Rails
     alias query_parameters  query_params
     alias query_parameters= query_params=
 
-    # @param property_name [String, Symbol] The name of the property.
+    # @param property_name [String, Symbol] the name of the property.
     #
     # @return [Object] the value of the property
     def [](property_name)
@@ -143,12 +150,17 @@ module Cuprum::Rails
       @properties[property_name.intern]
     end
 
-    # @param property_name [String, Symbol] The name of the property.
-    # @param value [Object] The value to assign to the property.
+    # @param property_name [String, Symbol] the name of the property.
+    # @param value [Object] the value to assign to the property.
     def []=(property_name, value)
       validate_property_name!(property_name)
 
       @properties[property_name.intern] = value
+    end
+
+    # @return [ActionDispatch::Request::Session] the native session object.
+    def native_session
+      context&.session
     end
 
     private

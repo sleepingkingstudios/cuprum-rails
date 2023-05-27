@@ -167,7 +167,7 @@ module Spec::Support::Examples
 
                 expect(described_class)
                   .to have_received(:build_request)
-                  .with(native_request: native_request)
+                  .with(controller)
               end
 
               it 'should call the action' do
@@ -188,7 +188,7 @@ module Spec::Support::Examples
                 before(:example) do
                   allow(described_class)
                     .to receive(:build_request)
-                    .with(native_request: native_request)
+                    .with(controller)
                     .and_return(custom_request)
                 end
 
@@ -398,32 +398,41 @@ module Spec::Support::Examples
       end
 
       describe '.build_request' do
+        let(:native_session) do
+          instance_double(ActionDispatch::Request::Session)
+        end
+        let(:context) do
+          instance_double(
+            ActionController::Base,
+            request: native_request,
+            session: native_session
+          )
+        end
         let(:request) { instance_double(Cuprum::Rails::Request) }
 
         before(:example) do
           allow(Cuprum::Rails::Request)
             .to receive(:build)
-            .with(request: native_request)
+            .with(context: context, request: native_request)
             .and_return(request)
         end
 
         it 'should define the class method' do
           expect(described_class)
             .to respond_to(:build_request)
-            .with(0).arguments
-            .and_keywords(:native_request)
+            .with(1).argument
         end
 
         it 'should build the request' do
-          described_class.build_request(native_request: native_request)
+          described_class.build_request(context)
 
           expect(Cuprum::Rails::Request)
             .to have_received(:build)
-            .with(request: native_request)
+            .with(context: context, request: native_request)
         end
 
         it 'should return the request' do
-          expect(described_class.build_request(native_request: native_request))
+          expect(described_class.build_request(context))
             .to be request
         end
       end
