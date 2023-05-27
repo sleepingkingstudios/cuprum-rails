@@ -31,6 +31,10 @@ Updated `Cuprum::Rails::Controllers::Action` to apply configured middleware.
 
 #### Requests
 
+Added `#context` method to access the original request controller or context.
+
+Added `#native_session` method to lazily access the native controller session.
+
 Added `#properties` method to access all request properties as a Hash.
 
 Added `#path_params` method and properly handle parameters from the request path.
