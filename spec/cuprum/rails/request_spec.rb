@@ -3,7 +3,7 @@
 require 'cuprum/rails/request'
 
 RSpec.describe Cuprum::Rails::Request do
-  subject(:request) { described_class.new(**properties) }
+  subject(:request) { described_class.new(**options) }
 
   shared_examples 'should define request property' \
   do |property_name, value:, optional: false|
@@ -71,6 +71,7 @@ RSpec.describe Cuprum::Rails::Request do
       query_params: query_params
     }
   end
+  let(:options) { properties }
 
   describe '.new' do
     let(:expected_keywords) do
@@ -78,6 +79,7 @@ RSpec.describe Cuprum::Rails::Request do
         action_name
         authorization
         body_params
+        context
         controller_name
         format
         headers
@@ -145,6 +147,7 @@ RSpec.describe Cuprum::Rails::Request do
         .to respond_to(:build)
         .with(0).arguments
         .and_keywords(:request)
+        .and_any_keywords
     end
 
     it 'should return a request' do
@@ -238,6 +241,36 @@ RSpec.describe Cuprum::Rails::Request do
       it 'should set the request query params' do
         expect(described_class.build(request: request).query_params)
           .to be == query_params
+      end
+    end
+
+    context 'with a context object' do
+      let(:context) { instance_double(ActionController::Base) }
+
+      it 'should return a request' do
+        expect(described_class.build(context: context, request: request))
+          .to be_a described_class
+      end
+
+      it 'should set the context' do
+        expect(
+          described_class.build(context: context, request: request).context
+        )
+          .to be context
+      end
+    end
+
+    describe 'with custom properties' do
+      let(:options) { { custom_key: 'custom value' } }
+
+      it 'should return a request' do
+        expect(described_class.build(request: request, **options))
+          .to be_a described_class
+      end
+
+      it 'should set the request properties' do
+        expect(described_class.build(request: request, **options)['custom_key'])
+          .to be == 'custom value'
       end
     end
   end
@@ -444,6 +477,31 @@ RSpec.describe Cuprum::Rails::Request do
     it 'should alias the method' do
       expect(described_class.instance_method(:body_parameters=))
         .to be == described_class.instance_method(:body_params=)
+    end
+  end
+
+  describe '#context' do
+    include_examples 'should define reader', :context, nil
+
+    context 'when initialized with context: a controller' do
+      let(:context) { instance_double(ActionController::Base) }
+      let(:options) { super().merge(context: context) }
+
+      it { expect(request.context).to be context }
+    end
+  end
+
+  describe '#native_session' do
+    include_examples 'should define reader', :native_session, nil
+
+    context 'when initialized with context: a controller' do
+      let(:session) { instance_double(ActionDispatch::Request::Session) }
+      let(:context) do
+        instance_double(ActionController::Base, session: session)
+      end
+      let(:options) { super().merge(context: context) }
+
+      it { expect(request.native_session).to be session }
     end
   end
 
