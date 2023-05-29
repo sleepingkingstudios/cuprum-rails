@@ -33,6 +33,47 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
     it { expect(response.status).to be 500 }
   end
 
+  describe '#redirect_back' do
+    let(:options)  { {} }
+    let(:response) { responder.redirect_back(**options) }
+    let(:response_class) do
+      Cuprum::Rails::Responses::Html::RedirectBackResponse
+    end
+
+    it 'should define the method' do
+      expect(responder)
+        .to respond_to(:redirect_back)
+        .with(0).arguments
+        .and_keywords(:fallback_location, :status)
+    end
+
+    it { expect(response).to be_a response_class }
+
+    it { expect(response.fallback_location).to be == '/' }
+
+    it { expect(response.status).to be 302 }
+
+    describe 'with fallback_location: value' do
+      let(:options) { super().merge(fallback_location: '/path/to/resource') }
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.fallback_location).to be == '/path/to/resource' }
+
+      it { expect(response.status).to be 302 }
+    end
+
+    describe 'with status: value' do
+      let(:options) { super().merge(status: 303) }
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.fallback_location).to be == '/' }
+
+      it { expect(response.status).to be 303 }
+    end
+  end
+
   describe '#redirect_to' do
     let(:path)     { 'www.example.com' }
     let(:options)  { {} }
