@@ -64,6 +64,8 @@ Extracted `Responders::Html::Rendering`.
 
 Implemented `Responses::HeadResponse`.
 
+Implemented `Responses::Html::RedirectBackResponse`.
+
 #### RSpec
 
 Implemented contracts for Cuprum::Rails actions

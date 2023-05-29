@@ -7,17 +7,27 @@ module Cuprum::Rails::Responders::Html
   module Rendering
     # Creates a HeadResponse based on the given HTTP status.
     #
-    # @param status [Integer] The HTTP status of the response.
+    # @param status [Integer] the HTTP status of the response.
     #
     # @return [Cuprum::Rails::Responses::HeadResponse] the response.
     def head(status:)
       Cuprum::Rails::Responses::HeadResponse.new(status: status)
     end
 
+    # Creates a RedirectBackResponse based on the given HTTP status.
+    #
+    # @param fallback_location [String] the path or url to redirect to if the
+    #   previous location cannot be determined.
+    # @param status [Integer] the HTTP status of the response.
+    def redirect_back(fallback_location: '/', status: 302)
+      Cuprum::Rails::Responses::Html::RedirectBackResponse
+        .new(fallback_location: fallback_location, status: status)
+    end
+
     # Creates a RedirectResponse based on the given path and HTTP status.
     #
-    # @param path [String] The path or url to redirect to.
-    # @param status [Integer] The HTTP status of the response.
+    # @param path [String] the path or url to redirect to.
+    # @param status [Integer] the HTTP status of the response.
     #
     # @return [Cuprum::Rails::Responses::Html::RedirectResponse] the response.
     def redirect_to(path, status: 302)
@@ -26,10 +36,10 @@ module Cuprum::Rails::Responders::Html
 
     # Creates a RenderResponse based on the given template and parameters.
     #
-    # @param assigns [Hash] Variables to assign when rendering the template.
-    # @param layout [String] The layout to render.
-    # @param status [Integer] The HTTP status of the response.
-    # @param template [String, Symbol] The template to render.
+    # @param assigns [Hash] variables to assign when rendering the template.
+    # @param layout [String] the layout to render.
+    # @param status [Integer] the HTTP status of the response.
+    # @param template [String, Symbol] the template to render.
     #
     # @return [Cuprum::Rails::Responses::Html::RenderResponse] the response.
     def render(template, assigns: nil, layout: nil, status: 200)
