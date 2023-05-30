@@ -66,6 +66,12 @@ Implemented `Responses::HeadResponse`.
 
 Implemented `Responses::Html::RedirectBackResponse`.
 
+Added Rails flash message support to HTML responses:
+
+- `Responses::Html::RedirectBackResponse`.
+- `Responses::Html::RedirectResponse`.
+- `Responses::Html::RenderResponse`.
+
 #### RSpec
 
 Implemented contracts for Cuprum::Rails actions
