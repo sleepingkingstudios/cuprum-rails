@@ -44,12 +44,14 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
       expect(responder)
         .to respond_to(:redirect_back)
         .with(0).arguments
-        .and_keywords(:fallback_location, :status)
+        .and_keywords(:fallback_location, :flash, :status)
     end
 
     it { expect(response).to be_a response_class }
 
     it { expect(response.fallback_location).to be == '/' }
+
+    it { expect(response.flash).to be == {} }
 
     it { expect(response.status).to be 302 }
 
@@ -60,6 +62,26 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
 
       it { expect(response.fallback_location).to be == '/path/to/resource' }
 
+      it { expect(response.flash).to be == {} }
+
+      it { expect(response.status).to be 302 }
+    end
+
+    describe 'with flash: value' do
+      let(:flash) do
+        {
+          alert:  'Reactor temperature critical',
+          notice: 'Initializing activation sequence'
+        }
+      end
+      let(:options) { super().merge(flash: flash) }
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.fallback_location).to be == '/' }
+
+      it { expect(response.flash).to be == flash }
+
       it { expect(response.status).to be 302 }
     end
 
@@ -69,6 +91,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
       it { expect(response).to be_a response_class }
 
       it { expect(response.fallback_location).to be == '/' }
+
+      it { expect(response.flash).to be == {} }
 
       it { expect(response.status).to be 303 }
     end
@@ -86,20 +110,42 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
       expect(responder)
         .to respond_to(:redirect_to)
         .with(1).argument
-        .and_keywords(:status)
+        .and_keywords(:flash, :status)
     end
 
     it { expect(response).to be_a response_class }
 
+    it { expect(response.flash).to be == {} }
+
     it { expect(response.path).to be == path }
 
     it { expect(response.status).to be 302 }
+
+    describe 'with flash: value' do
+      let(:flash) do
+        {
+          alert:  'Reactor temperature critical',
+          notice: 'Initializing activation sequence'
+        }
+      end
+      let(:options) { super().merge(flash: flash) }
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.flash).to be == flash }
+
+      it { expect(response.path).to be == path }
+
+      it { expect(response.status).to be 302 }
+    end
 
     describe 'with status: value' do
       let(:status)  { 308 }
       let(:options) { super().merge(status: status) }
 
       it { expect(response).to be_a response_class }
+
+      it { expect(response.flash).to be == {} }
 
       it { expect(response.path).to be == path }
 
@@ -126,10 +172,14 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
       expect(responder)
         .to respond_to(:render)
         .with(1).argument
-        .and_keywords(:assigns, :layout, :status)
+        .and_keywords(:assigns, :flash, :layout, :status)
     end
 
     it { expect(response).to be_a response_class }
+
+    it { expect(response.assigns).to be == {} }
+
+    it { expect(response.flash).to be == {} }
 
     it { expect(response.layout).to be nil }
 
@@ -188,20 +238,64 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
       let(:options) { super().merge(assigns: assigns) }
 
       it { expect(response.assigns).to be == assigns }
+
+      it { expect(response.flash).to be == {} }
+
+      it { expect(response.layout).to be nil }
+
+      it { expect(response.status).to be 200 }
+
+      it { expect(response.template).to be == template }
+    end
+
+    describe 'with flash: value' do
+      let(:flash) do
+        {
+          alert:  'Reactor temperature critical',
+          notice: 'Initializing activation sequence'
+        }
+      end
+      let(:options) { super().merge(flash: flash) }
+
+      it { expect(response.assigns).to be == {} }
+
+      it { expect(response.flash).to be == flash }
+
+      it { expect(response.layout).to be nil }
+
+      it { expect(response.status).to be 200 }
+
+      it { expect(response.template).to be == template }
     end
 
     describe 'with layout: value' do
       let(:layout)  { 'page' }
       let(:options) { super().merge(layout: layout) }
 
+      it { expect(response.assigns).to be == {} }
+
+      it { expect(response.flash).to be == {} }
+
       it { expect(response.layout).to be == layout }
+
+      it { expect(response.status).to be 200 }
+
+      it { expect(response.template).to be == template }
     end
 
     describe 'with status: value' do
       let(:status)  { 201 }
       let(:options) { super().merge(status: status) }
 
+      it { expect(response.assigns).to be == {} }
+
+      it { expect(response.flash).to be == {} }
+
+      it { expect(response.layout).to be nil }
+
       it { expect(response.status).to be status }
+
+      it { expect(response.template).to be == template }
     end
   end
 end

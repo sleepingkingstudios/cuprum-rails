@@ -18,34 +18,39 @@ module Cuprum::Rails::Responders::Html
     #
     # @param fallback_location [String] the path or url to redirect to if the
     #   previous location cannot be determined.
+    # @param flash [Hash] the flash messages to set.
     # @param status [Integer] the HTTP status of the response.
-    def redirect_back(fallback_location: '/', status: 302)
+    def redirect_back(fallback_location: '/', flash: {}, status: 302)
       Cuprum::Rails::Responses::Html::RedirectBackResponse
-        .new(fallback_location: fallback_location, status: status)
+        .new(fallback_location: fallback_location, flash: flash, status: status)
     end
 
     # Creates a RedirectResponse based on the given path and HTTP status.
     #
+    # @param flash [Hash] the flash messages to set.
     # @param path [String] the path or url to redirect to.
     # @param status [Integer] the HTTP status of the response.
     #
     # @return [Cuprum::Rails::Responses::Html::RedirectResponse] the response.
-    def redirect_to(path, status: 302)
-      Cuprum::Rails::Responses::Html::RedirectResponse.new(path, status: status)
+    def redirect_to(path, flash: {}, status: 302)
+      Cuprum::Rails::Responses::Html::RedirectResponse
+        .new(path, flash: flash, status: status)
     end
 
     # Creates a RenderResponse based on the given template and parameters.
     #
     # @param assigns [Hash] variables to assign when rendering the template.
+    # @param flash [Hash] the flash messages to set.
     # @param layout [String] the layout to render.
     # @param status [Integer] the HTTP status of the response.
     # @param template [String, Symbol] the template to render.
     #
     # @return [Cuprum::Rails::Responses::Html::RenderResponse] the response.
-    def render(template, assigns: nil, layout: nil, status: 200)
+    def render(template, assigns: nil, flash: {}, layout: nil, status: 200)
       Cuprum::Rails::Responses::Html::RenderResponse.new(
         template,
         assigns: assigns || default_assigns,
+        flash:   flash,
         layout:  layout,
         status:  status
       )

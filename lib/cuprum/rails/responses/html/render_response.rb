@@ -5,12 +5,14 @@ require 'cuprum/rails/responses/html'
 module Cuprum::Rails::Responses::Html
   # Encapsulates an HTML response that renders a given template.
   class RenderResponse
-    # @param assigns [Hash] Variables to assign when rendering the template.
-    # @param layout [String] The layout to render.
-    # @param status [Integer] The HTTP status of the response.
-    # @param template [String, Symbol] The template to render.
-    def initialize(template, assigns: {}, layout: nil, status: 200)
+    # @param assigns [Hash] variables to assign when rendering the template.
+    # @param flash [Hash] the flash messages to set.
+    # @param layout [String] the layout to render.
+    # @param status [Integer] the HTTP status of the response.
+    # @param template [String, Symbol] the template to render.
+    def initialize(template, assigns: {}, flash: {}, layout: nil, status: 200)
       @assigns  = assigns
+      @flash    = flash
       @layout   = layout
       @status   = status
       @template = template
@@ -18,6 +20,9 @@ module Cuprum::Rails::Responses::Html
 
     # @return [Hash] variables to assign when rendering the template.
     attr_reader :assigns
+
+    # @return [Hash] the flash messages to set.
+    attr_reader :flash
 
     # @return [String] the layout to render.
     attr_reader :layout
@@ -33,6 +38,7 @@ module Cuprum::Rails::Responses::Html
     # @param renderer [#render] The context for executing the response, such as
     #   a Rails controller.
     def call(renderer)
+      assign_flash(renderer)
       assign_variables(renderer)
 
       options = { status: status }
@@ -42,6 +48,12 @@ module Cuprum::Rails::Responses::Html
     end
 
     private
+
+    def assign_flash(renderer)
+      flash.each do |key, value|
+        renderer.flash.now[key] = value
+      end
+    end
 
     def assign_variables(renderer)
       assigns.each do |key, value|
