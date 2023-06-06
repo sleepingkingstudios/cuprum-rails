@@ -35,7 +35,8 @@ RSpec.describe Cuprum::Rails::Action do
 
     it 'should return a passing result' do
       expect(action.call(request: request))
-        .to be_a_passing_result.with_value(nil)
+        .to be_a_passing_result(Cuprum::Rails::Result)
+        .with_value(nil)
     end
   end
 
