@@ -26,6 +26,7 @@ module Cuprum
     autoload :Responders,  'cuprum/rails/responders'
     autoload :Responses,   'cuprum/rails/responses'
     autoload :Resource,    'cuprum/rails/resource'
+    autoload :Result,      'cuprum/rails/result'
     autoload :Routes,      'cuprum/rails/routes'
     autoload :Routing,     'cuprum/rails/routing'
     autoload :Serializers, 'cuprum/rails/serializers'

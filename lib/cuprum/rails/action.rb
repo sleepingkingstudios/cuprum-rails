@@ -51,6 +51,15 @@ module Cuprum::Rails
 
     attr_reader :request
 
+    def build_result(error: nil, metadata: nil, status: nil, value: nil)
+      Cuprum::Rails::Result.new(
+        error:    error,
+        metadata: metadata,
+        status:   status,
+        value:    value
+      )
+    end
+
     def process(request:)
       @params  = nil
       @request = request

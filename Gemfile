@@ -26,6 +26,9 @@ group :test do
   gem 'simplecov', '~> 0.22'
 end
 
+gem 'cuprum',
+  branch: 'main',
+  git:    'https://github.com/sleepingkingstudios/cuprum'
 gem 'cuprum-collections',
   branch: 'main',
   git:    'https://github.com/sleepingkingstudios/cuprum-collections'
