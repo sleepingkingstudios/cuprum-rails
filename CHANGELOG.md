@@ -33,6 +33,8 @@ Updated `Cuprum::Rails::Controllers::Action` to apply configured middleware.
 
 Added `#context` method to access the original request controller or context.
 
+Added `#member_action?` method to identify requests to resourceful member actions.
+
 Added `#native_session` method to lazily access the native controller session.
 
 Added `#properties` method to access all request properties as a Hash.
@@ -72,6 +74,10 @@ Added Rails flash message support to HTML responses:
 - `Responses::Html::RedirectResponse`.
 - `Responses::Html::RenderResponse`.
 
+#### Results
+
+Implemented `Cuprum::Rails::Result`, which includes a `#metadata` property for passing contextual data such as an authentication session or page configuration.
+
 #### RSpec
 
 Implemented contracts for Cuprum::Rails actions
@@ -89,6 +95,8 @@ Contracts allow libraries or applications to verify their actions implement the 
 Defined `Cuprum::Rails::RSpec::SerializersContracts`:
 
 - `SHOULD_SERIALIZE_ATTRIBUTES`: Verifies that the specified attributes are serialized with the expected values.
+
+Implemented `Cuprum::Rails::RSpec::Matchers::BeAResultMatcher`, which adds support for a `#metadata` property to the `be_a_result` matcher.
 
 #### Serializers
 

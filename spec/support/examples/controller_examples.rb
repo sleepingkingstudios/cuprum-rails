@@ -40,56 +40,37 @@ module Spec::Support::Examples
     shared_examples 'should implement the actions DSL' do
       describe '.action' do
         shared_examples 'should define the action' do
+          let(:member_action) { action_options.fetch(:member, false) }
           let(:expected) do
             {
               action_class:    Spec::Action,
               action_name:     action_name.intern,
               controller_name: described_class.name,
-              member_action?:  false
+              member_action?:  member_action
             }
           end
 
+          def build_action
+            described_class.action(action_name, Spec::Action, **action_options)
+          end
+
           it 'should return the action name' do
-            expect(described_class.action(action_name, Spec::Action))
+            expect(build_action)
               .to be action_name.intern
           end
 
           it 'should define the action' do
-            described_class.action(action_name, Spec::Action)
+            build_action
 
             expect(described_class.actions[action_name.intern])
               .to be_a(Cuprum::Rails::Controllers::Action)
               .and(have_attributes(**expected))
           end
 
-          context 'with member: false' do
-            it 'should define the action' do
-              described_class.action(action_name, Spec::Action, member: false)
-
-              expect(described_class.actions[action_name.intern])
-                .to be_a(Cuprum::Rails::Controllers::Action)
-                .and(have_attributes(**expected))
-            end
-          end
-
-          context 'with member: true' do
-            let(:expected) { super().merge(member_action?: true) }
-
-            it 'should define the action' do
-              described_class.action(action_name, Spec::Action, member: true)
-
-              expect(described_class.actions[action_name.intern])
-                .to be_a(Cuprum::Rails::Controllers::Action)
-                .and(have_attributes(**expected))
-            end
-          end
-
           describe '#:action_name' do
             let(:action) { described_class.actions[action_name.intern] }
 
-            before(:example) do
-              described_class.action(action_name, Spec::Action)
-            end
+            before(:example) { build_action }
 
             it 'should define the method' do
               expect(controller)
@@ -167,7 +148,7 @@ module Spec::Support::Examples
 
                 expect(described_class)
                   .to have_received(:build_request)
-                  .with(controller)
+                  .with(controller, { member_action: member_action })
               end
 
               it 'should call the action' do
@@ -183,12 +164,14 @@ module Spec::Support::Examples
               end
 
               context 'when the controller overrides .build_request' do
-                let(:custom_request) { Cuprum::Rails::Request.new }
+                let(:custom_request) { Spec::CustomRequest.new }
+
+                example_class 'Spec::CustomRequest', Cuprum::Rails::Request
 
                 before(:example) do
                   allow(described_class)
                     .to receive(:build_request)
-                    .with(controller)
+                    .with(controller, an_instance_of(Hash))
                     .and_return(custom_request)
                 end
 
@@ -232,6 +215,8 @@ module Spec::Support::Examples
             end
           end
         end
+
+        let(:action_options) { {} }
 
         example_class 'Spec::Action'
 
@@ -282,12 +267,36 @@ module Spec::Support::Examples
           let(:action_name) { 'process' }
 
           include_examples 'should define the action'
+
+          describe 'with member: false' do
+            let(:action_options) { super().merge(member: false) }
+
+            include_examples 'should define the action'
+          end
+
+          describe 'with member: true' do
+            let(:action_options) { super().merge(member: true) }
+
+            include_examples 'should define the action'
+          end
         end
 
         describe 'with action_name: a Symbol' do
           let(:action_name) { :process }
 
           include_examples 'should define the action'
+
+          describe 'with member: false' do
+            let(:action_options) { super().merge(member: false) }
+
+            include_examples 'should define the action'
+          end
+
+          describe 'with member: true' do
+            let(:action_options) { super().merge(member: true) }
+
+            include_examples 'should define the action'
+          end
         end
 
         describe 'with action_class: nil' do
