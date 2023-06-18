@@ -83,6 +83,7 @@ RSpec.describe Cuprum::Rails::Request do
         controller_name
         format
         headers
+        member_action
         method
         params
         path
@@ -187,6 +188,10 @@ RSpec.describe Cuprum::Rails::Request do
         .to be http_method
     end
 
+    it 'should set the member action property' do
+      expect(described_class.build(request: request).member_action?).to be false
+    end
+
     it 'should set and filter the request params' do
       expect(described_class.build(request: request).params)
         .to be == expected_params
@@ -271,6 +276,24 @@ RSpec.describe Cuprum::Rails::Request do
       it 'should set the request properties' do
         expect(described_class.build(request: request, **options)['custom_key'])
           .to be == 'custom value'
+      end
+    end
+
+    describe 'with member_action: true' do
+      let(:options) { { member_action: true } }
+
+      it 'should set the member action property' do
+        expect(
+          described_class.build(request: request, **options).member_action?
+        )
+          .to be true
+      end
+
+      it 'should set the request properties' do
+        expect(
+          described_class.build(request: request, **options)['member_action']
+        )
+          .to be true
       end
     end
   end
@@ -488,6 +511,22 @@ RSpec.describe Cuprum::Rails::Request do
       let(:options) { super().merge(context: context) }
 
       it { expect(request.context).to be context }
+    end
+  end
+
+  describe '#member_action?' do
+    include_examples 'should define predicate', :member_action?, false
+
+    context 'when initialized with member_action: false' do
+      let(:options) { super().merge(member_action: false) }
+
+      it { expect(request.member_action?).to be false }
+    end
+
+    context 'when initialized with member_action: true' do
+      let(:options) { super().merge(member_action: true) }
+
+      it { expect(request.member_action?).to be true }
     end
   end
 

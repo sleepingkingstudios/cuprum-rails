@@ -73,6 +73,8 @@ module Cuprum::Rails
     # @option properties [Symbol] :format the request format, e.g. :html or
     #   :json.
     # @option properties [Hash<String, String>] :headers the request headers.
+    # @option properties [Boolean] :member_action true if the request is for a
+    #   resource member action; otherwise false.
     # @option properties [Symbol] :method the HTTP method used for the request.
     # @option properties [Hash<String, Object>] :params the merged GET and POST
     #   parameters.
@@ -156,6 +158,12 @@ module Cuprum::Rails
       validate_property_name!(property_name)
 
       @properties[property_name.intern] = value
+    end
+
+    # @return [Boolean] true if the request is for a resource member action;
+    #   otherwise false.
+    def member_action?
+      !!@properties[:member_action]
     end
 
     # @return [ActionDispatch::Request::Session] the native session object.

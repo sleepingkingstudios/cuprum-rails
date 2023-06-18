@@ -49,10 +49,15 @@ module Cuprum::Rails::Controllers::ClassMethods
     # Override this method to generate a request subclass.
     #
     # @param context [#request] the controller or controller context.
+    # @param options [Hash{Symbol=>Object}] additional options for the request.
     #
     # @return [Cuprum::Rails::Request] the generated request.
-    def build_request(context)
-      Cuprum::Rails::Request.build(context: context, request: context.request)
+    def build_request(context, **options)
+      Cuprum::Rails::Request.build(
+        context: context,
+        request: context.request,
+        **options
+      )
     end
 
     # @private
@@ -66,12 +71,12 @@ module Cuprum::Rails::Controllers::ClassMethods
 
     def define_action(action_name)
       define_method(action_name) do
+        action  = self.class.actions[action_name]
         request =
           self
             .class
-            .build_request(self)
+            .build_request(self, member_action: action.member_action?)
             .tap { |req| self.class.apply_request_defaults(req) }
-        action   = self.class.actions[action_name]
         response = action.call(request)
         response.call(self)
       end
