@@ -175,4 +175,48 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
   describe '#serializers' do
     include_examples 'should define reader', :serializers, -> { serializers }
   end
+
+  describe '#serializers_for' do
+    it { expect(configuration).to respond_to(:responder_for).with(1).argument }
+
+    it { expect(configuration.serializers_for(:json)).to be == serializers }
+
+    it { expect(configuration.serializers_for(:xml)).to be == serializers }
+
+    context 'when initialized with scoped serializers' do
+      let(:serializers) do
+        {
+          Object => Spec::JsonSerializer,
+          json:     {
+            Numeric => Spec::NumericSerializer,
+            String  => Spec::StringSerializer
+          }
+        }
+      end
+      let(:json_serializers) do
+        {
+          Numeric => Spec::NumericSerializer,
+          Object  => Spec::JsonSerializer,
+          String  => Spec::StringSerializer
+        }
+      end
+      let(:xml_serializers) do
+        {
+          Object => Spec::JsonSerializer
+        }
+      end
+
+      example_class 'Spec::NumericSerializer'
+
+      example_class 'Spec::StringSerializer'
+
+      it 'should merge the serializers for the requested format' do
+        expect(configuration.serializers_for(:json)).to be == json_serializers
+      end
+
+      it 'should return the default serializers' do
+        expect(configuration.serializers_for(:xml)).to be == xml_serializers
+      end
+    end
+  end
 end

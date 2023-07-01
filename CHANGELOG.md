@@ -20,6 +20,8 @@ Implemented `.default_format` configuration option.
 
 Refactored `Cuprum::Rails::ControllerAction` to `Cuprum::Rails::Controllers::Action`.
 
+- **(Breaking Change)** Controller actions now require a `:controller` argument when called.
+
 #### Middleware
 
 Implemented controller middleware.

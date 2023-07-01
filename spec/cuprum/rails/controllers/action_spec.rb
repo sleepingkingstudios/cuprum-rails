@@ -7,54 +7,25 @@ require 'cuprum/rails/controllers/action'
 require 'cuprum/rails/controllers/middleware'
 
 RSpec.describe Cuprum::Rails::Controllers::Action do
-  subject(:action) { described_class.new(configuration, **constructor_options) }
+  subject(:action) { described_class.new(**constructor_options) }
 
-  let(:middleware) { [] }
-  let(:repository) { nil }
-  let(:resource)   { instance_double(Cuprum::Rails::Resource) }
-  let(:responders) do
-    { json: Spec::JsonResponder }
-  end
-  let(:configured_serializers) { {} }
-  let(:configuration) do
-    instance_double(
-      Cuprum::Rails::Controllers::Configuration,
-      middleware_for: middleware,
-      repository:     repository,
-      resource:       resource,
-      responders:     responders,
-      serializers:    configured_serializers
-    )
-  end
   let(:action_class)    { Cuprum::Rails::Action }
   let(:action_name)     { :process }
-  let(:controller_name) { 'Spec::CustomController' }
   let(:constructor_options) do
     {
-      action_class:    action_class,
-      action_name:     action_name,
-      controller_name: controller_name
+      action_class: action_class,
+      action_name:  action_name
     }
   end
 
   example_class 'Spec::JsonResponder'
 
   describe '.new' do
-    let(:expected_keywords) do
-      %i[
-        action_class
-        action_name
-        controller_name
-        member_action
-        serializers
-      ]
-    end
-
     it 'should define the constructor' do
       expect(described_class)
         .to respond_to(:new)
-        .with(1).argument
-        .and_keywords(*expected_keywords)
+        .with(0).arguments
+        .and_keywords(:action_class, :action_name, :member_action)
     end
   end
 
@@ -69,25 +40,43 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
   describe '#call' do
     shared_examples 'should build the responder' do
       it 'should build the responder' do # rubocop:disable RSpec/ExampleLength
-        action.call(request)
+        action.call(controller, request)
 
         expect(responder_class)
           .to have_received(:new)
           .with(
             action_name:     action_name,
-            controller_name: controller_name,
+            controller_name: controller.class.name,
             member_action:   member_action,
             resource:        resource,
-            serializers:     expected_serializers
+            serializers:     configured_serializers
           )
       end
     end
 
+    let(:action_class)    { Spec::Action }
+    let(:member_action)   { false }
+    let(:middleware) { [] }
+    let(:repository) { nil }
     let(:resource) do
       Cuprum::Rails::Resource.new(resource_name: 'books')
     end
-    let(:action_class)    { Spec::Action }
-    let(:member_action)   { false }
+    let(:responders) do
+      { json: Spec::JsonResponder }
+    end
+    let(:configured_serializers) { {} }
+    let(:configuration) do
+      instance_double(
+        Cuprum::Rails::Controllers::Configuration,
+        middleware_for:  middleware,
+        repository:      repository,
+        resource:        resource,
+        responders:      responders,
+        serializers:     configured_serializers,
+        serializers_for: configured_serializers
+      )
+    end
+    let(:controller)      { Spec::CustomController.new }
     let(:result)          { Cuprum::Result.new }
     let(:implementation)  { Spec::Action.new(resource: resource) }
     let(:responder_class) { Spec::Responder }
@@ -97,15 +86,12 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     let(:request) do
       instance_double(Cuprum::Rails::Request, format: format)
     end
-    let(:expected_serializers) do
-      if configured_serializers.key?(format)
-        configured_serializers[format]
-      else
-        configured_serializers
-      end
-    end
 
     example_class 'Spec::Action', Cuprum::Rails::Action
+
+    example_class 'Spec::CustomController' do |klass|
+      klass.include(Cuprum::Rails::Controller)
+    end
 
     example_class 'Spec::Responder', Cuprum::Rails::Responders::HtmlResponder
 
@@ -116,6 +102,14 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
 
       allow(Spec::Responder).to receive(:new).and_return(responder)
 
+      allow(Spec::CustomController)
+        .to receive(:configuration)
+        .and_return(configuration)
+      allow(Spec::CustomController)
+        .to receive(:repository)
+        .and_return(repository)
+      allow(Spec::CustomController).to receive(:resource).and_return(resource)
+
       allow(configuration)
         .to receive(:responder_for)
         .with(format)
@@ -125,11 +119,11 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     end
 
     it 'should define the method' do
-      expect(action).to respond_to(:call).with(1).argument
+      expect(action).to respond_to(:call).with(2).arguments
     end
 
     it 'should build the action' do
-      action.call(request)
+      action.call(controller, request)
 
       expect(action_class)
         .to have_received(:new)
@@ -137,7 +131,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     end
 
     it 'should call the action' do
-      action.call(request)
+      action.call(controller, request)
 
       expect(implementation).to have_received(:call).with(request: request)
     end
@@ -145,12 +139,12 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     include_examples 'should build the responder'
 
     it 'should call the responder' do
-      action.call(request)
+      action.call(controller, request)
 
       expect(responder).to have_received(:call).with(result)
     end
 
-    it { expect(action.call(request)).to be response }
+    it { expect(action.call(controller, request)).to be response }
 
     context 'when initialized with member_action: true' do
       let(:member_action)       { true }
@@ -195,7 +189,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       end
 
       it 'should build the action' do
-        action.call(request)
+        action.call(controller, request)
 
         expect(action_class)
           .to have_received(:new)
@@ -203,13 +197,13 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       end
 
       it 'should call the action' do
-        action.call(request)
+        action.call(controller, request)
 
         expect(implementation).to have_received(:call).with(request: request)
       end
 
       it 'should call the middleware', :aggregate_failures do
-        action.call(request)
+        action.call(controller, request)
 
         expect(middleware_commands)
           .to all have_received(:call)
@@ -217,7 +211,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       end
 
       it 'should call the middleware in sequence' do
-        action.call(request)
+        action.call(controller, request)
 
         expect(called_commands).to be == expected_commands
       end
@@ -273,7 +267,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         end
 
         it 'should build the action' do
-          action.call(request)
+          action.call(controller, request)
 
           expect(action_class)
             .to have_received(:new)
@@ -281,13 +275,13 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         end
 
         it 'should call the action' do
-          action.call(request)
+          action.call(controller, request)
 
           expect(implementation).to have_received(:call).with(request: request)
         end
 
         it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
-          action.call(request)
+          action.call(controller, request)
 
           expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
           expect(Spec::SecondMiddleware)
@@ -299,7 +293,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         end
 
         it 'should call the middleware', :aggregate_failures do
-          action.call(request)
+          action.call(controller, request)
 
           expect(middleware_commands)
             .to all have_received(:call)
@@ -307,7 +301,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         end
 
         it 'should call the middleware in sequence' do
-          action.call(request)
+          action.call(controller, request)
 
           expect(called_commands).to be == expected_commands
         end
@@ -316,7 +310,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
           let(:repository) { Cuprum::Collections::Repository.new }
 
           it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
-            action.call(request)
+            action.call(controller, request)
 
             expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
             expect(Spec::SecondMiddleware)
@@ -330,129 +324,17 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       end
     end
 
-    context 'when the controller defines scoped serializers' do
-      let(:configured_serializers) do
-        {
-          format => {
-            Object   => Spec::BaseSerializer,
-            NilClass => Spec::NullSerializer
-          }
-        }
-      end
-
-      example_class 'Spec::BaseSerializer'
-
-      example_class 'Spec::NullSerializer'
-
-      include_examples 'should build the responder'
-
-      context 'when initialized with scoped serializers' do
-        let(:serializers) do
-          {
-            json: { Object => Spec::JsonSerializer },
-            yaml: { Object => Spec::YamlSerializer }
-          }
-        end
-        let(:constructor_options) do
-          super().merge(serializers: serializers)
-        end
-        let(:expected_serializers) do
-          super().merge(serializers[format])
-        end
-
-        example_class 'Spec::JsonSerializer'
-        example_class 'Spec::YamlSerializer'
-
-        include_examples 'should build the responder'
-      end
-
-      context 'when initialized with unscoped serializers' do
-        let(:serializers) { { Object => Spec::JsonSerializer } }
-        let(:constructor_options) do
-          super().merge(serializers: serializers)
-        end
-        let(:expected_serializers) do
-          super().merge(serializers)
-        end
-
-        example_class 'Spec::JsonSerializer'
-
-        include_examples 'should build the responder'
-      end
-    end
-
-    context 'when the controller defines unscoped serializers' do
-      let(:configured_serializers) do
-        {
-          Object   => Spec::BaseSerializer,
-          NilClass => Spec::NullSerializer
-        }
-      end
-
-      example_class 'Spec::BaseSerializer'
-
-      example_class 'Spec::NullSerializer'
-
-      include_examples 'should build the responder'
-
-      context 'when initialized with scoped serializers' do
-        let(:serializers) do
-          {
-            json: { Object => Spec::JsonSerializer },
-            yaml: { Object => Spec::YamlSerializer }
-          }
-        end
-        let(:constructor_options) do
-          super().merge(serializers: serializers)
-        end
-        let(:expected_serializers) do
-          super().merge(serializers[format])
-        end
-
-        example_class 'Spec::JsonSerializer'
-        example_class 'Spec::YamlSerializer'
-
-        include_examples 'should build the responder'
-      end
-
-      context 'when initialized with unscoped serializers' do
-        let(:serializers) { { Object => Spec::JsonSerializer } }
-        let(:constructor_options) do
-          super().merge(serializers: serializers)
-        end
-        let(:expected_serializers) do
-          super().merge(serializers)
-        end
-
-        example_class 'Spec::JsonSerializer'
-
-        include_examples 'should build the responder'
-      end
-    end
-
     context 'when the controller defines a repository' do
       let(:repository) { Cuprum::Collections::Repository.new }
 
       it 'should build the action' do
-        action.call(request)
+        action.call(controller, request)
 
         expect(action_class)
           .to have_received(:new)
           .with(repository: repository, resource: resource)
       end
     end
-  end
-
-  describe '#configuration' do
-    include_examples 'should define reader',
-      :configuration,
-      -> { configuration }
-  end
-
-  describe '#controller_name' do
-    include_examples 'should define reader',
-      :controller_name,
-      -> { controller_name }
   end
 
   describe '#member_action?' do
@@ -468,65 +350,6 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       let(:constructor_options) { super().merge(member_action: true) }
 
       it { expect(action.member_action?).to be true }
-    end
-  end
-
-  describe '#repository' do
-    include_examples 'should define reader', :repository, nil
-
-    context 'when the controller defines a repository' do
-      let(:repository) { Cuprum::Collections::Repository.new }
-
-      it { expect(action.repository).to be repository }
-    end
-  end
-
-  describe '#resource' do
-    include_examples 'should define reader', :resource, -> { resource }
-  end
-
-  describe '#responder_for' do
-    before(:example) do
-      allow(configuration)
-        .to receive(:responder_for)
-        .with(:json)
-        .and_return(Spec::JsonResponder)
-    end
-
-    it { expect(action).to respond_to(:responder_for).with(1).argument }
-
-    it { expect(action.responder_for(:json)).to be Spec::JsonResponder }
-  end
-
-  describe '#serializers' do
-    include_examples 'should define reader', :serializers, -> { {} }
-
-    context 'when initialized with scoped serializers' do
-      let(:serializers) do
-        {
-          json: { Object => Spec::JsonSerializer },
-          yaml: { Object => Spec::YamlSerializer }
-        }
-      end
-      let(:constructor_options) do
-        super().merge(serializers: serializers)
-      end
-
-      example_class 'Spec::JsonSerializer'
-      example_class 'Spec::YamlSerializer'
-
-      it { expect(action.serializers).to be == serializers }
-    end
-
-    context 'when initialized with unscoped serializers' do
-      let(:serializers) { { Object => Spec::JsonSerializer } }
-      let(:constructor_options) do
-        super().merge(serializers: serializers)
-      end
-
-      example_class 'Spec::JsonSerializer'
-
-      it { expect(action.serializers).to be == serializers }
     end
   end
 end

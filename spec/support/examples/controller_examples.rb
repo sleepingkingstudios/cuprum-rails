@@ -43,10 +43,9 @@ module Spec::Support::Examples
           let(:member_action) { action_options.fetch(:member, false) }
           let(:expected) do
             {
-              action_class:    Spec::Action,
-              action_name:     action_name.intern,
-              controller_name: described_class.name,
-              member_action?:  member_action
+              action_class:   Spec::Action,
+              action_name:    action_name.intern,
+              member_action?: member_action
             }
           end
 
@@ -154,7 +153,7 @@ module Spec::Support::Examples
               it 'should call the action' do
                 controller.send(action_name)
 
-                expect(action).to have_received(:call).with(request)
+                expect(action).to have_received(:call).with(controller, request)
               end
 
               it 'should call the response' do
@@ -178,7 +177,9 @@ module Spec::Support::Examples
                 it 'should call the action' do
                   controller.send(action_name)
 
-                  expect(action).to have_received(:call).with(custom_request)
+                  expect(action)
+                    .to have_received(:call)
+                    .with(controller, custom_request)
                 end
               end
 
@@ -188,7 +189,9 @@ module Spec::Support::Examples
                 it 'should call the action' do
                   controller.send(action_name)
 
-                  expect(action).to have_received(:call).with(request)
+                  expect(action)
+                    .to have_received(:call)
+                    .with(controller, request)
                 end
 
                 context 'when the controller has a default format' do
@@ -206,6 +209,7 @@ module Spec::Support::Examples
                     expect(action)
                       .to have_received(:call)
                       .with(
+                        controller,
                         be(request)
                         .and(have_attributes(format: default_format))
                       )

@@ -13,17 +13,15 @@ module Cuprum::Rails::Controllers::ClassMethods
     #   constructible with keyword :resource.
     # @param member [Boolean] True if the action acts on a collection item, not
     #   on the collection as a whole.
-    def action(action_name, action_class, member: false) # rubocop:disable Metrics/MethodLength
+    def action(action_name, action_class, member: false)
       validate_name(action_name, as: 'action name')
       validate_class(action_class, as: 'action class')
 
       action_name              = action_name.intern
       own_actions[action_name] = Cuprum::Rails::Controllers::Action.new(
-        configuration,
-        action_class:    action_class,
-        action_name:     action_name,
-        controller_name: name,
-        member_action:   member
+        action_class:  action_class,
+        action_name:   action_name,
+        member_action: member
       )
 
       define_action(action_name)
@@ -77,7 +75,7 @@ module Cuprum::Rails::Controllers::ClassMethods
             .class
             .build_request(self, member_action: action.member_action?)
             .tap { |req| self.class.apply_request_defaults(req) }
-        response = action.call(request)
+        response = action.call(self, request)
         response.call(self)
       end
     end
