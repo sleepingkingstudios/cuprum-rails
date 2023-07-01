@@ -16,31 +16,19 @@ module Cuprum::Rails::Controllers
   class Action
     extend Forwardable
 
-    # @param configuration [Cuprum::Rails::Controllers::Configuration] the
-    #   configuration for the originating controller.
     # @param action_class [Class] the class of the action command. Must be
     #   constructible with keyword :resource.
     # @param action_name [String, Symbol] the name of the action.
-    # @param controller_name [String] the name of the instantiating controller.
     # @param member_action [Boolean] true if the action acts on a collection
     #   item, not on the collection as a whole.
-    # @param serializers
-    #   [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the serializers
-    #   for converting result values into serialized data.
-    def initialize( # rubocop:disable Metrics/ParameterLists
-      configuration,
+    def initialize(
       action_class:,
       action_name:,
-      controller_name:,
-      member_action: false,
-      serializers:   {}
+      member_action: false
     )
-      @configuration   = configuration
       @action_class    = action_class
       @action_name     = action_name
-      @controller_name = controller_name
-      @member_action   = !!member_action # rubocop:disable Style/DoubleNegation
-      @serializers     = serializers
+      @member_action   = !!member_action
     end
 
     # @return [Class] the class of the action command.
@@ -49,40 +37,6 @@ module Cuprum::Rails::Controllers
     # @return [String, Symbol] the name of the action.
     attr_reader :action_name
 
-    # @return [Cuprum::Rails::Controllers::Configuration] the configuration for
-    #   the originating controller.
-    attr_reader :configuration
-
-    # @return [String] the name of the instantiating controller.
-    attr_reader :controller_name
-
-    # @return [Hash<Class, Object>, Hash<Symbol, Hash<Class, Object>>] the
-    #   serializers for converting result values into serialized data.
-    attr_reader :serializers
-
-    # @!method repository
-    #   @return [Cuprum::Collections::Repository] the repository containing the
-    #     data collections for the application or scope.
-
-    # @!method resource
-    #   @return [Cuprum::Rails::Resource] the resource defined for the
-    #     controller.
-
-    # @!method responder_for(format)
-    #   Finds the configured responder for the requested format.
-    #
-    #   @param format [Symbol] The format to respond to.
-    #
-    #   @return [Class] the responder class defined for the format.
-    #
-    #   @raise [Cuprum::Rails::Controller::UnknownFormatError] if the controller
-    #     does not define a responder for the given format.
-
-    def_delegators :@configuration,
-      :repository,
-      :resource,
-      :responder_for
-
     # Executes the controller action.
     #
     # 1. Initializes the action command with the resource.
@@ -90,14 +44,18 @@ module Cuprum::Rails::Controllers
     # 3. Builds the responder with the resource and action metadata.
     # 4. Calls the responder with the action result.
     #
-    # @param request [Cuprum::Rails::Request] The request to process.
+    # @param controller [Cuprum::Rails::Controller] the controller instance
+    #   calling the request.
+    # @param request [Cuprum::Rails::Request] the request to process.
     #
-    # @return [#call] The response object.
-    def call(request)
-      responder = build_responder(request)
-      action    = action_class.new(repository: repository, resource: resource)
-      action    = apply_middleware(action)
-      result    = action.call(request: request)
+    # @return [#call] the response object.
+    def call(controller, request)
+      resource   = controller.class.resource
+      repository = controller.class.repository
+      responder  = build_responder(controller, request)
+      action     = action_class.new(repository: repository, resource: resource)
+      action     = apply_middleware(controller, action)
+      result     = action.call(request: request)
 
       responder.call(result)
     end
@@ -110,48 +68,46 @@ module Cuprum::Rails::Controllers
 
     private
 
-    def apply_middleware(command)
+    def apply_middleware(controller, command)
+      configuration = controller.class.configuration
+      middleware    =
+        configuration
+          .middleware_for(action_name)
+          .map { |config| build_middleware(controller, config.command) }
+
       Cuprum::Middleware.apply(
         command:    command,
         middleware: middleware
       )
     end
 
-    def build_middleware(command)
+    def build_middleware(controller, command)
       return command unless command.is_a?(Class)
 
       keywords = {}
 
       if responds_to_keyword?(command, :repository)
-        keywords[:repository] = repository
+        keywords[:repository] = controller.class.repository
       end
 
-      keywords[:resource] = resource if responds_to_keyword?(command, :resource)
+      if responds_to_keyword?(command, :resource)
+        keywords[:resource] = controller.class.resource
+      end
 
       command.new(**keywords)
     end
 
-    def build_responder(request)
-      responder_class = responder_for(request.format)
+    def build_responder(controller, request)
+      configuration   = controller.class.configuration
+      responder_class = configuration.responder_for(request.format)
 
       responder_class.new(
         action_name:     action_name,
-        controller_name: controller_name,
+        controller_name: controller.class.name,
         member_action:   member_action?,
-        resource:        resource,
-        serializers:     merge_serializers_for(request.format)
+        resource:        controller.class.resource,
+        serializers:     configuration.serializers_for(request.format)
       )
-    end
-
-    def merge_serializers_for(format)
-      scoped_serializers(configuration.serializers, format: format)
-        .merge(scoped_serializers(serializers, format: format))
-    end
-
-    def middleware
-      configuration
-        .middleware_for(action_name)
-        .map { |middleware| build_middleware(middleware.command) }
     end
 
     def responds_to_keyword?(klass, keyword)
@@ -159,12 +115,6 @@ module Cuprum::Rails::Controllers
         type == :keyrest ||
           (value == keyword && (type == :key || type == :keyreq)) # rubocop:disable Style/MultipleComparison
       end
-    end
-
-    def scoped_serializers(serializers, format:)
-      serializers
-        .select { |key, _| key.is_a?(Class) }
-        .merge(serializers.fetch(format, {}))
     end
   end
 end

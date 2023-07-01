@@ -65,7 +65,7 @@ module Cuprum::Rails::Controllers
 
     # Finds the configured responder for the requested format.
     #
-    # @param format [Symbol] The format to respond to.
+    # @param format [Symbol] the format to respond to.
     #
     # @return [Class] the responder class defined for the format.
     #
@@ -76,6 +76,18 @@ module Cuprum::Rails::Controllers
         raise Cuprum::Rails::Controller::UnknownFormatError,
           "no responder registered for format #{format.inspect}"
       end
+    end
+
+    # Finds the configured serializers for the requested format.
+    #
+    # @param format [Symbol] the format to respond to.
+    #
+    # @return [Hash<Class, Object>] the serializers for converting result values
+    #   into serialized data.
+    def serializers_for(format)
+      serializers
+        .select { |key, _| key.is_a?(Class) }
+        .merge(serializers.fetch(format, {}))
     end
   end
 end
