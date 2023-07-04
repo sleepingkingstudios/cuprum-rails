@@ -18,8 +18,12 @@ module Cuprum::Rails::RSpec::Contracts
       #     which the contract is applied.
       #   @param constructor_keywords [Array<Symbol>] additional keywords that
       #     are required by the constructor.
-      contract do |constructor_keywords: []|
-        example_class 'Spec::CustomController' do |klass|
+      #   @param controller_name [String] the name of the test controller.
+      contract do |
+        constructor_keywords: [],
+        controller_name:      'Spec::CustomController'
+      |
+        example_class(controller_name) do |klass|
           configured_resource =
             if defined?(resource)
               resource
@@ -85,7 +89,7 @@ module Cuprum::Rails::RSpec::Contracts
         describe '#controller_name' do
           include_examples 'should define reader',
             :controller_name,
-            'Spec::CustomController'
+            controller_name
         end
 
         describe '#member_action?' do
@@ -113,7 +117,7 @@ module Cuprum::Rails::RSpec::Contracts
         describe '#resource' do
           include_examples 'should define reader',
             :resource,
-            -> { Spec::CustomController.resource }
+            -> { controller.class.resource }
         end
 
         describe '#result' do
