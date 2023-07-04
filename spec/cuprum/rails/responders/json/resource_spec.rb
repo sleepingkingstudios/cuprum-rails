@@ -1,49 +1,32 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/json/resource'
+require 'cuprum/rails/rspec/contracts/responder_contracts'
 
 require 'support/book'
 
 RSpec.describe Cuprum::Rails::Responders::Json::Resource do
+  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+
   subject(:responder) { described_class.new(**constructor_options) }
 
-  let(:action_name)     { :published }
-  let(:controller_name) { 'Spec::CustomController' }
-  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
-  let(:serializers)     { Cuprum::Rails::Serializers::Json.default_serializers }
+  let(:action_name) { :published }
+  let(:controller)  { Spec::CustomController.new }
+  let(:request)     { Cuprum::Rails::Request.new }
+  let(:serializers) { Cuprum::Rails::Serializers::Json.default_serializers }
   let(:constructor_options) do
     {
-      action_name:     action_name,
-      controller_name: controller_name,
-      resource:        resource,
-      serializers:     serializers
+      action_name: action_name,
+      controller:  controller,
+      request:     request,
+      serializers: serializers
     }
   end
 
-  describe '.new' do
-    let(:expected_keywords) do
-      %i[
-        action_name
-        controller_name
-        matcher
-        member_action
-        resource
-        serializers
-      ]
-    end
-
-    it 'should define the constructor' do
-      expect(described_class)
-        .to respond_to(:new)
-        .with(0).arguments
-        .and_keywords(*expected_keywords)
-        .and_any_keywords
-    end
-  end
+  include_contract 'should implement the responder methods',
+    constructor_keywords: %i[matcher serializers]
 
   describe '#call' do
-    it { expect(responder).to respond_to(:call).with(1).argument }
-
     describe 'with a failing result' do
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
       let(:result)   { Cuprum::Result.new(status: :failure, error: error) }

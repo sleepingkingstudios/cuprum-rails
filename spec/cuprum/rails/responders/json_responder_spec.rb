@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/json_responder'
+require 'cuprum/rails/rspec/contracts/responder_contracts'
 require 'cuprum/rails/serializers/json/active_record_serializer'
 
 require 'support/book'
 
 RSpec.describe Cuprum::Rails::Responders::JsonResponder do
+  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+
   subject(:responder) { described_class.new(**constructor_options) }
 
   shared_context 'with a custom error' do
@@ -28,16 +31,16 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     end
   end
 
-  let(:action_name)     { :published }
-  let(:controller_name) { 'Spec::CustomController' }
-  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
-  let(:serializers)     { Cuprum::Rails::Serializers::Json.default_serializers }
+  let(:action_name) { :published }
+  let(:controller)  { Spec::CustomController.new }
+  let(:request)     { Cuprum::Rails::Request.new }
+  let(:serializers) { Cuprum::Rails::Serializers::Json.default_serializers }
   let(:constructor_options) do
     {
-      action_name:     action_name,
-      controller_name: controller_name,
-      resource:        resource,
-      serializers:     serializers
+      action_name: action_name,
+      controller:  controller,
+      request:     request,
+      serializers: serializers
     }
   end
 
@@ -49,34 +52,10 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     expect(described_class).to be < Cuprum::Rails::Responders::Serialization
   end
 
-  describe '.new' do
-    let(:expected_keywords) do
-      %i[
-        action_name
-        controller_name
-        matcher
-        member_action
-        resource
-        serializers
-      ]
-    end
-
-    it 'should define the constructor' do
-      expect(described_class)
-        .to respond_to(:new)
-        .with(0).arguments
-        .and_keywords(*expected_keywords)
-        .and_any_keywords
-    end
-  end
-
-  describe '#action_name' do
-    include_examples 'should define reader', :action_name, -> { action_name }
-  end
+  include_contract 'should implement the responder methods',
+    constructor_keywords: %i[matcher serializers]
 
   describe '#call' do
-    it { expect(responder).to respond_to(:call).with(1).argument }
-
     describe 'with nil' do
       let(:error_message) { 'result must be a Cuprum::Result' }
 
@@ -237,12 +216,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     end
   end
 
-  describe '#controller_name' do
-    include_examples 'should define reader',
-      :controller_name,
-      -> { controller_name }
-  end
-
   describe '#format' do
     include_examples 'should define reader', :format, :json
   end
@@ -257,16 +230,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     include_examples 'should define reader',
       :generic_error,
       -> { be == generic_error }
-  end
-
-  describe '#member_action?' do
-    include_examples 'should define predicate', :member_action?, false
-
-    context 'when initialized with member_action: true' do
-      let(:constructor_options) { super().merge(member_action: true) }
-
-      it { expect(responder.member_action?).to be true }
-    end
   end
 
   describe '#render' do
@@ -452,14 +415,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
       it { expect(response.status).to be 201 }
     end
-  end
-
-  describe '#resource' do
-    include_examples 'should define reader', :resource, -> { resource }
-  end
-
-  describe '#result' do
-    include_examples 'should define reader', :result, nil
   end
 
   describe '#serializers' do

@@ -46,33 +46,36 @@ module Cuprum::Rails::Responders
       attr_reader :matcher
     end
 
-    # @private
-    def self.included(other)
-      super
+    class << self
+      private
 
-      other.extend(ClassMethods)
+      def included(other)
+        super
+
+        other.extend(ClassMethods)
+      end
     end
 
-    # @param action_name [String, Symbol] The name of the action to match.
-    # @param controller_name [String] the name of the called controller.
-    # @param matcher [Cuprum::Matcher] An optional matcher specific to the
+    # @param action_name [String, Symbol] the name of the action to match.
+    # @param controller [Cuprum::Rails::Controller] the called controller.
+    # @param matcher [Cuprum::Matcher] an optional matcher specific to the
     #   action. This will be matched before any of the generic matchers.
-    # @param member_action [Boolean] True if the action acts on a collection
+    # @param member_action [Boolean] true if the action acts on a collection
     #   item, not on the collection as a whole.
-    # @param resource [Cuprum::Rails::Resource] The resource for the controller.
+    # @param request [Cuprum::Rails::Request] the request to the controller.
     def initialize( # rubocop:disable Metrics/ParameterLists
       action_name:,
-      controller_name:,
-      resource:,
-      matcher: nil,
+      controller:,
+      request:,
+      matcher:       nil,
       member_action: false,
       **options
     )
       super(
-        action_name:     action_name,
-        controller_name: controller_name,
-        member_action:   member_action,
-        resource:        resource,
+        action_name:   action_name,
+        controller:    controller,
+        member_action: member_action,
+        request:       request,
         **options
       )
 

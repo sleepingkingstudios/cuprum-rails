@@ -62,7 +62,7 @@ Extracted `Responders::BaseResponder`.
 
 Extracted `Responders::Html::Rendering`.
 
-**(Breaking Change)** Responders now require a `:controller_name` parameter on initialization. This populates the `#controller_name` reader with the name of the initializing controller.
+**(Breaking Change)** Responders now require `:controller` and `:request` parameters on initialization.
 
 #### Responses
 
