@@ -52,29 +52,35 @@ module Cuprum::Rails::Responders
       render_failure(Rails.env.development? ? result.error : generic_error)
     end
 
-    # @param action_name [String, Symbol] The name of the action to match.
+    # @param action_name [String, Symbol] the name of the action to match.
+    # @param controller [Cuprum::Rails::Controller] the called controller.
     # @param controller_name [String] the name of the called controller.
-    # @param matcher [Cuprum::Matcher] An optional matcher specific to the
+    #   Defaults to controller.class.name.
+    # @param matcher [Cuprum::Matcher] an optional matcher specific to the
     #   action. This will be matched before any of the generic matchers.
-    # @param member_action [Boolean] True if the action acts on a collection
+    # @param member_action [Boolean] true if the action acts on a collection
     #   item, not on the collection as a whole.
-    # @param resource [Cuprum::Rails::Resource] The resource for the controller.
+    # @param request [Cuprum::Rails::Request] the request to the controller.
+    # @param serializers [Hash<Class, Object>] the serializers for converting
+    #   result values into serialized data.
+    # @param options [Hash] additional parameters for the responder.
     def initialize( # rubocop:disable Metrics/ParameterLists
       action_name:,
-      controller_name:,
-      resource:,
+      controller:,
+      request:,
       serializers:,
-      matcher:       nil,
       member_action: false,
-      **_options
+      **options
     )
       super(
-        action_name:     action_name,
-        controller_name: controller_name,
-        matcher:         matcher,
-        member_action:   member_action,
-        resource:        resource,
-        serializers:     serializers
+        action_name:   action_name,
+        controller:    controller,
+        matcher:       matcher,
+        member_action: member_action,
+        resource:      resource,
+        request:       request,
+        serializers:   serializers,
+        **options
       )
     end
 

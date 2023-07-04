@@ -1,24 +1,22 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/html/singular_resource'
+require 'cuprum/rails/rspec/contracts/responder_contracts'
 
 RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
+  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+
   subject(:responder) { described_class.new(**constructor_options) }
 
   let(:described_class) { Spec::ResourceResponder }
-  let(:controller_name) { 'Spec::CustomController' }
   let(:action_name)     { :publish }
-  let(:resource) do
-    Cuprum::Rails::Resource.new(
-      resource_name: 'book',
-      singular:      true
-    )
-  end
+  let(:controller)      { Spec::CustomController.new }
+  let(:request)         { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name:     action_name,
-      controller_name: controller_name,
-      resource:        resource
+      action_name: action_name,
+      controller:  controller,
+      request:     request
     }
   end
 
@@ -29,26 +27,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
     allow(SleepingKingStudios::Tools::CoreTools).to receive(:deprecate)
   end
 
-  describe '.new' do
-    it 'should define the constructor' do
-      expect(described_class)
-        .to respond_to(:new)
-        .with(0).arguments
-        .and_keywords(:action_name, :matcher, :member_action, :resource)
-        .and_any_keywords
-    end
-
-    it 'should display a deprecation warning' do # rubocop:disable RSpec/ExampleLength
-      described_class.new(**constructor_options)
-
-      expect(SleepingKingStudios::Tools::CoreTools)
-        .to have_received(:deprecate)
-        .with(
-          'Cuprum::Rails::Responders::Html::SingularResource',
-          message: 'use Cuprum::Rails::Responders::Html::Resource'
-        )
-    end
-  end
+  include_contract 'should implement the responder methods',
+    constructor_keywords: %i[matcher]
 
   describe '#call' do
     shared_examples 'should redirect to the parent resource page' do
@@ -79,6 +59,13 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       it { expect(response.template).to be == action_name }
 
       it { expect(response.status).to be 200 }
+    end
+
+    let(:resource) do
+      Cuprum::Rails::Resource.new(
+        resource_name: 'book',
+        singular:      true
+      )
     end
 
     context 'when initialized with action_name: :create' do

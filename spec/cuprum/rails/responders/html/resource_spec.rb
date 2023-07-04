@@ -1,24 +1,30 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/html/resource'
+require 'cuprum/rails/rspec/contracts/responder_contracts'
 
 RSpec.describe Cuprum::Rails::Responders::Html::Resource do
+  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+
   subject(:responder) { described_class.new(**constructor_options) }
 
   let(:described_class) { Spec::ResourceResponder }
-  let(:action_name)     { :publish }
-  let(:controller_name) { 'Spec::CustomController' }
-  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
+  let(:action_name)     { :published }
+  let(:controller)      { Spec::CustomController.new }
+  let(:request)         { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name:     action_name,
-      controller_name: controller_name,
-      resource:        resource
+      action_name: action_name,
+      controller:  controller,
+      request:     request
     }
   end
 
   example_class 'Spec::ResourceResponder',
     Cuprum::Rails::Responders::Html::Resource # rubocop:disable RSpec/DescribedClass
+
+  include_contract 'should implement the responder methods',
+    constructor_keywords: %i[matcher]
 
   describe '#call' do
     shared_examples 'should redirect to the index page' do

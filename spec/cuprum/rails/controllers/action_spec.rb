@@ -45,11 +45,11 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         expect(responder_class)
           .to have_received(:new)
           .with(
-            action_name:     action_name,
-            controller_name: controller.class.name,
-            member_action:   member_action,
-            resource:        resource,
-            serializers:     configured_serializers
+            action_name:   action_name,
+            controller:    controller,
+            member_action: member_action,
+            request:       request,
+            serializers:   configured_serializers
           )
       end
     end

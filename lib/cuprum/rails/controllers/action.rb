@@ -102,11 +102,11 @@ module Cuprum::Rails::Controllers
       responder_class = configuration.responder_for(request.format)
 
       responder_class.new(
-        action_name:     action_name,
-        controller_name: controller.class.name,
-        member_action:   member_action?,
-        resource:        controller.class.resource,
-        serializers:     configuration.serializers_for(request.format)
+        action_name:   action_name,
+        controller:    controller,
+        member_action: member_action?,
+        request:       request,
+        serializers:   configuration.serializers_for(request.format)
       )
     end
 

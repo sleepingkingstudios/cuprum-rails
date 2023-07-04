@@ -3,19 +3,22 @@
 require 'cuprum/rails/responders/actions'
 require 'cuprum/rails/responders/base_responder'
 require 'cuprum/rails/responders/matching'
+require 'cuprum/rails/rspec/contracts/responder_contracts'
 
 RSpec.describe Cuprum::Rails::Responders::Actions do
+  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+
   subject(:responder) { described_class.new(**constructor_options) }
 
   let(:described_class) { Spec::ActionResponder }
   let(:action_name)     { :published }
-  let(:controller_name) { 'Spec::CustomController' }
-  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
+  let(:controller)      { Spec::CustomController.new }
+  let(:request)         { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name:     action_name,
-      controller_name: controller_name,
-      resource:        resource
+      action_name: action_name,
+      controller:  controller,
+      request:     request
     }
   end
 
@@ -25,6 +28,9 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
     klass.include Cuprum::Rails::Responders::Matching
     klass.include Cuprum::Rails::Responders::Actions # rubocop:disable RSpec/DescribedClass
   end
+
+  include_contract 'should implement the responder methods',
+    constructor_keywords: %i[matcher]
 
   describe '.action' do
     shared_examples 'should define the action matcher' do
@@ -192,8 +198,6 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
   end
 
   describe '#call' do
-    it { expect(responder).to respond_to(:call).with(1).argument }
-
     describe 'with nil' do
       let(:error_message) { 'result must be a Cuprum::Result' }
 
