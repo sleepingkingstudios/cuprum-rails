@@ -80,6 +80,10 @@ Added Rails flash message support to HTML responses:
 
 Implemented `Cuprum::Rails::Result`, which includes a `#metadata` property for passing contextual data such as an authentication session or page configuration.
 
+#### Routes
+
+Member route methods now accept a primary key value as well as an entity.
+
 #### RSpec
 
 Implemented contracts for Cuprum::Rails actions

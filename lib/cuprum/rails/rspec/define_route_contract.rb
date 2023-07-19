@@ -40,7 +40,7 @@ module Cuprum::Rails::RSpec
       end
 
       if member_action
-        describe 'when the entity is nil' do
+        describe 'when the value or entity is nil' do
           let(:entity)        { nil }
           let(:error_message) { 'missing wildcard :id' }
 
@@ -50,6 +50,30 @@ module Cuprum::Rails::RSpec
                 described_class::MissingWildcardError,
                 error_message
               )
+          end
+        end
+
+        describe 'when the value or entity is an Integer' do
+          let(:value)    { 12_345 }
+          let(:expected) { path.sub(':id', value.to_s) }
+          let(:scoped_routes) do
+            wildcards.empty? ? routes : routes.with_wildcards(wildcards)
+          end
+
+          it 'should apply the value to the path' do
+            expect(scoped_routes.send(method_name, value)).to be == expected
+          end
+        end
+
+        describe 'when the value or entity is a String' do
+          let(:value)    { '12345' }
+          let(:expected) { path.sub(':id', value) }
+          let(:scoped_routes) do
+            wildcards.empty? ? routes : routes.with_wildcards(wildcards)
+          end
+
+          it 'should apply the value to the path' do
+            expect(scoped_routes.send(method_name, value)).to be == expected
           end
         end
       end
