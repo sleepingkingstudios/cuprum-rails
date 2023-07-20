@@ -120,13 +120,13 @@ module Cuprum::Rails
 
     private
 
-    def insert_wildcards(path, entity = nil)
+    def insert_wildcards(path, value_or_entity = nil)
       path
         .split('/')
         .map do |segment|
           next segment unless segment.start_with?(':')
 
-          next resolve_primary_key(entity) if segment == ':id'
+          next resolve_primary_key(value_or_entity) if segment == ':id'
 
           resolve_wildcard(segment)
         end
@@ -141,12 +141,16 @@ module Cuprum::Rails
       "#{base_path}/#{path}"
     end
 
-    def resolve_primary_key(entity)
-      raise MissingWildcardError, 'missing wildcard :id' if entity.nil?
+    def resolve_primary_key(value_or_entity)
+      raise MissingWildcardError, 'missing wildcard :id' if value_or_entity.nil?
 
-      primary_key = entity.class.primary_key
+      unless value_or_entity.class.respond_to?(:primary_key)
+        return value_or_entity
+      end
 
-      entity[primary_key]
+      primary_key = value_or_entity.class.primary_key
+
+      value_or_entity[primary_key]
     end
 
     def resolve_wildcard(segment)
