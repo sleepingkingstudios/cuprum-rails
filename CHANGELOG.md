@@ -8,6 +8,8 @@ Implemented `#transaction` method.
 
 Refactored how actions handle required parameters.
 
+- The validation errors for the `Create` and `Update` actions are now scoped by the resource name. The error path should now match the relative path of the corresponding form field.
+
 ### Collections
 
 Implemented `Collection#qualified_path`, and added qualified path support to `Repository`.

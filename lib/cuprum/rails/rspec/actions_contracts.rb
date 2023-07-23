@@ -652,8 +652,21 @@ module Cuprum::Rails::RSpec
 
               Cuprum::Collections::Errors::FailedValidation.new(
                 entity_class: action.resource.resource_class,
-                errors:       errors
+                errors:       scope_validation_errors(errors)
               )
+            end
+
+            def scope_validation_errors(errors)
+              mapped_errors = Stannum::Errors.new
+              resource_name = action.resource.singular_resource_name
+
+              errors.each do |err|
+                mapped_errors
+                  .dig(resource_name, *err[:path].map(&:to_s))
+                  .add(err[:type], message: err[:message], **err[:data])
+              end
+
+              mapped_errors
             end
 
             it 'should return a failing result' do
