@@ -37,7 +37,7 @@ module Cuprum::Rails::Actions
       return result unless failed_validation?(result)
 
       Cuprum::Result.new(
-        error:  result.error,
+        error:  scope_validation_errors(result.error),
         status: :failure,
         value:  { singular_resource_name => entity }
       )
@@ -76,6 +76,21 @@ module Cuprum::Rails::Actions
 
     def require_permitted_attributes?
       true
+    end
+
+    def scope_validation_errors(error)
+      mapped_errors = Stannum::Errors.new
+
+      error.errors.each do |err|
+        mapped_errors
+          .dig(resource.singular_resource_name, *err[:path].map(&:to_s))
+          .add(err[:type], message: err[:message], **err[:data])
+      end
+
+      Cuprum::Collections::Errors::FailedValidation.new(
+        entity_class: error.entity_class,
+        errors:       mapped_errors
+      )
     end
   end
 end

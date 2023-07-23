@@ -262,8 +262,17 @@ RSpec.describe BooksController do
       let(:expected_book) { Book.new(attributes) }
       let(:expected_errors) do
         native_errors = expected_book.tap(&:valid?).errors
+        raw_errors    =
+          Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+        mapped_errors = Stannum::Errors.new
 
-        Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+        raw_errors.each do |err|
+          mapped_errors
+            .dig('book', *err[:path].map(&:to_s))
+            .add(err[:type], message: err[:message], **err[:data])
+        end
+
+        mapped_errors
       end
       let(:expected_error) do
         Cuprum::Collections::Errors::FailedValidation
@@ -530,10 +539,17 @@ RSpec.describe BooksController do
         end
         let(:expected_errors) do
           native_errors = expected_book.tap(&:valid?).errors
+          raw_errors    =
+            Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+          mapped_errors = Stannum::Errors.new
 
-          Cuprum::Rails::MapErrors
-            .instance
-            .call(native_errors: native_errors)
+          raw_errors.each do |err|
+            mapped_errors
+              .dig('book', *err[:path].map(&:to_s))
+              .add(err[:type], message: err[:message], **err[:data])
+          end
+
+          mapped_errors
         end
         let(:expected_assigns) do
           {
