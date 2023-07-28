@@ -6,22 +6,29 @@ require 'cuprum/rails/collection'
 module Cuprum::Rails
   # Value object representing a controller resource.
   class Resource
-    # @param collection [Cuprum::Collections::Base] Collection representing the
+    # Default actions for a plural resource.
+    PLURAL_ACTIONS = %w[create destroy edit index new show update].freeze
+
+    # Default actions for a singular resource.
+    SINGULAR_ACTIONS = %w[create destroy edit new show update].freeze
+
+    # @param collection [Cuprum::Collections::Base] collection representing the
     #   resource data.
-    # @param options [Hash] Additional options for the resource.
-    # @param resource_class [Class] Class representing the resource items.
-    # @param resource_name [String] The name of the resource.
-    # @param routes [Cuprum::Rails::Routes] The routes defined for the resource.
-    # @param singular [Boolean] Indicates that the resource is a singular
+    # @param options [Hash] additional options for the resource.
+    # @param resource_class [Class] class representing the resource items.
+    # @param resource_name [String] the name of the resource.
+    # @param routes [Cuprum::Rails::Routes] the routes defined for the resource.
+    # @param singular [Boolean] indicates that the resource is a singular
     #   collection, and has only one member.
     #
-    # @option options default_order [Hash] The default ordering for the resource
+    # @option options actions [Array, Set] the defined actions for the resource.
+    # @option options default_order [Hash] the default ordering for the resource
     #   items.
-    # @option options permitted_attributes [Array] List of attributes that can
+    # @option options permitted_attributes [Array] list of attributes that can
     #   be set or changed by resourceful actions.
-    # @option options primary_key [String, Symbol] The name of the primary key
+    # @option options primary_key [String, Symbol] the name of the primary key
     #   for the resource, if any.
-    # @option options singular_resource_name [String] The singular form of the
+    # @option options singular_resource_name [String] the singular form of the
     #   resource name.
     def initialize( # rubocop:disable Metrics/ParameterLists
       collection:     nil,
@@ -54,6 +61,11 @@ module Cuprum::Rails
 
     # @return [Class] class representing the resource items.
     attr_reader :resource_class
+
+    # @return [Set] the defined actions for the resource.
+    def actions
+      @actions ||= Set.new(options.fetch(:actions, default_actions).map(&:to_s))
+    end
 
     # @return [String] the base url for the resource.
     def base_path
@@ -140,6 +152,10 @@ module Cuprum::Rails
         member_name:     singular_resource_name,
         record_class:    resource_class
       )
+    end
+
+    def default_actions
+      singular? ? SINGULAR_ACTIONS : PLURAL_ACTIONS
     end
 
     def routes_without_wildcards
