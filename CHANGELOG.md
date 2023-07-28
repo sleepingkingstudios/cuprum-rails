@@ -51,6 +51,8 @@ Added `#path_params` method and properly handle parameters from the request path
 
 Automatically generate a `Cuprum::Rails::Collection` when creating a resource with a `record_class` but no explicit `collection`.
 
+Added `#actions` option, which is automatically generated for singular and plural resources.
+
 #### Responders
 
 Implemented `Responders::Html::Resource` to handle both singular and plural resources.

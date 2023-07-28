@@ -10,6 +10,22 @@ RSpec.describe Cuprum::Rails::Resource do
   let(:resource_class)      { Book }
   let(:constructor_options) { { resource_class: resource_class } }
 
+  describe '::PLURAL_ACTIONS' do
+    let(:expected) { %w[create destroy edit index new show update] }
+
+    include_examples 'should define immutable constant',
+      :PLURAL_ACTIONS,
+      -> { expected }
+  end
+
+  describe '::SINGULAR_ACTIONS' do
+    let(:expected) { %w[create destroy edit new show update] }
+
+    include_examples 'should define immutable constant',
+      :SINGULAR_ACTIONS,
+      -> { expected }
+  end
+
   describe '.new' do
     it 'should define the constructor' do
       expect(described_class)
@@ -42,6 +58,39 @@ RSpec.describe Cuprum::Rails::Resource do
           )
         end
           .to raise_error ArgumentError, error_message
+      end
+    end
+  end
+
+  describe '#actions' do
+    let(:expected) { Set.new(described_class::PLURAL_ACTIONS) }
+
+    include_examples 'should define reader',
+      :actions,
+      -> { an_instance_of(Set) }
+
+    it { expect(resource.actions).to be == expected }
+
+    context 'when initialized with actions: an Array of Strings' do
+      let(:actions)             { %w[index show launch recover] }
+      let(:constructor_options) { super().merge(actions: actions) }
+      let(:expected)            { Set.new(actions) }
+
+      it { expect(resource.actions).to be == expected }
+    end
+
+    context 'when initialized with singular: true' do
+      let(:constructor_options) { super().merge(singular: true) }
+      let(:expected)            { Set.new(described_class::SINGULAR_ACTIONS) }
+
+      it { expect(resource.actions).to be == expected }
+
+      context 'when initialized with actions: an Array of Strings' do
+        let(:actions)             { %w[show launch recover] }
+        let(:constructor_options) { super().merge(actions: actions) }
+        let(:expected)            { Set.new(actions) }
+
+        it { expect(resource.actions).to be == expected }
       end
     end
   end
