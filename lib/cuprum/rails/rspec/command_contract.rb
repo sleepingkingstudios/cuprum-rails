@@ -166,12 +166,12 @@ module Cuprum::Rails::RSpec
     end
 
     describe '#primary_key_name' do
-      include_examples 'should define reader', :primary_key_name, :id
+      include_examples 'should define reader', :primary_key_name, 'id'
 
       context 'with a record class with custom primary key' do
         let(:record_class) { Tome }
 
-        include_examples 'should define reader', :primary_key_name, :uuid
+        include_examples 'should define reader', :primary_key_name, 'uuid'
       end
     end
 

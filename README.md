@@ -394,7 +394,7 @@ repository = Cuprum::Rails::Repository.new
 repository.key?('books')
 #=> false
 
-collection = repository.find_or_create(record_class: Book)
+collection = repository.find_or_create(entity_class: Book)
 #=> a Cuprum::Rails::Collection
 collection.collection_name
 #=> 'books'
@@ -411,7 +411,7 @@ repository = Cuprum::Rails::Repository.new
 repository.key?('authentication/users')
 #=> false
 
-collection = repository.find_or_create(record_class: Authentication::User)
+collection = repository.find_or_create(entity_class: Authentication::User)
 #=> a Cuprum::Rails::Collection
 collection.collection_name
 #=> 'users'

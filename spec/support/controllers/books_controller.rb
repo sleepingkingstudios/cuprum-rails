@@ -12,14 +12,14 @@ class BooksController < BaseController
   def self.repository
     repository = super
 
-    repository.find_or_create(record_class: Book)
+    repository.find_or_create(entity_class: Book)
 
     repository
   end
 
   def self.resource
     @resource ||= Cuprum::Rails::Resource.new(
-      collection:           repository.find_or_create(record_class: Book),
+      collection:           repository.find_or_create(entity_class: Book),
       permitted_attributes: %i[title author series category published_at],
       resource_class:       Book
     )

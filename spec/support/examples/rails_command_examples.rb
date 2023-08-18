@@ -21,7 +21,7 @@ module Spec::Support::Examples
       let(:collection_name)     { 'books' }
       let(:constructor_options) { {} }
       let(:expected_options)    { {} }
-      let(:primary_key_name)    { :id }
+      let(:primary_key_name)    { 'id' }
       let(:primary_key_type)    { Integer }
       let(:entity_type)         { record_class }
       let(:fixtures_data) do
@@ -42,7 +42,7 @@ module Spec::Support::Examples
     shared_context 'with a custom primary key' do
       let(:collection_name)  { 'tomes' }
       let(:record_class)     { Tome }
-      let(:primary_key_name) { :uuid }
+      let(:primary_key_name) { 'uuid' }
       let(:primary_key_type) { String }
       let(:mapped_data) do
         data.map do |item|
