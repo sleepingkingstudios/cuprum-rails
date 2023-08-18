@@ -21,7 +21,6 @@ RSpec.describe Spec::Support::Actions::UpdateChapter do
   end
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      collection:           repository.find_or_create(record_class: Chapter),
       permitted_attributes: %i[title],
       resource_class:       Chapter
     )

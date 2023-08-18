@@ -53,6 +53,8 @@ Automatically generate a `Cuprum::Rails::Collection` when creating a resource wi
 
 Added `#actions` option, which is automatically generated for singular and plural resources.
 
+- **(Breaking Change)** Removed `Resource#collection`.
+
 #### Responders
 
 Implemented `Responders::Html::Resource` to handle both singular and plural resources.

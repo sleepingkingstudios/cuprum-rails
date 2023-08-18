@@ -21,7 +21,6 @@ RSpec.describe Spec::Support::Actions::IndexChapters do
   end
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      collection:     repository.find_or_create(record_class: Chapter),
       default_order:  :id,
       resource_class: Chapter
     )

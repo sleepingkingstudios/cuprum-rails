@@ -12,8 +12,6 @@ module Cuprum::Rails
     # Default actions for a singular resource.
     SINGULAR_ACTIONS = %w[create destroy edit new show update].freeze
 
-    # @param collection [Cuprum::Collections::Base] collection representing the
-    #   resource data.
     # @param options [Hash] additional options for the resource.
     # @param resource_class [Class] class representing the resource items.
     # @param resource_name [String] the name of the resource.
@@ -30,8 +28,7 @@ module Cuprum::Rails
     #   for the resource, if any.
     # @option options singular_resource_name [String] the singular form of the
     #   resource name.
-    def initialize( # rubocop:disable Metrics/ParameterLists
-      collection:     nil,
+    def initialize(
       resource_class: nil,
       resource_name:  nil,
       routes:         nil,
@@ -48,13 +45,8 @@ module Cuprum::Rails
       @resource_class = resource_class
       @resource_name  = resource_name.to_s unless resource_name.nil?
       @routes         = routes
-      @singular       = !!singular # rubocop:disable Style/DoubleNegation
-      @collection     = collection || build_collection
+      @singular       = !!singular
     end
-
-    # @return [Cuprum::Collections::Base] collection representing the resource
-    #   data.
-    attr_reader :collection
 
     # @return [Hash] additional options for the resource.
     attr_reader :options
@@ -143,16 +135,6 @@ module Cuprum::Rails
     end
 
     private
-
-    def build_collection
-      return unless resource_class
-
-      Cuprum::Rails::Collection.new(
-        collection_name: resource_name,
-        member_name:     singular_resource_name,
-        record_class:    resource_class
-      )
-    end
 
     def default_actions
       singular? ? SINGULAR_ACTIONS : PLURAL_ACTIONS

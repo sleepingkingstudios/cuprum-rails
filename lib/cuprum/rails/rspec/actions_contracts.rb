@@ -82,7 +82,6 @@ module Cuprum::Rails::RSpec
               resource = super()
 
               Cuprum::Rails::Resource.new(
-                collection:           resource.collection,
                 permitted_attributes: nil,
                 resource_name:        resource.resource_name
               )
@@ -110,7 +109,6 @@ module Cuprum::Rails::RSpec
               resource = super()
 
               Cuprum::Rails::Resource.new(
-                collection:           resource.collection,
                 permitted_attributes: [],
                 resource_name:        resource.resource_name
               )
@@ -635,9 +633,11 @@ module Cuprum::Rails::RSpec
             end
             let(:configured_expected_entity) do
               if configured_existing_entity
-                action
-                  .resource
-                  .collection
+                repository
+                  .find_or_create(
+                    collection_name: resource.resource_name,
+                    entity_class:    resource.resource_class
+                  )
                   .assign_one
                   .call(
                     attributes: configured_invalid_attributes,

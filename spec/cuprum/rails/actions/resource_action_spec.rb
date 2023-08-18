@@ -16,7 +16,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
   let(:collection) { repository.find_or_create(record_class: Book) }
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      collection:     repository.find_or_create(record_class: Book),
       resource_class: Book,
       **resource_options
     )

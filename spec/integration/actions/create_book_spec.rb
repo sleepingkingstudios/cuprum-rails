@@ -22,7 +22,6 @@ RSpec.describe Spec::Support::Actions::CreateBook do
   end
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      collection:           repository.find_or_create(record_class: Book),
       permitted_attributes: %i[title author series],
       resource_class:       Book
     )
