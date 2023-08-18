@@ -131,13 +131,10 @@ module Spec::Support::Examples
               before(:example) do
                 described_class.responder :html, Spec::HtmlResponder
 
-                allow(described_class)
-                  .to receive(:build_request)
-                  .and_return(request)
-
-                allow(described_class)
-                  .to receive(:resource)
-                  .and_return(resource)
+                allow(described_class).to receive_messages(
+                  build_request: request,
+                  resource:      resource
+                )
 
                 allow(action).to receive(:call).and_return(response)
               end
