@@ -170,7 +170,7 @@ RSpec.describe BooksController do
       let(:path_params) { super().merge('id' => book_id) }
       let(:expected_error) do
         Cuprum::Collections::Errors::NotFound.new(
-          attribute_name:  :id,
+          attribute_name:  'id',
           attribute_value: book_id,
           collection_name: 'books',
           primary_key:     true

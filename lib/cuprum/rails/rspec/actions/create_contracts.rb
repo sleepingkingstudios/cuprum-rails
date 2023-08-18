@@ -224,7 +224,7 @@ module Cuprum::Rails::RSpec::Actions
     module ShouldNotCreateADuplicateEntityContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group, valid_attributes:, primary_key: :id)
+      # @!method apply(example_group, valid_attributes:, primary_key: "id")
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] The example group to
@@ -261,7 +261,7 @@ module Cuprum::Rails::RSpec::Actions
                 .merge({ resource_name => configured_valid_attributes })
             end
             let(:configured_expected_error) do
-              primary_key_name  = action.resource.primary_key.intern
+              primary_key_name  = action.resource.primary_key.to_s
               primary_key_value = configured_duplicate_entity[primary_key_name]
 
               Cuprum::Collections::Errors::AlreadyExists.new(

@@ -404,7 +404,7 @@ module Cuprum::Rails::RSpec
             end
             let(:expected_error) do
               Cuprum::Collections::Errors::NotFound.new(
-                attribute_name:  action.resource.primary_key.intern,
+                attribute_name:  action.resource.primary_key.to_s,
                 attribute_value: configured_primary_key_value,
                 collection_name: action.resource.resource_name,
                 primary_key:     true

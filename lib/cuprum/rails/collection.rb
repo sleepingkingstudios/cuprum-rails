@@ -1,49 +1,40 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/collection'
 require 'cuprum/command_factory'
 
 require 'cuprum/rails'
 
 module Cuprum::Rails
   # Wraps an ActiveRecord model as a Cuprum collection.
-  class Collection < Cuprum::CommandFactory
-    # @param collection_name [String, Symbol] The name of the collection.
-    # @param member_name [String] The name of a collection entity.
-    # @param options [Hash<Symbol>] Additional options for the command.
-    # @param qualified_name [String] The qualified name of the collection, which
-    #   should be unique. Defaults to the collection name.
-    # @param record_class [Class] The ActiveRecord class for the collection.
+  class Collection < Cuprum::Collections::Collection
+    alias record_class entity_class
+
+    # @param collection_name [String, Symbol] the name of the collection.
+    # @param entity_class [Class, String] the class of entity represented in the
+    #   collection.
+    # @param record_class [Class, String] alternative keyword for entity class.
+    # @param options [Hash<Symbol>] additional options for the collection.
+    #
+    # @option options member_name [String] the name of a collection entity.
+    # @option options primary_key_name [String] the name of the primary key
+    #   attribute. Defaults to 'id'.
+    # @option options primary_key_type [Class, Stannum::Constraint] the type of
+    #   the primary key attribute. Defaults to Integer.
+    # @option options qualified_name [String] the qualified name of the
+    #   collection, which should be unique. Defaults to the collection name.
     def initialize(
-      record_class:,
       collection_name: nil,
-      member_name:     nil,
-      qualified_name:  nil,
+      entity_class:    nil,
+      record_class:    nil,
       **options
     )
-      super()
-
-      @record_class    = record_class
-      @collection_name = resolve_collection_name(collection_name)
-      @member_name     = resolve_member_name(member_name)
-      @qualified_name  = resolve_qualified_name(qualified_name)
-      @options         = options
+      super(
+        collection_name: collection_name,
+        entity_class:    entity_class || record_class,
+        **options
+      )
     end
-
-    # @return [String] The name of the collection.
-    attr_reader :collection_name
-
-    # @return [String] the name of a collection entity.
-    attr_reader :member_name
-
-    # @return [Hash<Symbol>] additional options for the command.
-    attr_reader :options
-
-    # @return [String] the qualified name of the collection, which should be
-    #   unique.
-    attr_reader :qualified_name
-
-    # @return [Class] the ActiveRecord class for the collection.
-    attr_reader :record_class
 
     command_class :assign_one do
       Cuprum::Rails::Commands::AssignOne
@@ -99,7 +90,8 @@ module Cuprum::Rails
 
       other.collection_name == collection_name &&
         other.member_name == member_name &&
-        other.record_class == record_class &&
+        other.qualified_name == qualified_name &&
+        other.entity_class == entity_class &&
         other.options == options
     end
 
@@ -107,36 +99,13 @@ module Cuprum::Rails
     #
     # @return [Cuprum::Rails::Query] the query.
     def query
-      Cuprum::Rails::Query.new(record_class)
+      Cuprum::Rails::Query.new(entity_class)
     end
 
     private
 
     def command_options
-      @command_options ||= {
-        collection_name: collection_name,
-        member_name:     member_name,
-        record_class:    record_class,
-        **options
-      }
-    end
-
-    def resolve_collection_name(collection_name)
-      return collection_name.to_s unless collection_name.nil?
-
-      record_class.name.split('::').last.underscore.pluralize
-    end
-
-    def resolve_member_name(member_name)
-      return member_name.to_s unless member_name.nil?
-
-      collection_name.singularize
-    end
-
-    def resolve_qualified_name(qualified_name)
-      return qualified_name.to_s unless qualified_name.nil?
-
-      record_class.name.underscore.pluralize
+      super().merge(record_class: entity_class)
     end
   end
 end

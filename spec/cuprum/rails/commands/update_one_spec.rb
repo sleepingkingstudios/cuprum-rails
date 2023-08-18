@@ -26,9 +26,17 @@ RSpec.describe Cuprum::Rails::Commands::UpdateOne do
       author: 'Tamsyn Muir'
     }
   end
+  let(:primary_key_value) do
+    next super() if defined?(super())
+
+    attributes.fetch(
+      primary_key_name.to_s,
+      attributes[primary_key_name.intern]
+    )
+  end
   let(:entity) do
     record_class
-      .find(attributes[primary_key_name])
+      .find(primary_key_value)
       .tap { |record| record.assign_attributes(attributes) }
   rescue ActiveRecord::RecordNotFound
     record_class.new(attributes)

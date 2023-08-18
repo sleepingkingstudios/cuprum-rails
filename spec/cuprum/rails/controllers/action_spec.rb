@@ -102,13 +102,11 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
 
       allow(Spec::Responder).to receive(:new).and_return(responder)
 
-      allow(Spec::CustomController)
-        .to receive(:configuration)
-        .and_return(configuration)
-      allow(Spec::CustomController)
-        .to receive(:repository)
-        .and_return(repository)
-      allow(Spec::CustomController).to receive(:resource).and_return(resource)
+      allow(Spec::CustomController).to receive_messages(
+        configuration: configuration,
+        repository:    repository,
+        resource:      resource
+      )
 
       allow(configuration)
         .to receive(:responder_for)

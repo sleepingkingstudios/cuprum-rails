@@ -48,7 +48,7 @@ module Cuprum::Rails
 
     # @return [Symbol] the name of the primary key attribute.
     def primary_key_name
-      @primary_key_name ||= record_class.primary_key.intern
+      @primary_key_name ||= record_class.primary_key
     end
 
     # @return [Class] the type of the primary key attribute.
