@@ -15,10 +15,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
 
   let(:repository) { Cuprum::Rails::Repository.new }
   let(:resource) do
-    Cuprum::Rails::Resource.new(
-      collection:     repository.find_or_create(record_class: Book),
-      resource_class: Book
-    )
+    Cuprum::Rails::Resource.new(resource_class: Book)
   end
   let(:entity) do
     Book.new(
@@ -35,10 +32,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
 
   context 'with a record class with UUID primary key' do
     let(:resource) do
-      Cuprum::Rails::Resource.new(
-        collection:     repository.find_or_create(record_class: Tome),
-        resource_class: Tome
-      )
+      Cuprum::Rails::Resource.new(resource_class: Tome)
     end
     let(:entity) do
       Tome.new(

@@ -34,10 +34,6 @@ module Cuprum::Rails::Actions
     #   containing the data collections for the application or scope.
     # @param resource [Cuprum::Rails::Resource] The controller resource.
     def initialize(resource:, repository: nil, **options)
-      if resource.collection.nil?
-        raise ArgumentError, 'resource must have a collection'
-      end
-
       if require_permitted_attributes?
         permitted = resource.permitted_attributes
 
@@ -50,10 +46,17 @@ module Cuprum::Rails::Actions
     end
 
     def_delegators :@resource,
-      :collection,
       :resource_class,
       :resource_name,
       :singular_resource_name
+
+    # @return [Cuprum::Rails::Collection] the collection for the resource class.
+    def collection
+      @collection ||= repository.find_or_create(
+        collection_name: resource_name,
+        entity_class:    resource_class
+      )
+    end
 
     # @return [Object] the primary key for the resource.
     def resource_id

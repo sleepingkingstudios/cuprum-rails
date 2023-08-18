@@ -14,10 +14,7 @@ RSpec.describe Cuprum::Rails::Actions::New do
 
   let(:repository) { Cuprum::Rails::Repository.new }
   let(:resource) do
-    Cuprum::Rails::Resource.new(
-      collection:     repository.find_or_create(record_class: Book),
-      resource_class: Book
-    )
+    Cuprum::Rails::Resource.new(resource_class: Book)
   end
 
   include_contract 'new action contract'

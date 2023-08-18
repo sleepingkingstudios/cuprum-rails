@@ -19,7 +19,6 @@ class BooksController < BaseController
 
   def self.resource
     @resource ||= Cuprum::Rails::Resource.new(
-      collection:           repository.find_or_create(entity_class: Book),
       permitted_attributes: %i[title author series category published_at],
       resource_class:       Book
     )

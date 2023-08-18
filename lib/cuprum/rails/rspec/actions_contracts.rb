@@ -58,40 +58,30 @@ module Cuprum::Rails::RSpec
     module ResourceActionContract
       extend RSpec::SleepingKingStudios::Contract
 
-      # @!method apply(example_group, require_permitted_attributes: false)
+      # @!method apply(example_group, **options)
       #   Adds the contract to the example group.
       #
       #   @param example_group [RSpec::Core::ExampleGroup] the example group to
       #     which the contract is applied.
-      #   @param require_permitted_attributes [Boolean] if true, should require
-      #     the resource to define permitted attributes as a non-empty Array.
+      #   @param options [Hash] additional options for the conrtact.
+      #
+      #   @option options collection_class [String, Class] the expected class
+      #     for the resource collection.
+      #   @option options require_permitted_attributes [Boolean] if true, should
+      #     require the resource to define permitted attributes as a non-empty
+      #     Array.
 
-      contract do |require_permitted_attributes: false|
+      contract do |**options|
         include Cuprum::Rails::RSpec::ActionsContracts
 
         include_contract ActionContract
 
         describe '.new' do
-          describe 'with a resource without a collection' do
-            let(:resource) do
-              Cuprum::Rails::Resource.new(resource_name: 'books')
-            end
-            let(:error_message) do
-              'resource must have a collection'
-            end
-
-            it 'should raise an exception' do
-              expect { described_class.new(resource: resource) }
-                .to raise_error ArgumentError, error_message
-            end
-          end
-
           describe 'with a resource with permitted_attributes: nil' do
             let(:resource) do
               resource = super()
 
               Cuprum::Rails::Resource.new(
-                collection:           resource.collection,
                 permitted_attributes: nil,
                 resource_name:        resource.resource_name
               )
@@ -100,7 +90,7 @@ module Cuprum::Rails::RSpec
               'resource must define permitted attributes'
             end
 
-            if require_permitted_attributes
+            if options[:require_permitted_attributes]
               it 'should raise an exception' do
                 expect { described_class.new(resource: resource) }
                   .to raise_error ArgumentError, error_message
@@ -119,7 +109,6 @@ module Cuprum::Rails::RSpec
               resource = super()
 
               Cuprum::Rails::Resource.new(
-                collection:           resource.collection,
                 permitted_attributes: [],
                 resource_name:        resource.resource_name
               )
@@ -128,7 +117,7 @@ module Cuprum::Rails::RSpec
               'resource must define permitted attributes'
             end
 
-            if require_permitted_attributes
+            if options[:require_permitted_attributes]
               it 'should raise an exception' do
                 expect { described_class.new(resource: resource) }
                   .to raise_error ArgumentError, error_message
@@ -143,9 +132,38 @@ module Cuprum::Rails::RSpec
         end
 
         describe '#collection' do
-          include_examples 'should define reader',
-            :collection,
-            -> { action.resource.collection }
+          let(:expected_collection_class) do
+            next super() if defined?(super())
+
+            options
+              .fetch(:collection_class, Cuprum::Collections::Collection)
+              .then { |obj| obj.is_a?(String) ? obj.constantize : obj }
+          end
+
+          include_examples 'should define reader', :collection
+
+          it { expect(action.collection).to be_a expected_collection_class }
+
+          it 'should set the collection name' do
+            expect(action.collection.collection_name)
+              .to be == resource.resource_name
+          end
+
+          it 'should set the entity class' do
+            expect(action.collection.entity_class)
+              .to be == resource.resource_class
+          end
+
+          context 'when the repository defines a matching collection' do
+            let!(:existing_collection) do
+              repository.find_or_create(
+                collection_name: resource.resource_name,
+                entity_class:    resource.resource_class
+              )
+            end
+
+            it { expect(action.collection).to be existing_collection }
+          end
         end
 
         describe '#resource_class' do
@@ -615,9 +633,11 @@ module Cuprum::Rails::RSpec
             end
             let(:configured_expected_entity) do
               if configured_existing_entity
-                action
-                  .resource
-                  .collection
+                repository
+                  .find_or_create(
+                    collection_name: resource.resource_name,
+                    entity_class:    resource.resource_class
+                  )
                   .assign_one
                   .call(
                     attributes: configured_invalid_attributes,

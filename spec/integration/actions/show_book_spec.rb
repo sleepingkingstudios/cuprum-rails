@@ -20,10 +20,7 @@ RSpec.describe Spec::Support::Actions::ShowBook do
       .tap { |repo| repo.create(record_class: Chapter) }
   end
   let(:resource) do
-    Cuprum::Rails::Resource.new(
-      collection:     repository.find_or_create(record_class: Book),
-      resource_class: Book
-    )
+    Cuprum::Rails::Resource.new(resource_class: Book)
   end
   let(:book) do
     Book.new(
