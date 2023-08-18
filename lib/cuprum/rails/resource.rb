@@ -86,7 +86,7 @@ module Cuprum::Rails
       @permitted_attributes ||= options.fetch(:permitted_attributes, nil)
     end
 
-    # @return [Boolean] true if the collection is a plural collection, otherwise
+    # @return [Boolean] true if the resource is a plural resource, otherwise
     #   false.
     def plural?
       !@singular
@@ -118,7 +118,7 @@ module Cuprum::Rails
       routes_without_wildcards.with_wildcards(wildcards)
     end
 
-    # @return [Boolean] true if the collection is a singular collection,
+    # @return [Boolean] true if the resource is a singular resource,
     #   otherwise false.
     def singular?
       @singular
