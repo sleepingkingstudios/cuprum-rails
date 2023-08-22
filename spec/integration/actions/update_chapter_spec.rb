@@ -10,9 +10,7 @@ require 'support/chapter'
 RSpec.describe Spec::Support::Actions::UpdateChapter do
   include Cuprum::Rails::RSpec::Actions::UpdateContracts
 
-  subject(:action) do
-    described_class.new(repository: repository, resource: resource)
-  end
+  subject(:action) { described_class.new }
 
   let(:repository) do
     Cuprum::Rails::Repository

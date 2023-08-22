@@ -2,6 +2,7 @@
 
 require 'cuprum/rails/controllers/class_methods/actions'
 require 'cuprum/rails/controllers/class_methods/configuration'
+require 'cuprum/rails/controllers/class_methods/middleware'
 require 'cuprum/rails/controllers/class_methods/validations'
 
 require 'support/examples/controller_examples'
@@ -18,6 +19,7 @@ RSpec.describe Cuprum::Rails::Controllers::ClassMethods::Actions do
   example_class 'Spec::Controller', Struct.new(:request) do |klass|
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Actions # rubocop:disable RSpec/DescribedClass
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Configuration
+    klass.extend Cuprum::Rails::Controllers::ClassMethods::Middleware
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Validations
 
     klass.define_method(:controller_name) { 'api/books' }

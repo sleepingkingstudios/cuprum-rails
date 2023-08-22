@@ -50,12 +50,13 @@ module Cuprum::Rails::Controllers
     #
     # @return [#call] the response object.
     def call(controller, request)
-      resource   = controller.class.resource
-      repository = controller.class.repository
       responder  = build_responder(controller, request)
-      action     = action_class.new(repository: repository, resource: resource)
-      action     = apply_middleware(controller, action)
-      result     = action.call(request: request)
+      action     = apply_middleware(controller, action_class.new)
+      result     = action.call(
+        request:    request,
+        repository: controller.class.repository,
+        resource:   controller.class.resource
+      )
 
       responder.call(result)
     end

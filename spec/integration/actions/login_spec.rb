@@ -4,9 +4,7 @@ require 'support/actions/login'
 
 # @note Integration spec for Cuprum::Rails::RSpec::Actions::ParameterValidation.
 RSpec.describe Spec::Support::Actions::Login do
-  subject(:action) { described_class.new(resource: resource) }
-
-  let(:resource) { Cuprum::Rails::Resource.new(resource_name: 'login') }
+  subject(:action) { described_class.new }
 
   describe '#call' do
     let(:params)  { {} }

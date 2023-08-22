@@ -61,7 +61,7 @@ module Cuprum::Rails::RSpec::Actions
             options[:params],
             context: self,
             default: {
-              action.resource.singular_resource_name => attributes
+              configured_resource.singular_resource_name => attributes
             }
           )
         end
@@ -76,8 +76,8 @@ module Cuprum::Rails::RSpec::Actions
 
         should_not_create_an_entity = lambda do
           it 'should not create an entity' do
-            expect { action.call(request: request) }
-              .not_to change(action.resource.resource_class, :count)
+            expect { call_action }
+              .not_to change(configured_resource.resource_class, :count)
           end
 
           # :nocov:
@@ -195,14 +195,14 @@ module Cuprum::Rails::RSpec::Actions
             end
 
             it 'should return a passing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_passing_result
                 .with_value(configured_expected_value)
             end
 
             it 'should create the entity', :aggregate_failures do
-              expect { action.call(request: request) }
-                .to change(action.resource.resource_class, :count)
+              expect { call_action }
+                .to change(configured_resource.resource_class, :count)
                 .by(1)
 
               expect(
@@ -249,10 +249,10 @@ module Cuprum::Rails::RSpec::Actions
               option_with_default(valid_attributes)
             end
             let(:configured_duplicate_entity) do
-              action.resource.resource_class.new(valid_attributes)
+              configured_resource.resource_class.new(valid_attributes)
             end
             let(:configured_params) do
-              resource_name = action.resource.singular_resource_name
+              resource_name = configured_resource.singular_resource_name
 
               option_with_default(
                 options[:params],
@@ -261,13 +261,13 @@ module Cuprum::Rails::RSpec::Actions
                 .merge({ resource_name => configured_valid_attributes })
             end
             let(:configured_expected_error) do
-              primary_key_name  = action.resource.primary_key.to_s
+              primary_key_name  = configured_resource.primary_key.to_s
               primary_key_value = configured_duplicate_entity[primary_key_name]
 
               Cuprum::Collections::Errors::AlreadyExists.new(
                 attribute_name:  primary_key_name,
                 attribute_value: primary_key_value,
-                collection_name: action.resource.resource_name,
+                collection_name: configured_resource.resource_name,
                 primary_key:     true
               )
             end
@@ -275,7 +275,7 @@ module Cuprum::Rails::RSpec::Actions
             before(:example) { configured_duplicate_entity.save! }
 
             it 'should return a failing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_failing_result
                 .with_error(configured_expected_error)
             end

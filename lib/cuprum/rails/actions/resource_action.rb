@@ -4,6 +4,7 @@ require 'cuprum/errors/uncaught_exception'
 
 require 'cuprum/rails/action'
 require 'cuprum/rails/actions/parameter_validation'
+require 'cuprum/rails/errors/resource_error'
 
 module Cuprum::Rails::Actions
   # Abstract base class for resourceful actions.
@@ -29,21 +30,19 @@ module Cuprum::Rails::Actions
   class ResourceAction < Cuprum::Rails::Action
     include Cuprum::Rails::Actions::ParameterValidation
 
-    # @param options [Hash<Symbol, Object>] Additional options for the action.
-    # @param repository [Cuprum::Collections::Repository] The repository
-    #   containing the data collections for the application or scope.
-    # @param resource [Cuprum::Rails::Resource] The controller resource.
-    def initialize(resource:, repository: nil, **options)
-      if require_permitted_attributes?
-        permitted = resource.permitted_attributes
-
-        if !permitted.is_a?(Array) || permitted.empty?
-          raise ArgumentError, 'resource must define permitted attributes'
-        end
-      end
-
-      super
-    end
+    # @!method call(request:, resource:, repository: nil, **options)
+    #   Performs the controller action.
+    #
+    #   Subclasses should implement a #process method with the :request keyword,
+    #   which accepts an ActionDispatch::Request instance.
+    #
+    #   @param request [ActionDispatch::Request] the Rails request.
+    #   @param resource [Cuprum::Rails::Resource] the controller resource.
+    #   @param repository [Cuprum::Collections::Repository] the repository
+    #     containing the data collections for the application or scope.
+    #   @param options [Hash<Symbol, Object>] additional options for the action.
+    #
+    #   @return [Cuprum::Result] the result of the action.
 
     def_delegators :@resource,
       :resource_class,
@@ -58,9 +57,12 @@ module Cuprum::Rails::Actions
       )
     end
 
+    # @return [Cuprum::Rails::Resource] the controller resource.
+    attr_reader :resource
+
     # @return [Object] the primary key for the resource.
     def resource_id
-      @resource_id = params['id']
+      @resource_id ||= params['id']
     end
 
     # @return [Hash] the permitted params for the resource.
@@ -102,17 +104,32 @@ module Cuprum::Rails::Actions
 
     def perform_action; end
 
-    def process(request:)
-      super
-
+    def process(resource:, **rest)
+      @resource        = resource
       @resource_id     = nil
       @resource_params = nil
+
+      step { require_permitted_attributes }
+
+      super(**rest)
 
       handle_exceptions do
         step { find_required_entities }
         step { perform_action }
         step { build_response }
       end
+    end
+
+    def require_permitted_attributes
+      return unless require_permitted_attributes?
+
+      return if resource.permitted_attributes.present?
+
+      error = Cuprum::Rails::Errors::ResourceError.new(
+        message:  "permitted attributes can't be blank",
+        resource: resource
+      )
+      failure(error)
     end
 
     def require_permitted_attributes?

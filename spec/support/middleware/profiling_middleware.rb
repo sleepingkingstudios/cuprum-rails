@@ -10,10 +10,10 @@ module Spec::Support::Middleware
 
     private
 
-    def process(next_command, request:)
+    def process(next_command, **rest)
       start_time = Time.current
 
-      value = super(next_command, request: request)
+      value = super(next_command, **rest)
 
       return if value.nil?
 

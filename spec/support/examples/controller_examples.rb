@@ -85,7 +85,9 @@ module Spec::Support::Examples
                 "no resource defined for #{described_class.name}"
               end
 
-              example_class 'Spec::HtmlResponder'
+              example_class 'Spec::HtmlResponder' do |klass|
+                klass.define_method(:initialize) { |**| nil }
+              end
 
               before(:example) do
                 described_class.responder :html, Spec::HtmlResponder

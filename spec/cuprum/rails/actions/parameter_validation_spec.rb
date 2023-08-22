@@ -7,7 +7,7 @@ require 'cuprum/rails/action'
 require 'cuprum/rails/actions/parameter_validation'
 
 RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
-  subject(:action) { described_class.new(resource: resource) }
+  subject(:action) { described_class.new }
 
   shared_context 'when .validate_parameters is called with a block' do
     before(:example) do
@@ -40,7 +40,6 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
   end
 
   let(:described_class) { Spec::Action }
-  let(:resource)        { Cuprum::Rails::Resource.new(resource_name: 'books') }
   let(:implementation) do
     -> { key 'book_id', Stannum::Constraints::Presence.new }
   end
@@ -48,10 +47,10 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
   example_class 'Spec::Action', Cuprum::Rails::Action do |klass|
     klass.include Cuprum::Rails::Actions::ParameterValidation # rubocop:disable RSpec/DescribedClass
 
-    klass.define_method(:process) do |request:|
-      super(request: request)
+    klass.define_method(:process) do |request:, **options|
+      super(request: request, **options)
 
-      { 'ok' => true }
+      { 'ok' => true, **options.stringify_keys }
     end
   end
 
@@ -68,10 +67,26 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
     let(:params)  { {} }
     let(:request) { Cuprum::Rails::Request.new(params: params) }
 
+    it 'should define the method' do
+      expect(action)
+        .to be_callable
+        .with(0).arguments
+        .and_keywords(:request)
+        .and_any_keywords
+    end
+
     it 'should return a passing result' do
       expect(action.call(request: request))
         .to be_a_passing_result
         .with_value({ 'ok' => true })
+    end
+
+    describe 'with additional options' do
+      it 'should return a passing result' do
+        expect(action.call(request: request, option: 'value'))
+          .to be_a_passing_result
+          .with_value({ 'ok' => true, 'option' => 'value' })
+      end
     end
 
     wrap_context 'when .validate_parameters is called with a block' do
@@ -102,6 +117,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
             .to be_a_passing_result
             .with_value({ 'ok' => true })
         end
+
+        describe 'with additional options' do
+          it 'should return a passing result' do
+            expect(action.call(request: request, option: 'value'))
+              .to be_a_passing_result
+              .with_value({ 'ok' => true, 'option' => 'value' })
+          end
+        end
       end
 
       describe 'when request has extra parameters' do
@@ -116,6 +139,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
           expect(action.call(request: request))
             .to be_a_passing_result
             .with_value({ 'ok' => true })
+        end
+
+        describe 'with additional options' do
+          it 'should return a passing result' do
+            expect(action.call(request: request, option: 'value'))
+              .to be_a_passing_result
+              .with_value({ 'ok' => true, 'option' => 'value' })
+          end
         end
       end
     end
@@ -149,6 +180,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
             .to be_a_passing_result
             .with_value({ 'ok' => true })
         end
+
+        describe 'with additional options' do
+          it 'should return a passing result' do
+            expect(action.call(request: request, option: 'value'))
+              .to be_a_passing_result
+              .with_value({ 'ok' => true, 'option' => 'value' })
+          end
+        end
       end
     end
 
@@ -179,6 +218,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
           expect(action.call(request: request))
             .to be_a_passing_result
             .with_value({ 'ok' => true })
+        end
+
+        describe 'with additional options' do
+          it 'should return a passing result' do
+            expect(action.call(request: request, option: 'value'))
+              .to be_a_passing_result
+              .with_value({ 'ok' => true, 'option' => 'value' })
+          end
         end
       end
     end

@@ -71,7 +71,7 @@ module Spec::Support::Actions
         end
     end
 
-    def process(request:)
+    def process(**)
       @book    = nil
       @book_id = nil
 

@@ -10,9 +10,7 @@ require 'support/chapter'
 RSpec.describe Spec::Support::Actions::ShowBook do
   include Cuprum::Rails::RSpec::Actions::ShowContracts
 
-  subject(:action) do
-    described_class.new(repository: repository, resource: resource)
-  end
+  subject(:action) { described_class.new }
 
   let(:repository) do
     Cuprum::Rails::Repository

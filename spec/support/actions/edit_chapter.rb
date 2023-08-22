@@ -28,7 +28,7 @@ module Spec::Support::Actions
       super
     end
 
-    def process(request:)
+    def process(**)
       @books = nil
 
       super

@@ -41,7 +41,7 @@ module Spec::Support::Actions
       @books = step { find_books }
     end
 
-    def process(request:)
+    def process(**)
       @books = nil
 
       super

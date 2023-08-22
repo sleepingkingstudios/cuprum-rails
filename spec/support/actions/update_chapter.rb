@@ -30,7 +30,7 @@ module Spec::Support::Actions
       @book = step { find_book }
     end
 
-    def process(request:)
+    def process(**)
       @book = nil
 
       super

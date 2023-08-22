@@ -18,18 +18,11 @@ module Spec::Support::Middleware
       @logs ||= StringIO.new
     end
 
-    def initialize(repository:, resource:)
-      super()
-
-      @repository = repository
-      @resource   = resource
-    end
+    private
 
     attr_reader :repository
 
     attr_reader :resource
-
-    private
 
     def log(level, message)
       self.class.logs.puts("[#{level.upcase}] #{message}")
@@ -67,8 +60,16 @@ module Spec::Support::Middleware
       log('info', message)
     end
 
-    def process(next_command, request:)
-      result = next_command.call(request: request)
+    def process(next_command, request:, repository: nil, resource: nil, **rest)
+      @repository = repository
+      @resource   = resource
+
+      result = next_command.call(
+        request:    request,
+        resource:   resource,
+        repository: repository,
+        **rest
+      )
 
       log_request(request: request, result: result)
 

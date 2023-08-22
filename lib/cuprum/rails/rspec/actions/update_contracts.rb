@@ -89,7 +89,7 @@ module Cuprum::Rails::RSpec::Actions
           Cuprum::Rails::RSpec::Actions::UpdateContracts.parameters(
             context:          self,
             existing_entity:  existing_entity,
-            resource:         action.resource,
+            resource:         configured_resource,
             valid_attributes: valid_attributes,
             **options
           )
@@ -100,7 +100,7 @@ module Cuprum::Rails::RSpec::Actions
             entity = existing_entity
             entity = instance_exec(&entity) if entity.is_a?(Proc)
 
-            expect { action.call(request: request) }
+            expect { call_action }
               .not_to(change { entity.reload.attributes })
           end
 
@@ -194,7 +194,7 @@ module Cuprum::Rails::RSpec::Actions
               Cuprum::Rails::RSpec::Actions::UpdateContracts.parameters(
                 context:          self,
                 existing_entity:  existing_entity,
-                resource:         action.resource,
+                resource:         configured_resource,
                 valid_attributes: valid_attributes,
                 **options
               )
@@ -217,13 +217,14 @@ module Cuprum::Rails::RSpec::Actions
               )
             end
             let(:configured_expected_entity) do
-              action
-                .resource
+              configured_resource
                 .resource_class
-                .find(configured_existing_entity[action.resource.primary_key])
+                .find(
+                  configured_existing_entity[configured_resource.primary_key]
+                )
             end
             let(:configured_expected_value) do
-              resource_name = action.resource.singular_resource_name
+              resource_name = configured_resource.singular_resource_name
 
               option_with_default(
                 options[:expected_value],
@@ -234,13 +235,13 @@ module Cuprum::Rails::RSpec::Actions
             end
 
             it 'should return a passing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_passing_result
                 .with_value(configured_expected_value)
             end
 
             it 'should update the entity' do
-              expect { action.call(request: request) }
+              expect { call_action }
                 .to(
                   change do
                     configured_existing_entity

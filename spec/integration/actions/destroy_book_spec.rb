@@ -10,9 +10,7 @@ require 'support/chapter'
 RSpec.describe Spec::Support::Actions::DestroyBook do
   include Cuprum::Rails::RSpec::Actions::DestroyContracts
 
-  subject(:action) do
-    described_class.new(repository: repository, resource: resource)
-  end
+  subject(:action) { described_class.new }
 
   let(:repository) do
     Cuprum::Rails::Repository
@@ -54,7 +52,7 @@ RSpec.describe Spec::Support::Actions::DestroyBook do
       } \
       do
         it 'should destroy the chapters' do
-          expect { action.call(request: request) }
+          expect { call_action }
             .to change(Chapter, :count)
             .by(-3)
         end

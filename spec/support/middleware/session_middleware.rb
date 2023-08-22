@@ -10,8 +10,8 @@ module Spec::Support::Middleware
 
     private
 
-    def process(next_command, request:)
-      result = next_command.call(request: request)
+    def process(next_command, **rest)
+      result = next_command.call(**rest)
 
       Cuprum::Rails::Result.new(
         **result.properties,

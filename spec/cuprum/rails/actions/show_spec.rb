@@ -9,9 +9,7 @@ require 'support/tome'
 RSpec.describe Cuprum::Rails::Actions::Show do
   include Cuprum::Rails::RSpec::Actions::ShowContracts
 
-  subject(:action) do
-    described_class.new(repository: repository, resource: resource)
-  end
+  subject(:action) { described_class.new }
 
   let(:repository) { Cuprum::Rails::Repository.new }
   let(:resource) do

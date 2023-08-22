@@ -22,7 +22,7 @@ module Cuprum::Rails::Actions
       @entity = step { build_entity }
     end
 
-    def process(request:)
+    def process(**)
       @entity = nil
 
       super

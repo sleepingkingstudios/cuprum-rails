@@ -6,9 +6,7 @@ require 'support/tome'
 
 # @note Integration spec for Controller middleware.
 RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
-  subject(:middleware) do
-    described_class.new(repository: repository, resource: resource)
-  end
+  subject(:middleware) { described_class.new }
 
   let(:repository) do
     repository = Cuprum::Rails::Repository.new
@@ -87,18 +85,33 @@ RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
       RAW
     end
 
-    it 'should call the command' do
-      middleware.call(command, request: request)
+    def call_command
+      middleware.call(
+        command,
+        repository: repository,
+        request:    request,
+        resource:   resource
+      )
+    end
 
-      expect(command).to have_received(:call).with(request: request)
+    it 'should call the command' do # rubocop:disable RSpec/ExampleLength
+      call_command
+
+      expect(command)
+        .to have_received(:call)
+        .with(
+          repository: repository,
+          request:    request,
+          resource:   resource
+        )
     end
 
     it 'should return the result' do
-      expect(middleware.call(command, request: request)).to be == result
+      expect(call_command).to be == result
     end
 
     it 'should update the logs' do
-      middleware.call(command, request: request)
+      call_command
 
       expect(described_class.logs.string).to be == expected
     end
@@ -115,18 +128,10 @@ RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
       end
 
       it 'should update the logs' do
-        middleware.call(command, request: request)
+        call_command
 
         expect(described_class.logs.string).to be == expected
       end
     end
-  end
-
-  describe '#repository' do
-    include_examples 'should define reader', :repository, -> { repository }
-  end
-
-  describe '#resource' do
-    include_examples 'should define reader', :resource, -> { resource }
   end
 end

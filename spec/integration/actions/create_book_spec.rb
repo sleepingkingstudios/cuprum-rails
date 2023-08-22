@@ -11,9 +11,7 @@ require 'support/chapter'
 RSpec.describe Spec::Support::Actions::CreateBook do
   include Cuprum::Rails::RSpec::Actions::CreateContracts
 
-  subject(:action) do
-    described_class.new(repository: repository, resource: resource)
-  end
+  subject(:action) { described_class.new }
 
   let(:repository) do
     Cuprum::Rails::Repository
@@ -71,7 +69,7 @@ RSpec.describe Spec::Support::Actions::CreateBook do
       } \
       do
         it 'should create the chapters' do
-          expect { action.call(request: request) }
+          expect { call_action }
             .to change(Chapter, :count)
             .by(chapter_params.count)
         end

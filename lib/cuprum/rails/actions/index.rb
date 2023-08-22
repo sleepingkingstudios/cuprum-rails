@@ -58,7 +58,7 @@ module Cuprum::Rails::Actions
       end
     end
 
-    def process(request:)
+    def process(**)
       @entities = nil
 
       super
