@@ -52,11 +52,7 @@ module Cuprum::Rails::Controllers
     def call(controller, request)
       responder  = build_responder(controller, request)
       action     = apply_middleware(controller, action_class.new)
-      result     = action.call(
-        request:    request,
-        repository: controller.class.repository,
-        resource:   controller.class.resource
-      )
+      result     = action.call(request: request, **controller.action_options)
 
       responder.call(result)
     end

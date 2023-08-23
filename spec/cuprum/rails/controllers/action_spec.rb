@@ -147,6 +147,27 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       include_examples 'should build the responder'
     end
 
+    context 'when the controller defines custom action options' do
+      before(:example) do
+        allow(controller).to receive(:action_options).and_return(
+          custom_option: 'custom value',
+          repository:    repository,
+          resource:      resource
+        )
+      end
+
+      it 'should call the action' do # rubocop:disable RSpec/ExampleLength
+        action.call(controller, request)
+
+        expect(implementation).to have_received(:call).with(
+          repository:    repository,
+          request:       request,
+          resource:      resource,
+          custom_option: 'custom value'
+        )
+      end
+    end
+
     context 'when the controller defines middleware' do
       let(:middleware_commands) do
         Array.new(3) { Spec::Middleware.new }

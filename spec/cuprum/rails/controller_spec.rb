@@ -36,4 +36,18 @@ RSpec.describe Cuprum::Rails::Controller do
   include_examples 'should implement the configuration DSL'
 
   include_examples 'should implement the middleware DSL'
+
+  describe '#action_options' do
+    include_context 'when the controller defines a repository'
+    include_context 'when the controller defines a resource'
+
+    let(:expected) do
+      {
+        repository: repository,
+        resource:   resource
+      }
+    end
+
+    include_examples 'should define reader', :action_options, -> { expected }
+  end
 end

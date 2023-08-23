@@ -22,6 +22,13 @@ RSpec.describe Cuprum::Rails::Controllers::ClassMethods::Actions do
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Middleware
     klass.extend Cuprum::Rails::Controllers::ClassMethods::Validations
 
+    klass.define_method(:action_options) do
+      {
+        repository: Spec::Controller.repository,
+        resource:   Spec::Controller.resource
+      }
+    end
+
     klass.define_method(:controller_name) { 'api/books' }
   end
 
