@@ -236,11 +236,8 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         let(:middleware_commands) do
           [
             Spec::FirstMiddleware.new,
-            Spec::SecondMiddleware.new(repository: repository),
-            Spec::ThirdMiddleware.new(
-              repository: repository,
-              resource:   resource
-            )
+            Spec::SecondMiddleware.new,
+            Spec::ThirdMiddleware.new
           ]
         end
         let(:middleware) do
@@ -260,13 +257,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
           ]
         end
 
-        example_class 'Spec::FirstMiddleware', 'Spec::Middleware'
-        example_class 'Spec::SecondMiddleware', 'Spec::Middleware' do |klass|
-          klass.define_method(:initialize) { |repository:| nil } # rubocop:disable Lint/UnusedBlockArgument
-        end
-        example_class 'Spec::ThirdMiddleware', 'Spec::Middleware' do |klass|
-          klass.define_method(:initialize) { |**_| nil }
-        end
+        example_class 'Spec::FirstMiddleware',  'Spec::Middleware'
+        example_class 'Spec::SecondMiddleware', 'Spec::Middleware'
+        example_class 'Spec::ThirdMiddleware',  'Spec::Middleware'
 
         before(:example) do
           allow(Spec::FirstMiddleware)
@@ -292,18 +285,6 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
           )
         end
 
-        it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
-          action.call(controller, request)
-
-          expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
-          expect(Spec::SecondMiddleware)
-            .to have_received(:new)
-            .with(repository: repository)
-          expect(Spec::ThirdMiddleware)
-            .to have_received(:new)
-            .with(repository: repository, resource: resource)
-        end
-
         it 'should call the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
           action.call(controller, request)
 
@@ -321,22 +302,6 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
           action.call(controller, request)
 
           expect(called_commands).to be == expected_commands
-        end
-
-        context 'when the controller defines a repository' do
-          let(:repository) { Cuprum::Collections::Repository.new }
-
-          it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
-            action.call(controller, request)
-
-            expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
-            expect(Spec::SecondMiddleware)
-              .to have_received(:new)
-              .with(repository: repository)
-            expect(Spec::ThirdMiddleware)
-              .to have_received(:new)
-              .with(repository: repository, resource: resource)
-          end
         end
       end
     end
