@@ -20,36 +20,43 @@ module Cuprum::Rails::RSpec
       #
       #   @param example_group [RSpec::Core::ExampleGroup] the example group to
       #     which the contract is applied.
-      contract do
+      #   @param options [Hash] additional options for the contract.
+      #
+      #   @option options required_keywords [Array[Symbol]] additional keywords
+      #     required by the #call method.
+      contract do |**options|
         describe '.new' do
-          it 'should define the constructor' do
-            expect(described_class)
-              .to respond_to(:new)
-              .with(0).arguments
-              .and_keywords(:repository, :resource)
-              .and_any_keywords
-          end
+          it { expect(described_class).to respond_to(:new).with(0).arguments }
         end
 
         describe '#call' do
+          let(:expected_keywords) do
+            %i[repository request] + options.fetch(:required_keywords, [])
+          end
+
           it 'should define the method' do
             expect(action)
               .to be_callable
               .with(0).arguments
-              .and_keywords(:request)
+              .and_keywords(*expected_keywords)
+              .and_any_keywords
           end
         end
 
-        describe '#repository' do
-          include_examples 'should define reader',
-            :repository,
-            -> { be_a Cuprum::Collections::Repository }
+        describe '#options' do
+          include_examples 'should define reader', :options
         end
 
-        describe '#resource' do
-          include_examples 'should define reader',
-            :resource,
-            -> { be_a Cuprum::Rails::Resource }
+        describe '#params' do
+          include_examples 'should define reader', :params
+        end
+
+        describe '#repository' do
+          include_examples 'should define reader', :repository
+        end
+
+        describe '#request' do
+          include_examples 'should define reader', :request
         end
       end
     end
@@ -70,63 +77,92 @@ module Cuprum::Rails::RSpec
       #   @option options require_permitted_attributes [Boolean] if true, should
       #     require the resource to define permitted attributes as a non-empty
       #     Array.
+      #   @option options required_keywords [Array[Symbol]] additional keywords
+      #     required by the #call method.
 
       contract do |**options|
         include Cuprum::Rails::RSpec::ActionsContracts
 
-        include_contract ActionContract
+        let(:configured_params) do
+          return params if defined?(params)
 
-        describe '.new' do
-          describe 'with a resource with permitted_attributes: nil' do
+          {}
+        end
+        let(:configured_repository) do
+          return repository if defined?(repository)
+
+          Cuprum::Rails::Repository.new
+        end
+        let(:configured_request) do
+          return request if defined?(request)
+
+          Cuprum::Rails::Request.new(params: configured_params)
+        end
+        let(:configured_resource) do
+          return resource if defined?(resource)
+
+          # :nocov:
+          Cuprum::Rails::Resource.new(resource_class: Book)
+          # :nocov:
+        end
+        let(:configured_action_options) do
+          return action_options if defined?(action_options)
+
+          {
+            repository: configured_repository,
+            resource:   configured_resource
+          }
+        end
+
+        define_method(:call_action) do
+          action.call(request: configured_request, **configured_action_options)
+        end
+
+        include_contract ActionContract,
+          required_keywords: [:resource, *options.fetch(:required_keywords, [])]
+
+        describe '#call' do
+          next unless options[:require_permitted_attributes]
+
+          describe 'with a permitted_attributes: nil' do
             let(:resource) do
-              resource = super()
-
               Cuprum::Rails::Resource.new(
                 permitted_attributes: nil,
-                resource_name:        resource.resource_name
+                resource_name:        'books'
               )
             end
-            let(:error_message) do
-              'resource must define permitted attributes'
+            let(:expected_error) do
+              Cuprum::Rails::Errors::ResourceError.new(
+                message:  "permitted attributes can't be blank",
+                resource: configured_resource
+              )
             end
 
-            if options[:require_permitted_attributes]
-              it 'should raise an exception' do
-                expect { described_class.new(resource: resource) }
-                  .to raise_error ArgumentError, error_message
-              end
-            else
-              it 'should not raise an exception' do
-                expect { described_class.new(resource: resource) }
-                  .not_to raise_error
-              end
+            it 'should return a failing result' do
+              expect(call_action)
+                .to be_a_failing_result
+                .with_error(expected_error)
             end
           end
 
-          describe 'with a resource with permitted_attributes: an empty Array' \
-          do
+          describe 'with a permitted_attributes: an empty Array' do
             let(:resource) do
-              resource = super()
-
               Cuprum::Rails::Resource.new(
                 permitted_attributes: [],
-                resource_name:        resource.resource_name
+                resource_name:        'books'
               )
             end
-            let(:error_message) do
-              'resource must define permitted attributes'
+            let(:expected_error) do
+              Cuprum::Rails::Errors::ResourceError.new(
+                message:  "permitted attributes can't be blank",
+                resource: configured_resource
+              )
             end
 
-            if options[:require_permitted_attributes]
-              it 'should raise an exception' do
-                expect { described_class.new(resource: resource) }
-                  .to raise_error ArgumentError, error_message
-              end
-            else
-              it 'should not raise an exception' do
-                expect { described_class.new(resource: resource) }
-                  .not_to raise_error
-              end
+            it 'should return a failing result' do
+              expect(call_action)
+                .to be_a_failing_result
+                .with_error(expected_error)
             end
           end
         end
@@ -139,6 +175,8 @@ module Cuprum::Rails::RSpec
               .fetch(:collection_class, Cuprum::Collections::Collection)
               .then { |obj| obj.is_a?(String) ? obj.constantize : obj }
           end
+
+          before(:example) { call_action }
 
           include_examples 'should define reader', :collection
 
@@ -156,7 +194,7 @@ module Cuprum::Rails::RSpec
 
           context 'when the repository defines a matching collection' do
             let!(:existing_collection) do
-              repository.find_or_create(
+              configured_repository.find_or_create(
                 collection_name: resource.resource_name,
                 entity_class:    resource.resource_class
               )
@@ -166,100 +204,130 @@ module Cuprum::Rails::RSpec
           end
         end
 
+        describe '#resource' do
+          include_examples 'should define reader', :resource
+
+          context 'when called with a resource' do
+            before(:example) { call_action }
+
+            it { expect(action.resource).to be == configured_resource }
+          end
+        end
+
         describe '#resource_class' do
-          include_examples 'should define reader',
-            :resource_class,
-            -> { resource.resource_class }
+          include_examples 'should define reader', :resource_class
+
+          context 'when called with a resource' do
+            let(:expected) { configured_resource.resource_class }
+
+            before(:example) { call_action }
+
+            it { expect(action.resource_class).to be == expected }
+          end
         end
 
         describe '#resource_id' do
-          let(:params) { {} }
-          let(:request) do
-            Cuprum::Rails::Request.new(params: params)
-          end
-          let(:action) do
-            super().tap { |action| action.call(request: request) }
-          end
+          include_examples 'should define reader', :resource_id
 
-          it { expect(action).to respond_to(:resource_id).with(0).arguments }
+          context 'when called with a resource' do
+            let(:params)  { {} }
+            let(:request) { Cuprum::Rails::Request.new(params: params) }
 
-          context 'when the parameters do not include a primary key' do
-            let(:params) { {} }
+            before(:example) { call_action }
 
-            it { expect(action.resource_id).to be nil }
-          end
+            context 'when the parameters do not include a primary key' do
+              let(:params) { {} }
 
-          context 'when the :id parameter is set' do
-            let(:primary_key_value) { 0 }
-            let(:params)            { { 'id' => primary_key_value } }
+              it { expect(action.resource_id).to be nil }
+            end
 
-            it { expect(action.resource_id).to be primary_key_value }
+            context 'when the :id parameter is set' do
+              let(:primary_key_value) { 0 }
+              let(:params)            { { 'id' => primary_key_value } }
+
+              it { expect(action.resource_id).to be primary_key_value }
+            end
           end
         end
 
         describe '#resource_name' do
-          include_examples 'should define reader',
-            :resource_name,
-            -> { action.resource.resource_name }
+          include_examples 'should define reader', :resource_name
+
+          context 'when called with a resource' do
+            let(:expected) { configured_resource.resource_name }
+
+            before(:example) { call_action }
+
+            it { expect(action.resource_name).to be == expected }
+          end
         end
 
         describe '#resource_params' do
-          let(:params) { {} }
-          let(:request) do
-            Cuprum::Rails::Request.new(params: params)
-          end
-          let(:action) do
-            super().tap { |action| action.call(request: request) }
-          end
+          include_examples 'should define reader', :resource_params
 
-          it 'should define the method' do
-            expect(action).to respond_to(:resource_params).with(0).arguments
-          end
+          context 'when called with a resource' do
+            let(:params)  { {} }
+            let(:request) { Cuprum::Rails::Request.new(params: params) }
 
-          context 'when the parameters do not include params for the resource' \
-          do
-            let(:params) { {} }
+            before(:example) { call_action }
 
-            it { expect(action.resource_params).to be == {} }
-          end
+            context 'when the parameters do not include params for the ' \
+                    'resource' \
+            do
+              let(:params) { {} }
 
-          context 'when the params for the resource are empty' do
-            let(:params) { { resource.singular_resource_name => {} } }
-
-            it { expect(action.resource_params).to be == {} }
-          end
-
-          context 'when the parameter for the resource is not a Hash' do
-            let(:params) { { resource.singular_resource_name => 'invalid' } }
-
-            it { expect(action.resource_params).to be == 'invalid' }
-          end
-
-          context 'when the parameters include the params for resource' do
-            let(:params) do
-              resource_params =
-                action
-                  .resource
-                  .permitted_attributes
-                  .then { |ary| ary || [] }
-                  .to_h { |attr_name| [attr_name.to_s, "#{attr_name} value"] }
-
-              { action.resource.singular_resource_name => resource_params }
+              it { expect(action.resource_params).to be == {} }
             end
-            let(:expected) { params[action.resource.singular_resource_name] }
 
-            it { expect(action.resource_params).to be == expected }
+            context 'when the params for the resource are empty' do
+              let(:params) { { resource.singular_resource_name => {} } }
+
+              it { expect(action.resource_params).to be == {} }
+            end
+
+            context 'when the parameter for the resource is not a Hash' do
+              let(:params) { { resource.singular_resource_name => 'invalid' } }
+
+              it { expect(action.resource_params).to be == 'invalid' }
+            end
+
+            context 'when the parameters include the params for resource' do
+              let(:params) do
+                resource_params =
+                  configured_resource
+                    .permitted_attributes
+                    .then { |ary| ary || [] }
+                    .to_h { |attr_name| [attr_name.to_s, "#{attr_name} value"] }
+
+                {
+                  configured_resource.singular_resource_name => resource_params
+                }
+              end
+              let(:expected) do
+                params[configured_resource.singular_resource_name]
+              end
+
+              it { expect(action.resource_params).to be == expected }
+            end
           end
         end
 
         describe '#singular_resource_name' do
-          include_examples 'should define reader',
-            :singular_resource_name,
-            -> { action.resource.singular_resource_name }
+          include_examples 'should define reader', :singular_resource_name
+
+          context 'when called with a resource' do
+            let(:expected) { configured_resource.singular_resource_name }
+
+            before(:example) { call_action }
+
+            it { expect(action.singular_resource_name).to be == expected }
+          end
         end
 
         describe '#transaction' do
           let(:transaction_class) { resource.resource_class }
+
+          before(:example) { call_action }
 
           it 'should define the private method' do
             expect(action).to respond_to(:transaction, true).with(0).arguments
@@ -354,7 +422,7 @@ module Cuprum::Rails::RSpec
             end
             let(:configured_params) do
               resource_id =
-                configured_existing_entity[action.resource.primary_key]
+                configured_existing_entity[configured_resource.primary_key]
 
               option_with_default(
                 options[:params],
@@ -362,7 +430,7 @@ module Cuprum::Rails::RSpec
               )
             end
             let(:configured_expected_value) do
-              resource_name = action.resource.singular_resource_name
+              resource_name = configured_resource.singular_resource_name
 
               option_with_default(
                 options[:expected_value],
@@ -371,7 +439,7 @@ module Cuprum::Rails::RSpec
             end
 
             it 'should return a passing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_passing_result
                 .with_value(configured_expected_value)
             end
@@ -422,24 +490,24 @@ module Cuprum::Rails::RSpec
             end
             let(:expected_error) do
               Cuprum::Collections::Errors::NotFound.new(
-                attribute_name:  action.resource.primary_key.to_s,
+                attribute_name:  configured_resource.primary_key.to_s,
                 attribute_value: configured_primary_key_value,
-                collection_name: action.resource.resource_name,
+                collection_name: configured_resource.resource_name,
                 primary_key:     true
               )
             end
 
             before(:example) do
+              primary_key_name = configured_resource.primary_key
+
               resource
                 .resource_class
-                .where(
-                  action.resource.primary_key => configured_primary_key_value
-                )
+                .where(primary_key_name => configured_primary_key_value)
                 .destroy_all
             end
 
             it 'should return a failing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_failing_result
                 .with_error(expected_error)
             end
@@ -478,12 +546,12 @@ module Cuprum::Rails::RSpec
               option_with_default(options[:params], default: {})
                 .dup
                 .tap do |hsh|
-                  hsh.delete(action.resource.singular_resource_name)
+                  hsh.delete(configured_resource.singular_resource_name)
                 end
             end
             let(:configured_expected_error) do
               errors = Stannum::Errors.new.tap do |err|
-                err[action.resource.singular_resource_name]
+                err[configured_resource.singular_resource_name]
                   .add(Stannum::Constraints::Presence::TYPE)
               end
 
@@ -491,7 +559,7 @@ module Cuprum::Rails::RSpec
             end
 
             it 'should return a failing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_failing_result
                 .with_error(configured_expected_error)
             end
@@ -505,11 +573,11 @@ module Cuprum::Rails::RSpec
             end
             let(:configured_params) do
               option_with_default(options[:params], default: {})
-                .merge(action.resource.singular_resource_name => 'invalid')
+                .merge(configured_resource.singular_resource_name => 'invalid')
             end
             let(:configured_expected_error) do
               errors = Stannum::Errors.new.tap do |err|
-                err[action.resource.singular_resource_name].add(
+                err[configured_resource.singular_resource_name].add(
                   Stannum::Constraints::Type::TYPE,
                   allow_empty: true,
                   required:    true,
@@ -521,7 +589,7 @@ module Cuprum::Rails::RSpec
             end
 
             it 'should return a failing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_failing_result
                 .with_error(configured_expected_error)
             end
@@ -569,7 +637,7 @@ module Cuprum::Rails::RSpec
             end
 
             it 'should return a failing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_failing_result
                 .with_error(configured_expected_error)
             end
@@ -613,7 +681,7 @@ module Cuprum::Rails::RSpec
               option_with_default(invalid_attributes)
             end
             let(:configured_params) do
-              resource_name = action.resource.singular_resource_name
+              resource_name = configured_resource.singular_resource_name
 
               option_with_default(
                 options[:params],
@@ -660,7 +728,7 @@ module Cuprum::Rails::RSpec
               option_with_default(
                 options[:expected_value],
                 default: {
-                  action.resource.singular_resource_name => matcher
+                  configured_resource.singular_resource_name => matcher
                 }
               )
             end
@@ -671,14 +739,14 @@ module Cuprum::Rails::RSpec
                   .call(native_errors: configured_expected_entity.errors)
 
               Cuprum::Collections::Errors::FailedValidation.new(
-                entity_class: action.resource.resource_class,
+                entity_class: configured_resource.resource_class,
                 errors:       scope_validation_errors(errors)
               )
             end
 
             def scope_validation_errors(errors)
               mapped_errors = Stannum::Errors.new
-              resource_name = action.resource.singular_resource_name
+              resource_name = configured_resource.singular_resource_name
 
               errors.each do |err|
                 mapped_errors
@@ -690,7 +758,7 @@ module Cuprum::Rails::RSpec
             end
 
             it 'should return a failing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_failing_result
                 .with_value(deep_match(configured_expected_value))
                 .and_error(configured_expected_error)

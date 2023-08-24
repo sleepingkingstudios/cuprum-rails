@@ -50,12 +50,9 @@ module Cuprum::Rails::Controllers
     #
     # @return [#call] the response object.
     def call(controller, request)
-      resource   = controller.class.resource
-      repository = controller.class.repository
       responder  = build_responder(controller, request)
-      action     = action_class.new(repository: repository, resource: resource)
-      action     = apply_middleware(controller, action)
-      result     = action.call(request: request)
+      action     = apply_middleware(controller, action_class.new)
+      result     = action.call(request: request, **controller.action_options)
 
       responder.call(result)
     end
@@ -73,7 +70,7 @@ module Cuprum::Rails::Controllers
       middleware    =
         configuration
           .middleware_for(action_name)
-          .map { |config| build_middleware(controller, config.command) }
+          .map { |config| build_middleware(config.command) }
 
       Cuprum::Middleware.apply(
         command:    command,
@@ -81,20 +78,10 @@ module Cuprum::Rails::Controllers
       )
     end
 
-    def build_middleware(controller, command)
+    def build_middleware(command)
       return command unless command.is_a?(Class)
 
-      keywords = {}
-
-      if responds_to_keyword?(command, :repository)
-        keywords[:repository] = controller.class.repository
-      end
-
-      if responds_to_keyword?(command, :resource)
-        keywords[:resource] = controller.class.resource
-      end
-
-      command.new(**keywords)
+      command.new
     end
 
     def build_responder(controller, request)
@@ -108,13 +95,6 @@ module Cuprum::Rails::Controllers
         request:       request,
         serializers:   configuration.serializers_for(request.format)
       )
-    end
-
-    def responds_to_keyword?(klass, keyword)
-      klass.instance_method(:initialize).parameters.any? do |type, value|
-        type == :keyrest ||
-          (value == keyword && (type == :key || type == :keyreq)) # rubocop:disable Style/MultipleComparison
-      end
     end
   end
 end

@@ -53,7 +53,7 @@ module Spec::Support::Actions
       end
     end
 
-    def process(request:)
+    def process(**)
       @chapters = nil
 
       super

@@ -7,30 +7,20 @@ require 'cuprum/rails/rspec/actions_contracts'
 RSpec.describe Cuprum::Rails::Action do
   include Cuprum::Rails::RSpec::ActionsContracts
 
-  subject(:action) do
-    described_class.new(resource: resource, **constructor_options)
-  end
+  subject(:action) { described_class.new }
 
-  let(:resource) do
-    Cuprum::Rails::Resource.new(resource_name: 'books')
-  end
-  let(:constructor_options) { {} }
+  let(:params)  { {} }
+  let(:request) { instance_double(ActionDispatch::Request, params: params) }
 
-  describe '.new' do
-    it 'should define the constructor' do
-      expect(described_class)
-        .to respond_to(:new)
-        .with(0).arguments
-        .and_keywords(:repository, :resource)
-        .and_any_keywords
-    end
-  end
+  include_contract 'action contract'
 
   describe '#call' do
-    let(:request) { instance_double(ActionDispatch::Request) }
-
     it 'should define the method' do
-      expect(action).to be_callable.with(0).arguments.and_keywords(:request)
+      expect(action)
+        .to be_callable
+        .with(0).arguments
+        .and_keywords(:repository, :request)
+        .and_any_keywords
     end
 
     it 'should return a passing result' do
@@ -41,26 +31,23 @@ RSpec.describe Cuprum::Rails::Action do
   end
 
   describe '#options' do
-    include_examples 'should define reader', :options, -> { {} }
+    context 'when called with options' do
+      let(:options) { { key: 'value' } }
 
-    context 'when initialized with options' do
-      let(:options)             { { key: 'value' } }
-      let(:constructor_options) { super().merge(options) }
+      before(:example) { action.call(request: request, **options) }
 
       it { expect(action.options).to be == options }
     end
   end
 
   describe '#params' do
-    let(:params)  { {} }
-    let(:request) { instance_double(Cuprum::Rails::Request, params: params) }
-    let(:action)  { super().tap { |action| action.call(request: request) } }
+    context 'when called with a request' do
+      before(:example) { action.call(request: request) }
 
-    it { expect(action).to respond_to(:params).with(0).arguments }
+      it { expect(action.params).to be == params }
+    end
 
-    it { expect(action.params).to be == params }
-
-    context 'when the request has parameters' do
+    context 'when called with a request with parameters' do
       let(:params) do
         {
           'book' => {
@@ -70,22 +57,29 @@ RSpec.describe Cuprum::Rails::Action do
         }
       end
 
+      before(:example) { action.call(request: request) }
+
       it { expect(action.params).to be == params }
     end
   end
 
-  describe '#resource' do
-    include_examples 'should define reader', :resource, -> { resource }
-  end
-
   describe '#repository' do
-    include_examples 'should define reader', :repository, nil
+    include_examples 'should define reader', :repository
 
-    context 'when initialized with a repository' do
-      let(:repository)          { Cuprum::Rails::Repository.new }
-      let(:constructor_options) { super().merge(repository: repository) }
+    context 'when called with a repository' do
+      let(:repository) { Cuprum::Rails::Repository.new }
+
+      before(:example) { action.call(repository: repository, request: request) }
 
       it { expect(action.repository).to be repository }
+    end
+  end
+
+  describe '#request' do
+    context 'when called with a request' do
+      before(:example) { action.call(request: request) }
+
+      it { expect(action.request).to be == request }
     end
   end
 end

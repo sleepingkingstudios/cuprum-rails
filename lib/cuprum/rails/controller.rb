@@ -48,5 +48,13 @@ module Cuprum::Rails
         other.extend(Cuprum::Rails::Controllers::ClassMethods::Validations)
       end
     end
+
+    # @api private
+    def action_options
+      {
+        repository: self.class.repository,
+        resource:   self.class.resource
+      }
+    end
   end
 end

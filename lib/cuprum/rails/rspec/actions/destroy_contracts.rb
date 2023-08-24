@@ -49,8 +49,8 @@ module Cuprum::Rails::RSpec::Actions
 
         should_not_destroy_the_entity = lambda do
           it 'should not destroy the entity' do
-            expect { action.call(request: request) }
-              .not_to change(action.resource.resource_class, :count)
+            expect { call_action }
+              .not_to change(configured_resource.resource_class, :count)
           end
 
           # :nocov:
@@ -116,7 +116,7 @@ module Cuprum::Rails::RSpec::Actions
             end
             let(:configured_params) do
               resource_id =
-                configured_existing_entity[action.resource.primary_key]
+                configured_existing_entity[configured_resource.primary_key]
 
               option_with_default(
                 options[:params],
@@ -124,7 +124,7 @@ module Cuprum::Rails::RSpec::Actions
               )
             end
             let(:configured_expected_value) do
-              resource_name = action.resource.singular_resource_name
+              resource_name = configured_resource.singular_resource_name
 
               option_with_default(
                 options[:expected_value],
@@ -135,17 +135,17 @@ module Cuprum::Rails::RSpec::Actions
             end
 
             it 'should return a passing result' do
-              expect(action.call(request: request))
+              expect(call_action)
                 .to be_a_passing_result
                 .with_value(configured_expected_value)
             end
 
             it 'should destroy the entity', :aggregate_failures do
-              expect { action.call(request: request) }
-                .to change(action.resource.resource_class, :count)
+              expect { call_action }
+                .to change(configured_resource.resource_class, :count)
                 .by(-1)
 
-              primary_key_name  = action.resource.primary_key
+              primary_key_name  = configured_resource.primary_key
               primary_key_value = configured_existing_entity[primary_key_name]
               expect(
                 action

@@ -36,7 +36,7 @@ module Cuprum::Rails::Actions
       nil
     end
 
-    def process(request:)
+    def process(request:, **)
       super
 
       return unless validate_parameters?

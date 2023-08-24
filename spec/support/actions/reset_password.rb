@@ -17,7 +17,7 @@ module Spec::Support::Actions
 
     private
 
-    def process(request:)
+    def process(**)
       super
 
       step { require_authorization }

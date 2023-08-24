@@ -78,7 +78,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     end
     let(:controller)      { Spec::CustomController.new }
     let(:result)          { Cuprum::Result.new }
-    let(:implementation)  { Spec::Action.new(resource: resource) }
+    let(:implementation)  { Spec::Action.new }
     let(:responder_class) { Spec::Responder }
     let(:response)        { instance_double(Spec::Response, call: nil) }
     let(:responder)       { instance_double(Spec::Responder, call: response) }
@@ -120,18 +120,14 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       expect(action).to respond_to(:call).with(2).arguments
     end
 
-    it 'should build the action' do
+    it 'should call the action' do # rubocop:disable RSpec/ExampleLength
       action.call(controller, request)
 
-      expect(action_class)
-        .to have_received(:new)
-        .with(repository: nil, resource: resource)
-    end
-
-    it 'should call the action' do
-      action.call(controller, request)
-
-      expect(implementation).to have_received(:call).with(request: request)
+      expect(implementation).to have_received(:call).with(
+        repository: repository,
+        request:    request,
+        resource:   resource
+      )
     end
 
     include_examples 'should build the responder'
@@ -149,6 +145,27 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       let(:constructor_options) { super().merge(member_action: true) }
 
       include_examples 'should build the responder'
+    end
+
+    context 'when the controller defines custom action options' do
+      before(:example) do
+        allow(controller).to receive(:action_options).and_return(
+          custom_option: 'custom value',
+          repository:    repository,
+          resource:      resource
+        )
+      end
+
+      it 'should call the action' do # rubocop:disable RSpec/ExampleLength
+        action.call(controller, request)
+
+        expect(implementation).to have_received(:call).with(
+          repository:    repository,
+          request:       request,
+          resource:      resource,
+          custom_option: 'custom value'
+        )
+      end
     end
 
     context 'when the controller defines middleware' do
@@ -174,10 +191,10 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         middleware_commands.each do |command|
           allow(command)
             .to receive(:call)
-            .and_wrap_original do |original, next_command, request:|
+            .and_wrap_original do |original, next_command, **options|
               called_commands << command
 
-              original.call(next_command, request: request)
+              original.call(next_command, **options)
             end
         end
 
@@ -186,26 +203,27 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         end
       end
 
-      it 'should build the action' do
+      it 'should call the action' do # rubocop:disable RSpec/ExampleLength
         action.call(controller, request)
 
-        expect(action_class)
-          .to have_received(:new)
-          .with(repository: repository, resource: resource)
+        expect(implementation).to have_received(:call).with(
+          repository: repository,
+          request:    request,
+          resource:   resource
+        )
       end
 
-      it 'should call the action' do
-        action.call(controller, request)
-
-        expect(implementation).to have_received(:call).with(request: request)
-      end
-
-      it 'should call the middleware', :aggregate_failures do
+      it 'should call the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
         action.call(controller, request)
 
         expect(middleware_commands)
           .to all have_received(:call)
-            .with(a_kind_of(Cuprum::Command), request: request)
+            .with(
+              a_kind_of(Cuprum::Command),
+              repository: repository,
+              request:    request,
+              resource:   resource
+            )
       end
 
       it 'should call the middleware in sequence' do
@@ -218,11 +236,8 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         let(:middleware_commands) do
           [
             Spec::FirstMiddleware.new,
-            Spec::SecondMiddleware.new(repository: repository),
-            Spec::ThirdMiddleware.new(
-              repository: repository,
-              resource:   resource
-            )
+            Spec::SecondMiddleware.new,
+            Spec::ThirdMiddleware.new
           ]
         end
         let(:middleware) do
@@ -242,13 +257,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
           ]
         end
 
-        example_class 'Spec::FirstMiddleware', 'Spec::Middleware'
-        example_class 'Spec::SecondMiddleware', 'Spec::Middleware' do |klass|
-          klass.define_method(:initialize) { |repository:| nil } # rubocop:disable Lint/UnusedBlockArgument
-        end
-        example_class 'Spec::ThirdMiddleware', 'Spec::Middleware' do |klass|
-          klass.define_method(:initialize) { |**_| nil }
-        end
+        example_class 'Spec::FirstMiddleware',  'Spec::Middleware'
+        example_class 'Spec::SecondMiddleware', 'Spec::Middleware'
+        example_class 'Spec::ThirdMiddleware',  'Spec::Middleware'
 
         before(:example) do
           allow(Spec::FirstMiddleware)
@@ -264,38 +275,27 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
             .and_return(middleware_commands[2])
         end
 
-        it 'should build the action' do
+        it 'should call the action' do # rubocop:disable RSpec/ExampleLength
           action.call(controller, request)
 
-          expect(action_class)
-            .to have_received(:new)
-            .with(repository: repository, resource: resource)
+          expect(implementation).to have_received(:call).with(
+            repository: repository,
+            request:    request,
+            resource:   resource
+          )
         end
 
-        it 'should call the action' do
-          action.call(controller, request)
-
-          expect(implementation).to have_received(:call).with(request: request)
-        end
-
-        it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
-          action.call(controller, request)
-
-          expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
-          expect(Spec::SecondMiddleware)
-            .to have_received(:new)
-            .with(repository: repository)
-          expect(Spec::ThirdMiddleware)
-            .to have_received(:new)
-            .with(repository: repository, resource: resource)
-        end
-
-        it 'should call the middleware', :aggregate_failures do
+        it 'should call the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
           action.call(controller, request)
 
           expect(middleware_commands)
             .to all have_received(:call)
-              .with(a_kind_of(Cuprum::Command), request: request)
+              .with(
+                a_kind_of(Cuprum::Command),
+                repository: repository,
+                request:    request,
+                resource:   resource
+              )
         end
 
         it 'should call the middleware in sequence' do
@@ -303,34 +303,6 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
 
           expect(called_commands).to be == expected_commands
         end
-
-        context 'when the controller defines a repository' do
-          let(:repository) { Cuprum::Collections::Repository.new }
-
-          it 'should build the middleware', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
-            action.call(controller, request)
-
-            expect(Spec::FirstMiddleware).to have_received(:new).with(no_args)
-            expect(Spec::SecondMiddleware)
-              .to have_received(:new)
-              .with(repository: repository)
-            expect(Spec::ThirdMiddleware)
-              .to have_received(:new)
-              .with(repository: repository, resource: resource)
-          end
-        end
-      end
-    end
-
-    context 'when the controller defines a repository' do
-      let(:repository) { Cuprum::Collections::Repository.new }
-
-      it 'should build the action' do
-        action.call(controller, request)
-
-        expect(action_class)
-          .to have_received(:new)
-          .with(repository: repository, resource: resource)
       end
     end
   end

@@ -8,12 +8,10 @@ require 'support/book'
 RSpec.describe Cuprum::Rails::Actions::ResourceAction do
   include Cuprum::Rails::RSpec::ActionsContracts
 
-  subject(:action) do
-    described_class.new(resource: resource, repository: repository)
-  end
+  subject(:action) { described_class.new }
 
-  let(:repository) { Cuprum::Rails::Repository.new }
-  let(:collection) { repository.find_or_create(record_class: Book) }
+  let(:params)  { {} }
+  let(:request) { instance_double(ActionDispatch::Request, params: params) }
   let(:resource) do
     Cuprum::Rails::Resource.new(
       resource_class: Book,
@@ -34,7 +32,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
       end
 
       it 'should call the previous action steps', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
-        mocked_action.call(request: request)
+        call_action
 
         included_steps.each do |step|
           expect(mocked_action).to have_received(step)
@@ -64,7 +62,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
         end
 
         it 'should return the failing result' do
-          expect(mocked_action.call(request: request))
+          expect(call_action)
             .to be_a_failing_result
             .with_error(expected_error)
         end
@@ -85,7 +83,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
         end
 
         it 'should return the failing result' do
-          expect(mocked_action.call(request: request))
+          expect(call_action)
             .to be_a_failing_result
             .with_error(expected_error)
         end
@@ -124,7 +122,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
           end
 
           it 'should return the failing result' do
-            expect(mocked_action.call(request: request))
+            expect(call_action)
               .to be_a_failing_result
               .with_error(expected_error)
           end
@@ -149,7 +147,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
           end
 
           it 'should return the failing result' do
-            expect(mocked_action.call(request: request))
+            expect(call_action)
               .to be_a_failing_result
               .with_error(expected_error)
           end
@@ -176,14 +174,18 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
       end
     end
 
+    def call_action
+      mocked_action.call(request: request, resource: resource)
+    end
+
     it 'should return a passing result' do
-      expect(mocked_action.call(request: request))
+      expect(call_action)
         .to be_a_passing_result
         .with_value(nil)
     end
 
     it 'should call each action step', :aggregate_failures do
-      mocked_action.call(request: request)
+      call_action
 
       expect(mocked_action).to have_received(:find_required_entities)
       expect(mocked_action).to have_received(:perform_action)
@@ -252,6 +254,8 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
         end
       end
     end
+
+    before(:example) { action.call(request: request, resource: resource) }
 
     it 'should define the private method' do
       expect(action).to respond_to(:transaction, true).with(0).arguments

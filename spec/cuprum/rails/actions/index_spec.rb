@@ -11,9 +11,7 @@ require 'support/tome'
 RSpec.describe Cuprum::Rails::Actions::Index do
   include Cuprum::Rails::RSpec::Actions::IndexContracts
 
-  subject(:action) do
-    described_class.new(repository: repository, resource: resource)
-  end
+  subject(:action) { described_class.new }
 
   shared_context 'with a request with parameters' do
     let(:params)  { {} }
@@ -92,15 +90,21 @@ RSpec.describe Cuprum::Rails::Actions::Index do
   end
 
   describe '#default_order' do
-    include_examples 'should define reader', :default_order, {}
+    include_examples 'should define reader', :default_order
 
-    context 'when the resource has a default order' do
-      let(:default_order) { { author: :asc, title: :asc } }
-      let(:resource_options) do
-        super().merge(default_order: default_order)
+    context 'when called with a resource' do
+      before(:example) { call_action }
+
+      it { expect(action.default_order).to be == {} }
+
+      context 'when the resource has a default order' do
+        let(:default_order) { { author: :asc, title: :asc } }
+        let(:resource_options) do
+          super().merge(default_order: default_order)
+        end
+
+        it { expect(action.default_order).to be == default_order }
       end
-
-      it { expect(action.default_order).to be == default_order }
     end
   end
 
@@ -169,15 +173,34 @@ RSpec.describe Cuprum::Rails::Actions::Index do
   describe '#order' do
     include_context 'with a request with parameters'
 
-    include_examples 'should define private reader', :order, nil
+    include_examples 'should define private reader', :order
 
-    context 'when the resource has a default order' do
-      let(:default_order) { { author: :asc, title: :asc } }
-      let(:resource_options) do
-        super().merge(default_order: default_order)
+    context 'when called with a resource' do
+      before(:example) { call_action }
+
+      it { expect(action.send :order).to be nil }
+
+      context 'when the resource has a default order' do
+        let(:default_order) { { author: :asc, title: :asc } }
+        let(:resource_options) do
+          super().merge(default_order: default_order)
+        end
+
+        it { expect(action.send :order).to be == default_order }
+
+        context 'when the request has filter parameters' do
+          let(:params) do
+            {
+              'limit'  => 3,
+              'offset' => 2,
+              'order'  => %w[author title],
+              'where'  => { 'series' => nil }
+            }
+          end
+
+          it { expect(action.send :order).to be == params['order'] }
+        end
       end
-
-      it { expect(action.send :order).to be == default_order }
 
       context 'when the request has filter parameters' do
         let(:params) do
@@ -191,19 +214,6 @@ RSpec.describe Cuprum::Rails::Actions::Index do
 
         it { expect(action.send :order).to be == params['order'] }
       end
-    end
-
-    context 'when the request has filter parameters' do
-      let(:params) do
-        {
-          'limit'  => 3,
-          'offset' => 2,
-          'order'  => %w[author title],
-          'where'  => { 'series' => nil }
-        }
-      end
-
-      it { expect(action.send :order).to be == params['order'] }
     end
   end
 

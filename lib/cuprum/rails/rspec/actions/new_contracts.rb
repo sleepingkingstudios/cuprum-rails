@@ -84,13 +84,12 @@ module Cuprum::Rails::RSpec::Actions
             option_with_default(options[:expected_attributes], default: {})
           end
           let(:configured_expected_entity) do
-            action
-              .resource
+            configured_resource
               .resource_class
               .new(configured_expected_attributes)
           end
           let(:configured_expected_value) do
-            resource_name = action.resource.singular_resource_name
+            resource_name = configured_resource.singular_resource_name
 
             option_with_default(
               options[:expected_value],
@@ -99,7 +98,7 @@ module Cuprum::Rails::RSpec::Actions
           end
 
           it 'should return a passing result' do
-            expect(action.call(request: request))
+            expect(call_action)
               .to be_a_passing_result
               .with_value(configured_expected_value)
           end

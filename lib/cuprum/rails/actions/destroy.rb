@@ -29,7 +29,7 @@ module Cuprum::Rails::Actions
       @entity = step { destroy_entity(primary_key: resource_id) }
     end
 
-    def process(request:)
+    def process(**)
       @entity = nil
 
       super

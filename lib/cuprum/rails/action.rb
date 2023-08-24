@@ -11,25 +11,16 @@ module Cuprum::Rails
   class Action < Cuprum::Command
     extend Forwardable
 
-    # @param options [Hash<Symbol, Object>] Additional options for the action.
-    # @param repository [Cuprum::Collections::Repository] The repository
-    #   containing the data collections for the application or scope.
-    # @param resource [Cuprum::Rails::Resource] The controller resource.
-    def initialize(resource:, repository: nil, **options)
-      super()
-
-      @repository = repository
-      @resource   = resource
-      @options    = options
-    end
-
-    # @!method call(request:)
+    # @!method call(request:, repository: nil, **options)
     #   Performs the controller action.
     #
     #   Subclasses should implement a #process method with the :request keyword,
     #   which accepts an ActionDispatch::Request instance.
     #
-    #   @param request [ActionDispatch::Request] The Rails request.
+    #   @param request [ActionDispatch::Request] the Rails request.
+    #   @param repository [Cuprum::Collections::Repository] the repository
+    #     containing the data collections for the application or scope.
+    #   @param options [Hash<Symbol, Object>] additional options for the action.
     #
     #   @return [Cuprum::Result] the result of the action.
 
@@ -44,12 +35,10 @@ module Cuprum::Rails
     #   data collections for the application or scope.
     attr_reader :repository
 
-    # @return [Cuprum::Rails::Resource] the controller resource.
-    attr_reader :resource
+    # @return [Cuprum::Rails::Request] the formatted request.
+    attr_reader :request
 
     private
-
-    attr_reader :request
 
     def build_result(error: nil, metadata: nil, status: nil, value: nil)
       Cuprum::Rails::Result.new(
@@ -60,9 +49,11 @@ module Cuprum::Rails
       )
     end
 
-    def process(request:)
-      @params  = nil
-      @request = request
+    def process(request:, repository: nil, **options)
+      @params     = nil
+      @repository = repository
+      @request    = request
+      @options    = options
 
       nil
     end

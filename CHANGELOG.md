@@ -10,6 +10,12 @@ Refactored how actions handle required parameters.
 
 - The validation errors for the `Create` and `Update` actions are now scoped by the resource name. The error path should now match the relative path of the corresponding form field.
 
+- **(Breaking Change)** Action constructors no longer accept `:repository` or `:resource` keywords by default.
+
+- **(Breaking Change)** Actions now require a `:repository` keyword when called, and can accept arbitrary keywords.
+
+- **(Breaking Change)** Resource actions now require a `:resource` keyword when called.
+
 ### Collections
 
 Implemented `Collection#qualified_path`, and added qualified path support to `Repository`.

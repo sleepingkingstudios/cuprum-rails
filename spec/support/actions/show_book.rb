@@ -32,7 +32,7 @@ module Spec::Support::Actions
       @chapters = step { find_chapters }.to_a
     end
 
-    def process(request:)
+    def process(**)
       @chapters = nil
 
       super
