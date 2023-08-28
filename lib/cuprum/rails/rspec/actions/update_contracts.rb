@@ -249,7 +249,7 @@ module Cuprum::Rails::RSpec::Actions
                       .attributes
                       .tap { |hsh| hsh.delete('updated_at') }
                   end
-                  .to(be <= configured_expected_attributes)
+                  .to(be >= configured_expected_attributes)
                 )
             end
 
