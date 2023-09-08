@@ -8,32 +8,24 @@ require 'cuprum/rails'
 module Cuprum::Rails
   # Wraps an ActiveRecord model as a Cuprum collection.
   class Collection < Cuprum::Collections::Collection
-    alias record_class entity_class
-
-    # @param collection_name [String, Symbol] the name of the collection.
-    # @param entity_class [Class, String] the class of entity represented in the
-    #   collection.
-    # @param record_class [Class, String] alternative keyword for entity class.
-    # @param options [Hash<Symbol>] additional options for the collection.
+    # @overload initialize(entity_class: nil, name: nil, qualified_name: nil, singular_name: nil, **options)
+    #   @param entity_class [Class, String] the class of entity represented by
+    #     the collection. Aliased as :record_class.
+    #   @param singular_name [String] the name of an entity in the collection.
+    #     Aliased as :member_name.
+    #   @param name [String] the name of the collection. Aliased as
+    #     :collection_name.
+    #   @param qualified_name [String] a scoped name for the collection.
+    #   @param options [Hash] additional options for the collection.
     #
-    # @option options member_name [String] the name of a collection entity.
-    # @option options primary_key_name [String] the name of the primary key
-    #   attribute. Defaults to 'id'.
-    # @option options primary_key_type [Class, Stannum::Constraint] the type of
-    #   the primary key attribute. Defaults to Integer.
-    # @option options qualified_name [String] the qualified name of the
-    #   collection, which should be unique. Defaults to the collection name.
-    def initialize(
-      collection_name: nil,
-      entity_class:    nil,
-      record_class:    nil,
-      **options
-    )
-      super(
-        collection_name: collection_name,
-        entity_class:    entity_class || record_class,
-        **options
-      )
+    #   @option options primary_key_name [String] the name of the primary key
+    #     attribute. Defaults to 'id'.
+    #   @option primary_key_type [Class, Stannum::Constraint] the type of
+    #     the primary key attribute. Defaults to Integer.
+    def initialize(**params)
+      params = disambiguate_keyword(params, :entity_class, :record_class)
+
+      super(**params)
     end
 
     command_class :assign_one do
@@ -80,6 +72,8 @@ module Cuprum::Rails
       Cuprum::Rails::Commands::ValidateOne
         .subclass(**command_options)
     end
+
+    alias record_class entity_class
 
     # @param other [Object] The object to compare.
     #

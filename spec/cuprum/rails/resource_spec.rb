@@ -1,14 +1,22 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/rspec/contracts/relation_contracts'
+
 require 'cuprum/rails/resource'
 
 require 'support/book'
+require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Resource do
+  include Cuprum::Collections::RSpec::Contracts::RelationContracts
+
   subject(:resource) { described_class.new(**constructor_options) }
 
-  let(:resource_class)      { Book }
-  let(:constructor_options) { { resource_class: resource_class } }
+  let(:name)                { 'books' }
+  let(:constructor_options) { { name: name } }
+
+  example_class 'Grimoire',         'Book'
+  example_class 'Spec::ScopedBook', 'Book'
 
   describe '::PLURAL_ACTIONS' do
     let(:expected) { %w[create destroy edit index new show update] }
@@ -27,25 +35,7 @@ RSpec.describe Cuprum::Rails::Resource do
   end
 
   describe '.new' do
-    it 'should define the constructor' do
-      expect(described_class)
-        .to respond_to(:new)
-        .with(0).arguments
-        .and_any_keywords
-    end
-
-    describe 'with neither a resource_class or a resource_name' do
-      let(:error_message) do
-        'missing keyword :resource_class or :resource_name'
-      end
-
-      it 'should raise an exception' do
-        expect { described_class.new }
-          .to raise_error ArgumentError, error_message
-      end
-    end
-
-    describe 'with permitted_attributes: an object' do
+    describe 'with permitted_attributes: an Object' do
       let(:error_message) do
         'keyword :permitted_attributes must be an Array or nil'
       end
@@ -53,14 +43,34 @@ RSpec.describe Cuprum::Rails::Resource do
       it 'should raise an exception' do # rubocop:disable RSpec/ExampleLength
         expect do
           described_class.new(
-            permitted_attributes: Object.new.freeze,
-            resource_name:        'books'
+            name:                 name,
+            permitted_attributes: Object.new.freeze
           )
         end
           .to raise_error ArgumentError, error_message
       end
     end
   end
+
+  include_contract 'should be a relation',
+    cardinality: true
+
+  include_contract 'should disambiguate parameter',
+    :entity_class,
+    as:    :resource_class,
+    value: Tome
+
+  include_contract 'should disambiguate parameter',
+    :name,
+    as: :resource_name
+
+  include_contract 'should disambiguate parameter',
+    :singular_name,
+    as: :singular_resource_name
+
+  include_contract 'should define primary keys'
+
+  include_contract 'should define cardinality'
 
   describe '#actions' do
     let(:expected) { Set.new(described_class::PLURAL_ACTIONS) }
@@ -105,13 +115,6 @@ RSpec.describe Cuprum::Rails::Resource do
       it { expect(resource.base_path).to be == base_path }
     end
 
-    context 'when initialized with resource name: a string' do
-      let(:resource_name)       { 'tomes' }
-      let(:constructor_options) { super().merge(resource_name: resource_name) }
-
-      it { expect(resource.base_path).to be == '/tomes' }
-    end
-
     context 'when initialized with singular: true' do
       let(:constructor_options) { super().merge(singular: true) }
 
@@ -130,16 +133,6 @@ RSpec.describe Cuprum::Rails::Resource do
     end
   end
 
-  describe '#options' do
-    include_examples 'should define reader', :options, -> { {} }
-
-    context 'when initialized with arbitrary options' do
-      let(:constructor_options) { super().merge(key: 'value') }
-
-      it { expect(resource.options).to be == { key: 'value' } }
-    end
-  end
-
   describe '#permitted_attributes' do
     include_examples 'should define reader', :permitted_attributes, nil
 
@@ -153,103 +146,25 @@ RSpec.describe Cuprum::Rails::Resource do
     end
   end
 
-  describe '#plural?' do
-    include_examples 'should define predicate', :plural?, true
+  describe '#primary_key_name' do
+    it 'should alias the method' do
+      expect(resource)
+        .to have_aliased_method(:primary_key_name)
+        .as(:primary_key)
+    end
 
-    context 'when initialized with singular: true' do
-      let(:constructor_options) { super().merge(singular: true) }
+    context 'when initialized with a class with UUID primary key' do
+      let(:constructor_options) { super().merge(resource_class: Tome) }
 
-      it { expect(resource.plural?).to be false }
+      it { expect(resource.primary_key_name).to be == 'uuid' }
     end
   end
 
-  describe '#primary_key' do
-    include_examples 'should define reader', :primary_key, 'id'
+  describe '#primary_key_type' do
+    context 'when initialized with a class with UUID primary key' do
+      let(:constructor_options) { super().merge(resource_class: Tome) }
 
-    context 'when initialized without a resource class' do
-      let(:resource_name) { 'books' }
-      let(:constructor_options) do
-        super()
-          .tap { |hsh| hsh.delete(:resource_class) }
-          .merge(resource_name: resource_name)
-      end
-
-      it { expect(resource.primary_key).to be nil }
-    end
-
-    context 'when initialized with primary_key: a string' do
-      let(:primary_key)         { 'uuid' }
-      let(:constructor_options) { super().merge(primary_key: primary_key) }
-
-      it { expect(resource.primary_key).to be == primary_key }
-    end
-
-    context 'when initialized with primary_key: a symbol' do
-      let(:primary_key)         { :uuid }
-      let(:constructor_options) { super().merge(primary_key: primary_key) }
-
-      it { expect(resource.primary_key).to be == primary_key.to_s }
-    end
-  end
-
-  describe '#resource_class' do
-    include_examples 'should define reader',
-      :resource_class,
-      -> { resource_class }
-
-    context 'when initialized without a resource class' do
-      let(:resource_name) { 'books' }
-      let(:constructor_options) do
-        super()
-          .tap { |hsh| hsh.delete(:resource_class) }
-          .merge(resource_name: resource_name)
-      end
-
-      it { expect(resource.resource_class).to be nil }
-    end
-  end
-
-  describe '#resource_name' do
-    include_examples 'should define reader', :resource_name, 'books'
-
-    context 'when initialized with resource_class: a namespaced class' do
-      let(:constructor_options) do
-        super().merge(resource_class: Spec::Grimoire)
-      end
-
-      example_class 'Spec::Grimoire'
-
-      it { expect(resource.resource_name).to be == 'grimoires' }
-    end
-
-    context 'when initialized with resource_name: a string' do
-      let(:resource_name)       { 'grimoires' }
-      let(:constructor_options) { super().merge(resource_name: resource_name) }
-
-      it { expect(resource.resource_name).to be == resource_name }
-    end
-
-    context 'when initialized with resource_name: a symbol' do
-      let(:resource_name)       { :grimoires }
-      let(:constructor_options) { super().merge(resource_name: resource_name) }
-
-      it { expect(resource.resource_name).to be == resource_name.to_s }
-    end
-
-    context 'when initialized with singular: true' do
-      let(:constructor_options) { super().merge(singular: true) }
-
-      include_examples 'should define reader', :resource_name, 'book'
-
-      context 'when initialized with resource_class: a namespaced class' do
-        let(:constructor_options) do
-          super().merge(resource_class: Spec::Grimoire)
-        end
-
-        example_class 'Spec::Grimoire'
-
-        it { expect(resource.resource_name).to be == 'grimoire' }
-      end
+      it { expect(resource.primary_key_type).to be == String }
     end
   end
 
@@ -272,13 +187,6 @@ RSpec.describe Cuprum::Rails::Resource do
       let(:constructor_options) { super().merge(base_path: base_path) }
 
       it { expect(resource.routes.base_path).to be == base_path }
-    end
-
-    describe 'when initialized with resource name: a string' do
-      let(:resource_name)       { 'tomes' }
-      let(:constructor_options) { super().merge(resource_name: resource_name) }
-
-      it { expect(resource.routes.base_path).to be == '/tomes' }
     end
 
     context 'when initialized with routes: a Routes object' do
@@ -315,90 +223,6 @@ RSpec.describe Cuprum::Rails::Resource do
       it { expect(resource.routes.base_path).to be == '/book' }
 
       it { expect(resource.routes.wildcards).to be == {} }
-    end
-  end
-
-  describe '#singular?' do
-    include_examples 'should define predicate', :singular?, false
-
-    context 'when initialized with singular: true' do
-      let(:constructor_options) { super().merge(singular: true) }
-
-      it { expect(resource.singular?).to be true }
-    end
-  end
-
-  describe '#singular_resource_name' do
-    include_examples 'should define reader', :singular_resource_name, 'book'
-
-    context 'when initialized with resource_class: a namespaced class' do
-      let(:constructor_options) do
-        super().merge(resource_class: Spec::Grimoire)
-      end
-
-      example_class 'Spec::Grimoire'
-
-      it { expect(resource.singular_resource_name).to be == 'grimoire' }
-    end
-
-    context 'when initialized with resource_name: a string' do
-      let(:resource_name)       { 'grimoires' }
-      let(:constructor_options) { super().merge(resource_name: resource_name) }
-
-      it 'should return the singular resource name' do
-        expect(resource.singular_resource_name)
-          .to be == resource_name.singularize
-      end
-    end
-
-    context 'when initialized with resource_name: a symbol' do
-      let(:resource_name)       { :grimoires }
-      let(:constructor_options) { super().merge(resource_name: resource_name) }
-
-      it 'should return the singular resource name' do
-        expect(resource.singular_resource_name)
-          .to be == resource_name.to_s.singularize
-      end
-    end
-
-    context 'when initialized with singular: true' do
-      let(:constructor_options) { super().merge(singular: true) }
-
-      include_examples 'should define reader', :resource_name, 'book'
-
-      context 'when initialized with resource_class: a namespaced class' do
-        let(:constructor_options) do
-          super().merge(resource_class: Spec::Grimoire)
-        end
-
-        example_class 'Spec::Grimoire'
-
-        it { expect(resource.singular_resource_name).to be == 'grimoire' }
-      end
-    end
-
-    context 'when initialized with singular_resource_name: a string' do
-      let(:singular_resource_name) { 'grimoire' }
-      let(:constructor_options) do
-        super().merge(singular_resource_name: singular_resource_name)
-      end
-
-      it 'should return the singular resource name' do
-        expect(resource.singular_resource_name)
-          .to be == singular_resource_name
-      end
-    end
-
-    context 'when initialized with singular_resource_name: a symbol' do
-      let(:singular_resource_name) { :grimoire }
-      let(:constructor_options) do
-        super().merge(singular_resource_name: singular_resource_name)
-      end
-
-      it 'should return the singular resource name' do
-        expect(resource.singular_resource_name)
-          .to be == singular_resource_name.to_s
-      end
     end
   end
 end
