@@ -78,6 +78,9 @@ Rails/IndexWith:
 RSpec/BeNil:
   Enabled: false
 
+RSpec/Eq:
+  Enabled: false
+
 RSpec/ExampleWording:
   Enabled: false
 
@@ -93,6 +96,13 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/NestedGroups:
   Max: 5
 
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - spec/integration/**/*
+
+RSpec/Rails/HaveHttpStatus:
+  Enabled: false
+
 Style/AccessorGrouping:
   EnforcedStyle: separated
 
@@ -104,13 +114,6 @@ Style/Documentation:
     - config/**/*.rb
     - db/migrate/*
     - spec/support/**/*.rb
-
-RSpec/FilePath:
-  Exclude:
-    - spec/integration/**/*
-
-RSpec/Rails/HaveHttpStatus:
-  Enabled: false
 
 Style/NestedParenthesizedCalls:
   Exclude:
