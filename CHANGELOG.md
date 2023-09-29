@@ -16,6 +16,10 @@ Refactored how actions handle required parameters.
 
 - **(Breaking Change)** Resource actions now require a `:resource` keyword when called.
 
+#### Middleware
+
+Defined `Actions::Middleware::Associations::Find` for querying associations.
+
 ### Collections
 
 Implemented `Collection#qualified_path`, and added qualified path support to `Repository`.
