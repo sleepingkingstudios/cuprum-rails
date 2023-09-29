@@ -84,6 +84,9 @@ RSpec/Eq:
 RSpec/ExampleWording:
   Enabled: false
 
+RSpec/FilePath:
+  Enabled: false
+
 RSpec/HookArgument:
   Enabled: false
 
