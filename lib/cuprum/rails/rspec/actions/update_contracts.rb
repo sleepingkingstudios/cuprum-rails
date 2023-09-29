@@ -82,7 +82,7 @@ module Cuprum::Rails::RSpec::Actions
           raise ArgumentError, 'provide either :examples_on_success or a block'
         elsif block
           options[:examples_on_success] = block
-        end # rubocop:disable Layout/EmptyLineAfterGuardClause
+        end
         # :nocov:
 
         configured_params = lambda do

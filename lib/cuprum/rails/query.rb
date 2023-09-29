@@ -24,7 +24,7 @@ module Cuprum::Rails
       super()
 
       default_order = { record_class.primary_key => :asc }
-      @native_query = native_query || record_class.all.order(default_order)
+      @native_query = native_query || record_class.order(default_order)
       @record_class = record_class
       @limit        = nil
       @offset       = nil

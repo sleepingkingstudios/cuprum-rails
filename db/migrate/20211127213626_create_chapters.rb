@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateChapters < ActiveRecord::Migration[6.1]
+class CreateChapters < ActiveRecord::Migration[6.0]
   def change
     create_table :chapters do |t| # rubocop:disable Rails/CreateTableWithTimestamps
       t.string :title

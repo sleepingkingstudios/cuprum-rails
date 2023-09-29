@@ -76,7 +76,7 @@ RSpec.describe Cuprum::Rails::Query do
   describe '#native_query' do
     include_examples 'should have private reader',
       :native_query,
-      -> { record_class.all.order({ 'id' => :asc }) }
+      -> { record_class.order({ 'id' => :asc }) }
   end
 
   describe '#order' do

@@ -56,7 +56,9 @@ RSpec.describe Cuprum::Rails::Repository do
     it { expect(described_class).to respond_to(:new).with(0).arguments }
   end
 
-  example_class 'Grimoire', 'Book'
+  example_class 'Grimoire',         'Book'
+
+  example_class 'Spec::ScopedBook', 'Book'
 
   include_contract Cuprum::Collections::RSpec::RepositoryContract,
     collection_class: Cuprum::Rails::Collection

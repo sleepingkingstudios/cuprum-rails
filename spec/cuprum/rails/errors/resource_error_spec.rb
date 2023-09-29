@@ -2,6 +2,8 @@
 
 require 'cuprum/rails/errors/resource_error'
 
+require 'support/book'
+
 RSpec.describe Cuprum::Rails::Errors::ResourceError do
   subject(:error) do
     described_class.new(resource: resource, **options)
