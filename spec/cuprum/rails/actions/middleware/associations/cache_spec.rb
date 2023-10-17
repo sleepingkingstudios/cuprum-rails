@@ -56,7 +56,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
   describe '::ACTIVE_RECORD_STRATEGY' do
     let(:entity) do
       Book.create(
-        'author' => 'Tammsyn Muir',
+        'author' => 'Tamsyn Muir',
         'title'  => 'Gideon the Ninth'
       )
     end
@@ -96,7 +96,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
     let(:entity) do
       {
         'id'     => 0,
-        'author' => 'Tammsyn Muir',
+        'author' => 'Tamsyn Muir',
         'title'  => 'Gideon the Ninth'
       }
     end
@@ -242,7 +242,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
         [
           {
             'id'     => 0,
-            'author' => 'Tammsyn Muir',
+            'author' => 'Tamsyn Muir',
             'title'  => 'Gideon the Ninth'
           }
         ]
@@ -300,7 +300,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
       let(:entities) do
         [
           Book.create(
-            'author' => 'Tammsyn Muir',
+            'author' => 'Tamsyn Muir',
             'title'  => 'Gideon the Ninth'
           )
         ]
@@ -354,12 +354,12 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
         [
           {
             'id'     => 0,
-            'author' => 'Tammsyn Muir',
+            'author' => 'Tamsyn Muir',
             'title'  => 'Gideon the Ninth'
           },
           {
             'id'     => 1,
-            'author' => 'Tammsyn Muir',
+            'author' => 'Tamsyn Muir',
             'title'  => 'Harrow the Ninth'
           },
           {
@@ -418,11 +418,11 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
       let(:entities) do
         [
           Book.create(
-            'author' => 'Tammsyn Muir',
+            'author' => 'Tamsyn Muir',
             'title'  => 'Gideon the Ninth'
           ),
           Book.create(
-            'author' => 'Tammsyn Muir',
+            'author' => 'Tamsyn Muir',
             'title'  => 'Harrow the Ninth'
           ),
           Book.create(
@@ -523,12 +523,12 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
             [
               {
                 'id'     => 0,
-                'author' => 'Tammsyn Muir',
+                'author' => 'Tamsyn Muir',
                 'title'  => 'Gideon the Ninth'
               },
               {
                 'id'     => 1,
-                'author' => 'Tammsyn Muir',
+                'author' => 'Tamsyn Muir',
                 'title'  => 'Harrow the Ninth'
               },
               {
@@ -561,11 +561,11 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
         let(:books) do
           [
             Book.create(
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             ),
             Book.create(
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Harrow the Ninth'
             ),
             Book.create(
@@ -659,7 +659,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
               [
                 {
                   'id'     => 0,
-                  'author' => 'Tammsyn Muir',
+                  'author' => 'Tamsyn Muir',
                   'title'  => 'Gideon the Ninth'
                 }
               ]
@@ -687,7 +687,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
           let(:books) do
             [
               Book.create(
-                'author' => 'Tammsyn Muir',
+                'author' => 'Tamsyn Muir',
                 'title'  => 'Gideon the Ninth'
               )
             ]
@@ -750,12 +750,12 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
           [
             {
               'id'     => 0,
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             },
             {
               'id'     => 1,
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Harrow the Ninth'
             },
             {
@@ -814,11 +814,11 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
         let(:entities) do
           [
             Book.create(
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             ),
             Book.create(
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Harrow the Ninth'
             ),
             Book.create(
@@ -887,7 +887,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
             [
               {
                 'id'     => 0,
-                'author' => 'Tammsyn Muir',
+                'author' => 'Tamsyn Muir',
                 'title'  => 'Gideon the Ninth'
               }
             ]
@@ -931,7 +931,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
           let(:entities) do
             [
               Book.create(
-                'author' => 'Tammsyn Muir',
+                'author' => 'Tamsyn Muir',
                 'title'  => 'Gideon the Ninth'
               )
             ]
@@ -995,7 +995,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
           [
             {
               'id'     => 0,
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             }
           ]
@@ -1044,7 +1044,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
         let(:entities) do
           [
             Book.create(
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             )
           ]
@@ -1102,12 +1102,12 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
           [
             {
               'id'     => 0,
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             },
             {
               'id'     => 1,
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Harrow the Ninth'
             },
             {
@@ -1166,11 +1166,11 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
         let(:entities) do
           [
             Book.create(
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             ),
             Book.create(
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Harrow the Ninth'
             ),
             Book.create(
@@ -1228,12 +1228,12 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
           [
             Spec::ExampleEntity.new(
               'id'     => 0,
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Gideon the Ninth'
             ),
             Spec::ExampleEntity.new(
               'id'     => 1,
-              'author' => 'Tammsyn Muir',
+              'author' => 'Tamsyn Muir',
               'title'  => 'Harrow the Ninth'
             ),
             Spec::ExampleEntity.new(

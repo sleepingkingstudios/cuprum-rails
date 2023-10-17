@@ -28,7 +28,7 @@ RSpec.describe Spec::Support::Actions::CreateChapter do
     Book
       .new(
         title:  'Gideon the Ninth',
-        author: 'Tammsyn Muir'
+        author: 'Tamsyn Muir'
       )
       .tap(&:save!)
   end
