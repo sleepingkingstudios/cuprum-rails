@@ -17,6 +17,39 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
   end
 
   describe '#call' do
+    # @todo Rails 6
+    def self.redirect_method_name
+      Rails.version >= '7.0' ? :redirect_back_or_to : :redirect_back
+    end
+
+    shared_examples 'should redirect back' do
+      # :nocov:
+      let(:expected_arguments) do
+        Rails.version >= '7.0' ? [fallback_location] : []
+      end
+      let(:expected_keywords) do
+        hsh = { status: status }
+
+        unless Rails.version >= '7.0'
+          hsh[:fallback_location] = fallback_location
+        end
+
+        hsh
+      end
+      # :nocov:
+
+      it "should call #{redirect_method_name}" do
+        response.call(renderer)
+
+        expect(renderer)
+          .to have_received(redirect_method_name)
+          .with(*expected_arguments, **expected_keywords)
+      end
+    end
+
+    let(:redirect_method_name) do
+      self.class.redirect_method_name
+    end
     let(:renderer_flash) do
       instance_double(
         ActionDispatch::Flash::FlashHash,
@@ -26,31 +59,24 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
     let(:renderer) do
       instance_double(
         ActionController::Base,
-        flash:               renderer_flash,
-        redirect_back_or_to: nil
+        flash:                  renderer_flash,
+        redirect_method_name => nil
       )
     end
+    let(:fallback_location) { '/' }
+    let(:status)            { 302 }
 
     it { expect(response).to respond_to(:call).with(1).argument }
 
-    it 'should call redirect_back_or_to' do
-      response.call(renderer)
-
-      expect(renderer)
-        .to have_received(:redirect_back_or_to)
-        .with('/', status: 302)
-    end
+    include_examples 'should redirect back'
 
     context 'when initialized with fallback_location: value' do
-      let(:options) { super().merge(fallback_location: '/path/to/resource') }
-
-      it 'should call redirect_back_or_to' do
-        response.call(renderer)
-
-        expect(renderer)
-          .to have_received(:redirect_back_or_to)
-          .with('/path/to/resource', status: 302)
+      let(:fallback_location) do
+        '/path/to/resource'
       end
+      let(:options) { super().merge(fallback_location: fallback_location) }
+
+      include_examples 'should redirect back'
     end
 
     context 'when initialized with flash: a Hash' do
@@ -72,25 +98,14 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
         end
       end
 
-      it 'should call redirect_back_or_to' do
-        response.call(renderer)
-
-        expect(renderer)
-          .to have_received(:redirect_back_or_to)
-          .with('/', status: 302)
-      end
+      include_examples 'should redirect back'
     end
 
     context 'when initialized with status: value' do
-      let(:options) { super().merge(status: 303) }
+      let(:status)  { 303 }
+      let(:options) { super().merge(status: status) }
 
-      it 'should call redirect_back_or_to' do
-        response.call(renderer)
-
-        expect(renderer)
-          .to have_received(:redirect_back_or_to)
-          .with('/', status: 303)
-      end
+      include_examples 'should redirect back'
     end
   end
 
