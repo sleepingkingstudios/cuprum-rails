@@ -7,9 +7,12 @@ require 'support/book'
 require 'support/publisher'
 
 RSpec.describe Cuprum::Rails::Routes do
-  subject(:routes) { described_class.new(base_path: base_path, &block) }
+  subject(:routes) do
+    described_class.new(base_path: base_path, **options, &block)
+  end
 
   let(:base_path) { '/books' }
+  let(:options)   { {} }
   let(:block)     { nil }
 
   describe '::MissingWildcardError' do
@@ -23,7 +26,7 @@ RSpec.describe Cuprum::Rails::Routes do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:base_path)
+        .and_keywords(:base_path, :parent_path)
         .and_a_block
     end
 
@@ -264,6 +267,29 @@ RSpec.describe Cuprum::Rails::Routes do
 
   describe '#parent_path' do
     include_examples 'should define reader', :parent_path, '/'
+
+    context 'when initialized with parent_path: value' do
+      let(:error_message) { 'missing wildcard :author_id' }
+      let(:parent_path)   { '/authors/:author_id' }
+      let(:options)       { super().merge(parent_path: parent_path) }
+
+      it 'should raise an exception' do
+        expect { routes.parent_path }
+          .to raise_error(
+            described_class::MissingWildcardError,
+            error_message
+          )
+      end
+
+      context 'with wildcards' do
+        let(:wildcards) { { 'key' => 'value', 'author_id' => '0' } }
+        let(:expected)  { '/authors/0' }
+
+        it 'should insert the wildcards' do
+          expect(routes.with_wildcards(wildcards).parent_path).to be == expected
+        end
+      end
+    end
   end
 
   describe '#root_path' do

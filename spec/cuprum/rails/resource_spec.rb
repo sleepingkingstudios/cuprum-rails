@@ -12,6 +12,32 @@ RSpec.describe Cuprum::Rails::Resource do
 
   subject(:resource) { described_class.new(**constructor_options) }
 
+  shared_context 'with a plural parent resource' do
+    let(:authors_resource)    { described_class.new(name: 'authors') }
+    let(:constructor_options) { super().merge(parent: authors_resource) }
+  end
+
+  shared_context 'with a singular parent resource' do
+    let(:library_resource) do
+      described_class.new(name: 'library', singular: true)
+    end
+    let(:constructor_options) { super().merge(parent: library_resource) }
+  end
+
+  shared_context 'with multiple ancestor resources' do
+    let(:authors_resource) do
+      described_class.new(name: 'authors')
+    end
+    let(:series_resource) do
+      described_class.new(
+        name:          'series',
+        singular_name: 'series',
+        parent:        authors_resource
+      )
+    end
+    let(:constructor_options) { super().merge(parent: series_resource) }
+  end
+
   let(:name)                { 'books' }
   let(:constructor_options) { { name: name } }
 
@@ -105,6 +131,28 @@ RSpec.describe Cuprum::Rails::Resource do
     end
   end
 
+  describe '#ancestors' do
+    include_examples 'should define reader', :ancestors, -> { [resource] }
+
+    wrap_context 'with a plural parent resource' do
+      let(:expected) { [authors_resource, resource] }
+
+      it { expect(resource.ancestors).to be == expected }
+    end
+
+    wrap_context 'with a singular parent resource' do
+      let(:expected) { [library_resource, resource] }
+
+      it { expect(resource.ancestors).to be == expected }
+    end
+
+    wrap_context 'with multiple ancestor resources' do
+      let(:expected) { [authors_resource, series_resource, resource] }
+
+      it { expect(resource.ancestors).to be == expected }
+    end
+  end
+
   describe '#base_path' do
     include_examples 'should define reader', :base_path, '/books'
 
@@ -120,6 +168,68 @@ RSpec.describe Cuprum::Rails::Resource do
 
       it { expect(resource.base_path).to be == '/book' }
     end
+
+    wrap_context 'with a plural parent resource' do
+      let(:expected) { '/authors/:author_id/books' }
+
+      it { expect(resource.base_path).to be == expected }
+
+      context 'when initialized with base_path: a string' do
+        let(:base_path)           { '/path/to/books' }
+        let(:constructor_options) { super().merge(base_path: base_path) }
+
+        it { expect(resource.base_path).to be == base_path }
+      end
+
+      context 'when initialized with singular: true' do
+        let(:constructor_options) { super().merge(singular: true) }
+        let(:expected)            { '/authors/:author_id/book' }
+
+        it { expect(resource.base_path).to be == expected }
+      end
+    end
+
+    wrap_context 'with a singular parent resource' do
+      let(:expected) { '/library/books' }
+
+      it { expect(resource.base_path).to be == expected }
+
+      context 'when initialized with base_path: a string' do
+        let(:base_path)           { '/path/to/books' }
+        let(:constructor_options) { super().merge(base_path: base_path) }
+
+        it { expect(resource.base_path).to be == base_path }
+      end
+
+      context 'when initialized with singular: true' do
+        let(:constructor_options) { super().merge(singular: true) }
+        let(:expected)            { '/library/book' }
+
+        it { expect(resource.base_path).to be == expected }
+      end
+    end
+
+    wrap_context 'with multiple ancestor resources' do
+      let(:expected) { '/authors/:author_id/series/:series_id/books' }
+
+      it { expect(resource.base_path).to be == expected }
+
+      context 'when initialized with base_path: a string' do
+        let(:base_path)           { '/path/to/books' }
+        let(:constructor_options) { super().merge(base_path: base_path) }
+
+        it { expect(resource.base_path).to be == base_path }
+      end
+
+      context 'when initialized with singular: true' do
+        let(:constructor_options) { super().merge(singular: true) }
+        let(:expected) do
+          '/authors/:author_id/series/:series_id/book'
+        end
+
+        it { expect(resource.base_path).to be == expected }
+      end
+    end
   end
 
   describe '#default_order' do
@@ -130,6 +240,66 @@ RSpec.describe Cuprum::Rails::Resource do
       let(:constructor_options) { super().merge(default_order: default_order) }
 
       it { expect(resource.default_order).to be == default_order }
+    end
+  end
+
+  describe '#each_ancestor' do
+    it { expect(resource.each_ancestor).to be_a Enumerator }
+
+    it { expect(resource.each_ancestor.to_a).to be == [resource] }
+
+    it 'should yield the resource' do
+      expect { |block| resource.each_ancestor(&block) }
+        .to yield_successive_args(resource)
+    end
+
+    wrap_context 'with a plural parent resource' do
+      let(:expected) { [authors_resource, resource] }
+
+      it { expect(resource.each_ancestor.to_a).to be == expected }
+
+      it 'should yield the resource and its ancestors' do
+        expect { |block| resource.each_ancestor(&block) }
+          .to yield_successive_args(*expected)
+      end
+    end
+
+    wrap_context 'with a singular parent resource' do
+      let(:expected) { [library_resource, resource] }
+
+      it { expect(resource.each_ancestor.to_a).to be == expected }
+
+      it 'should yield the resource and its ancestors' do
+        expect { |block| resource.each_ancestor(&block) }
+          .to yield_successive_args(*expected)
+      end
+    end
+
+    wrap_context 'with multiple ancestor resources' do
+      let(:expected) { [authors_resource, series_resource, resource] }
+
+      it { expect(resource.each_ancestor.to_a).to be == expected }
+
+      it 'should yield the resource and its ancestors' do
+        expect { |block| resource.each_ancestor(&block) }
+          .to yield_successive_args(*expected)
+      end
+    end
+  end
+
+  describe '#parent' do
+    include_examples 'should define reader', :parent, nil
+
+    wrap_context 'with a plural parent resource' do
+      it { expect(resource.parent).to be == authors_resource }
+    end
+
+    wrap_context 'with a singular parent resource' do
+      it { expect(resource.parent).to be == library_resource }
+    end
+
+    wrap_context 'with multiple ancestor resources' do
+      it { expect(resource.parent).to be == series_resource }
     end
   end
 
@@ -180,13 +350,17 @@ RSpec.describe Cuprum::Rails::Resource do
 
     it { expect(resource.routes.base_path).to be == '/books' }
 
+    it { expect(resource.routes.parent_path).to be == '/' }
+
     it { expect(resource.routes.wildcards).to be == {} }
 
-    describe 'when initialized with base_path: a string' do
+    context 'when initialized with base_path: a string' do
       let(:base_path)           { '/path/to/books' }
       let(:constructor_options) { super().merge(base_path: base_path) }
 
       it { expect(resource.routes.base_path).to be == base_path }
+
+      it { expect(resource.routes.parent_path).to be == '/' }
     end
 
     context 'when initialized with routes: a Routes object' do
@@ -222,7 +396,144 @@ RSpec.describe Cuprum::Rails::Resource do
 
       it { expect(resource.routes.base_path).to be == '/book' }
 
+      it { expect(resource.routes.parent_path).to be == '/' }
+
       it { expect(resource.routes.wildcards).to be == {} }
+    end
+
+    wrap_context 'with a plural parent resource' do
+      let(:parent_path) { '/authors/:author_id' }
+      let(:expected)    { "#{parent_path}/books" }
+
+      it { expect(resource.routes.base_path).to be == expected }
+
+      describe 'with wildcards: a Hash' do
+        let(:wildcards) { { 'key' => 'value', 'author_id' => '0' } }
+        let(:expected)  { '/authors/0' }
+
+        it 'should generate the parent path' do
+          expect(resource.routes.with_wildcards(wildcards).parent_path)
+            .to be == expected
+        end
+      end
+
+      context 'when initialized with base_path: a string' do
+        let(:base_path)           { '/path/to/books' }
+        let(:constructor_options) { super().merge(base_path: base_path) }
+
+        it { expect(resource.routes.base_path).to be == base_path }
+
+        describe 'with wildcards: a Hash' do
+          let(:wildcards) { { 'key' => 'value', 'author_id' => '0' } }
+          let(:expected)  { '/authors/0' }
+
+          it 'should generate the parent path' do
+            expect(resource.routes.with_wildcards(wildcards).parent_path)
+              .to be == expected
+          end
+        end
+      end
+
+      context 'when initialized with singular: true' do
+        let(:constructor_options) { super().merge(singular: true) }
+        let(:expected)            { "#{parent_path}/book" }
+
+        it { expect(resource.routes.base_path).to be == expected }
+
+        describe 'with wildcards: a Hash' do
+          let(:wildcards) { { 'key' => 'value', 'author_id' => '0' } }
+          let(:expected)  { '/authors/0' }
+
+          it 'should generate the parent path' do
+            expect(resource.routes.with_wildcards(wildcards).parent_path)
+              .to be == expected
+          end
+        end
+      end
+    end
+
+    wrap_context 'with a singular parent resource' do
+      let(:parent_path) { '/library' }
+      let(:expected)    { "#{parent_path}/books" }
+
+      it { expect(resource.routes.base_path).to be == expected }
+
+      it { expect(resource.routes.parent_path).to be == parent_path }
+
+      context 'when initialized with base_path: a string' do
+        let(:base_path)           { '/path/to/books' }
+        let(:constructor_options) { super().merge(base_path: base_path) }
+
+        it { expect(resource.routes.base_path).to be == base_path }
+
+        it { expect(resource.routes.parent_path).to be == parent_path }
+      end
+
+      context 'when initialized with singular: true' do
+        let(:constructor_options) { super().merge(singular: true) }
+        let(:expected)            { "#{parent_path}/book" }
+
+        it { expect(resource.routes.base_path).to be == expected }
+
+        it { expect(resource.routes.parent_path).to be == parent_path }
+      end
+    end
+
+    wrap_context 'with multiple ancestor resources' do
+      let(:parent_path) { '/authors/:author_id/series/:series_id' }
+      let(:expected)    { "#{parent_path}/books" }
+
+      it { expect(resource.routes.base_path).to be == expected }
+
+      describe 'with wildcards: a Hash' do
+        let(:wildcards) do
+          { 'key' => 'value', 'author_id' => '0', 'series_id' => '1' }
+        end
+        let(:expected) { '/authors/0/series/1' }
+
+        it 'should generate the parent path' do
+          expect(resource.routes.with_wildcards(wildcards).parent_path)
+            .to be == expected
+        end
+      end
+
+      context 'when initialized with base_path: a string' do
+        let(:base_path)           { '/path/to/books' }
+        let(:constructor_options) { super().merge(base_path: base_path) }
+
+        it { expect(resource.routes.base_path).to be == base_path }
+
+        describe 'with wildcards: a Hash' do
+          let(:wildcards) do
+            { 'key' => 'value', 'author_id' => '0', 'series_id' => '1' }
+          end
+          let(:expected) { '/authors/0/series/1' }
+
+          it 'should generate the parent path' do
+            expect(resource.routes.with_wildcards(wildcards).parent_path)
+              .to be == expected
+          end
+        end
+      end
+
+      context 'when initialized with singular: true' do
+        let(:constructor_options) { super().merge(singular: true) }
+        let(:expected)            { "#{parent_path}/book" }
+
+        it { expect(resource.routes.base_path).to be == expected }
+
+        describe 'with wildcards: a Hash' do
+          let(:wildcards) do
+            { 'key' => 'value', 'author_id' => '0', 'series_id' => '1' }
+          end
+          let(:expected) { '/authors/0/series/1' }
+
+          it 'should generate the parent path' do
+            expect(resource.routes.with_wildcards(wildcards).parent_path)
+              .to be == expected
+          end
+        end
+      end
     end
   end
 end

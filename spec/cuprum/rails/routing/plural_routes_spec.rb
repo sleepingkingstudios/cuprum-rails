@@ -23,7 +23,7 @@ RSpec.describe Cuprum::Rails::Routing::PluralRoutes do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:base_path)
+        .and_keywords(:base_path, :parent_path)
         .and_a_block
     end
 

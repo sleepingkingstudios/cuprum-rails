@@ -57,14 +57,29 @@ module Cuprum::Rails
       @actions ||= Set.new(options.fetch(:actions, default_actions).map(&:to_s))
     end
 
+    # @return [Array<Resource>] the resource's ancestors, starting with the
+    #   resource itself.
+    def ancestors
+      each_ancestor.to_a
+    end
+
     # @return [String] the base url for the resource.
     def base_path
       @base_path ||=
         options
-          .fetch(:base_path) do
-            "/#{(singular? ? name.singularize : name).underscore}"
-          end
+          .fetch(:base_path) { default_base_path }
           .to_s
+    end
+
+    # Enumerates the resource's ancestors, starting with the resource itself.
+    #
+    # @yield_param [Resource] the current ancestor.
+    def each_ancestor(&block)
+      return enum_for(:each_ancestor) unless block_given?
+
+      parent&.each_ancestor(&block)
+
+      yield self
     end
 
     # @return [Hash] the default ordering for the resource items.
@@ -80,12 +95,17 @@ module Cuprum::Rails
 
     # @return [String] the name of the primary key attribute. Defaults to 'id'.
     def primary_key_name
-      @primary_key_name =
+      @primary_key_name ||=
         options
           .fetch(:primary_key_name) { entity_class.primary_key }
           .to_s
     end
     alias primary_key primary_key_name
+
+    # @return [Cuprum::Rails::Resource] the parent resource, if any.
+    def parent
+      @parent ||= @options.fetch(:parent, nil)
+    end
 
     # @return [Class, Stannum::Constraint] the type of the primary key
     #   attribute. Defaults to Integer.
@@ -116,14 +136,37 @@ module Cuprum::Rails
       singular? ? SINGULAR_ACTIONS : PLURAL_ACTIONS
     end
 
+    def default_base_path
+      "#{parent_path}/#{(singular? ? name.singularize : name).underscore}"
+    end
+
+    def default_parent_path
+      return unless parent
+
+      return parent.base_path if parent.singular?
+
+      "#{parent.base_path}/:#{parent.singular_name}_id"
+    end
+
+    def parent_path
+      @parent_path || default_parent_path
+    end
+
+    def routes_options
+      {
+        base_path:   base_path,
+        parent_path: parent_path
+      }
+    end
+
     def routes_without_wildcards
       return @routes if @routes
 
       @routes =
         if plural?
-          Cuprum::Rails::Routing::PluralRoutes.new(base_path: base_path)
+          Cuprum::Rails::Routing::PluralRoutes.new(**routes_options)
         else
-          Cuprum::Rails::Routing::SingularRoutes.new(base_path: base_path)
+          Cuprum::Rails::Routing::SingularRoutes.new(**routes_options)
         end
     end
 
