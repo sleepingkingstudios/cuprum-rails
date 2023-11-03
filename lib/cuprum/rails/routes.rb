@@ -4,7 +4,7 @@ require 'cuprum/rails'
 
 module Cuprum::Rails
   # Represent the routes available for a given resource.
-  class Routes
+  class Routes # rubocop:disable Metrics/ClassLength
     # Error class when a wildcard value is missing for a route.
     class MissingWildcardError < StandardError; end
 
@@ -75,10 +75,12 @@ module Cuprum::Rails
       end
     end
 
-    # @param base_path [String] The relative path of the resource.
-    def initialize(base_path:, &block)
-      @base_path = base_path
-      @wildcards = {}
+    # @param base_path [String] the relative path of the resource.
+    # @param parent_path [String] the path to the parent resource, if any.
+    def initialize(base_path:, parent_path: nil, &block)
+      @base_path   = base_path
+      @parent_path = parent_path
+      @wildcards   = {}
 
       singleton_class.instance_exec(&block) if block_given?
     end
@@ -91,7 +93,9 @@ module Cuprum::Rails
 
     # @return [String] the path to the parent resource index.
     def parent_path
-      root_path
+      return '/' if @parent_path.nil?
+
+      insert_wildcards(@parent_path)
     end
 
     # @return [String] the root path for the application.
