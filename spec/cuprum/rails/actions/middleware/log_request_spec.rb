@@ -107,7 +107,12 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogRequest do
       end
     end
 
-    let(:next_result) { Cuprum::Result.new(value: { 'ok' => true }) }
+    let(:next_result) do
+      Cuprum::Rails::Result.new(
+        value:    { 'ok' => true },
+        metadata: { 'env' => :test }
+      )
+    end
     let(:next_command) do
       instance_double(Cuprum::Command, call: next_result)
     end
@@ -233,6 +238,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogRequest do
       expect(call_middleware)
         .to be_a_passing_result
         .with_value({ 'ok' => true })
+        .and_metadata({ 'env' => :test })
     end
 
     it 'should log the request', :aggregate_failures do

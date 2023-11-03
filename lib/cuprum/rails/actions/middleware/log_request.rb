@@ -104,7 +104,7 @@ module Cuprum::Rails::Actions::Middleware
     def process(next_command, request:, **options)
       Rails.logger.info format_log(request: request, **options)
 
-      super
+      next_command.call(request: request, **options)
     end
 
     def request_properties(request:)

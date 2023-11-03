@@ -21,6 +21,8 @@ require 'cuprum/rspec/be_callable'
 require 'cuprum/rspec/be_a_result'
 require 'stannum/rspec/validate_parameter'
 
+require 'cuprum/rails/rspec/matchers'
+
 Stannum::RSpec::ValidateParameterMatcher.add_parameter_mapping(
   match: lambda do |actual:, method_name:, **_|
     actual.is_a?(Cuprum::Command) && method_name == :call
@@ -37,6 +39,7 @@ module Spec; end
 RSpec.configure do |config|
   include Cuprum::RSpec::Matchers
   include Stannum::RSpec::Matchers
+  include Cuprum::Rails::RSpec::Matchers
 
   config.extend  RSpec::SleepingKingStudios::Concerns::ExampleConstants
   config.extend  RSpec::SleepingKingStudios::Concerns::FocusExamples
