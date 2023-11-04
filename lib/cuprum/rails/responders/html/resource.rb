@@ -38,25 +38,25 @@ module Cuprum::Rails::Responders::Html
       end
 
       match :success do
-        next redirect_to(resource.routes.show_path) if resource.singular?
+        next redirect_to(routes.show_path) if resource.singular?
 
         entity = result.value[resource.singular_resource_name]
 
-        redirect_to resource.routes.show_path(entity)
+        redirect_to routes.show_path(entity)
       end
     end
 
     action :destroy do
       match :success do
-        next redirect_to(resource.routes.parent_path) if resource.singular?
+        next redirect_to(routes.parent_path) if resource.singular?
 
-        redirect_to(resource.routes.index_path)
+        redirect_to(routes.index_path)
       end
     end
 
     action :index do
       match :failure do
-        redirect_to resource.routes.root_path
+        redirect_to routes.root_path
       end
     end
 
@@ -68,18 +68,18 @@ module Cuprum::Rails::Responders::Html
       end
 
       match :success do
-        next redirect_to(resource.routes.show_path) if resource.singular?
+        next redirect_to(routes.show_path) if resource.singular?
 
         entity = result.value[resource.singular_resource_name]
 
-        redirect_to resource.routes.show_path(entity)
+        redirect_to routes.show_path(entity)
       end
     end
 
     match :failure do
-      next redirect_to(resource.routes.parent_path) if resource.singular?
+      next redirect_to(routes.show_path) if resource.singular?
 
-      redirect_to(resource.routes.index_path)
+      redirect_to(routes.index_path)
     end
   end
 end

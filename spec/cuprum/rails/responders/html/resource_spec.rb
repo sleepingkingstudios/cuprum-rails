@@ -38,6 +38,59 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       it { expect(response.path).to be == resource.routes.index_path }
 
       it { expect(response.status).to be 302 }
+
+      context 'when the resource has ancestors' do
+        let(:authors_resource) do
+          Cuprum::Rails::Resource.new(name: 'authors')
+        end
+        let(:resource_options) { super().merge(parent: authors_resource) }
+        let(:path_params)      { { 'author_id' => 0 } }
+        let(:request) do
+          Cuprum::Rails::Request.new(path_params: path_params)
+        end
+        let(:expected_path) do
+          resource.routes.with_wildcards(path_params).index_path
+        end
+
+        it { expect(response).to be_a response_class }
+
+        it { expect(response.path).to be == expected_path }
+
+        it { expect(response.status).to be 302 }
+      end
+    end
+
+    shared_examples 'should redirect to the show page' do
+      let(:response) { responder.call(result) }
+      let(:response_class) do
+        Cuprum::Rails::Responses::Html::RedirectResponse
+      end
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.path).to be == resource.routes.show_path }
+
+      it { expect(response.status).to be 302 }
+
+      context 'when the resource has ancestors' do
+        let(:authors_resource) do
+          Cuprum::Rails::Resource.new(name: 'authors')
+        end
+        let(:resource_options) { super().merge(parent: authors_resource) }
+        let(:path_params)      { { 'author_id' => 0 } }
+        let(:request) do
+          Cuprum::Rails::Request.new(path_params: path_params)
+        end
+        let(:expected_path) do
+          resource.routes.with_wildcards(path_params).show_path
+        end
+
+        it { expect(response).to be_a response_class }
+
+        it { expect(response.path).to be == expected_path }
+
+        it { expect(response.status).to be 302 }
+      end
     end
 
     shared_examples 'should redirect to the parent resource page' do
@@ -51,6 +104,26 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       it { expect(response.path).to be == resource.routes.parent_path }
 
       it { expect(response.status).to be 302 }
+
+      context 'when the resource has ancestors' do
+        let(:authors_resource) do
+          Cuprum::Rails::Resource.new(name: 'authors')
+        end
+        let(:resource_options) { super().merge(parent: authors_resource) }
+        let(:path_params)      { { 'author_id' => 0 } }
+        let(:request) do
+          Cuprum::Rails::Request.new(path_params: path_params)
+        end
+        let(:expected_path) do
+          resource.routes.with_wildcards(path_params).parent_path
+        end
+
+        it { expect(response).to be_a response_class }
+
+        it { expect(response.path).to be == expected_path }
+
+        it { expect(response.status).to be 302 }
+      end
     end
 
     shared_examples 'should render the template' do
@@ -71,13 +144,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     end
 
     context 'when initialized with a plural resource' do
-      let(:resource) do
-        Cuprum::Rails::Resource.new(
-          resource_name: 'books',
-          singular:      false
-        )
-      end
-
       context 'when initialized with action_name: :create' do
         let(:action_name) { :create }
 
@@ -331,12 +397,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     end
 
     context 'when initialized with a singular resource' do
-      let(:resource) do
-        Cuprum::Rails::Resource.new(
-          resource_name: 'book',
-          singular:      true
-        )
-      end
+      let(:resource_options) { super().merge(singular: true) }
 
       context 'when initialized with action_name: :create' do
         let(:action_name) { :create }
@@ -344,7 +405,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the parent resource page'
+          include_examples 'should redirect to the show page'
         end
 
         describe 'with a failing result with a FailedValidation error' do
@@ -406,7 +467,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the parent resource page'
+          include_examples 'should redirect to the show page'
         end
 
         describe 'with a passing result' do
@@ -422,7 +483,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the parent resource page'
+          include_examples 'should redirect to the show page'
         end
 
         describe 'with a passing result' do
@@ -445,7 +506,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the parent resource page'
+          include_examples 'should redirect to the show page'
         end
 
         describe 'with a passing result' do
@@ -464,7 +525,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the parent resource page'
+          include_examples 'should redirect to the show page'
         end
 
         describe 'with a passing result' do
@@ -483,7 +544,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the parent resource page'
+          include_examples 'should redirect to the show page'
         end
 
         describe 'with a failing result with a FailedValidation error' do
@@ -545,7 +606,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the parent resource page'
+          include_examples 'should redirect to the show page'
         end
 
         describe 'with a passing result' do

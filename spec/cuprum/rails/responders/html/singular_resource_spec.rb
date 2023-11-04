@@ -31,6 +31,19 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
     constructor_keywords: %i[matcher]
 
   describe '#call' do
+    shared_examples 'should redirect to the show page' do
+      let(:response) { responder.call(result) }
+      let(:response_class) do
+        Cuprum::Rails::Responses::Html::RedirectResponse
+      end
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.path).to be == resource.routes.show_path }
+
+      it { expect(response.status).to be 302 }
+    end
+
     shared_examples 'should redirect to the parent resource page' do
       let(:response) { responder.call(result) }
       let(:response_class) do
@@ -74,7 +87,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the parent resource page'
+        include_examples 'should redirect to the show page'
       end
 
       describe 'with a failing result with a FailedValidation error' do
@@ -136,7 +149,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the parent resource page'
+        include_examples 'should redirect to the show page'
       end
 
       describe 'with a passing result' do
@@ -152,7 +165,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the parent resource page'
+        include_examples 'should redirect to the show page'
       end
 
       describe 'with a passing result' do
@@ -175,7 +188,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the parent resource page'
+        include_examples 'should redirect to the show page'
       end
 
       describe 'with a passing result' do
@@ -194,7 +207,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the parent resource page'
+        include_examples 'should redirect to the show page'
       end
 
       describe 'with a passing result' do
@@ -213,7 +226,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the parent resource page'
+        include_examples 'should redirect to the show page'
       end
 
       describe 'with a failing result with a FailedValidation error' do
@@ -275,7 +288,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the parent resource page'
+        include_examples 'should redirect to the show page'
       end
 
       describe 'with a passing result' do

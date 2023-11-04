@@ -59,7 +59,6 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
     describe 'with a failing result' do
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
       let(:result)   { Cuprum::Result.new(status: :failure, error: error) }
-      let(:resource) { Cuprum::Rails::Resource.new(resource_name: 'books') }
       let(:response) { responder.call(result) }
       let(:response_class) do
         Cuprum::Rails::Responses::Html::RedirectResponse
@@ -67,7 +66,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
       it { expect(response).to be_a response_class }
 
-      it { expect(response.path).to be == resource.base_path }
+      it { expect(response.path).to be == resource.routes.index_path }
 
       it { expect(response.status).to be 302 }
 
@@ -164,6 +163,26 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
           end
           # rubocop:enable RSpec/NestedGroups
         end
+      end
+
+      context 'when the resource has ancestors' do
+        let(:authors_resource) do
+          Cuprum::Rails::Resource.new(name: 'authors')
+        end
+        let(:resource_options) { super().merge(parent: authors_resource) }
+        let(:path_params)      { { 'author_id' => 0 } }
+        let(:request) do
+          Cuprum::Rails::Request.new(path_params: path_params)
+        end
+        let(:expected_path) do
+          resource.routes.with_wildcards(path_params).index_path
+        end
+
+        it { expect(response).to be_a response_class }
+
+        it { expect(response.path).to be == expected_path }
+
+        it { expect(response.status).to be 302 }
       end
     end
 
