@@ -76,10 +76,32 @@ module Cuprum::Rails::Responders::Html
       end
     end
 
+    match :failure, error: Cuprum::Collections::Errors::NotFound do |result|
+      handle_not_found_error(result)
+    end
+
     match :failure do
       next redirect_to(routes.show_path) if resource.singular?
 
       redirect_to(routes.index_path)
+    end
+
+    private
+
+    def find_ancestor(&block)
+      resource.each_ancestor.find(&block)
+    end
+
+    def handle_not_found_error(result)
+      matching = find_ancestor do |ancestor|
+        ancestor.name == result.error.collection_name
+      end
+
+      return render(request.action_name, status: 404) unless matching # rubocop:disable Rails/HttpStatus
+
+      routes = matching.routes.with_wildcards(request.path_params || {})
+
+      redirect_to(matching.singular? ? routes.show_path : routes.index_path)
     end
   end
 end

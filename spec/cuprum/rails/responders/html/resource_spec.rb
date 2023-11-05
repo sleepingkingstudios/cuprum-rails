@@ -11,7 +11,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
   let(:described_class) { Spec::ResourceResponder }
   let(:action_name)     { :published }
   let(:controller)      { Spec::CustomController.new }
-  let(:request)         { Cuprum::Rails::Request.new }
+  let(:request)         { Cuprum::Rails::Request.new(action_name: action_name) }
   let(:constructor_options) do
     {
       action_name: action_name,
@@ -27,6 +27,192 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     constructor_keywords: %i[matcher]
 
   describe '#call' do
+    shared_examples 'should handle a NotFound error' do
+      describe 'with a failing result with a NotFound error' do
+        let(:result)   { Cuprum::Result.new(error: error) }
+        let(:response) { responder.call(result) }
+
+        context 'when the error does not match a resource' do
+          let(:error) do
+            Cuprum::Collections::Errors::NotFound.new(
+              attribute_name:  'id',
+              attribute_value: 1,
+              collection_name: 'series',
+              primary_key:     true
+            )
+          end
+          let(:response_class) do
+            Cuprum::Rails::Responses::Html::RenderResponse
+          end
+
+          it { expect(response).to be_a response_class }
+
+          it { expect(response.layout).to be nil }
+
+          it { expect(response.template).to be == action_name }
+
+          it { expect(response.status).to be 404 }
+        end
+
+        context 'when the error matches the resource' do
+          let(:error) do
+            Cuprum::Collections::Errors::NotFound.new(
+              attribute_name:  'id',
+              attribute_value: 0,
+              collection_name: 'books',
+              primary_key:     true
+            )
+          end
+          let(:response_class) do
+            Cuprum::Rails::Responses::Html::RedirectResponse
+          end
+          let(:expected_path) do
+            if resource.singular?
+              resource.routes.show_path
+            else
+              resource.routes.index_path
+            end
+          end
+
+          it { expect(response).to be_a response_class }
+
+          it { expect(response.path).to be == expected_path }
+
+          it { expect(response.status).to be 302 }
+        end
+
+        context 'when the resource has ancestors' do
+          let(:authors_resource) do
+            Cuprum::Rails::Resource.new(name: 'authors')
+          end
+          let(:series_resource) do
+            Cuprum::Rails::Resource.new(
+              name:          'series',
+              singular_name: 'series',
+              parent:        authors_resource
+            )
+          end
+          let(:resource_options) { super().merge(parent: series_resource) }
+          let(:path_params) do
+            {
+              'author_id' => 0,
+              'series_id' => 1,
+              'id'        => 2
+            }
+          end
+          let(:request) do
+            Cuprum::Rails::Request.new(
+              action_name: action_name,
+              path_params: path_params
+            )
+          end
+
+          context 'when the error does not match a resource' do
+            let(:error) do
+              Cuprum::Collections::Errors::NotFound.new(
+                attribute_name:  'borrower_id',
+                attribute_value: 3,
+                collection_name: 'borrowers',
+                primary_key:     true
+              )
+            end
+            let(:response_class) do
+              Cuprum::Rails::Responses::Html::RenderResponse
+            end
+
+            it { expect(response).to be_a response_class }
+
+            it { expect(response.layout).to be nil }
+
+            it { expect(response.template).to be == action_name }
+
+            it { expect(response.status).to be 404 }
+          end
+
+          context 'when the error matches the primary resource' do
+            let(:error) do
+              Cuprum::Collections::Errors::NotFound.new(
+                attribute_name:  'id',
+                attribute_value: 2,
+                collection_name: 'books',
+                primary_key:     true
+              )
+            end
+            let(:response_class) do
+              Cuprum::Rails::Responses::Html::RedirectResponse
+            end
+            let(:expected_path) do
+              routes = resource.routes.with_wildcards(request.path_params)
+
+              if resource.singular?
+                routes.show_path
+              else
+                routes.index_path
+              end
+            end
+
+            it { expect(response).to be_a response_class }
+
+            it { expect(response.path).to be == expected_path }
+
+            it { expect(response.status).to be 302 }
+          end
+
+          context 'when the error matches the parent resource' do
+            let(:error) do
+              Cuprum::Collections::Errors::NotFound.new(
+                attribute_name:  'id',
+                attribute_value: 1,
+                collection_name: 'series',
+                primary_key:     true
+              )
+            end
+            let(:response_class) do
+              Cuprum::Rails::Responses::Html::RedirectResponse
+            end
+            let(:expected_path) do
+              series_resource
+                .routes
+                .with_wildcards(request.path_params)
+                .index_path
+            end
+
+            it { expect(response).to be_a response_class }
+
+            it { expect(response.path).to be == expected_path }
+
+            it { expect(response.status).to be 302 }
+          end
+
+          context 'when the error matches the top-level resource' do
+            let(:error) do
+              Cuprum::Collections::Errors::NotFound.new(
+                attribute_name:  'id',
+                attribute_value: 0,
+                collection_name: 'authors',
+                primary_key:     true
+              )
+            end
+            let(:response_class) do
+              Cuprum::Rails::Responses::Html::RedirectResponse
+            end
+            let(:expected_path) do
+              authors_resource
+                .routes
+                .with_wildcards(request.path_params)
+                .index_path
+            end
+
+            it { expect(response).to be_a response_class }
+
+            it { expect(response.path).to be == expected_path }
+
+            it { expect(response.status).to be 302 }
+          end
+        end
+      end
+    end
+
     shared_examples 'should redirect to the index page' do
       let(:response) { responder.call(result) }
       let(:response_class) do
@@ -147,6 +333,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: :create' do
         let(:action_name) { :create }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -211,6 +399,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: :destroy' do
         let(:action_name) { :destroy }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -226,6 +416,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
       context 'when initialized with action_name: :edit' do
         let(:action_name) { :edit }
+
+        include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
@@ -249,6 +441,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
       context 'when initialized with action_name: :index' do
         let(:action_name) { :index }
+
+        include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
           let(:result)   { Cuprum::Result.new(status: :failure) }
@@ -277,6 +471,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: :new' do
         let(:action_name) { :new }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -296,6 +492,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: :show' do
         let(:action_name) { :show }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -314,6 +512,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
       context 'when initialized with action_name: :update' do
         let(:action_name) { :update }
+
+        include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
@@ -379,6 +579,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: another action' do
         let(:action_name) { :publish }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -401,6 +603,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
       context 'when initialized with action_name: :create' do
         let(:action_name) { :create }
+
+        include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
@@ -464,6 +668,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: :destroy' do
         let(:action_name) { :destroy }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -479,6 +685,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
       context 'when initialized with action_name: :edit' do
         let(:action_name) { :edit }
+
+        include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
@@ -503,6 +711,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: :new' do
         let(:action_name) { :new }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -522,6 +732,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
       context 'when initialized with action_name: :show' do
         let(:action_name) { :show }
 
+        include_examples 'should handle a NotFound error'
+
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
@@ -540,6 +752,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
       context 'when initialized with action_name: :update' do
         let(:action_name) { :update }
+
+        include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
@@ -602,6 +816,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
       context 'when initialized with action_name: another action' do
         let(:action_name) { :publish }
+
+        include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
