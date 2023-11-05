@@ -2,11 +2,14 @@
 
 require 'cuprum/rails/routes'
 require 'cuprum/rails/rspec/define_route_contract'
+require 'cuprum/rails/rspec/contracts/routes_contracts'
 
 require 'support/book'
 require 'support/publisher'
 
 RSpec.describe Cuprum::Rails::Routes do
+  include Cuprum::Rails::RSpec::Contracts::RoutesContracts
+
   subject(:routes) do
     described_class.new(base_path: base_path, **options, &block)
   end
@@ -37,78 +40,59 @@ RSpec.describe Cuprum::Rails::Routes do
           route :publish,   ':id/publish'
         end
       end
-      let(:entity) do
-        Book.create!(
-          author: 'Tamsyn Muir',
-          title:  'Gideon the Ninth'
-        )
-      end
 
-      include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
+      include_contract 'should define collection route',
         action_name: :published,
         path:        '/books/published'
 
-      include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
-        action_name:   :publish,
-        member_action: true,
-        path:          '/books/:id/publish'
+      include_contract 'should define member route',
+        action_name: :publish,
+        path:        '/books/:id/publish',
+        wildcards:   { id: 0 }
     end
   end
 
   describe '.route' do
     shared_examples 'should define the collection route helper' \
-    do |action_name:, path:, absolute_path: false|
-      include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
+    do |action_name:, path:|
+      include_contract 'should define collection route',
         action_name: action_name,
         path:        path
 
-      unless absolute_path
-        context 'when the base path defines wildcards' do
-          let(:base_path) { '/publishers/:publisher_id/books' }
+      context 'when the base path defines wildcards' do
+        let(:base_path) { '/publishers/:publisher_id/books' }
 
-          include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
-            action_name: action_name,
-            path:        "/publishers/0/#{path}".sub('//', '/'),
-            wildcards:   { publisher_id: 0 }
+        include_contract 'should define collection route',
+          action_name: action_name,
+          path:        "/publishers/:publisher_id/#{path}".sub('//', '/'),
+          wildcards:   { publisher_id: 0 }
 
-          include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
-            action_name: action_name,
-            path:        "/publishers/0/#{path}".sub('//', '/'),
-            wildcards:   { publisher: Publisher.new(id: 0) }
-        end
+        include_contract 'should define collection route',
+          action_name: action_name,
+          path:        "/publishers/:publisher_id/#{path}".sub('//', '/'),
+          wildcards:   { publisher: Publisher.new(id: 0) }
       end
     end
 
     shared_examples 'should define the member route helper' \
-    do |action_name:, path:, absolute_path: false|
-      let(:entity) do
-        Book.create!(
-          author: 'Tamsyn Muir',
-          title:  'Gideon the Ninth'
-        )
-      end
+    do |action_name:, path:|
+      include_contract 'should define member route',
+        action_name: action_name,
+        path:        path,
+        wildcards:   { id: 0 }
 
-      include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
-        action_name:   action_name,
-        member_action: true,
-        path:          path
+      context 'when the base path defines wildcards' do
+        let(:base_path) { '/publishers/:publisher_id/books' }
 
-      unless absolute_path
-        context 'when the base path defines wildcards' do
-          let(:base_path) { '/publishers/:publisher_id/books' }
+        include_contract 'should define member route',
+          action_name: action_name,
+          path:        "/publishers/:publisher_id/#{path}".sub('//', '/'),
+          wildcards:   { publisher_id: 0, id: 1 }
 
-          include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
-            action_name:   action_name,
-            member_action: true,
-            path:          "/publishers/0/#{path}".sub('//', '/'),
-            wildcards:     { publisher_id: 0 }
-
-          include_contract Cuprum::Rails::RSpec::DEFINE_ROUTE_CONTRACT,
-            action_name:   action_name,
-            member_action: true,
-            path:          "/publishers/0/#{path}".sub('//', '/'),
-            wildcards:     { publisher: Publisher.new(id: 0) }
-        end
+        include_contract 'should define member route',
+          action_name: action_name,
+          path:        "/publishers/:publisher_id/#{path}".sub('//', '/'),
+          wildcards:   { publisher: Publisher.new(id: 0), id: 1 }
       end
     end
 
@@ -239,10 +223,9 @@ RSpec.describe Cuprum::Rails::Routes do
         described_class.route(action_name, path, **options)
       end
 
-      include_examples 'should define the collection route helper',
-        absolute_path: true,
-        action_name:   :archived,
-        path:          '/archived/books'
+      include_contract 'should define collection route',
+        action_name: :archived,
+        path:        '/archived/books'
     end
 
     describe 'with an absolute member path' do
@@ -254,10 +237,15 @@ RSpec.describe Cuprum::Rails::Routes do
         described_class.route(action_name, path, **options)
       end
 
-      include_examples 'should define the member route helper',
-        absolute_path: true,
-        action_name:   :archived,
-        path:          '/archived/books/:id'
+      include_contract 'should define member route',
+        action_name: :archived,
+        path:        '/archived/books/:id',
+        wildcards:   { id: 0 }
+
+      include_contract 'should define member route',
+        action_name: :archived,
+        path:        '/archived/books/:id',
+        wildcards:   { id: Book.new(id: 0) }
     end
   end
 
