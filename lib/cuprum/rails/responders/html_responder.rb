@@ -73,13 +73,13 @@ module Cuprum::Rails::Responders
     end
 
     def resource_path(result)
-      return resource.routes.index_path if result.value.nil?
+      return routes.index_path if result.value.nil?
 
       entity = resource_entity
 
-      return resource.routes.show_path(entity) if entity
+      return routes.show_path(entity) if entity
 
-      resource.routes.index_path
+      routes.index_path
     end
   end
 end

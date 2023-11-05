@@ -37,18 +37,18 @@ module Cuprum::Rails
       private
 
       def define_collection_route(action_name, original_path)
-        define_method :"#{action_name}_path" do
+        define_method :"#{action_name}_path" do |**wildcards|
           path = resolve_base_path(original_path)
 
-          insert_wildcards(path)
+          insert_wildcards(path, **wildcards)
         end
       end
 
       def define_member_route(action_name, original_path)
-        define_method :"#{action_name}_path" do |entity|
+        define_method :"#{action_name}_path" do |entity = nil, **wildcards|
           path = resolve_base_path(original_path)
 
-          insert_wildcards(path, entity)
+          insert_wildcards(path, entity, **wildcards)
         end
       end
 
@@ -124,15 +124,15 @@ module Cuprum::Rails
 
     private
 
-    def insert_wildcards(path, value_or_entity = nil)
+    def insert_wildcards(path, value_or_entity = nil, **wildcards)
+      wildcards = wildcards.merge('id' => value_or_entity) if value_or_entity
+
       path
         .split('/')
         .map do |segment|
           next segment unless segment.start_with?(':')
 
-          next resolve_primary_key(value_or_entity) if segment == ':id'
-
-          resolve_wildcard(segment)
+          resolve_wildcard(segment, **wildcards)
         end
         .join('/')
     end
@@ -157,16 +157,21 @@ module Cuprum::Rails
       value_or_entity[primary_key]
     end
 
-    def resolve_wildcard(segment)
+    def resolve_wildcard(segment, **wildcards)
+      wildcards = self.wildcards.merge(wildcards)
+      value     = wildcard_value(segment, **wildcards)
+
+      resolve_primary_key(value)
+    end
+
+    def wildcard_value(segment, **wildcards)
       wildcard = segment[1..] # :something_id to something_id
 
-      return wildcards[wildcard] if wildcards.include?(wildcard)
+      return wildcards[wildcard] if wildcards.key?(wildcard)
 
       wildcard = segment[1...-3] # :something_id to something
 
-      if wildcards.include?(wildcard)
-        return resolve_primary_key(wildcards[wildcard])
-      end
+      return wildcards[wildcard] if wildcards.key?(wildcard)
 
       raise MissingWildcardError, "missing wildcard #{segment}"
     end

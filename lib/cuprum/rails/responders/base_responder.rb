@@ -59,5 +59,20 @@ module Cuprum::Rails::Responders
     def member_action?
       @member_action
     end
+
+    # Helper for accessing the configured routes for the resource.
+    #
+    # Any wildcards from the path params will be applied to the routes.
+    #
+    # @return [Cuprum::Rails::Routes] the configured routes.
+    def routes
+      resource.routes.with_wildcards(routes_wildcards)
+    end
+
+    private
+
+    def routes_wildcards
+      request.path_params || {}
+    end
   end
 end

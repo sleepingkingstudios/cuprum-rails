@@ -29,7 +29,7 @@ module Cuprum::Rails::RSpec
 
       it 'should define the helper method' do
         if member_action
-          expect(routes).to respond_to(method_name).with(1).argument
+          expect(routes).to respond_to(method_name).with(0..1).arguments
         else
           expect(routes).to respond_to(method_name).with(0).arguments
         end
