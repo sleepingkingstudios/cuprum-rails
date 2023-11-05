@@ -18,7 +18,10 @@ Refactored how actions handle required parameters.
 
 #### Middleware
 
-Defined `Actions::Middleware::Associations::Find` for querying associations.
+- Defined `Actions::Middleware::Associations::Find` for querying associations.
+- Defined `Actions::Middleware::Associations::Parent` for querying a parent `belongs_to` association.
+- Defines `Actions::Middleware::LogRequest` for logging request details.
+- Defines `Actions::Middleware::LogResult` for logging the action result.
 
 ### Collections
 
@@ -63,6 +66,8 @@ Automatically generate a `Cuprum::Rails::Collection` when creating a resource wi
 
 Added `#actions` option, which is automatically generated for singular and plural resources.
 
+Added `#parent` option and associated `#ancestors` and `#each_ancestors` methods.
+
 - **(Breaking Change)** Removed `Resource#collection`.
 
 #### Responders
@@ -98,7 +103,9 @@ Implemented `Cuprum::Rails::Result`, which includes a `#metadata` property for p
 
 #### Routes
 
-Member route methods now accept a primary key value as well as an entity.
+Route helpers not accept a wildcards hash for populating route wildcards, as an alternative to calling `routes.with_wildcards`.
+
+Member route methods now accept a primary key value as well as an entity, or allow the key to be passed as part of the wildcards.
 
 #### RSpec
 
