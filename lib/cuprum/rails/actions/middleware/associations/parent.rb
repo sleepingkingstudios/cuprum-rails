@@ -24,8 +24,9 @@ module Cuprum::Rails::Actions::Middleware::Associations
       @request    = request
       @resource   = resource
 
-      values = step { require_parent }
-      result = super
+      primary_key = step { query_keys }
+      values      = step { require_parent(primary_key: primary_key) }
+      result      = super
 
       return result unless result.success?
 
@@ -56,8 +57,8 @@ module Cuprum::Rails::Actions::Middleware::Associations
       failure(error)
     end
 
-    def require_parent
-      values = step { perform_query }
+    def require_parent(primary_key:)
+      values = step { perform_query(keys: primary_key) }
 
       values.is_a?(Array) ? values.first : values
     end
