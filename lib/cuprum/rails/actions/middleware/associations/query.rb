@@ -109,8 +109,8 @@ module Cuprum::Rails::Actions::Middleware::Associations
       )
     end
 
-    def perform_query
-      keys = step { query_keys }
+    def perform_query(keys: nil)
+      keys ||= step { query_keys }
 
       if keys.is_a?(Array)
         query_command.call(keys: keys)

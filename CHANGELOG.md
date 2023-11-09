@@ -97,17 +97,17 @@ Added Rails flash message support to HTML responses:
 - `Responses::Html::RedirectResponse`.
 - `Responses::Html::RenderResponse`.
 
-#### Results
+### Results
 
 Implemented `Cuprum::Rails::Result`, which includes a `#metadata` property for passing contextual data such as an authentication session or page configuration.
 
-#### Routes
+### Routes
 
 Route helpers not accept a wildcards hash for populating route wildcards, as an alternative to calling `routes.with_wildcards`.
 
 Member route methods now accept a primary key value as well as an entity, or allow the key to be passed as part of the wildcards.
 
-#### RSpec
+### RSpec
 
 Implemented contracts for Cuprum::Rails actions
 
@@ -127,7 +127,7 @@ Defined `Cuprum::Rails::RSpec::SerializersContracts`:
 
 Implemented `Cuprum::Rails::RSpec::Matchers::BeAResultMatcher`, which adds support for a `#metadata` property to the `be_a_result` matcher.
 
-#### Serializers
+### Serializers
 
 Implemented `Cuprum::Rails::Serializers::Context`.
 

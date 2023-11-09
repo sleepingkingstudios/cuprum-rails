@@ -145,7 +145,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
       let(:book_id) { (Book.order(:id).last&.id || -1) + 1 }
       let(:params)  { super().merge('book_id' => book_id) }
       let(:expected_error) do
-        Cuprum::Collections::Errors::Associations::NotFound.new(
+        Cuprum::Collections::Errors::NotFound.new(
           attribute_name:  'id',
           attribute_value: book_id,
           collection_name: 'book',
