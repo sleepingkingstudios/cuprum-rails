@@ -23,12 +23,12 @@ module Cuprum::Rails::RSpec::Contracts
         constructor_keywords: [],
         controller_name:      'Spec::CustomController'
       |
-        let(:resource_options) do
-          defined?(super()) ? super() : { name: 'books' }
+        def self.let?(method_name, &block)
+          let(method_name, &block) unless method_defined?(method_name)
         end
-        let(:resource) do
-          return super() if defined?(super())
 
+        let?(:resource_options) { { name: 'books' } }
+        let?(:resource) do
           Cuprum::Rails::Resource.new(**resource_options)
         end
 
@@ -130,6 +130,8 @@ module Cuprum::Rails::RSpec::Contracts
 
         describe '#routes' do
           include_examples 'should define reader', :routes
+
+          let(:resource_options) { super().merge(name: 'books') }
 
           it 'should return the resource routes' do
             expect(responder.routes)
