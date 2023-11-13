@@ -202,6 +202,18 @@ module Cuprum::Rails::RSpec
 
             it { expect(action.collection).to be existing_collection }
           end
+
+          context 'when there is a partially matching collection' do
+            let!(:existing_collection) do
+              configured_repository.find_or_create(
+                collection_name: 'other_collection',
+                entity_class:    resource.resource_class,
+                qualified_name:  resource.qualified_name
+              )
+            end
+
+            it { expect(action.collection).to be existing_collection }
+          end
         end
 
         describe '#resource' do
