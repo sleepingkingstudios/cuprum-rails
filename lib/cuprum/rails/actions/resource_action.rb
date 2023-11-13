@@ -52,8 +52,8 @@ module Cuprum::Rails::Actions
     # @return [Cuprum::Rails::Collection] the collection for the resource class.
     def collection
       @collection ||= repository.find_or_create(
-        collection_name: resource_name,
-        entity_class:    resource_class
+        entity_class:   resource_class,
+        qualified_name: resource.qualified_name
       )
     end
 
