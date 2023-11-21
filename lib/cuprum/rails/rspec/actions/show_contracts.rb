@@ -54,6 +54,7 @@ module Cuprum::Rails::RSpec::Actions
 
         include_contract(
           'should require existing entity',
+          params:            options[:params],
           primary_key_value: options[:primary_key_value],
           &options[:examples_on_failure]
         )
@@ -62,6 +63,7 @@ module Cuprum::Rails::RSpec::Actions
           'should find the entity',
           existing_entity: existing_entity,
           expected_value:  options[:expected_value_on_success],
+          params:          options[:params],
           &options[:examples_on_success]
         )
       end
