@@ -17,15 +17,15 @@ RSpec.describe Cuprum::Rails::Repository do
     end
     let(:magazines_collection) do
       Cuprum::Rails::Collection.new(
-        collection_name: 'magazines',
-        qualified_name:  'magazines',
-        entity_class:    Spec::Magazine
+        name:           'magazines',
+        qualified_name: 'magazines',
+        entity_class:   Spec::Magazine
       )
     end
     let(:periodicals_collection) do
       Cuprum::Rails::Collection.new(
-        collection_name: 'periodicals',
-        entity_class:    Spec::Periodical
+        name:         'periodicals',
+        entity_class: Spec::Periodical
       )
     end
     let(:collections) do
@@ -72,7 +72,7 @@ RSpec.describe Cuprum::Rails::Repository do
         "#{collection.inspect} is not a valid collection"
       end
       let(:collection) do
-        Struct.new(:collection_name).new
+        Struct.new(:name).new
       end
 
       it 'should raise an exception' do

@@ -44,15 +44,9 @@ module Cuprum::Rails::Actions
     #
     #   @return [Cuprum::Result] the result of the action.
 
-    def_delegators :@resource,
-      :resource_class,
-      :resource_name,
-      :singular_resource_name
-
     # @return [Cuprum::Rails::Collection] the collection for the resource class.
     def collection
       @collection ||= repository.find_or_create(
-        entity_class:   resource_class,
         qualified_name: resource.qualified_name
       )
     end
@@ -69,7 +63,7 @@ module Cuprum::Rails::Actions
     def resource_params
       return @resource_params if @resource_params
 
-      resource_params = params.fetch(singular_resource_name, {})
+      resource_params = params.fetch(resource.singular_name, {})
 
       return resource_params unless resource_params.is_a?(Hash)
 
@@ -138,9 +132,10 @@ module Cuprum::Rails::Actions
 
     def transaction(&block) # rubocop:disable Metrics/MethodLength
       result            = nil
+      entity_class      = resource.entity_class
       transaction_class =
-        if resource_class.is_a?(Class) && resource_class < ActiveRecord::Base
-          resource_class
+        if entity_class.is_a?(Class) && entity_class < ActiveRecord::Base
+          entity_class
         else
           ActiveRecord::Base
         end

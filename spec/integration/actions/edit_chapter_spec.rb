@@ -15,10 +15,10 @@ RSpec.describe Spec::Support::Actions::EditChapter do
   let(:repository) do
     Cuprum::Rails::Repository
       .new
-      .tap { |repo| repo.create(record_class: Book) }
+      .tap { |repo| repo.create(entity_class: Book) }
   end
   let(:resource) do
-    Cuprum::Rails::Resource.new(resource_class: Chapter)
+    Cuprum::Rails::Resource.new(entity_class: Chapter)
   end
   let(:book) do
     Book.new(

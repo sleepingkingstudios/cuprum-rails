@@ -84,7 +84,7 @@ module Cuprum::Rails::RSpec::Actions
             option_with_default(existing_entities)
           end
           let(:configured_expected_value) do
-            resource_name = configured_resource.resource_name
+            resource_name = configured_resource.name
 
             option_with_default(
               options[:expected_value],

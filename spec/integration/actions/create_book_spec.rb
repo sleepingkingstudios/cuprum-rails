@@ -16,12 +16,12 @@ RSpec.describe Spec::Support::Actions::CreateBook do
   let(:repository) do
     Cuprum::Rails::Repository
       .new
-      .tap { |repo| repo.create(record_class: Chapter) }
+      .tap { |repo| repo.create(entity_class: Chapter) }
   end
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      permitted_attributes: %i[title author series],
-      resource_class:       Book
+      entity_class:         Book,
+      permitted_attributes: %i[title author series]
     )
   end
 

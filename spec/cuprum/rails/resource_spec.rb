@@ -324,7 +324,7 @@ RSpec.describe Cuprum::Rails::Resource do
     end
 
     context 'when initialized with a class with UUID primary key' do
-      let(:constructor_options) { super().merge(resource_class: Tome) }
+      let(:constructor_options) { super().merge(entity_class: Tome) }
 
       it { expect(resource.primary_key_name).to be == 'uuid' }
     end
@@ -332,7 +332,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
   describe '#primary_key_type' do
     context 'when initialized with a class with UUID primary key' do
-      let(:constructor_options) { super().merge(resource_class: Tome) }
+      let(:constructor_options) { super().merge(entity_class: Tome) }
 
       it { expect(resource.primary_key_type).to be == String }
     end

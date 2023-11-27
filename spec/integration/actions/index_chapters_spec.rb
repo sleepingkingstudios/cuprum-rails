@@ -15,12 +15,12 @@ RSpec.describe Spec::Support::Actions::IndexChapters do
   let(:repository) do
     Cuprum::Rails::Repository
       .new
-      .tap { |repo| repo.create(record_class: Book) }
+      .tap { |repo| repo.create(entity_class: Book) }
   end
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      default_order:  :id,
-      resource_class: Chapter
+      entity_class:  Chapter,
+      default_order: :id
     )
   end
   let(:books) do

@@ -101,7 +101,7 @@ module Spec::Support::Examples
 
             context 'when the controller does not define a responder' do
               let(:resource) do
-                Cuprum::Rails::Resource.new(resource_name: 'books')
+                Cuprum::Rails::Resource.new(name: 'books')
               end
               let(:error_class) do
                 Cuprum::Rails::Controller::UnknownFormatError
@@ -124,7 +124,7 @@ module Spec::Support::Examples
 
             context 'when the controller defines a resource and a responder' do
               let(:resource) do
-                Cuprum::Rails::Resource.new(resource_name: 'books')
+                Cuprum::Rails::Resource.new(name: 'books')
               end
               let(:response) { instance_double(Cuprum::Command, call: true) }
 

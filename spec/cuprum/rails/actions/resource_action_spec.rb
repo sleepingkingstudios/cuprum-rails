@@ -14,7 +14,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
   let(:request) { instance_double(ActionDispatch::Request, params: params) }
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      resource_class: Book,
+      entity_class: Book,
       **resource_options
     )
   end
@@ -264,7 +264,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     context 'when the resource class is not an ActiveRecord model' do
       let(:transaction_class) { ActiveRecord::Base }
       let(:resource_options) do
-        super().merge(resource_class: Spec::Entity)
+        super().merge(entity_class: Spec::Entity)
       end
 
       example_class 'Spec::Entity'
@@ -275,7 +275,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     context 'when the resource class is an ActiveRecord model' do
       let(:transaction_class) { Book }
       let(:resource_options) do
-        super().merge(resource_class: Book)
+        super().merge(entity_class: Book)
       end
 
       include_examples 'should wrap the block in a transaction'

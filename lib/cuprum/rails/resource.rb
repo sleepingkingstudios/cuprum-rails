@@ -19,14 +19,12 @@ module Cuprum::Rails
 
     # @overload initialize(entity_class: nil, name: nil, qualified_name: nil, singular_name: nil, **options)
     #   @param entity_class [Class, String] the class of entity represented by
-    #     the resource. Aliased as :resource_class.
-    #   @param name [String] the name of the resource. Aliased as
-    #     :collection_name.
+    #     the resource.
+    #   @param name [String] the name of the resource.
     #   @param qualified_name [String] a scoped name for the resource.
     #   @param routes [Cuprum::Rails::Routes] the routes defined for the
     #     resource.
     #   @param singular_name [String] the name of an entity in the resource.
-    #     Aliased as :singular_resource_name.
     #   @param options [Hash] additional options for the resource.
     #
     #   @option options actions [Array, Set] the defined actions for the

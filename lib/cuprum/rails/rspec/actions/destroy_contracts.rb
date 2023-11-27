@@ -50,7 +50,7 @@ module Cuprum::Rails::RSpec::Actions
         should_not_destroy_the_entity = lambda do
           it 'should not destroy the entity' do
             expect { call_action }
-              .not_to change(configured_resource.resource_class, :count)
+              .not_to change(configured_resource.entity_class, :count)
           end
 
           # :nocov:
@@ -124,7 +124,7 @@ module Cuprum::Rails::RSpec::Actions
               )
             end
             let(:configured_expected_value) do
-              resource_name = configured_resource.singular_resource_name
+              resource_name = configured_resource.singular_name
 
               option_with_default(
                 options[:expected_value],
@@ -142,7 +142,7 @@ module Cuprum::Rails::RSpec::Actions
 
             it 'should destroy the entity', :aggregate_failures do
               expect { call_action }
-                .to change(configured_resource.resource_class, :count)
+                .to change(configured_resource.entity_class, :count)
                 .by(-1)
 
               primary_key_name  = configured_resource.primary_key
@@ -150,7 +150,7 @@ module Cuprum::Rails::RSpec::Actions
               expect(
                 action
                 .resource
-                .resource_class
+                .entity_class
                 .exists?(primary_key_name => primary_key_value)
               ).to be false
             end

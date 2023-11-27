@@ -76,8 +76,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
 
     let(:resource) do
       Cuprum::Rails::Resource.new(
-        resource_name: 'book',
-        singular:      true
+        name:     'book',
+        singular: true
       )
     end
 

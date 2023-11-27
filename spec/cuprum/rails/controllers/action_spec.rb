@@ -54,17 +54,15 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       end
     end
 
-    let(:action_class)    { Spec::Action }
-    let(:member_action)   { false }
-    let(:middleware) { [] }
-    let(:repository) { nil }
-    let(:resource) do
-      Cuprum::Rails::Resource.new(resource_name: 'books')
+    let(:action_class)  { Spec::Action }
+    let(:member_action) { false }
+    let(:middleware)    { [] }
+    let(:repository)    { nil }
+    let(:resource)      { Cuprum::Rails::Resource.new(name: 'books') }
+    let(:responders)    { { json: Spec::JsonResponder } }
+    let(:configured_serializers) do
+      {}
     end
-    let(:responders) do
-      { json: Spec::JsonResponder }
-    end
-    let(:configured_serializers) { {} }
     let(:configuration) do
       instance_double(
         Cuprum::Rails::Controllers::Configuration,
