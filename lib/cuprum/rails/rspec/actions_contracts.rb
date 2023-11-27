@@ -102,7 +102,7 @@ module Cuprum::Rails::RSpec
           return resource if defined?(resource)
 
           # :nocov:
-          Cuprum::Rails::Resource.new(resource_class: Book)
+          Cuprum::Rails::Resource.new(entity_class: Book)
           # :nocov:
         end
         let(:configured_action_options) do
@@ -127,8 +127,8 @@ module Cuprum::Rails::RSpec
           describe 'with a permitted_attributes: nil' do
             let(:resource) do
               Cuprum::Rails::Resource.new(
-                permitted_attributes: nil,
-                resource_name:        'books'
+                name:                 'books',
+                permitted_attributes: nil
               )
             end
             let(:expected_error) do
@@ -148,8 +148,8 @@ module Cuprum::Rails::RSpec
           describe 'with a permitted_attributes: an empty Array' do
             let(:resource) do
               Cuprum::Rails::Resource.new(
-                permitted_attributes: [],
-                resource_name:        'books'
+                name:                 'books',
+                permitted_attributes: []
               )
             end
             let(:expected_error) do
@@ -183,20 +183,19 @@ module Cuprum::Rails::RSpec
           it { expect(action.collection).to be_a expected_collection_class }
 
           it 'should set the collection name' do
-            expect(action.collection.collection_name)
-              .to be == resource.resource_name
+            expect(action.collection.name)
+              .to be == resource.name
           end
 
           it 'should set the entity class' do
             expect(action.collection.entity_class)
-              .to be == resource.resource_class
+              .to be == resource.entity_class
           end
 
           context 'when the repository defines a matching collection' do
             let!(:existing_collection) do
               configured_repository.find_or_create(
-                collection_name: resource.resource_name,
-                entity_class:    resource.resource_class
+                qualified_name: resource.qualified_name
               )
             end
 
@@ -208,9 +207,9 @@ module Cuprum::Rails::RSpec
               repository = super()
 
               repository.find_or_create(
-                collection_name: 'other_collection',
-                entity_class:    resource.resource_class,
-                qualified_name:  resource.qualified_name
+                entity_class:   resource.entity_class,
+                name:           'other_collection',
+                qualified_name: resource.qualified_name
               )
 
               repository
@@ -230,18 +229,6 @@ module Cuprum::Rails::RSpec
             before(:example) { call_action }
 
             it { expect(action.resource).to be == configured_resource }
-          end
-        end
-
-        describe '#resource_class' do
-          include_examples 'should define reader', :resource_class
-
-          context 'when called with a resource' do
-            let(:expected) { configured_resource.resource_class }
-
-            before(:example) { call_action }
-
-            it { expect(action.resource_class).to be == expected }
           end
         end
 
@@ -269,18 +256,6 @@ module Cuprum::Rails::RSpec
           end
         end
 
-        describe '#resource_name' do
-          include_examples 'should define reader', :resource_name
-
-          context 'when called with a resource' do
-            let(:expected) { configured_resource.resource_name }
-
-            before(:example) { call_action }
-
-            it { expect(action.resource_name).to be == expected }
-          end
-        end
-
         describe '#resource_params' do
           include_examples 'should define reader', :resource_params
 
@@ -299,13 +274,13 @@ module Cuprum::Rails::RSpec
             end
 
             context 'when the params for the resource are empty' do
-              let(:params) { { resource.singular_resource_name => {} } }
+              let(:params) { { resource.singular_name => {} } }
 
               it { expect(action.resource_params).to be == {} }
             end
 
             context 'when the parameter for the resource is not a Hash' do
-              let(:params) { { resource.singular_resource_name => 'invalid' } }
+              let(:params) { { resource.singular_name => 'invalid' } }
 
               it { expect(action.resource_params).to be == 'invalid' }
             end
@@ -319,11 +294,11 @@ module Cuprum::Rails::RSpec
                     .to_h { |attr_name| [attr_name.to_s, "#{attr_name} value"] }
 
                 {
-                  configured_resource.singular_resource_name => resource_params
+                  configured_resource.singular_name => resource_params
                 }
               end
               let(:expected) do
-                params[configured_resource.singular_resource_name]
+                params[configured_resource.singular_name]
               end
 
               it { expect(action.resource_params).to be == expected }
@@ -331,20 +306,8 @@ module Cuprum::Rails::RSpec
           end
         end
 
-        describe '#singular_resource_name' do
-          include_examples 'should define reader', :singular_resource_name
-
-          context 'when called with a resource' do
-            let(:expected) { configured_resource.singular_resource_name }
-
-            before(:example) { call_action }
-
-            it { expect(action.singular_resource_name).to be == expected }
-          end
-        end
-
         describe '#transaction' do
-          let(:transaction_class) { resource.resource_class }
+          let(:transaction_class) { resource.entity_class }
 
           before(:example) { call_action }
 
@@ -449,7 +412,7 @@ module Cuprum::Rails::RSpec
               )
             end
             let(:configured_expected_value) do
-              resource_name = configured_resource.singular_resource_name
+              resource_name = configured_resource.singular_name
 
               option_with_default(
                 options[:expected_value],
@@ -511,7 +474,7 @@ module Cuprum::Rails::RSpec
               Cuprum::Collections::Errors::NotFound.new(
                 attribute_name:  configured_resource.primary_key.to_s,
                 attribute_value: configured_primary_key_value,
-                collection_name: configured_resource.resource_name,
+                collection_name: configured_resource.name,
                 primary_key:     true
               )
             end
@@ -520,7 +483,7 @@ module Cuprum::Rails::RSpec
               primary_key_name = configured_resource.primary_key
 
               resource
-                .resource_class
+                .entity_class
                 .where(primary_key_name => configured_primary_key_value)
                 .destroy_all
             end
@@ -565,12 +528,12 @@ module Cuprum::Rails::RSpec
               option_with_default(options[:params], default: {})
                 .dup
                 .tap do |hsh|
-                  hsh.delete(configured_resource.singular_resource_name)
+                  hsh.delete(configured_resource.singular_name)
                 end
             end
             let(:configured_expected_error) do
               errors = Stannum::Errors.new.tap do |err|
-                err[configured_resource.singular_resource_name]
+                err[configured_resource.singular_name]
                   .add(Stannum::Constraints::Presence::TYPE)
               end
 
@@ -592,11 +555,11 @@ module Cuprum::Rails::RSpec
             end
             let(:configured_params) do
               option_with_default(options[:params], default: {})
-                .merge(configured_resource.singular_resource_name => 'invalid')
+                .merge(configured_resource.singular_name => 'invalid')
             end
             let(:configured_expected_error) do
               errors = Stannum::Errors.new.tap do |err|
-                err[configured_resource.singular_resource_name].add(
+                err[configured_resource.singular_name].add(
                   Stannum::Constraints::Type::TYPE,
                   allow_empty: true,
                   required:    true,
@@ -700,7 +663,7 @@ module Cuprum::Rails::RSpec
               option_with_default(invalid_attributes)
             end
             let(:configured_params) do
-              resource_name = configured_resource.singular_resource_name
+              resource_name = configured_resource.singular_name
 
               option_with_default(
                 options[:params],
@@ -722,8 +685,7 @@ module Cuprum::Rails::RSpec
               if configured_existing_entity
                 repository
                   .find_or_create(
-                    collection_name: resource.resource_name,
-                    entity_class:    resource.resource_class
+                    qualified_name: resource.qualified_name
                   )
                   .assign_one
                   .call(
@@ -735,7 +697,7 @@ module Cuprum::Rails::RSpec
               else
                 action
                   .resource
-                  .resource_class
+                  .entity_class
                   .new(configured_expected_attributes)
                   .tap(&:valid?)
               end
@@ -747,7 +709,7 @@ module Cuprum::Rails::RSpec
               option_with_default(
                 options[:expected_value],
                 default: {
-                  configured_resource.singular_resource_name => matcher
+                  configured_resource.singular_name => matcher
                 }
               )
             end
@@ -758,14 +720,14 @@ module Cuprum::Rails::RSpec
                   .call(native_errors: configured_expected_entity.errors)
 
               Cuprum::Collections::Errors::FailedValidation.new(
-                entity_class: configured_resource.resource_class,
+                entity_class: configured_resource.entity_class,
                 errors:       scope_validation_errors(errors)
               )
             end
 
             def scope_validation_errors(errors)
               mapped_errors = Stannum::Errors.new
-              resource_name = configured_resource.singular_resource_name
+              resource_name = configured_resource.singular_name
 
               errors.each do |err|
                 mapped_errors

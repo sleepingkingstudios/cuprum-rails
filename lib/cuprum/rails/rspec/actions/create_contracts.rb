@@ -61,7 +61,7 @@ module Cuprum::Rails::RSpec::Actions
             options[:params],
             context: self,
             default: {
-              configured_resource.singular_resource_name => attributes
+              configured_resource.singular_name => attributes
             }
           )
         end
@@ -77,7 +77,7 @@ module Cuprum::Rails::RSpec::Actions
         should_not_create_an_entity = lambda do
           it 'should not create an entity' do
             expect { call_action }
-              .not_to change(configured_resource.resource_class, :count)
+              .not_to change(configured_resource.entity_class, :count)
           end
 
           # :nocov:
@@ -162,7 +162,7 @@ module Cuprum::Rails::RSpec::Actions
               option_with_default(valid_attributes)
             end
             let(:configured_params) do
-              resource_name = resource.singular_resource_name
+              resource_name = resource.singular_name
 
               option_with_default(
                 options[:params],
@@ -179,12 +179,12 @@ module Cuprum::Rails::RSpec::Actions
             let(:configured_expected_entity) do
               action
                 .resource
-                .resource_class
+                .entity_class
                 .where(configured_expected_attributes)
                 .first
             end
             let(:configured_expected_value) do
-              resource_name = resource.singular_resource_name
+              resource_name = resource.singular_name
 
               option_with_default(
                 options[:expected_value],
@@ -202,13 +202,13 @@ module Cuprum::Rails::RSpec::Actions
 
             it 'should create the entity', :aggregate_failures do
               expect { call_action }
-                .to change(configured_resource.resource_class, :count)
+                .to change(configured_resource.entity_class, :count)
                 .by(1)
 
               expect(
                 action
                   .resource
-                  .resource_class
+                  .entity_class
                   .where(configured_expected_attributes)
                   .exists?
               ).to be true
@@ -249,10 +249,10 @@ module Cuprum::Rails::RSpec::Actions
               option_with_default(valid_attributes)
             end
             let(:configured_duplicate_entity) do
-              configured_resource.resource_class.new(valid_attributes)
+              configured_resource.entity_class.new(valid_attributes)
             end
             let(:configured_params) do
-              resource_name = configured_resource.singular_resource_name
+              resource_name = configured_resource.singular_name
 
               option_with_default(
                 options[:params],
@@ -267,7 +267,7 @@ module Cuprum::Rails::RSpec::Actions
               Cuprum::Collections::Errors::AlreadyExists.new(
                 attribute_name:  primary_key_name,
                 attribute_value: primary_key_value,
-                collection_name: configured_resource.resource_name,
+                collection_name: configured_resource.name,
                 primary_key:     true
               )
             end

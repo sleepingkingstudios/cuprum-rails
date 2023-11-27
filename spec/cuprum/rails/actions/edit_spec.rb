@@ -13,7 +13,7 @@ RSpec.describe Cuprum::Rails::Actions::Edit do
 
   let(:repository) { Cuprum::Rails::Repository.new }
   let(:resource) do
-    Cuprum::Rails::Resource.new(resource_class: Book)
+    Cuprum::Rails::Resource.new(entity_class: Book)
   end
   let(:entity) do
     Book.new(
@@ -30,7 +30,7 @@ RSpec.describe Cuprum::Rails::Actions::Edit do
 
   context 'with a record class with UUID primary key' do
     let(:resource) do
-      Cuprum::Rails::Resource.new(resource_class: Tome)
+      Cuprum::Rails::Resource.new(entity_class: Tome)
     end
     let(:entity) do
       Tome.new(

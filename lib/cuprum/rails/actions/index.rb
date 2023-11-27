@@ -14,7 +14,7 @@ module Cuprum::Rails::Actions
     attr_reader :entities
 
     def build_response
-      { resource_name => entities.to_a }
+      { resource.name => entities.to_a }
     end
 
     # @note Overload this method to change how the filtering params are defined,

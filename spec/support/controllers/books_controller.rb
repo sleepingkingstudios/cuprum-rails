@@ -19,8 +19,14 @@ class BooksController < BaseController
 
   def self.resource
     @resource ||= Cuprum::Rails::Resource.new(
-      permitted_attributes: %i[title author series category published_at],
-      resource_class:       Book
+      entity_class:         Book,
+      permitted_attributes: %i[
+        title
+        author
+        series
+        category
+        published_at
+      ]
     )
   end
 

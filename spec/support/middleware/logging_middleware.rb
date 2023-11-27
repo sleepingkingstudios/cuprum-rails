@@ -31,7 +31,7 @@ module Spec::Support::Middleware
     def log_details
       <<~MESSAGE
         - repository_keys: #{repository.keys.join(', ')}
-        - resource_name: #{resource.resource_name}
+        - resource_name: #{resource.name}
       MESSAGE
     end
 

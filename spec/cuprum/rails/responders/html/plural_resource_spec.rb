@@ -63,8 +63,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
 
     let(:resource) do
       Cuprum::Rails::Resource.new(
-        resource_name: 'books',
-        singular:      false
+        name:     'books',
+        singular: false
       )
     end
 

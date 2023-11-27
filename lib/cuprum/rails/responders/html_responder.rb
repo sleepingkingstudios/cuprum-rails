@@ -66,7 +66,7 @@ module Cuprum::Rails::Responders
 
     def resource_entity
       if result.value.is_a?(Hash)
-        result.value[resource.singular_resource_name]
+        result.value[resource.singular_name]
       else
         result.value
       end

@@ -11,7 +11,7 @@ module Cuprum::Rails::Actions
     attr_reader :entity
 
     def build_response
-      { singular_resource_name => entity }
+      { resource.singular_name => entity }
     end
 
     def destroy_entity(primary_key:)

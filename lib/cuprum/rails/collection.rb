@@ -10,12 +10,10 @@ module Cuprum::Rails
   class Collection < Cuprum::Collections::Collection
     # @overload initialize(entity_class: nil, name: nil, qualified_name: nil, singular_name: nil, **options)
     #   @param entity_class [Class, String] the class of entity represented by
-    #     the collection. Aliased as :record_class.
-    #   @param singular_name [String] the name of an entity in the collection.
-    #     Aliased as :member_name.
-    #   @param name [String] the name of the collection. Aliased as
-    #     :collection_name.
+    #     the collection.
+    #   @param name [String] the name of the collection.
     #   @param qualified_name [String] a scoped name for the collection.
+    #   @param singular_name [String] the name of an entity in the collection.
     #   @param options [Hash] additional options for the collection.
     #
     #   @option options primary_key_name [String] the name of the primary key
@@ -73,27 +71,19 @@ module Cuprum::Rails
         .subclass(**command_options)
     end
 
-    alias record_class entity_class
-
-    # @param other [Object] The object to compare.
-    #
-    # @return [true, false] true if the other object is a collection with the
-    #   same options, otherwise false.
-    def ==(other)
-      return false unless other.is_a?(self.class)
-
-      other.collection_name == collection_name &&
-        other.member_name == member_name &&
-        other.qualified_name == qualified_name &&
-        other.entity_class == entity_class &&
-        other.options == options
-    end
-
     # A new Query instance, used for querying against the collection data.
     #
     # @return [Cuprum::Rails::Query] the query.
     def query
       Cuprum::Rails::Query.new(entity_class)
+    end
+
+    # @return [Class] the class of entity represented by the collection.
+    def record_class
+      tools.core_tools.deprecate '#record_class method',
+        message: 'Use #entity_class instead'
+
+      entity_class
     end
 
     private

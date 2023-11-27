@@ -21,7 +21,7 @@ module Cuprum::Rails::RSpec::Actions
           options[:existing_entity],
           context: context
         )
-      resource_name = resource.singular_resource_name
+      resource_name = resource.singular_name
 
       Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
         options[:params],
@@ -218,13 +218,13 @@ module Cuprum::Rails::RSpec::Actions
             end
             let(:configured_expected_entity) do
               configured_resource
-                .resource_class
+                .entity_class
                 .find(
                   configured_existing_entity[configured_resource.primary_key]
                 )
             end
             let(:configured_expected_value) do
-              resource_name = configured_resource.singular_resource_name
+              resource_name = configured_resource.singular_name
 
               option_with_default(
                 options[:expected_value],

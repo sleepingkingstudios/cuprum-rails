@@ -16,8 +16,8 @@ RSpec.describe Cuprum::Rails::Actions::Create do
   let(:repository) { Cuprum::Rails::Repository.new }
   let(:resource) do
     Cuprum::Rails::Resource.new(
-      permitted_attributes: %i[title author series],
-      resource_class:       Book
+      entity_class:         Book,
+      permitted_attributes: %i[title author series]
     )
   end
 
@@ -32,8 +32,8 @@ RSpec.describe Cuprum::Rails::Actions::Create do
   context 'with a record class with UUID primary key' do
     let(:resource) do
       Cuprum::Rails::Resource.new(
-        permitted_attributes: %i[uuid title author series],
-        resource_class:       Tome
+        entity_class:         Tome,
+        permitted_attributes: %i[uuid title author series]
       )
     end
 

@@ -94,7 +94,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
             Cuprum::Rails::Routing::PluralRoutes.new(base_path: '/tomes')
           end
           let(:resource) do
-            Cuprum::Rails::Resource.new(resource_name: 'books', routes: routes)
+            Cuprum::Rails::Resource.new(name: 'books', routes: routes)
           end
 
           it { expect(response).to be_a response_class }

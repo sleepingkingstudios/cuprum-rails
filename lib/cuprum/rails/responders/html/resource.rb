@@ -40,7 +40,7 @@ module Cuprum::Rails::Responders::Html
       match :success do
         next redirect_to(routes.show_path) if resource.singular?
 
-        entity = result.value[resource.singular_resource_name]
+        entity = result.value[resource.singular_name]
 
         redirect_to routes.show_path(entity)
       end
@@ -70,7 +70,7 @@ module Cuprum::Rails::Responders::Html
       match :success do
         next redirect_to(routes.show_path) if resource.singular?
 
-        entity = result.value[resource.singular_resource_name]
+        entity = result.value[resource.singular_name]
 
         redirect_to routes.show_path(entity)
       end

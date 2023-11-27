@@ -11,13 +11,13 @@ RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
   let(:repository) do
     repository = Cuprum::Rails::Repository.new
 
-    repository.find_or_create(record_class: Book)
-    repository.find_or_create(record_class: Tome)
+    repository.find_or_create(entity_class: Book)
+    repository.find_or_create(entity_class: Tome)
 
     repository
   end
   let(:resource) do
-    Cuprum::Rails::Resource.new(resource_name: 'rare_books')
+    Cuprum::Rails::Resource.new(name: 'rare_books')
   end
   let(:command) { instance_double(Cuprum::Command, call: result) }
   let(:result)  { Cuprum::Result.new(value: { 'ok' => true }) }

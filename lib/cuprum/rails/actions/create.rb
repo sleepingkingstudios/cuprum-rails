@@ -13,7 +13,7 @@ module Cuprum::Rails::Actions
     attr_reader :entity
 
     def build_response
-      { singular_resource_name => entity }
+      { resource.singular_name => entity }
     end
 
     def create_entity(attributes:)
@@ -39,14 +39,14 @@ module Cuprum::Rails::Actions
       Cuprum::Result.new(
         error:  scope_validation_errors(result.error),
         status: :failure,
-        value:  { singular_resource_name => entity }
+        value:  { resource.singular_name => entity }
       )
     end
 
     def parameters_contract
       return @parameters_contract if @parameters_contract
 
-      resource_name         = resource.singular_resource_name
+      resource_name         = resource.singular_name
       parameters_constraint = require_parameters_constraint
 
       @parameters_contract =
@@ -83,7 +83,7 @@ module Cuprum::Rails::Actions
 
       error.errors.each do |err|
         mapped_errors
-          .dig(resource.singular_resource_name, *err[:path].map(&:to_s))
+          .dig(resource.singular_name, *err[:path].map(&:to_s))
           .add(err[:type], message: err[:message], **err[:data])
       end
 

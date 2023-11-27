@@ -15,7 +15,7 @@ module Cuprum::Rails::Actions
     end
 
     def build_response
-      { singular_resource_name => entity }
+      { resource.singular_name => entity }
     end
 
     def perform_action
