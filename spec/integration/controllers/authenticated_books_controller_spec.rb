@@ -15,7 +15,7 @@ RSpec.describe AuthenticatedBooksController do
 
   shared_context 'when there are many books' do
     before(:example) do
-      Cuprum::Collections::RSpec::BOOKS_FIXTURES.each do |attributes|
+      Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES.each do |attributes|
         Book.create!(attributes.except(:id))
       end
     end

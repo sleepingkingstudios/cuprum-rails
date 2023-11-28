@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/query_contract'
+require 'cuprum/collections/rspec/contracts/query_contracts'
 
 require 'cuprum/rails/query'
 
@@ -8,6 +8,8 @@ require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Query do
+  include Cuprum::Collections::RSpec::Contracts::QueryContracts
+
   subject(:query) do
     described_class.new(record_class, native_query: native_query)
   end
@@ -39,7 +41,7 @@ RSpec.describe Cuprum::Rails::Query do
     end
   end
 
-  include_contract Cuprum::Collections::RSpec::QUERY_CONTRACT
+  include_contract 'should be a query'
 
   describe '#each' do
     let(:mock_query) do

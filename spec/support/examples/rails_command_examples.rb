@@ -25,7 +25,7 @@ module Spec::Support::Examples
       let(:primary_key_type)    { Integer }
       let(:entity_type)         { record_class }
       let(:fixtures_data) do
-        Cuprum::Collections::RSpec::BOOKS_FIXTURES.dup
+        Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES.dup
       end
       let(:query) do
         Cuprum::Rails::Query.new(record_class)
