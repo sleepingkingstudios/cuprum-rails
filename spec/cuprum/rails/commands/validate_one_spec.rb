@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/validate_one_command_contract'
+require 'cuprum/collections/rspec/contracts/command_contracts'
 require 'stannum/errors'
 
 require 'cuprum/rails/commands/validate_one'
@@ -9,6 +9,7 @@ require 'cuprum/rails/rspec/command_contract'
 require 'support/examples/rails_command_examples'
 
 RSpec.describe Cuprum::Rails::Commands::ValidateOne do
+  include Cuprum::Collections::RSpec::Contracts::CommandContracts
   include Spec::Support::Examples::RailsCommandExamples
 
   include_context 'with parameters for a Rails command'
@@ -45,6 +46,6 @@ RSpec.describe Cuprum::Rails::Commands::ValidateOne do
 
   include_contract Cuprum::Rails::RSpec::COMMAND_CONTRACT
 
-  include_contract Cuprum::Collections::RSpec::VALIDATE_ONE_COMMAND_CONTRACT,
+  include_contract 'should be a validate one command',
     default_contract: true
 end

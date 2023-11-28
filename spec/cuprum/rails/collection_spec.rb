@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/collection_contract'
-require 'cuprum/collections/rspec/contracts/relation_contracts'
+require 'cuprum/collections/rspec/contracts/collection_contracts'
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/collection'
@@ -11,12 +10,12 @@ require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Collection do
-  include Cuprum::Collections::RSpec::Contracts::RelationContracts
+  include Cuprum::Collections::RSpec::Contracts::CollectionContracts
 
   subject(:collection) { described_class.new(**constructor_options) }
 
   shared_context 'when the collection has many items' do
-    let(:data)  { Cuprum::Collections::RSpec::BOOKS_FIXTURES }
+    let(:data)  { Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES }
     let(:items) { data.map { |attributes| Book.new(attributes) } }
 
     before(:each) { items.each(&:save!) }
@@ -32,7 +31,7 @@ RSpec.describe Cuprum::Rails::Collection do
   example_class 'Grimoire',         Book
   example_class 'Spec::ScopedBook', Book
 
-  include_contract Cuprum::Collections::RSpec::CollectionContract,
+  include_contract 'should be a collection',
     commands_namespace: 'Cuprum::Rails::Commands'
 
   include_contract 'should disambiguate parameter',

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/insert_one_command_contract'
+require 'cuprum/collections/rspec/contracts/command_contracts'
 
 require 'cuprum/rails/commands/insert_one'
 require 'cuprum/rails/rspec/command_contract'
@@ -8,6 +8,7 @@ require 'cuprum/rails/rspec/command_contract'
 require 'support/examples/rails_command_examples'
 
 RSpec.describe Cuprum::Rails::Commands::InsertOne do
+  include Cuprum::Collections::RSpec::Contracts::CommandContracts
   include Spec::Support::Examples::RailsCommandExamples
 
   include_context 'with parameters for a Rails command'
@@ -31,7 +32,7 @@ RSpec.describe Cuprum::Rails::Commands::InsertOne do
 
   include_contract Cuprum::Rails::RSpec::COMMAND_CONTRACT
 
-  include_contract Cuprum::Collections::RSpec::INSERT_ONE_COMMAND_CONTRACT
+  include_contract 'should be an insert one command'
 
   wrap_context 'with a custom primary key' do
     let(:attributes) do
@@ -40,6 +41,6 @@ RSpec.describe Cuprum::Rails::Commands::InsertOne do
         .merge(uuid: '00000000-0000-0000-0000-000000000000')
     end
 
-    include_contract Cuprum::Collections::RSpec::INSERT_ONE_COMMAND_CONTRACT
+    include_contract 'should be an insert one command'
   end
 end

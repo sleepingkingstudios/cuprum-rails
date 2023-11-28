@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'cuprum/collections/basic/repository'
-require 'cuprum/collections/rspec/repository_contract'
+require 'cuprum/collections/rspec/contracts/repository_contracts'
 
 require 'cuprum/rails/repository'
 
@@ -9,6 +9,8 @@ require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Repository do
+  include Cuprum::Collections::RSpec::Contracts::RepositoryContracts
+
   subject(:repository) { described_class.new }
 
   shared_context 'when the repository has many collections' do
@@ -60,7 +62,7 @@ RSpec.describe Cuprum::Rails::Repository do
 
   example_class 'Spec::ScopedBook', 'Book'
 
-  include_contract Cuprum::Collections::RSpec::RepositoryContract,
+  include_contract 'should be a repository',
     collection_class: Cuprum::Rails::Collection
 
   describe '#add' do
