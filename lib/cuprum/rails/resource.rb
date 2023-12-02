@@ -108,7 +108,7 @@ module Cuprum::Rails
     # @return [Class, Stannum::Constraint] the type of the primary key
     #   attribute. Defaults to Integer.
     def primary_key_type
-      @primary_key_name =
+      @primary_key_type =
         options
           .fetch(:primary_key_type) do
             key    = entity_class.primary_key

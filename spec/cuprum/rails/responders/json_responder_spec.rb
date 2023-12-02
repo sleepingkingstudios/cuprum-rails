@@ -133,7 +133,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
           }
         end
 
-        # rubocop:disable RSpec/DescribedClass
+        # rubocop:disable RSpec/DescribedClass, Style/RedundantLineContinuation
         example_class 'Spec::ExampleResponder',
           Cuprum::Rails::Responders::JsonResponder \
         do |klass|
@@ -144,7 +144,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
             )
           end
         end
-        # rubocop:enable RSpec/DescribedClass
+        # rubocop:enable RSpec/DescribedClass, Style/RedundantLineContinuation
 
         it { expect(response).to be_a response_class }
 

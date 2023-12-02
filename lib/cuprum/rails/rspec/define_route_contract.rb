@@ -78,7 +78,7 @@ module Cuprum::Rails::RSpec
         end
       end
 
-      wildcards.each do |key, _|
+      wildcards.each_key do |key|
         wildcard = key.to_s.end_with?('_id') ? key.intern : :"#{key}_id"
 
         describe "when the #{wildcard.inspect} wildcard is undefined" do
