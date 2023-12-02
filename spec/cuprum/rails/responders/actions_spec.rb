@@ -22,12 +22,14 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
     }
   end
 
+  # rubocop:disable Style/RedundantLineContinuation
   example_class 'Spec::ActionResponder',
     Cuprum::Rails::Responders::BaseResponder \
   do |klass|
     klass.include Cuprum::Rails::Responders::Matching
     klass.include Cuprum::Rails::Responders::Actions # rubocop:disable RSpec/DescribedClass
   end
+  # rubocop:enable Style/RedundantLineContinuation
 
   include_contract 'should implement the responder methods',
     constructor_keywords: %i[matcher]
