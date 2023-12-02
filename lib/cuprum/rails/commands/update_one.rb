@@ -4,6 +4,7 @@ require 'cuprum/collections/errors/not_found'
 
 require 'cuprum/rails/command'
 require 'cuprum/rails/commands'
+require 'cuprum/rails/errors/invalid_statement'
 
 module Cuprum::Rails::Commands
   # Command for updating an ActiveRecord record in the collection.
@@ -31,6 +32,10 @@ module Cuprum::Rails::Commands
       failure(not_found_error(primary_key))
     end
 
+    def invalid_statement_error(message)
+      Cuprum::Rails::Errors::InvalidStatement.new(message: message)
+    end
+
     def not_found_error(primary_key)
       Cuprum::Collections::Errors::NotFound.new(
         attribute_name:  primary_key_name,
@@ -48,6 +53,8 @@ module Cuprum::Rails::Commands
       entity.save
 
       entity
+    rescue ActiveRecord::StatementInvalid => exception
+      failure(invalid_statement_error(exception.message))
     end
   end
 end

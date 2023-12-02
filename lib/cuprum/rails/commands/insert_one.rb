@@ -4,6 +4,7 @@ require 'cuprum/collections/errors/already_exists'
 
 require 'cuprum/rails/command'
 require 'cuprum/rails/commands'
+require 'cuprum/rails/errors/invalid_statement'
 
 module Cuprum::Rails::Commands
   # Command for inserting an ActiveRecord record into the collection.
@@ -32,6 +33,10 @@ module Cuprum::Rails::Commands
       )
     end
 
+    def invalid_statement_error(message)
+      Cuprum::Rails::Errors::InvalidStatement.new(message: message)
+    end
+
     def process(entity:)
       step { validate_entity(entity) }
 
@@ -40,6 +45,8 @@ module Cuprum::Rails::Commands
       entity
     rescue ActiveRecord::RecordNotUnique
       failure(already_exists_error(entity[primary_key_name]))
+    rescue ActiveRecord::StatementInvalid => exception
+      failure(invalid_statement_error(exception.message))
     end
   end
 end
