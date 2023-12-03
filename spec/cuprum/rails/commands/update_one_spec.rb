@@ -57,4 +57,31 @@ RSpec.describe Cuprum::Rails::Commands::UpdateOne do
 
     include_contract 'should be an update one command'
   end
+
+  describe '#call' do
+    describe 'with attributes that violate a database constraint' do
+      let(:expected_message) do
+        entity.save(validate: false)
+      rescue ActiveRecord::NotNullViolation => exception
+        exception.message
+      end
+      let(:expected_error) do
+        Cuprum::Rails::Errors::InvalidStatement.new(message: expected_message)
+      end
+
+      before(:example) do
+        entity.save!
+
+        entity.title = nil
+
+        allow(entity).to receive(:valid?).and_return(true)
+      end
+
+      it 'should return a failing result' do
+        expect(command.call(entity: entity))
+          .to be_a_failing_result
+          .with_error(expected_error)
+      end
+    end
+  end
 end

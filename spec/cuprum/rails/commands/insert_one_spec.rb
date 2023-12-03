@@ -43,4 +43,28 @@ RSpec.describe Cuprum::Rails::Commands::InsertOne do
 
     include_contract 'should be an insert one command'
   end
+
+  describe '#call' do
+    describe 'with attributes that violate a database constraint' do
+      let(:attributes) { super().merge(title: nil) }
+      let(:expected_message) do
+        entity.save(validate: false)
+      rescue ActiveRecord::NotNullViolation => exception
+        exception.message
+      end
+      let(:expected_error) do
+        Cuprum::Rails::Errors::InvalidStatement.new(message: expected_message)
+      end
+
+      before(:example) do
+        allow(entity).to receive(:valid?).and_return(true)
+      end
+
+      it 'should return a failing result' do
+        expect(command.call(entity: entity))
+          .to be_a_failing_result
+          .with_error(expected_error)
+      end
+    end
+  end
 end
