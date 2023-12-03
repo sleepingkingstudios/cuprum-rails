@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require 'stannum/constraints/boolean'
+require 'stannum/errors'
 
 require 'cuprum/collections/commands/abstract_find_one'
 
 require 'cuprum/rails/command'
 require 'cuprum/rails/commands'
+require 'cuprum/rails/errors/invalid_statement'
 
 module Cuprum::Rails::Commands
   # Command for finding one ActiveRecord record by primary key.
@@ -41,10 +43,16 @@ module Cuprum::Rails::Commands
       Cuprum::Rails::Query.new(record_class)
     end
 
+    def invalid_statement_error(message)
+      Cuprum::Rails::Errors::InvalidStatement.new(message: message)
+    end
+
     def process(primary_key:, envelope: false, scope: nil)
       step { validate_primary_key(primary_key) }
 
       super
+    rescue ActiveRecord::StatementInvalid => exception
+      failure(invalid_statement_error(exception.message))
     end
   end
 end

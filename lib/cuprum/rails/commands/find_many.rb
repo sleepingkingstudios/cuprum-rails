@@ -6,6 +6,7 @@ require 'cuprum/collections/commands/abstract_find_many'
 
 require 'cuprum/rails/command'
 require 'cuprum/rails/commands'
+require 'cuprum/rails/errors/invalid_statement'
 
 module Cuprum::Rails::Commands
   # Command for finding multiple ActiveRecord records by primary key.
@@ -46,6 +47,10 @@ module Cuprum::Rails::Commands
       Cuprum::Rails::Query.new(record_class)
     end
 
+    def invalid_statement_error(message)
+      Cuprum::Rails::Errors::InvalidStatement.new(message: message)
+    end
+
     def process(
       primary_keys:,
       allow_partial: false,
@@ -55,6 +60,8 @@ module Cuprum::Rails::Commands
       step { validate_primary_keys(primary_keys) }
 
       super
+    rescue ActiveRecord::StatementInvalid => exception
+      failure(invalid_statement_error(exception.message))
     end
   end
 end
