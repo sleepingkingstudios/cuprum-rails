@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/rspec/actions/update_contracts'
+require 'cuprum/rails/rspec/contracts/actions/update_contracts'
 
 require 'support/actions/update_chapter'
 require 'support/book'
 require 'support/chapter'
 
-# @note Integration spec for Cuprum::Rails::RSpec::Actions::UpdateContracts.
+# @note Integration spec for
+#   Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts.
 RSpec.describe Spec::Support::Actions::UpdateChapter do
-  include Cuprum::Rails::RSpec::Actions::UpdateContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts
 
   subject(:action) { described_class.new }
 
@@ -43,7 +44,7 @@ RSpec.describe Spec::Support::Actions::UpdateChapter do
     chapter.save!
   end
 
-  include_contract 'update action contract',
+  include_contract 'should be an update action',
     existing_entity:           -> { chapter },
     invalid_attributes:        { 'title' => '' },
     valid_attributes:          { 'title' => 'Chapter Title' },

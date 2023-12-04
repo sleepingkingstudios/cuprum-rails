@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/resource_action'
-require 'cuprum/rails/rspec/actions_contracts'
+require 'cuprum/rails/rspec/contracts/action_contracts'
 
 require 'support/book'
 
 RSpec.describe Cuprum::Rails::Actions::ResourceAction do
-  include Cuprum::Rails::RSpec::ActionsContracts
+  include Cuprum::Rails::RSpec::Contracts::ActionContracts
 
   subject(:action) { described_class.new }
 
@@ -20,7 +20,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
   end
   let(:resource_options) { {} }
 
-  include_contract 'resource action contract'
+  include_contract 'should be a resource action'
 
   describe '#call' do
     shared_examples 'should call the previous action steps' do |method_name|

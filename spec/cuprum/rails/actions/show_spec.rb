@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/show'
-require 'cuprum/rails/rspec/actions/show_contracts'
+require 'cuprum/rails/rspec/contracts/actions/show_contracts'
 
 require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Show do
-  include Cuprum::Rails::RSpec::Actions::ShowContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::ShowContracts
 
   subject(:action) { described_class.new }
 
@@ -25,7 +25,7 @@ RSpec.describe Cuprum::Rails::Actions::Show do
 
   before(:example) { entity.save! }
 
-  include_contract 'show action contract',
+  include_contract 'should be a show action',
     existing_entity: -> { entity }
 
   context 'with a record class with UUID primary key' do
@@ -41,7 +41,7 @@ RSpec.describe Cuprum::Rails::Actions::Show do
       )
     end
 
-    include_contract 'show action contract',
+    include_contract 'should be a show action',
       existing_entity:   -> { entity },
       primary_key_value: -> { SecureRandom.uuid }
   end

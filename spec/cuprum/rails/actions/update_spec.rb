@@ -3,13 +3,13 @@
 require 'stannum/errors'
 
 require 'cuprum/rails/actions/update'
-require 'cuprum/rails/rspec/actions/update_contracts'
+require 'cuprum/rails/rspec/contracts/actions/update_contracts'
 
 require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Update do
-  include Cuprum::Rails::RSpec::Actions::UpdateContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts
 
   subject(:action) { described_class.new }
 
@@ -39,7 +39,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
 
   before(:example) { entity.save! }
 
-  include_contract 'update action contract',
+  include_contract 'should be an update action',
     existing_entity:    -> { entity },
     invalid_attributes: -> { invalid_attributes },
     valid_attributes:   -> { valid_attributes }
@@ -60,7 +60,7 @@ RSpec.describe Cuprum::Rails::Actions::Update do
       )
     end
 
-    include_contract 'update action contract',
+    include_contract 'should be an update action',
       existing_entity:    -> { entity },
       primary_key_value:  -> { SecureRandom.uuid },
       invalid_attributes: -> { invalid_attributes },

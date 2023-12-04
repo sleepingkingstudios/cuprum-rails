@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/rspec/actions'
-require 'cuprum/rails/rspec/actions_contracts'
+require 'cuprum/rails/rspec/contracts/action_contracts'
+require 'cuprum/rails/rspec/contracts/actions'
 
-module Cuprum::Rails::RSpec::Actions
+module Cuprum::Rails::RSpec::Contracts::Actions
   # Namespace for RSpec index contracts, which validate index implementations.
   module IndexContracts
     # Contract asserting the action implements the index action interface.
-    module IndexActionContract
+    module ShouldBeAnIndexActionContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @method apply(example_group, existing_entities:, **options)
@@ -28,8 +28,8 @@ module Cuprum::Rails::RSpec::Actions
       #   @yield Additional examples to run for the passing case.
 
       contract do |existing_entities:, **options, &block|
-        include Cuprum::Rails::RSpec::ActionsContracts
-        include Cuprum::Rails::RSpec::Actions::IndexContracts
+        include Cuprum::Rails::RSpec::Contracts::ActionContracts
+        include Cuprum::Rails::RSpec::Contracts::Actions::IndexContracts
 
         # :nocov:
         if options[:examples_on_success] && block
@@ -39,7 +39,7 @@ module Cuprum::Rails::RSpec::Actions
         end
         # :nocov:
 
-        include_contract 'resource action contract'
+        include_contract 'should be a resource action'
 
         include_contract 'should find the entities',
           existing_entities: existing_entities,
@@ -69,7 +69,7 @@ module Cuprum::Rails::RSpec::Actions
       #   @yield Additional examples.
 
       contract do |existing_entities:, **options, &block|
-        include Cuprum::Rails::RSpec::ActionsContracts
+        include Cuprum::Rails::RSpec::Contracts::ActionContracts
 
         describe '#call' do
           include Cuprum::Rails::RSpec::ContractHelpers

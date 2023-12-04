@@ -2,17 +2,17 @@
 
 require 'cuprum/rails/action'
 require 'cuprum/rails/repository'
-require 'cuprum/rails/rspec/actions_contracts'
+require 'cuprum/rails/rspec/contracts/action_contracts'
 
 RSpec.describe Cuprum::Rails::Action do
-  include Cuprum::Rails::RSpec::ActionsContracts
+  include Cuprum::Rails::RSpec::Contracts::ActionContracts
 
   subject(:action) { described_class.new }
 
   let(:params)  { {} }
   let(:request) { instance_double(ActionDispatch::Request, params: params) }
 
-  include_contract 'action contract'
+  include_contract 'should be an action'
 
   describe '#call' do
     it 'should define the method' do

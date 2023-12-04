@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/destroy'
-require 'cuprum/rails/rspec/actions/destroy_contracts'
+require 'cuprum/rails/rspec/contracts/actions/destroy_contracts'
 
 require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Destroy do
-  include Cuprum::Rails::RSpec::Actions::DestroyContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::DestroyContracts
 
   subject(:action) { described_class.new }
 
@@ -25,7 +25,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
 
   before(:example) { entity.save! }
 
-  include_contract 'destroy action contract',
+  include_contract 'should be a destroy action',
     existing_entity: -> { entity }
 
   context 'with a record class with UUID primary key' do
@@ -41,7 +41,7 @@ RSpec.describe Cuprum::Rails::Actions::Destroy do
       )
     end
 
-    include_contract 'destroy action contract',
+    include_contract 'should be a destroy action',
       existing_entity:   -> { entity },
       primary_key_value: -> { SecureRandom.uuid }
   end

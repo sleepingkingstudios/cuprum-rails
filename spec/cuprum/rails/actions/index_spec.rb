@@ -3,13 +3,13 @@
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/actions/index'
-require 'cuprum/rails/rspec/actions/index_contracts'
+require 'cuprum/rails/rspec/contracts/actions/index_contracts'
 
 require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Index do
-  include Cuprum::Rails::RSpec::Actions::IndexContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::IndexContracts
 
   subject(:action) { described_class.new }
 
@@ -32,7 +32,7 @@ RSpec.describe Cuprum::Rails::Actions::Index do
   let(:resource_options) { {} }
 
   # rubocop:disable Style/RedundantLineContinuation
-  include_contract 'index action contract',
+  include_contract 'should be an index action',
     existing_entities: [] \
   do
     context 'when there are many entities' do
@@ -247,7 +247,7 @@ RSpec.describe Cuprum::Rails::Actions::Index do
     end
 
     # rubocop:disable Style/RedundantLineContinuation
-    include_contract 'index action contract',
+    include_contract 'should be an index action',
       existing_entities: [] \
     do
       context 'when there are many entities' do

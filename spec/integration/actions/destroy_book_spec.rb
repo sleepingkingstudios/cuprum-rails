@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/rspec/actions/destroy_contracts'
+require 'cuprum/rails/rspec/contracts/actions/destroy_contracts'
 
 require 'support/actions/destroy_book'
 require 'support/book'
 require 'support/chapter'
 
-# @note Integration spec for Cuprum::Rails::RSpec::Actions::DestroyContracts.
+# @note Integration spec for
+#   Cuprum::Rails::RSpec::Contracts::Actions::DestroyContracts.
 RSpec.describe Spec::Support::Actions::DestroyBook do
-  include Cuprum::Rails::RSpec::Actions::DestroyContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::DestroyContracts
 
   subject(:action) { described_class.new }
 
@@ -30,7 +31,7 @@ RSpec.describe Spec::Support::Actions::DestroyBook do
 
   before(:example) { book.save! }
 
-  include_contract 'destroy action contract',
+  include_contract 'should be a destroy action',
     existing_entity:           -> { book },
     expected_value_on_success: lambda { |hsh|
       hsh.merge('chapters' => [])

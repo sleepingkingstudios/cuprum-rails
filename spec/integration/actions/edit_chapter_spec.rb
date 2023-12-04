@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/rspec/actions/edit_contracts'
+require 'cuprum/rails/rspec/contracts/actions/edit_contracts'
 
 require 'support/actions/edit_chapter'
 require 'support/book'
 require 'support/chapter'
 
-# @note Integration spec for Cuprum::Rails::RSpec::Actions::EditContracts.
+# @note Integration spec for
+#   Cuprum::Rails::RSpec::Contracts::Actions::EditContracts.
 RSpec.describe Spec::Support::Actions::EditChapter do
-  include Cuprum::Rails::RSpec::Actions::EditContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::EditContracts
 
   subject(:action) { described_class.new }
 
@@ -40,7 +41,7 @@ RSpec.describe Spec::Support::Actions::EditChapter do
     chapter.save!
   end
 
-  include_contract 'edit action contract',
+  include_contract 'should be an edit action',
     existing_entity:           -> { chapter },
     expected_value_on_success: lambda { |hsh|
       hsh.merge('books' => [book])

@@ -3,13 +3,13 @@
 require 'stannum/errors'
 
 require 'cuprum/rails/actions/create'
-require 'cuprum/rails/rspec/actions/create_contracts'
+require 'cuprum/rails/rspec/contracts/actions/create_contracts'
 
 require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Create do
-  include Cuprum::Rails::RSpec::Actions::CreateContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::CreateContracts
 
   subject(:action) { described_class.new }
 
@@ -21,7 +21,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
     )
   end
 
-  include_contract 'create action contract',
+  include_contract 'should be a create action',
     invalid_attributes: { 'title' => 'Gideon the Ninth' },
     valid_attributes:   {
       'title'  => 'Gideon the Ninth',
@@ -37,7 +37,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
       )
     end
 
-    include_contract 'create action contract',
+    include_contract 'should be a create action',
       duplicate_attributes: {
         'uuid'   => SecureRandom.uuid,
         'title'  => 'Princess Floralinda and the Forty Flight Tower',

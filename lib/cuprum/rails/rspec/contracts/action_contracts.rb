@@ -5,14 +5,14 @@ require 'cuprum/collections/repository'
 require 'rspec/sleeping_king_studios/contract'
 
 require 'cuprum/rails/map_errors'
-require 'cuprum/rails/rspec'
 require 'cuprum/rails/rspec/contract_helpers'
+require 'cuprum/rails/rspec/contracts'
 
-module Cuprum::Rails::RSpec
+module Cuprum::Rails::RSpec::Contracts
   # Namespace for RSpec action contracts, which validate action implementations.
-  module ActionsContracts
+  module ActionContracts
     # Contract validating the interface for an action.
-    module ActionContract
+    module ShouldBeAnActionContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @!method apply(example_group)
@@ -62,7 +62,7 @@ module Cuprum::Rails::RSpec
     end
 
     # Contract validating the interface for a resourceful action.
-    module ResourceActionContract
+    module ShouldBeAResourceActionContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @!method apply(example_group, **options)
@@ -81,7 +81,7 @@ module Cuprum::Rails::RSpec
       #     required by the #call method.
 
       contract do |**options|
-        include Cuprum::Rails::RSpec::ActionsContracts
+        include Cuprum::Rails::RSpec::Contracts::ActionContracts
 
         let(:configured_params) do
           return params if defined?(params)
@@ -118,7 +118,7 @@ module Cuprum::Rails::RSpec
           action.call(request: configured_request, **configured_action_options)
         end
 
-        include_contract ActionContract,
+        include_contract 'should be an action',
           required_keywords: [:resource, *options.fetch(:required_keywords, [])]
 
         describe '#call' do

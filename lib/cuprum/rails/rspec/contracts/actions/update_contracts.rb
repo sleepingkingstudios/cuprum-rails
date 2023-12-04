@@ -2,11 +2,11 @@
 
 require 'rspec/sleeping_king_studios/contract'
 
-require 'cuprum/rails/rspec/actions'
-require 'cuprum/rails/rspec/actions_contracts'
 require 'cuprum/rails/rspec/contract_helpers'
+require 'cuprum/rails/rspec/contracts/action_contracts'
+require 'cuprum/rails/rspec/contracts/actions'
 
-module Cuprum::Rails::RSpec::Actions
+module Cuprum::Rails::RSpec::Contracts::Actions
   # Namespace for RSpec update contracts, which validate update implementations.
   module UpdateContracts
     # @private
@@ -34,7 +34,7 @@ module Cuprum::Rails::RSpec::Actions
     end
 
     # Contract asserting the action implements the show action interface.
-    module UpdateActionContract
+    module ShouldBeAnUpdateActionContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @method apply(example_group, existing_entity:, invalid_attributes:, valid_attributes:, **options)
@@ -74,8 +74,8 @@ module Cuprum::Rails::RSpec::Actions
       #   @yield Additional examples to run for the passing case.
 
       contract do |existing_entity:, invalid_attributes:, valid_attributes:, **options, &block| # rubocop:disable Layout/LineLength
-        include Cuprum::Rails::RSpec::ActionsContracts
-        include Cuprum::Rails::RSpec::Actions::UpdateContracts
+        include Cuprum::Rails::RSpec::Contracts::ActionContracts
+        include Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts
 
         # :nocov:
         if options[:examples_on_success] && block
@@ -86,7 +86,7 @@ module Cuprum::Rails::RSpec::Actions
         # :nocov:
 
         configured_params = lambda do
-          Cuprum::Rails::RSpec::Actions::UpdateContracts.parameters(
+          Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts.parameters(
             context:          self,
             existing_entity:  existing_entity,
             resource:         configured_resource,
@@ -111,7 +111,7 @@ module Cuprum::Rails::RSpec::Actions
           # :nocov:
         end
 
-        include_contract 'resource action contract',
+        include_contract 'should be a resource action',
           require_permitted_attributes: true
 
         include_contract(
@@ -191,13 +191,14 @@ module Cuprum::Rails::RSpec::Actions
               Cuprum::Rails::Request.new(params: configured_params)
             end
             let(:configured_params) do
-              Cuprum::Rails::RSpec::Actions::UpdateContracts.parameters(
-                context:          self,
-                existing_entity:  existing_entity,
-                resource:         configured_resource,
-                valid_attributes: valid_attributes,
-                **options
-              )
+              Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts
+                .parameters(
+                  context:          self,
+                  existing_entity:  existing_entity,
+                  resource:         configured_resource,
+                  valid_attributes: valid_attributes,
+                  **options
+                )
             end
             let(:configured_existing_entity) do
               option_with_default(existing_entity)
