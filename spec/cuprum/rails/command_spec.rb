@@ -3,9 +3,11 @@
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/command'
-require 'cuprum/rails/rspec/command_contract'
+require 'cuprum/rails/rspec/contracts/command_contracts'
 
 RSpec.describe Cuprum::Rails::Command do
+  include Cuprum::Rails::RSpec::Contracts::CommandContracts
+
   subject(:command) do
     described_class.new(
       record_class: record_class,
@@ -26,7 +28,7 @@ RSpec.describe Cuprum::Rails::Command do
     end
   end
 
-  include_contract Cuprum::Rails::RSpec::COMMAND_CONTRACT
+  include_contract 'should be a rails command'
 
   describe '#call' do
     it 'should define the method' do
