@@ -3,12 +3,13 @@
 require 'cuprum/collections/rspec/contracts/command_contracts'
 
 require 'cuprum/rails/commands/assign_one'
-require 'cuprum/rails/rspec/command_contract'
+require 'cuprum/rails/rspec/contracts/command_contracts'
 
 require 'support/examples/rails_command_examples'
 
 RSpec.describe Cuprum::Rails::Commands::AssignOne do
   include Cuprum::Collections::RSpec::Contracts::CommandContracts
+  include Cuprum::Rails::RSpec::Contracts::CommandContracts
   include Spec::Support::Examples::RailsCommandExamples
 
   include_context 'with parameters for a Rails command'
@@ -25,7 +26,7 @@ RSpec.describe Cuprum::Rails::Commands::AssignOne do
   let(:expected_value)      { Book.new(expected_attributes) }
   let(:valid_attributes)    { record_class.column_names }
 
-  include_contract Cuprum::Rails::RSpec::COMMAND_CONTRACT
+  include_contract 'should be a rails command'
 
   include_contract 'should be an assign one command',
     allow_extra_attributes: false

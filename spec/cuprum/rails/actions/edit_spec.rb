@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/edit'
-require 'cuprum/rails/rspec/actions/edit_contracts'
+require 'cuprum/rails/rspec/contracts/actions/edit_contracts'
 
 require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Actions::Edit do
-  include Cuprum::Rails::RSpec::Actions::EditContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::EditContracts
 
   subject(:action) { described_class.new }
 
@@ -25,7 +25,7 @@ RSpec.describe Cuprum::Rails::Actions::Edit do
 
   before(:example) { entity.save! }
 
-  include_contract 'edit action contract',
+  include_contract 'should be an edit action',
     existing_entity: -> { entity }
 
   context 'with a record class with UUID primary key' do
@@ -41,7 +41,7 @@ RSpec.describe Cuprum::Rails::Actions::Edit do
       )
     end
 
-    include_contract 'edit action contract',
+    include_contract 'should be an edit action',
       existing_entity:   -> { entity },
       primary_key_value: -> { SecureRandom.uuid }
   end

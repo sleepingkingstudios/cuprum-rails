@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/repository'
-require 'cuprum/rails/rspec/actions/create_contracts'
+require 'cuprum/rails/rspec/contracts/actions/create_contracts'
 
 require 'support/actions/create_book'
 require 'support/book'
 require 'support/chapter'
 
-# @note Integration spec for Cuprum::Rails::RSpec::Actions::CreateContracts.
+# @note Integration spec for
+#   Cuprum::Rails::RSpec::Contracts::Actions::CreateContracts.
 RSpec.describe Spec::Support::Actions::CreateBook do
-  include Cuprum::Rails::RSpec::Actions::CreateContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::CreateContracts
 
   subject(:action) { described_class.new }
 
@@ -25,7 +26,7 @@ RSpec.describe Spec::Support::Actions::CreateBook do
     )
   end
 
-  include_contract 'create action contract',
+  include_contract 'should be a create action',
     invalid_attributes:        {
       'title' => 'Gideon the Ninth'
     },

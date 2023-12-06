@@ -3,12 +3,13 @@
 require 'cuprum/collections/rspec/contracts/command_contracts'
 
 require 'cuprum/rails/commands/destroy_one'
-require 'cuprum/rails/rspec/command_contract'
+require 'cuprum/rails/rspec/contracts/command_contracts'
 
 require 'support/examples/rails_command_examples'
 
 RSpec.describe Cuprum::Rails::Commands::DestroyOne do
   include Cuprum::Collections::RSpec::Contracts::CommandContracts
+  include Cuprum::Rails::RSpec::Contracts::CommandContracts
   include Spec::Support::Examples::RailsCommandExamples
 
   include_context 'with parameters for a Rails command'
@@ -22,7 +23,7 @@ RSpec.describe Cuprum::Rails::Commands::DestroyOne do
 
   let(:expected_data) { record_class.new(matching_data) }
 
-  include_contract Cuprum::Rails::RSpec::COMMAND_CONTRACT
+  include_contract 'should be a rails command'
 
   include_contract 'should be a destroy one command'
 

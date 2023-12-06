@@ -2,15 +2,15 @@
 
 require 'rspec/sleeping_king_studios/contract'
 
-require 'cuprum/rails/rspec/actions'
-require 'cuprum/rails/rspec/actions_contracts'
 require 'cuprum/rails/rspec/contract_helpers'
+require 'cuprum/rails/rspec/contracts/action_contracts'
+require 'cuprum/rails/rspec/contracts/actions'
 
-module Cuprum::Rails::RSpec::Actions
+module Cuprum::Rails::RSpec::Contracts::Actions
   # Namespace for RSpec show contracts, which validate show implementations.
   module ShowContracts
     # Contract asserting the action implements the show action interface.
-    module ShowActionContract
+    module ShouldBeAShowActionContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @method apply(example_group, existing_entity:, **options)
@@ -35,7 +35,7 @@ module Cuprum::Rails::RSpec::Actions
       #   @yield Additional examples to run for the passing case.
 
       contract do |existing_entity:, **options, &block|
-        include Cuprum::Rails::RSpec::ActionsContracts
+        include Cuprum::Rails::RSpec::Contracts::ActionContracts
 
         # :nocov:
         if options[:examples_on_success] && block
@@ -45,7 +45,7 @@ module Cuprum::Rails::RSpec::Actions
         end
         # :nocov:
 
-        include_contract 'resource action contract'
+        include_contract 'should be a resource action'
 
         include_contract(
           'should require primary key',

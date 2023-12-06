@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/rspec/actions/index_contracts'
+require 'cuprum/rails/rspec/contracts/actions/index_contracts'
 
 require 'support/actions/index_chapters'
 require 'support/book'
@@ -8,7 +8,7 @@ require 'support/chapter'
 
 # @note Integration spec for Cuprum::Rails::RSpec::Actions::IndexContracts.
 RSpec.describe Spec::Support::Actions::IndexChapters do
-  include Cuprum::Rails::RSpec::Actions::IndexContracts
+  include Cuprum::Rails::RSpec::Contracts::Actions::IndexContracts
 
   subject(:action) { described_class.new }
 
@@ -67,7 +67,7 @@ RSpec.describe Spec::Support::Actions::IndexChapters do
     chapters.each(&:save!)
   end
 
-  include_contract 'index action contract',
+  include_contract 'should be an index action',
     existing_entities:         -> { chapters.sort_by(&:id) },
     expected_value_on_success: lambda { |hsh|
       hsh.merge('books' => books[0..1])
@@ -86,7 +86,7 @@ RSpec.describe Spec::Support::Actions::IndexChapters do
         .sort_by(&:title)
     end
 
-    include_contract 'index action contract',
+    include_contract 'should be an index action',
       existing_entities:         -> { expected_chapters },
       expected_value_on_success: lambda { |hsh|
         hsh.merge('books' => books[0..0])

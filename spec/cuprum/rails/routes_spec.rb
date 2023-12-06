@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/routes'
-require 'cuprum/rails/rspec/define_route_contract'
 require 'cuprum/rails/rspec/contracts/routes_contracts'
 
 require 'support/book'

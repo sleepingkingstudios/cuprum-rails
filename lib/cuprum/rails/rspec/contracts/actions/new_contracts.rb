@@ -2,15 +2,15 @@
 
 require 'rspec/sleeping_king_studios/contract'
 
-require 'cuprum/rails/rspec/actions'
-require 'cuprum/rails/rspec/actions_contracts'
 require 'cuprum/rails/rspec/contract_helpers'
+require 'cuprum/rails/rspec/contracts/action_contracts'
+require 'cuprum/rails/rspec/contracts/actions'
 
-module Cuprum::Rails::RSpec::Actions
+module Cuprum::Rails::RSpec::Contracts::Actions
   # Namespace for RSpec new contracts, which validate new implementations.
   module NewContracts
     # Contract asserting the action implements the new action interface.
-    module NewActionContract
+    module ShouldBeANewActionContract
       extend RSpec::SleepingKingStudios::Contract
 
       # @method apply(example_group, **options, &block)
@@ -30,8 +30,8 @@ module Cuprum::Rails::RSpec::Actions
       #
       #   @yield Additional examples to run for the passing case.
       contract do |**options, &block|
-        include Cuprum::Rails::RSpec::ActionsContracts
-        include Cuprum::Rails::RSpec::Actions::NewContracts
+        include Cuprum::Rails::RSpec::Contracts::ActionContracts
+        include Cuprum::Rails::RSpec::Contracts::Actions::NewContracts
 
         # :nocov:
         if options[:examples_on_success] && block
@@ -41,7 +41,7 @@ module Cuprum::Rails::RSpec::Actions
         end
         # :nocov:
 
-        include_contract 'resource action contract'
+        include_contract 'should be a resource action'
 
         include_contract(
           'should build the entity',

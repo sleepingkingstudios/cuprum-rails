@@ -27,6 +27,10 @@ Refactored how actions handle required parameters.
 
 Implemented `Collection#qualified_path`, and added qualified path support to `Repository`.
 
+#### Commands
+
+Commands now handle invalid SQL statement exceptions by returning a failing result with a `StatementInvalid` error, rather than raising the exception.
+
 ### Controllers
 
 Implemented `.build_request` class method.
@@ -109,23 +113,27 @@ Member route methods now accept a primary key value as well as an entity, or all
 
 ### RSpec
 
-Implemented contracts for Cuprum::Rails actions
+Implemented contracts for Cuprum::Rails actions:
 
-- `Cuprum::Rails::RSpec::Actions::CreateContracts`
-- `Cuprum::Rails::RSpec::Actions::DestroyContracts`
-- `Cuprum::Rails::RSpec::Actions::EditContracts`
-- `Cuprum::Rails::RSpec::Actions::IndexContracts`
-- `Cuprum::Rails::RSpec::Actions::NewContracts`
-- `Cuprum::Rails::RSpec::Actions::ShowContracts`
-- `Cuprum::Rails::RSpec::Actions::UpdateContracts`
+- `Cuprum::Rails::RSpec::Contracts::Actions::CreateContracts`
+- `Cuprum::Rails::RSpec::Contracts::Actions::DestroyContracts`
+- `Cuprum::Rails::RSpec::Contracts::Actions::EditContracts`
+- `Cuprum::Rails::RSpec::Contracts::Actions::IndexContracts`
+- `Cuprum::Rails::RSpec::Contracts::Actions::NewContracts`
+- `Cuprum::Rails::RSpec::Contracts::Actions::ShowContracts`
+- `Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts`
 
 Contracts allow libraries or applications to verify their actions implement the action specifications.
 
-Defined `Cuprum::Rails::RSpec::SerializersContracts`:
+Defined `Cuprum::Rails::RSpec::Contracts::SerializersContracts`:
 
-- `SHOULD_SERIALIZE_ATTRIBUTES`: Verifies that the specified attributes are serialized with the expected values.
+- `ShouldSerailizeAttributesContract`: Verifies that the specified attributes are serialized with the expected values.
 
 Implemented `Cuprum::Rails::RSpec::Matchers::BeAResultMatcher`, which adds support for a `#metadata` property to the `be_a_result` matcher.
+
+- **(Breaking Change)** Existing contracts were moved into the `Cuprum::Rails::RSpec::Contracts` namespace and are scoped by type.
+  - `COMMAND_CONTRACT` is now `Contracts::CommandContracts::ShouldBeARailsCommandContract`.
+  - `DEFINE_ROUTE_CONTRACT` is replaced with `Contracts::RoutesContracts::ShouldDefineCollectionRouteContract` and `ShouldDefineMemberRouteContract`.
 
 ### Serializers
 

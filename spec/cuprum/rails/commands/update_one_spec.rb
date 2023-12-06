@@ -3,12 +3,13 @@
 require 'cuprum/collections/rspec/contracts/command_contracts'
 
 require 'cuprum/rails/commands/update_one'
-require 'cuprum/rails/rspec/command_contract'
+require 'cuprum/rails/rspec/contracts/command_contracts'
 
 require 'support/examples/rails_command_examples'
 
 RSpec.describe Cuprum::Rails::Commands::UpdateOne do
   include Cuprum::Collections::RSpec::Contracts::CommandContracts
+  include Cuprum::Rails::RSpec::Contracts::CommandContracts
   include Spec::Support::Examples::RailsCommandExamples
 
   include_context 'with parameters for a Rails command'
@@ -44,7 +45,7 @@ RSpec.describe Cuprum::Rails::Commands::UpdateOne do
   end
   let(:expected_data) { entity }
 
-  include_contract Cuprum::Rails::RSpec::COMMAND_CONTRACT
+  include_contract 'should be a rails command'
 
   include_contract 'should be an update one command'
 
