@@ -2,9 +2,9 @@
 
 require 'rspec/sleeping_king_studios/contract'
 
-require 'cuprum/rails/rspec'
+require 'cuprum/rails/rspec/contracts'
 
-module Cuprum::Rails::RSpec
+module Cuprum::Rails::RSpec::Contracts
   # Namespace for contracts that specify serialization behavior.
   module SerializersContracts
     # Contract specifying that a serializer serializes the expected properties.

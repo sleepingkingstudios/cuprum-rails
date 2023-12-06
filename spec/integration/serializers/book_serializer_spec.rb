@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/rspec/serializers_contracts'
+require 'cuprum/rails/rspec/contracts/serializers_contracts'
 
 require 'support/book'
 require 'support/serializers/book_serializer'
@@ -8,7 +8,7 @@ require 'support/serializers/book_serializer'
 # @note Integration spec for
 #   Cuprum::Rails::Serializers::Json::AttributesSerializer.
 RSpec.describe Spec::Support::Serializers::BookSerializer do
-  include Cuprum::Rails::RSpec::SerializersContracts
+  include Cuprum::Rails::RSpec::Contracts::SerializersContracts
 
   let(:serializer) { described_class.new }
 
