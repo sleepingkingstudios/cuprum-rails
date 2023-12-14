@@ -19,16 +19,12 @@ end
 group :test do
   gem 'rspec', '~> 3.12'
   gem 'rspec-sleeping_king_studios', '~> 2.7.0'
-  gem 'rubocop', '~> 1.58'
+  gem 'rubocop', '~> 1.59'
   gem 'rubocop-rails', '~> 2.22', '>= 2.22.2'
   gem 'rubocop-rake', '~> 0.6'
   gem 'rubocop-rspec', '~> 2.25'
   gem 'simplecov', '~> 0.22'
 end
 
-gem 'cuprum', '~> 1.2'
-gem 'cuprum-collections',
-  branch: 'main',
-  git:    'https://github.com/sleepingkingstudios/cuprum-collections'
 gem 'rails', '~> 7.0'
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
