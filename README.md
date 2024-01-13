@@ -32,7 +32,7 @@ The second benefit is *reusability*. Breaking down a controller into its constit
 
 ### Compatibility
 
-Cuprum::Rails is tested against Ruby (MRI) 3.0 through 3.2, and Rails 6.1 through 7.1.
+Cuprum::Rails is tested against Ruby (MRI) 3.0 through 3.3, and Rails 6.1 through 7.1.
 
 ### Documentation
 
