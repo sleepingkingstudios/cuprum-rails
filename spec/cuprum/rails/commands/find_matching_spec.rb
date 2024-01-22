@@ -16,11 +16,13 @@ RSpec.describe Cuprum::Rails::Commands::FindMatching do
 
   subject(:command) do
     described_class.new(
+      query:        query,
       record_class: record_class,
       **constructor_options
     )
   end
 
+  let(:query) { Cuprum::Rails::Query.new(record_class) }
   let(:expected_data) do
     matching_data.map do |attributes|
       Book.where(attributes).first
@@ -32,7 +34,7 @@ RSpec.describe Cuprum::Rails::Commands::FindMatching do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:collection_name, :envelope, :record_class)
+        .and_keywords(:collection_name, :envelope, :query, :record_class)
         .and_any_keywords
     end
   end

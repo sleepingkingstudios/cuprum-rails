@@ -29,6 +29,7 @@ module Cuprum
     autoload :Result,      'cuprum/rails/result'
     autoload :Routes,      'cuprum/rails/routes'
     autoload :Routing,     'cuprum/rails/routing'
+    autoload :Scopes,      'cuprum/rails/scopes'
     autoload :Serializers, 'cuprum/rails/serializers'
   end
 end

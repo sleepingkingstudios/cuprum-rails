@@ -23,10 +23,16 @@ module Cuprum::Rails::RSpec::Contracts
         describe '.subclass' do
           let(:subclass) { described_class.subclass }
           let(:constructor_options) do
-            {
+            hsh = {
               record_class: Book,
               optional_key: 'optional value'
             }
+
+            if described_class < Cuprum::Collections::Commands::QueryCommand
+              hsh[:query] = query
+            end
+
+            hsh
           end
 
           it 'should define the class method' do
@@ -65,9 +71,13 @@ module Cuprum::Rails::RSpec::Contracts
               }
             end
             let(:constructor_options) do
-              {
-                optional_key: 'optional value'
-              }
+              hsh = { optional_key: 'optional value' }
+
+              if described_class < Cuprum::Collections::Commands::QueryCommand
+                hsh[:query] = query
+              end
+
+              hsh
             end
             let(:subclass) { described_class.subclass(**default_options) }
 

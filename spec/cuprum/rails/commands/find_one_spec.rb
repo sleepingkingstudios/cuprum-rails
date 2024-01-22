@@ -16,11 +16,13 @@ RSpec.describe Cuprum::Rails::Commands::FindOne do
 
   subject(:command) do
     described_class.new(
+      query:        query,
       record_class: record_class,
       **constructor_options
     )
   end
 
+  let(:query) { Cuprum::Rails::Query.new(record_class) }
   let(:expected_data) do
     record_class.new(matching_data)
   end
