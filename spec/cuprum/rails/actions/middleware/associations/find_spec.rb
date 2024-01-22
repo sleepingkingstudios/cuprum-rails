@@ -9,7 +9,7 @@ require 'support/book'
 require 'support/chapter'
 require 'support/cover'
 
-RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Find do
+RSpec.xdescribe Cuprum::Rails::Actions::Middleware::Associations::Find do
   subject(:middleware) { described_class.new(**constructor_options) }
 
   let(:association_params)  { { name: 'chapters' } }

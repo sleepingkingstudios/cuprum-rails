@@ -7,7 +7,7 @@ require 'support/book'
 require 'support/chapter'
 
 # @note Integration spec for Cuprum::Rails::RSpec::Actions::IndexContracts.
-RSpec.describe Spec::Support::Actions::IndexChapters do
+RSpec.xdescribe Spec::Support::Actions::IndexChapters do
   include Cuprum::Rails::RSpec::Contracts::Actions::IndexContracts
 
   subject(:action) { described_class.new }

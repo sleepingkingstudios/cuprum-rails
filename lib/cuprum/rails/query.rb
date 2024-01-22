@@ -3,7 +3,6 @@
 require 'cuprum/collections/query'
 
 require 'cuprum/rails'
-require 'cuprum/rails/query_builder'
 
 module Cuprum::Rails
   # Interface for performing query operations on a Rails collection.

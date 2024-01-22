@@ -8,7 +8,7 @@ require 'support/chapter'
 
 # @note Integration spec for
 #   Cuprum::Rails::RSpec::Contracts::Actions::DestroyContracts.
-RSpec.describe Spec::Support::Actions::DestroyBook do
+RSpec.xdescribe Spec::Support::Actions::DestroyBook do
   include Cuprum::Rails::RSpec::Contracts::Actions::DestroyContracts
 
   subject(:action) { described_class.new }

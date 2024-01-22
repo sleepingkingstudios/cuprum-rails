@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/query_builder'
-
 require 'cuprum/rails'
 
 module Cuprum::Rails
   # Applies filter operations for a Rails collection query.
-  class QueryBuilder < Cuprum::Collections::QueryBuilder
+  class QueryBuilder
     # @param base_query [Cuprum::Rails::Query] The query to build.
     def initialize(base_query)
       super

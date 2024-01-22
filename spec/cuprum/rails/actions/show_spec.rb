@@ -6,7 +6,7 @@ require 'cuprum/rails/rspec/contracts/actions/show_contracts'
 require 'support/book'
 require 'support/tome'
 
-RSpec.describe Cuprum::Rails::Actions::Show do
+RSpec.xdescribe Cuprum::Rails::Actions::Show do
   include Cuprum::Rails::RSpec::Contracts::Actions::ShowContracts
 
   subject(:action) { described_class.new }

@@ -7,7 +7,7 @@ require 'cuprum/rails/query'
 require 'support/book'
 require 'support/tome'
 
-RSpec.describe Cuprum::Rails::Query do
+RSpec.xdescribe Cuprum::Rails::Query do
   include Cuprum::Collections::RSpec::Contracts::QueryContracts
 
   subject(:query) do

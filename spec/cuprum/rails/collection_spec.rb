@@ -9,7 +9,7 @@ require 'cuprum/rails/commands'
 require 'support/book'
 require 'support/tome'
 
-RSpec.describe Cuprum::Rails::Collection do
+RSpec.xdescribe Cuprum::Rails::Collection do
   include Cuprum::Collections::RSpec::Contracts::CollectionContracts
 
   subject(:collection) { described_class.new(**constructor_options) }

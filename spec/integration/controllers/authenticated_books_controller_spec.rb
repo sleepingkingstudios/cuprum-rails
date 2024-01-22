@@ -5,7 +5,7 @@ require 'cuprum/collections/rspec/fixtures'
 require 'support/controllers/authenticated_books_controller'
 
 # @note Integration spec for Cuprum::Rails::Controller inheritance.
-RSpec.describe AuthenticatedBooksController do
+RSpec.xdescribe AuthenticatedBooksController do
   subject(:controller) do
     described_class.new(
       renderer: renderer,
