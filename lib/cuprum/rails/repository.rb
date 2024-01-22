@@ -15,12 +15,8 @@ module Cuprum::Rails
     end
 
     def qualified_name_for(**parameters)
-      Cuprum::Collections::Relation::Disambiguation
-        .resolve_parameters(
-          parameters,
-          entity_class: :record_class,
-          name:         :collection_name
-        )
+      Cuprum::Collections::Relation::Parameters
+        .resolve_parameters(parameters)
         .fetch(:qualified_name)
     end
 

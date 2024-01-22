@@ -8,24 +8,6 @@ require 'cuprum/rails'
 module Cuprum::Rails
   # Wraps an ActiveRecord model as a Cuprum collection.
   class Collection < Cuprum::Collections::Collection
-    # @overload initialize(entity_class: nil, name: nil, qualified_name: nil, singular_name: nil, **options)
-    #   @param entity_class [Class, String] the class of entity represented by
-    #     the collection.
-    #   @param name [String] the name of the collection.
-    #   @param qualified_name [String] a scoped name for the collection.
-    #   @param singular_name [String] the name of an entity in the collection.
-    #   @param options [Hash] additional options for the collection.
-    #
-    #   @option options primary_key_name [String] the name of the primary key
-    #     attribute. Defaults to 'id'.
-    #   @option primary_key_type [Class, Stannum::Constraint] the type of
-    #     the primary key attribute. Defaults to Integer.
-    def initialize(**params)
-      params = disambiguate_keyword(params, :entity_class, :record_class)
-
-      super(**params)
-    end
-
     command_class :assign_one do
       Cuprum::Rails::Commands::AssignOne
         .subclass(**command_options)
@@ -76,14 +58,6 @@ module Cuprum::Rails
     # @return [Cuprum::Rails::Query] the query.
     def query
       Cuprum::Rails::Query.new(entity_class)
-    end
-
-    # @return [Class] the class of entity represented by the collection.
-    def record_class
-      tools.core_tools.deprecate '#record_class method',
-        message: 'Use #entity_class instead'
-
-      entity_class
     end
 
     private
