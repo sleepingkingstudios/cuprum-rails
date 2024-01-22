@@ -26,5 +26,8 @@ group :test do
   gem 'simplecov', '~> 0.22'
 end
 
+gem 'cuprum-collections',
+  git:    'https://github.com/sleepingkingstudios/cuprum-collections',
+  branch: 'main'
 gem 'rails', '~> 7.0'
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'

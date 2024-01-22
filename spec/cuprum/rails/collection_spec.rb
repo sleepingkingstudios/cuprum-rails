@@ -33,9 +33,4 @@ RSpec.describe Cuprum::Rails::Collection do
 
   include_contract 'should be a collection',
     commands_namespace: 'Cuprum::Rails::Commands'
-
-  include_contract 'should disambiguate parameter',
-    :entity_class,
-    as:    :record_class,
-    value: Tome
 end
