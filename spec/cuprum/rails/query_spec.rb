@@ -7,22 +7,54 @@ require 'cuprum/rails/query'
 require 'support/book'
 require 'support/tome'
 
-RSpec.xdescribe Cuprum::Rails::Query do
+RSpec.describe Cuprum::Rails::Query do
   include Cuprum::Collections::RSpec::Contracts::QueryContracts
 
+  shared_context 'with a mock native query' do
+    let(:mock_query) do
+      instance_double(
+        ActiveRecord::Relation,
+        each:  [].to_enum,
+        order: nil,
+        to_a:  []
+      )
+        .tap do |mock|
+          allow(mock)
+            .to receive(:is_a?)
+            .with(ActiveRecord::Relation)
+            .and_return(true)
+        end # rubocop:disable Style/MultilineBlockChain
+        .tap { |mock| allow(mock).to receive(:order).and_return(mock) }
+    end
+
+    before(:example) do
+      allow(record_class).to receive(:all).and_return(mock_query)
+    end
+  end
+
   subject(:query) do
-    described_class.new(record_class, native_query: native_query)
+    described_class.new(
+      record_class,
+      native_query: native_query,
+      scope:        initial_scope
+    )
   end
 
   let(:data)          { [] }
-  let(:native_query)  { nil }
-  let(:record_class)  { Book }
-  let(:default_order) { { record_class.primary_key => :asc } }
+  let(:filtered_data) { data }
+  let(:ordered_data) do
+    filtered_data.sort_by { |item| item[record_class.primary_key.to_s] }
+  end
+  let(:matching_data) { ordered_data }
   let(:expected_data) do
     matching_data.map do |attributes|
       Book.where(attributes).first
     end
   end
+  let(:native_query)  { nil }
+  let(:record_class)  { Book }
+  let(:initial_scope) { nil }
+  let(:default_order) { { record_class.primary_key => :asc } }
 
   def add_item_to_collection(item)
     Book.create!(item)
@@ -44,19 +76,7 @@ RSpec.xdescribe Cuprum::Rails::Query do
   include_contract 'should be a query'
 
   describe '#each' do
-    let(:mock_query) do
-      instance_double(
-        ActiveRecord::Relation,
-        each:  [].to_enum,
-        order: nil,
-        to_a:  []
-      )
-        .tap { |mock| allow(mock).to receive(:order).and_return(mock) }
-    end
-
-    before(:example) do
-      allow(record_class).to receive(:all).and_return(mock_query)
-    end
+    include_context 'with a mock native query'
 
     it 'should delegate to the native query' do
       query.each
@@ -78,7 +98,7 @@ RSpec.xdescribe Cuprum::Rails::Query do
   describe '#native_query' do
     include_examples 'should have private reader',
       :native_query,
-      -> { record_class.order({ 'id' => :asc }) }
+      -> { record_class.all }
   end
 
   describe '#order' do
@@ -92,19 +112,7 @@ RSpec.xdescribe Cuprum::Rails::Query do
   end
 
   describe '#to_a' do
-    let(:mock_query) do
-      instance_double(
-        ActiveRecord::Relation,
-        each:  [].to_enum,
-        order: nil,
-        to_a:  []
-      )
-        .tap { |mock| allow(mock).to receive(:order).and_return(mock) }
-    end
-
-    before(:example) do
-      allow(record_class).to receive(:all).and_return(mock_query)
-    end
+    include_context 'with a mock native query'
 
     it 'should delegate to the native query' do
       query.to_a

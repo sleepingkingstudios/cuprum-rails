@@ -10,7 +10,7 @@ module Cuprum::Rails
     extend  Forwardable
     include Enumerable
 
-    def_delegators :@native_query,
+    def_delegators :scoped_query,
       :each,
       :exists?,
       :to_a
@@ -19,15 +19,15 @@ module Cuprum::Rails
     #   subclass of ActiveRecord::Base.
     # @param native_query [ActiveRecord::Relation] A relation used to scope the
     #   query.
-    def initialize(record_class, native_query: nil)
-      super()
+    # @param scope [Cuprum::Rails::Scopes::Base] the base scope for the query.
+    #   Defaults to nil.
+    def initialize(record_class, native_query: nil, scope: nil)
+      super(scope: scope)
 
-      default_order = { record_class.primary_key => :asc }
-      @native_query = native_query || record_class.order(default_order)
+      @native_query = native_query || record_class.all
+      @scoped_query = self.scope.call(native_query: @native_query)
       @record_class = record_class
-      @limit        = nil
-      @offset       = nil
-      @order        = default_order
+      @order        = { record_class.primary_key => :asc }
     end
 
     # @return [Class] the class of the collection items.
@@ -35,36 +35,39 @@ module Cuprum::Rails
 
     protected
 
-    def query_builder
-      Cuprum::Rails::QueryBuilder.new(self)
-    end
-
     def reset!
-      @native_query.reset
+      @scoped_query&.reset
 
       self
     end
 
     def with_limit(count)
-      @native_query = @native_query.limit(count)
+      @scoped_query = nil
 
       super
     end
 
     def with_native_query(native_query)
       @native_query = native_query
+      @scoped_query = nil
 
       self
     end
 
     def with_offset(count)
-      @native_query = @native_query.offset(count)
+      @scoped_query = nil
 
       super
     end
 
     def with_order(order)
-      @native_query = @native_query.reorder(order)
+      @scoped_query = nil
+
+      super
+    end
+
+    def with_scope(scope)
+      @scoped_query = nil
 
       super
     end
@@ -72,5 +75,20 @@ module Cuprum::Rails
     private
 
     attr_reader :native_query
+
+    def default_scope
+      Cuprum::Rails::Scopes::AllScope.instance
+    end
+
+    def scoped_query
+      return @scoped_query if @scoped_query
+
+      @scoped_query = scope.call(native_query: native_query)
+      @scoped_query = @scoped_query.limit(@limit)   if @limit
+      @scoped_query = @scoped_query.offset(@offset) if @offset
+      @scoped_query = @scoped_query.reorder(@order) if @order
+
+      @scoped_query
+    end
   end
 end
