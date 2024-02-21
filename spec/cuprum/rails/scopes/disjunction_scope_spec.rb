@@ -29,7 +29,11 @@ RSpec.describe Cuprum::Rails::Scopes::DisjunctionScope do
   def filtered_data
     scope
       .call(native_query: native_query)
-      .map(&:attributes)
+      .map do |record|
+        record
+          .attributes
+          .merge('published_at' => record.published_at.strftime('%Y-%m-%d'))
+      end
   end
 
   describe '.new' do
@@ -52,7 +56,11 @@ RSpec.describe Cuprum::Rails::Scopes::DisjunctionScope do
     def filtered_data
       scope
         .build_relation(record_class: record_class)
-        .map(&:attributes)
+        .map do |record|
+          record
+            .attributes
+            .merge('published_at' => record.published_at.strftime('%Y-%m-%d'))
+        end
     end
 
     include_contract 'should filter data by logical or'

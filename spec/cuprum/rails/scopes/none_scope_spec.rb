@@ -17,7 +17,13 @@ RSpec.describe Cuprum::Rails::Scopes::NoneScope do
   def filtered_data
     subject
       .call(native_query: native_query)
-      .map(&:attributes)
+      .map do |record|
+        # :nocov:
+        record
+          .attributes
+          .merge('published_at' => record.published_at.strftime('%Y-%m-%d'))
+        # :nocov:
+      end
   end
 
   describe '.instance' do

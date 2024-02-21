@@ -5,7 +5,7 @@ require 'cuprum/collections/rspec/fixtures'
 require 'support/controllers/books_controller'
 
 # @note Integration spec for Cuprum::Rails::Controller.
-RSpec.xdescribe BooksController do
+RSpec.describe BooksController do
   subject(:controller) do
     described_class.new(
       renderer: renderer,

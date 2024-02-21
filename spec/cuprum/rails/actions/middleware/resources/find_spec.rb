@@ -7,7 +7,7 @@ require 'cuprum/rails/resource'
 
 require 'support/book'
 
-RSpec.xdescribe Cuprum::Rails::Actions::Middleware::Resources::Find do
+RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
   subject(:middleware) { described_class.new(**constructor_options) }
 
   let(:resource_params)     { { name: 'books' } }

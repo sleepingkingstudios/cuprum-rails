@@ -8,7 +8,7 @@ require 'support/chapter'
 
 # @note Integration spec for
 #   Cuprum::Rails::RSpec::Contracts::Actions::EditContracts.
-RSpec.xdescribe Spec::Support::Actions::EditChapter do
+RSpec.describe Spec::Support::Actions::EditChapter do
   include Cuprum::Rails::RSpec::Contracts::Actions::EditContracts
 
   subject(:action) { described_class.new }

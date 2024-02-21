@@ -47,13 +47,6 @@ module Cuprum::Rails
       super
     end
 
-    def with_native_query(native_query)
-      @native_query = native_query
-      @scoped_query = nil
-
-      self
-    end
-
     def with_offset(count)
       @scoped_query = nil
 

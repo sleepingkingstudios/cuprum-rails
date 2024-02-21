@@ -8,7 +8,7 @@ require 'cuprum/rails/rspec/contracts/actions/update_contracts'
 require 'support/book'
 require 'support/tome'
 
-RSpec.xdescribe Cuprum::Rails::Actions::Update do
+RSpec.describe Cuprum::Rails::Actions::Update do
   include Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts
 
   subject(:action) { described_class.new }

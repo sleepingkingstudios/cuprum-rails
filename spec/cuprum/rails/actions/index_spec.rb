@@ -8,7 +8,7 @@ require 'cuprum/rails/rspec/contracts/actions/index_contracts'
 require 'support/book'
 require 'support/tome'
 
-RSpec.xdescribe Cuprum::Rails::Actions::Index do
+RSpec.describe Cuprum::Rails::Actions::Index do
   include Cuprum::Rails::RSpec::Contracts::Actions::IndexContracts
 
   subject(:action) { described_class.new }
