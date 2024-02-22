@@ -13,7 +13,7 @@ module Cuprum::Rails::Commands
   class FindMany < Cuprum::Rails::Command
     include Cuprum::Collections::Commands::AbstractFindMany
 
-    # @!method call(primary_keys:, allow_partial: false, envelope: false, scope: nil)
+    # @!method call(primary_keys:, allow_partial: false, envelope: false)
     #   Queries the collection for the records with the given primary keys.
     #
     #   The command will find and return the entities with the given primary
@@ -29,8 +29,6 @@ module Cuprum::Rails::Commands
     #     found.
     #   @param envelope [Boolean] If true, wraps the result value in a Hash.
     #   @param primary_keys [Array] The primary keys of the requested records.
-    #   @param scope [Cuprum::Collections::Basic::Query, nil] Optional scope for
-    #     the query. Records must match the scope as well as the primary keys.
     #
     #   @return [Cuprum::Result<Array<ActiveRecord>>] a result with the
     #     requested records.
@@ -38,14 +36,9 @@ module Cuprum::Rails::Commands
       keyword :allow_partial, Stannum::Constraints::Boolean.new, default: true
       keyword :envelope,      Stannum::Constraints::Boolean.new, default: true
       keyword :primary_keys,  Array
-      keyword :scope,         Cuprum::Rails::Query, optional: true
     end
 
     private
-
-    def build_query
-      Cuprum::Rails::Query.new(record_class)
-    end
 
     def invalid_statement_error(message)
       Cuprum::Rails::Errors::InvalidStatement.new(message: message)
@@ -54,8 +47,7 @@ module Cuprum::Rails::Commands
     def process(
       primary_keys:,
       allow_partial: false,
-      envelope:      false,
-      scope:         nil
+      envelope:      false
     )
       step { validate_primary_keys(primary_keys) }
 

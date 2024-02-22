@@ -12,7 +12,7 @@ module Cuprum::Rails::Commands
   class FindMatching < Cuprum::Rails::Command
     include Cuprum::Collections::Commands::AbstractFindMatching
 
-    # @!method call(envelope: false, limit: nil, offset: nil, order: nil, scope: nil, where: nil, &block)
+    # @!method call(envelope: false, limit: nil, offset: nil, order: nil, where: nil, &block)
     #   Queries the collection for records matching the given conditions.
     #
     #   @param envelope [Boolean] If true, wraps the result value in a Hash.
@@ -21,8 +21,6 @@ module Cuprum::Rails::Commands
     #   @param order [Array<String, Symbol>, Hash<{String, Symbol => Symbol}>]
     #     The sort order of the returned items. Should be either an array of
     #     attribute names or a hash of attribute names and directions.
-    #   @param scope [Cuprum::Collections::Basic::Query, nil] Optional scope for
-    #     the query. Records must match the scope as well as the :where filters.
     #   @param where [Object] Additional filters for selecting data. The command
     #     will only return data matching these filters.
     #   @yield The given block is passed to a QueryBuilder, which converts the
@@ -106,16 +104,7 @@ module Cuprum::Rails::Commands
       keyword :order,
         Cuprum::Collections::Constraints::Ordering.new,
         optional: true
-      keyword :scope,
-        Cuprum::Rails::Query,
-        optional: true
       keyword :where, Object, optional: true
-    end
-
-    private
-
-    def build_query
-      Cuprum::Rails::Query.new(record_class)
     end
   end
 end

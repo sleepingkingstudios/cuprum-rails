@@ -25,17 +25,17 @@ module Cuprum::Rails
 
     command_class :find_many do
       Cuprum::Rails::Commands::FindMany
-        .subclass(**command_options)
+        .subclass(query: query, **command_options)
     end
 
     command_class :find_matching do
       Cuprum::Rails::Commands::FindMatching
-        .subclass(**command_options)
+        .subclass(query: query, **command_options)
     end
 
     command_class :find_one do
       Cuprum::Rails::Commands::FindOne
-        .subclass(**command_options)
+        .subclass(query: query, **command_options)
     end
 
     command_class :insert_one do
@@ -57,13 +57,19 @@ module Cuprum::Rails
     #
     # @return [Cuprum::Rails::Query] the query.
     def query
-      Cuprum::Rails::Query.new(entity_class)
+      Cuprum::Rails::Query.new(entity_class, scope: scope)
+    end
+
+    protected
+
+    def command_options
+      super().merge(record_class: entity_class)
     end
 
     private
 
-    def command_options
-      super().merge(record_class: entity_class)
+    def default_scope
+      Cuprum::Rails::Scopes::AllScope.new
     end
   end
 end

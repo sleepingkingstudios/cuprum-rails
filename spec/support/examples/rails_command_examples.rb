@@ -24,14 +24,9 @@ module Spec::Support::Examples
       let(:primary_key_name)    { 'id' }
       let(:primary_key_type)    { Integer }
       let(:entity_type)         { record_class }
+      let(:query)               { Cuprum::Rails::Query.new(record_class) }
       let(:fixtures_data) do
         Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES.dup
-      end
-      let(:query) do
-        Cuprum::Rails::Query.new(record_class)
-      end
-      let(:scope) do
-        Cuprum::Rails::Query.new(record_class).where(scope_filter)
       end
 
       before(:example) do

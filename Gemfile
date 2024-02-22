@@ -27,6 +27,7 @@ group :test do
 end
 
 gem 'cuprum-collections',
+  '>= 0.5.0.alpha',
   git:    'https://github.com/sleepingkingstudios/cuprum-collections',
   branch: 'main'
 gem 'rails', '~> 7.0'

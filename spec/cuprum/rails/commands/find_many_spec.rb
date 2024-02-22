@@ -16,11 +16,13 @@ RSpec.describe Cuprum::Rails::Commands::FindMany do
 
   subject(:command) do
     described_class.new(
+      query:        query,
       record_class: record_class,
       **constructor_options
     )
   end
 
+  let(:query) { Cuprum::Rails::Query.new(record_class) }
   let(:expected_data) do
     matching_data.map do |attributes|
       attributes ? record_class.new(attributes) : nil

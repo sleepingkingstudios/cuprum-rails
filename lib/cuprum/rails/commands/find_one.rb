@@ -14,7 +14,7 @@ module Cuprum::Rails::Commands
   class FindOne < Cuprum::Rails::Command
     include Cuprum::Collections::Commands::AbstractFindOne
 
-    # @!method call(primary_key:, envelope: false, scope: nil)
+    # @!method call(primary_key:, envelope: false)
     #   Queries the collection for the record with the given primary key.
     #
     #   The command will find and return the entity with the given primary key.
@@ -26,28 +26,21 @@ module Cuprum::Rails::Commands
     #
     #   @param envelope [Boolean] If true, wraps the result value in a Hash.
     #   @param primary_key [Object] The primary key of the requested record.
-    #   @param scope [Cuprum::Collections::Basic::Query, nil] Optional scope for
-    #     the query. The record must match the scope as well as the primary key.
     #
     #   @return [Cuprum::Result<Hash{String, Object}>] a result with the
     #     requested record.
     validate_parameters :call do
       keyword :envelope,    Stannum::Constraints::Boolean.new, default: true
       keyword :primary_key, Object
-      keyword :scope,       Cuprum::Rails::Query, optional: true
     end
 
     private
-
-    def build_query
-      Cuprum::Rails::Query.new(record_class)
-    end
 
     def invalid_statement_error(message)
       Cuprum::Rails::Errors::InvalidStatement.new(message: message)
     end
 
-    def process(primary_key:, envelope: false, scope: nil)
+    def process(primary_key:, envelope: false)
       step { validate_primary_key(primary_key) }
 
       super
