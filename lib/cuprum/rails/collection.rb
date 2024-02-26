@@ -8,49 +8,40 @@ require 'cuprum/rails'
 module Cuprum::Rails
   # Wraps an ActiveRecord model as a Cuprum collection.
   class Collection < Cuprum::Collections::Collection
-    command_class :assign_one do
-      Cuprum::Rails::Commands::AssignOne
-        .subclass(**command_options)
+    command :assign_one do
+      Cuprum::Rails::Commands::AssignOne.new(**command_options)
     end
 
-    command_class :build_one do
-      Cuprum::Rails::Commands::BuildOne
-        .subclass(**command_options)
+    command :build_one do
+      Cuprum::Rails::Commands::BuildOne.new(**command_options)
     end
 
-    command_class :destroy_one do
-      Cuprum::Rails::Commands::DestroyOne
-        .subclass(**command_options)
+    command :destroy_one do
+      Cuprum::Rails::Commands::DestroyOne.new(**command_options)
     end
 
-    command_class :find_many do
-      Cuprum::Rails::Commands::FindMany
-        .subclass(query: query, **command_options)
+    command :find_many do
+      Cuprum::Rails::Commands::FindMany.new(query: query, **command_options)
     end
 
-    command_class :find_matching do
-      Cuprum::Rails::Commands::FindMatching
-        .subclass(query: query, **command_options)
+    command :find_matching do
+      Cuprum::Rails::Commands::FindMatching.new(query: query, **command_options)
     end
 
-    command_class :find_one do
-      Cuprum::Rails::Commands::FindOne
-        .subclass(query: query, **command_options)
+    command :find_one do
+      Cuprum::Rails::Commands::FindOne.new(query: query, **command_options)
     end
 
-    command_class :insert_one do
-      Cuprum::Rails::Commands::InsertOne
-        .subclass(**command_options)
+    command :insert_one do
+      Cuprum::Rails::Commands::InsertOne.new(**command_options)
     end
 
-    command_class :update_one do
-      Cuprum::Rails::Commands::UpdateOne
-        .subclass(**command_options)
+    command :update_one do
+      Cuprum::Rails::Commands::UpdateOne.new(**command_options)
     end
 
-    command_class :validate_one do
-      Cuprum::Rails::Commands::ValidateOne
-        .subclass(**command_options)
+    command :validate_one do
+      Cuprum::Rails::Commands::ValidateOne.new(**command_options)
     end
 
     # A new Query instance, used for querying against the collection data.
