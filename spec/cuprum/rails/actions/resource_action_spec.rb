@@ -207,7 +207,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
       it 'should wrap the block in a transaction' do # rubocop:disable RSpec/ExampleLength
         in_transaction = false
 
-        allow(transaction_class).to receive(:transaction) do |&block|
+        allow(ActiveRecord::Base).to receive(:transaction) do |&block|
           in_transaction = true
 
           block.call
@@ -242,7 +242,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
         it 'should roll back the transaction' do # rubocop:disable RSpec/ExampleLength
           rollback = false
 
-          allow(transaction_class).to receive(:transaction) do |&block|
+          allow(ActiveRecord::Base).to receive(:transaction) do |&block|
             block.call
           rescue ActiveRecord::Rollback
             rollback = true
@@ -262,7 +262,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     end
 
     context 'when the resource class is not an ActiveRecord model' do
-      let(:transaction_class) { ActiveRecord::Base }
       let(:resource_options) do
         super().merge(entity_class: Spec::Entity)
       end
@@ -273,7 +272,6 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     end
 
     context 'when the resource class is an ActiveRecord model' do
-      let(:transaction_class) { Book }
       let(:resource_options) do
         super().merge(entity_class: Book)
       end

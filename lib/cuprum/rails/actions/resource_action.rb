@@ -5,6 +5,7 @@ require 'cuprum/errors/uncaught_exception'
 require 'cuprum/rails/action'
 require 'cuprum/rails/actions/parameter_validation'
 require 'cuprum/rails/errors/resource_error'
+require 'cuprum/rails/transaction'
 
 module Cuprum::Rails::Actions
   # Abstract base class for resourceful actions.
@@ -130,23 +131,8 @@ module Cuprum::Rails::Actions
       false
     end
 
-    def transaction(&block) # rubocop:disable Metrics/MethodLength
-      result            = nil
-      entity_class      = resource.entity_class
-      transaction_class =
-        if entity_class.is_a?(Class) && entity_class < ActiveRecord::Base
-          entity_class
-        else
-          ActiveRecord::Base
-        end
-
-      transaction_class.transaction do
-        result = steps { block.call }
-
-        raise ActiveRecord::Rollback if result.failure?
-      end
-
-      result
+    def transaction(&block)
+      Cuprum::Rails::Transaction.new.call(&block)
     end
   end
 end
