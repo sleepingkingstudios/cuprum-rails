@@ -19,10 +19,10 @@ end
 group :test do
   gem 'rspec', '~> 3.12'
   gem 'rspec-sleeping_king_studios', '~> 2.7.0'
-  gem 'rubocop', '~> 1.59'
-  gem 'rubocop-rails', '~> 2.22', '>= 2.22.2'
+  gem 'rubocop', '~> 1.62'
+  gem 'rubocop-rails', '~> 2.24'
   gem 'rubocop-rake', '~> 0.6'
-  gem 'rubocop-rspec', '~> 2.25'
+  gem 'rubocop-rspec', '~> 2.27'
   gem 'simplecov', '~> 0.22'
 end
 
