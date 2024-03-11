@@ -122,5 +122,9 @@ Style/NestedParenthesizedCalls:
   Exclude:
     - 'spec/**/*'
 
+Style/RedundantLineContinuation:
+  Exclude:
+    - 'spec/**/*'
+
 Style/TrailingUnderscoreVariable:
   Enabled: false
