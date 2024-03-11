@@ -307,8 +307,6 @@ module Cuprum::Rails::RSpec::Contracts
         end
 
         describe '#transaction' do
-          let(:transaction_class) { resource.entity_class }
-
           before(:example) { call_action }
 
           it 'should define the private method' do
@@ -323,7 +321,7 @@ module Cuprum::Rails::RSpec::Contracts
           it 'should wrap the block in a transaction' do
             in_transaction = false
 
-            allow(transaction_class).to receive(:transaction) do |&block|
+            allow(ActiveRecord::Base).to receive(:transaction) do |&block|
               in_transaction = true
 
               block.call
@@ -358,7 +356,7 @@ module Cuprum::Rails::RSpec::Contracts
             it 'should roll back the transaction' do
               rollback = false
 
-              allow(transaction_class).to receive(:transaction) do |&block|
+              allow(ActiveRecord::Base).to receive(:transaction) do |&block|
                 block.call
               rescue ActiveRecord::Rollback
                 rollback = true

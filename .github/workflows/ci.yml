@@ -47,7 +47,7 @@ jobs:
 
     steps:
     # Downloads a copy of the code in your repository before running CI tests
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     # Sets up the Ruby environment and runs `bundle install'.
     - name: Set up Ruby
@@ -98,7 +98,7 @@ jobs:
 
     steps:
     # Downloads a copy of the code in your repository before running CI tests
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     # Sets up the Ruby environment and runs `bundle install'.
     - name: Set up Ruby
@@ -129,7 +129,7 @@ jobs:
 
     steps:
     # Downloads a copy of the code in your repository before running CI tests
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     # Sets up the Ruby environment and runs `bundle install'.
     - name: Set up Ruby

@@ -55,16 +55,16 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
           attributes.map { |hsh| Book.new(hsh) }
         end
         let(:expected_value) do
-          super().merge({ 'books' => books })
+          super().merge({ 'books' => match_array(books) })
         end
 
         before(:example) { books.map(&:save!) }
 
-        it 'should return the resource values' do
-          expect(call_command)
-            .to be_a_result
-            .with_status(expected_status)
-            .and_value(expected_value)
+        it 'should return the resource values', :aggregate_failures do
+          result = call_command
+
+          expect(result).to be_a_result.with_status(expected_status)
+          expect(result.value).to deep_match(expected_value)
         end
       end
     end
