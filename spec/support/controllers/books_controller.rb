@@ -17,8 +17,9 @@ class BooksController < BaseController
     repository
   end
 
-  def self.resource
+  def self.resource # rubocop:disable Metrics/MethodLength
     @resource ||= Cuprum::Rails::Resource.new(
+      default_order:        :id,
       entity_class:         Book,
       permitted_attributes: %i[
         title

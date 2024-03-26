@@ -24,6 +24,21 @@ module Cuprum::Rails
     #
     #   @return [Cuprum::Result] the result of the action.
 
+    # Creates a new action class with the given implementation.
+    #
+    # @yield the action implementation.
+    # @yieldparam request [ActionDispatch::Request] the Rails request.
+    # @yieldparam repository [Cuprum::Collections::Repository] the repository
+    #   containing the data collections for the application or scope.
+    # @yieldparam options [Hash<Symbol, Object>] additional options for the
+    #   action.
+    # @yieldreturn [Cuprum::Result] the result of the action.
+    def self.build(&implementation)
+      Class.new(self) do
+        define_method(:initialize) { super(&implementation) }
+      end
+    end
+
     # @!method params
     #   @return [Hash<String, Object>] the request parameters.
     def_delegators :@request, :params
