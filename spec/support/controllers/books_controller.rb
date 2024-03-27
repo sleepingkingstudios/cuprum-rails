@@ -9,6 +9,47 @@ require 'support/middleware/profiling_middleware'
 require 'support/serializers/book_serializer'
 
 class BooksController < BaseController
+  class PublishCommand < Cuprum::Rails::Command
+    def initialize(record_class:, repository:, **)
+      super(record_class: record_class)
+
+      @repository = repository
+    end
+
+    attr_reader :repository
+
+    private
+
+    def books_collection
+      repository.find_or_create(entity_class: Book)
+    end
+
+    def parameters_contract
+      Cuprum::Rails::Constraints::ParametersContract.new do
+        key 'id', Stannum::Constraints::Presence.new
+      end
+    end
+
+    def process(entity_id:)
+      step { validate_parameters(entity_id: entity_id) }
+
+      entity = step { books_collection.find_one.call(primary_key: entity_id) }
+
+      entity.published_at = Time.zone.today
+
+      books_collection.update_one.call(entity: entity)
+    end
+
+    def validate_parameters(entity_id:)
+      match, errors = parameters_contract.match({ 'id' => entity_id })
+
+      return success(nil) if match
+
+      error = Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
+      failure(error)
+    end
+  end
+
   def self.repository
     repository = super
 
@@ -41,11 +82,22 @@ class BooksController < BaseController
     only: %i[create destroy update]
   middleware Spec::Support::Middleware::ProfilingMiddleware
 
-  action :create,  Cuprum::Rails::Actions::Create
-  action :destroy, Cuprum::Rails::Actions::Destroy
-  action :edit,    Cuprum::Rails::Actions::Edit
-  action :new,     Cuprum::Rails::Actions::New
-  action :index,   Cuprum::Rails::Actions::Index
-  action :show,    Cuprum::Rails::Actions::Show
-  action :update,  Cuprum::Rails::Actions::Update
+  action :create,  Cuprum::Rails::Actions::Create,  member: false
+  action :destroy, Cuprum::Rails::Actions::Destroy, member: true
+  action :edit,    Cuprum::Rails::Actions::Edit,    member: true
+  action :new,     Cuprum::Rails::Actions::New,     member: false
+  action :index,   Cuprum::Rails::Actions::Index,   member: false
+  action :show,    Cuprum::Rails::Actions::Show,    member: true
+  action :update,  Cuprum::Rails::Actions::Update,  member: true
+
+  action :publish, member: true do |repository:, request:, resource:, **|
+    entity_id = request.params['id']
+    entity    = step do
+      PublishCommand
+        .new(record_class: resource.entity_class, repository: repository)
+        .call(entity_id: entity_id)
+    end
+
+    { 'book' => entity }
+  end
 end
