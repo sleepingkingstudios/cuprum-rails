@@ -18,6 +18,7 @@ RSpec.describe Cuprum::Rails::Action do
   describe '.build' do
     let(:request)    { Cuprum::Rails::Request.new }
     let(:repository) { Cuprum::Rails::Repository.new }
+    let(:resource)   { Cuprum::Rails::Resource.new(name: 'books') }
     let(:options)    { { optional: 'value' } }
     let(:delegate)   { instance_double(Proc, call: nil) }
     let(:implementation) do
@@ -28,9 +29,12 @@ RSpec.describe Cuprum::Rails::Action do
     let(:action_class) { described_class.build(&implementation) }
 
     def call_action
-      action_class
-        .new
-        .call(request: request, repository: repository, **options)
+      action_class.new.call(
+        request:    request,
+        repository: repository,
+        resource:   resource,
+        **options
+      )
     end
 
     it 'should define the class method' do
@@ -50,6 +54,7 @@ RSpec.describe Cuprum::Rails::Action do
       expect(delegate).to have_received(:call).with(
         request:    request,
         repository: repository,
+        resource:   resource,
         **options
       )
     end

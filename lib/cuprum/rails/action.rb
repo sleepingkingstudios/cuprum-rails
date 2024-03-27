@@ -30,6 +30,8 @@ module Cuprum::Rails
     # @yieldparam request [ActionDispatch::Request] the Rails request.
     # @yieldparam repository [Cuprum::Collections::Repository] the repository
     #   containing the data collections for the application or scope.
+    # @yieldparam resource [Cuprum::Collections::Resource] the resource for the
+    #   controller.
     # @yieldparam options [Hash<Symbol, Object>] additional options for the
     #   action.
     # @yieldreturn [Cuprum::Result] the result of the action.
