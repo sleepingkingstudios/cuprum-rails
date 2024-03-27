@@ -481,6 +481,50 @@ RSpec.describe BooksController do
     wrap_examples 'should render the view'
   end
 
+  describe '#publish' do
+    let(:current_date) { Time.zone.today }
+    let(:action_name)  { :publish }
+    let(:method)       { :patch }
+    let(:path)         { "books/#{book_id}" }
+    let(:book_id)      { (Book.last&.id || -1) + 1 }
+    let(:path_params)  { super().merge('id' => book_id) }
+
+    before(:example) do
+      allow(Time.zone).to receive(:today).and_return(current_date)
+    end
+
+    it { expect(controller).to respond_to(:publish).with(0).arguments }
+
+    include_examples 'should require a valid book id'
+
+    wrap_context 'when there are many books' do
+      let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
+      let(:book_id) { book.id }
+      let(:expected_assigns) do
+        {
+          '@book'         => book.reload,
+          '@time_elapsed' => '50 milliseconds'
+        }
+      end
+      let(:expected_data) do
+        {
+          'book'         => serializer.call(book.reload, context: context),
+          'time_elapsed' => '50 milliseconds'
+        }
+      end
+
+      it 'should update the publication date' do
+        expect { controller.publish }
+          .to change { book.reload.published_at }
+          .to be == current_date
+      end
+
+      wrap_examples 'should render the view'
+
+      wrap_examples 'should serialize the data'
+    end
+  end
+
   describe '#show' do
     let(:action_name)  { :show }
     let(:method)       { :get }

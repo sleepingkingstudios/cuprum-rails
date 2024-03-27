@@ -2,6 +2,7 @@
 
 require 'cuprum/rails/action'
 require 'cuprum/rails/repository'
+require 'cuprum/rails/request'
 require 'cuprum/rails/rspec/contracts/action_contracts'
 
 RSpec.describe Cuprum::Rails::Action do
@@ -13,6 +14,85 @@ RSpec.describe Cuprum::Rails::Action do
   let(:request) { instance_double(ActionDispatch::Request, params: params) }
 
   include_contract 'should be an action'
+
+  describe '.build' do
+    let(:request)    { Cuprum::Rails::Request.new }
+    let(:repository) { Cuprum::Rails::Repository.new }
+    let(:resource)   { Cuprum::Rails::Resource.new(name: 'books') }
+    let(:options)    { { optional: 'value' } }
+    let(:delegate)   { instance_double(Proc, call: nil) }
+    let(:implementation) do
+      delegate_proc = delegate
+
+      ->(*args, **kwargs) { delegate_proc.call(*args, **kwargs) }
+    end
+    let(:action_class) { described_class.build(&implementation) }
+
+    def call_action
+      action_class.new.call(
+        request:    request,
+        repository: repository,
+        resource:   resource,
+        **options
+      )
+    end
+
+    it 'should define the class method' do
+      expect(described_class)
+        .to respond_to(:build)
+        .with(0).arguments
+        .and_a_block
+    end
+
+    it { expect(action_class).to be_a Class }
+
+    it { expect(action_class).to be < described_class }
+
+    it 'should pass the parameters to the implementation' do # rubocop:disable RSpec/ExampleLength
+      call_action
+
+      expect(delegate).to have_received(:call).with(
+        request:    request,
+        repository: repository,
+        resource:   resource,
+        **options
+      )
+    end
+
+    context 'when the implementation returns a failing result' do
+      let(:expected_error) do
+        Cuprum::Error.new(message: 'Something went wrong')
+      end
+      let(:result) { Cuprum::Result.new(error: expected_error) }
+      let(:implementation) do
+        returned = result
+
+        ->(*, **) { returned }
+      end
+
+      it 'should return a failing result' do
+        expect(call_action)
+          .to be_a_failing_result
+          .with_error(expected_error)
+      end
+    end
+
+    context 'when the implementation returns a passing result' do
+      let(:expected_value) { { 'ok' => true } }
+      let(:result)         { Cuprum::Result.new(value: expected_value) }
+      let(:implementation) do
+        returned = result
+
+        ->(*, **) { returned }
+      end
+
+      it 'should return a passing result' do
+        expect(call_action)
+          .to be_a_passing_result
+          .with_value(expected_value)
+      end
+    end
+  end
 
   describe '#call' do
     it 'should define the method' do

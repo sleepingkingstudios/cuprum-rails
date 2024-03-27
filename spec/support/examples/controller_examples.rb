@@ -49,10 +49,6 @@ module Spec::Support::Examples
             }
           end
 
-          def build_action
-            described_class.action(action_name, Spec::Action, **action_options)
-          end
-
           it 'should return the action name' do
             expect(build_action)
               .to be action_name.intern
@@ -226,8 +222,9 @@ module Spec::Support::Examples
         it 'should define the class method' do
           expect(described_class)
             .to respond_to(:action)
-            .with(2).arguments
+            .with(1..2).arguments
             .and_keywords(:member)
+            .and_a_block
         end
 
         describe 'with action_name: nil' do
@@ -269,6 +266,10 @@ module Spec::Support::Examples
         describe 'with action_name: a String' do
           let(:action_name) { 'process' }
 
+          def build_action
+            described_class.action(action_name, Spec::Action, **action_options)
+          end
+
           include_examples 'should define the action'
 
           describe 'with member: false' do
@@ -286,6 +287,10 @@ module Spec::Support::Examples
 
         describe 'with action_name: a Symbol' do
           let(:action_name) { :process }
+
+          def build_action
+            described_class.action(action_name, Spec::Action, **action_options)
+          end
 
           include_examples 'should define the action'
 
@@ -316,6 +321,51 @@ module Spec::Support::Examples
 
           it 'should raise an exception' do
             expect { described_class.action(:process, Object.new.freeze) }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with a block' do
+          let(:action_name)    { 'process' }
+          let(:implementation) { -> {} }
+
+          before(:example) do
+            allow(Cuprum::Rails::Action)
+              .to receive(:build)
+              .and_return(Spec::Action)
+          end
+
+          def build_action
+            described_class.action(
+              action_name,
+              **action_options,
+              &implementation
+            )
+          end
+
+          include_examples 'should define the action'
+
+          describe 'with member: false' do
+            let(:action_options) { super().merge(member: false) }
+
+            include_examples 'should define the action'
+          end
+
+          describe 'with member: true' do
+            let(:action_options) { super().merge(member: true) }
+
+            include_examples 'should define the action'
+          end
+        end
+
+        describe 'with a block and action_class: value' do
+          let(:implementation) { -> {} }
+          let(:error_message)  { 'unexpected block when action class is given' }
+
+          it 'should raise an exception' do
+            expect do
+              described_class.action(:process, Spec::Action, &implementation)
+            end
               .to raise_error ArgumentError, error_message
           end
         end
