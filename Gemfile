@@ -7,7 +7,7 @@ gemspec
 group :development, :test do
   gem 'appraisal', '~> 2.4'
   gem 'byebug', '~> 11.0'
-  gem 'database_cleaner-active_record', '~> 2.1'
+  gem 'database_cleaner-active_record', '~> 2.2'
   gem 'pg', '~> 1.5'
 end
 
@@ -31,5 +31,5 @@ gem 'cuprum-collections',
   '>= 0.5.0.alpha',
   git: 'https://github.com/sleepingkingstudios/cuprum-collections',
   ref: 'b1dd8d6aee7c751871cdf63fb6289da392075cea'
-gem 'rails', '~> 7.1.0'
+gem 'rails', '~> 7.2.0'
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
