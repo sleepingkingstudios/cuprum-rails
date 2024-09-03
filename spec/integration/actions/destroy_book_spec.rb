@@ -40,7 +40,7 @@ RSpec.describe Spec::Support::Actions::DestroyBook do
   context 'when the book has many chapters' do
     let(:chapters) do
       Array.new(3) do |index|
-        Chapter.new(book: book, chapter_index: index, title: "Chapter #{index}")
+        Chapter.new(book:, chapter_index: index, title: "Chapter #{index}")
       end
     end
 

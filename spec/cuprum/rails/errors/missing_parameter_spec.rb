@@ -4,7 +4,7 @@ require 'cuprum/rails/errors/missing_parameter'
 
 RSpec.describe Cuprum::Rails::Errors::MissingParameter do
   subject(:error) do
-    described_class.new(parameter_name: parameter_name, parameters: parameters)
+    described_class.new(parameter_name:, parameters:)
   end
 
   let(:parameter_name) { 'author_id' }

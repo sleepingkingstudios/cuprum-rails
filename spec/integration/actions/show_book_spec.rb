@@ -41,7 +41,7 @@ RSpec.describe Spec::Support::Actions::ShowBook do
     let(:chapters) do
       Array.new(3) do |index|
         Chapter.new(
-          book:          book,
+          book:,
           title:         "Chapter #{1 + index}",
           chapter_index: index
         )

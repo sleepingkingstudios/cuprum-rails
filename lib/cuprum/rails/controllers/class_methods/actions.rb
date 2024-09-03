@@ -34,8 +34,8 @@ module Cuprum::Rails::Controllers::ClassMethods
       action_class             = resolve_action_class(action_class, &block)
       action_name              = action_name.intern
       own_actions[action_name] = Cuprum::Rails::Controllers::Action.new(
-        action_class:  action_class,
-        action_name:   action_name,
+        action_class:,
+        action_name:,
         member_action: member
       )
 
@@ -67,7 +67,7 @@ module Cuprum::Rails::Controllers::ClassMethods
     # @return [Cuprum::Rails::Request] the generated request.
     def build_request(context, **options)
       Cuprum::Rails::Request.build(
-        context: context,
+        context:,
         request: context.request,
         **options
       )
@@ -95,11 +95,11 @@ module Cuprum::Rails::Controllers::ClassMethods
       end
     end
 
-    def resolve_action_class(action_class, &block)
+    def resolve_action_class(action_class, &)
       if block_given? && action_class
         raise ArgumentError, 'unexpected block when action class is given'
       elsif block_given?
-        Cuprum::Rails::Action.build(&block)
+        Cuprum::Rails::Action.build(&)
       else
         validate_class(action_class, as: 'action class')
 

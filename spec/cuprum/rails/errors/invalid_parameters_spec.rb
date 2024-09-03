@@ -5,7 +5,7 @@ require 'stannum/errors'
 require 'cuprum/rails/errors/invalid_parameters'
 
 RSpec.describe Cuprum::Rails::Errors::InvalidParameters do
-  subject(:error) { described_class.new(errors: errors) }
+  subject(:error) { described_class.new(errors:) }
 
   let(:errors) do
     Stannum::Errors

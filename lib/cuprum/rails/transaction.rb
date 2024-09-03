@@ -41,7 +41,7 @@ module Cuprum::Rails
           result = steps(&block)
         rescue StandardError => exception
           error = Cuprum::Errors::UncaughtException.new(
-            exception: exception,
+            exception:,
             message:   'uncaught exception in transaction -'
           )
           result = failure(error)

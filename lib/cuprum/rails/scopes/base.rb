@@ -18,7 +18,7 @@ module Cuprum::Rails::Scopes
         raise ArgumentError, 'query must be an ActiveRecord::Relation'
       end
 
-      process(native_query: native_query)
+      process(native_query:)
     end
 
     private

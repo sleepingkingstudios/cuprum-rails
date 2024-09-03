@@ -11,7 +11,7 @@ module Cuprum::Rails::Responders::Html
     #
     # @return [Cuprum::Rails::Responses::HeadResponse] the response.
     def head(status:)
-      Cuprum::Rails::Responses::HeadResponse.new(status: status)
+      Cuprum::Rails::Responses::HeadResponse.new(status:)
     end
 
     # Creates a RedirectBackResponse based on the given HTTP status.
@@ -22,7 +22,7 @@ module Cuprum::Rails::Responders::Html
     # @param status [Integer] the HTTP status of the response.
     def redirect_back(fallback_location: '/', flash: {}, status: 302)
       Cuprum::Rails::Responses::Html::RedirectBackResponse
-        .new(fallback_location: fallback_location, flash: flash, status: status)
+        .new(fallback_location:, flash:, status:)
     end
 
     # Creates a RedirectResponse based on the given path and HTTP status.
@@ -34,7 +34,7 @@ module Cuprum::Rails::Responders::Html
     # @return [Cuprum::Rails::Responses::Html::RedirectResponse] the response.
     def redirect_to(path, flash: {}, status: 302)
       Cuprum::Rails::Responses::Html::RedirectResponse
-        .new(path, flash: flash, status: status)
+        .new(path, flash:, status:)
     end
 
     # Creates a RenderResponse based on the given template and parameters.
@@ -50,9 +50,9 @@ module Cuprum::Rails::Responders::Html
       Cuprum::Rails::Responses::Html::RenderResponse.new(
         template,
         assigns: assigns || default_assigns,
-        flash:   flash,
-        layout:  layout,
-        status:  status
+        flash:,
+        layout:,
+        status:
       )
     end
 

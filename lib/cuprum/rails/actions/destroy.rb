@@ -15,7 +15,7 @@ module Cuprum::Rails::Actions
     end
 
     def destroy_entity(primary_key:)
-      collection.destroy_one.call(primary_key: primary_key)
+      collection.destroy_one.call(primary_key:)
     end
 
     def parameters_contract

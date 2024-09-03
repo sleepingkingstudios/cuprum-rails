@@ -33,7 +33,7 @@ module Cuprum::Rails::Commands
     private
 
     def map_errors(native_errors:)
-      Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+      Cuprum::Rails::MapErrors.instance.call(native_errors:)
     end
 
     def match_default(entity:)
@@ -47,20 +47,20 @@ module Cuprum::Rails::Commands
     def process(entity:, contract: nil)
       step { validate_entity(entity) }
 
-      step { validate_record(contract: contract, entity: entity) }
+      step { validate_record(contract:, entity:) }
 
       entity
     end
 
     def validate_record(contract:, entity:)
       valid, errors =
-        contract ? contract.match(entity) : match_default(entity: entity)
+        contract ? contract.match(entity) : match_default(entity:)
 
       return if valid
 
       error = Cuprum::Collections::Errors::FailedValidation.new(
         entity_class: entity.class,
-        errors:       errors
+        errors:
       )
       failure(error)
     end

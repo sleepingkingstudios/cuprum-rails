@@ -24,7 +24,7 @@ RSpec.describe Cuprum::Rails::Scopes::Base do
   describe '#build_relation' do
     let(:record_class) { Book }
     let(:relation) do
-      scope.build_relation(record_class: record_class)
+      scope.build_relation(record_class:)
     end
     let(:expected) do
       Book.all
@@ -40,6 +40,6 @@ RSpec.describe Cuprum::Rails::Scopes::Base do
   describe '#call' do
     let(:native_query) { Book.all }
 
-    it { expect(scope.call(native_query: native_query)).to be native_query }
+    it { expect(scope.call(native_query:)).to be native_query }
   end
 end

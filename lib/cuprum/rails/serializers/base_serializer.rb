@@ -36,7 +36,7 @@ module Cuprum::Rails::Serializers
     # @raise UndefinedSerializerError if there is no matching serializer for
     #   the object.
     def call(object, context:)
-      handle_recursion!(object, context: context)
+      handle_recursion!(object, context:)
 
       context.serialize(object)
     end

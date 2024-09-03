@@ -29,7 +29,7 @@ module Cuprum::Rails::Serializers::Json
       end
 
       hash.each.with_object({}) do |(key, value), mapped|
-        mapped[key] = super(value, context: context)
+        mapped[key] = super(value, context:)
       end
     end
 

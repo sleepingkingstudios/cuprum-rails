@@ -28,7 +28,7 @@ module Cuprum::Rails::Responders
         matcher = @matcher || Cuprum::Matcher.new
 
         matcher.singleton_class.match(
-          status, error: error, value: value, &block
+          status, error:, value:, &block
         )
 
         @matcher = matcher
@@ -72,10 +72,10 @@ module Cuprum::Rails::Responders
       **options
     )
       super(
-        action_name:   action_name,
-        controller:    controller,
-        member_action: member_action,
-        request:       request,
+        action_name:,
+        controller:,
+        member_action:,
+        request:,
         **options
       )
 

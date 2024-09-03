@@ -17,7 +17,7 @@ RSpec.describe Cuprum::Rails::Commands::ValidateOne do
 
   subject(:command) do
     described_class.new(
-      record_class: record_class,
+      record_class:,
       **constructor_options
     )
   end
@@ -42,7 +42,7 @@ RSpec.describe Cuprum::Rails::Commands::ValidateOne do
   let(:expected_errors) do
     native_errors = entity.tap(&:valid?).errors
 
-    Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+    Cuprum::Rails::MapErrors.instance.call(native_errors:)
   end
 
   include_contract 'should be a rails command'

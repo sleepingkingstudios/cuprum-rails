@@ -437,7 +437,7 @@ module Spec::Support::Examples::Serializers::Json
       describe '#call' do
         shared_examples 'should serialize the properties' do
           it 'should serialize the properties' do
-            expect(serializer.call(object, context: context))
+            expect(serializer.call(object, context:))
               .to be == expected
           end
         end
@@ -455,7 +455,7 @@ module Spec::Support::Examples::Serializers::Json
           Cuprum::Rails::Serializers::Json.default_serializers
         end
         let(:context) do
-          Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+          Cuprum::Rails::Serializers::Context.new(serializers:)
         end
         let(:expected) { {} }
 
@@ -480,14 +480,14 @@ module Spec::Support::Examples::Serializers::Json
         include_examples 'should serialize the properties'
 
         describe 'with nil' do
-          it { expect(serializer.call(nil, context: context)).to be nil }
+          it { expect(serializer.call(nil, context:)).to be nil }
         end
 
         wrap_context 'with a serializer class' do
           include_examples 'should serialize the properties'
 
           describe 'with nil' do
-            it { expect(serializer.call(nil, context: context)).to be nil }
+            it { expect(serializer.call(nil, context:)).to be nil }
           end
 
           describe 'with a hash object' do
@@ -511,7 +511,7 @@ module Spec::Support::Examples::Serializers::Json
             include_examples 'should serialize the properties'
 
             describe 'with nil' do
-              it { expect(serializer.call(nil, context: context)).to be nil }
+              it { expect(serializer.call(nil, context:)).to be nil }
             end
 
             describe 'with a hash object' do

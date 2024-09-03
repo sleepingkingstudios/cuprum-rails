@@ -74,7 +74,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it { expect(response).to be_a response_class }
 
@@ -128,7 +128,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it { expect(response).to be_a response_class }
 
@@ -141,7 +141,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
 
     describe 'with status: value' do
       let(:status)  { 308 }
-      let(:options) { super().merge(status: status) }
+      let(:options) { super().merge(status:) }
 
       it { expect(response).to be_a response_class }
 
@@ -194,8 +194,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
 
       context 'when the result has an error' do
         let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
-        let(:result)   { Cuprum::Result.new(status: :failure, error: error) }
-        let(:expected) { { error: error } }
+        let(:result)   { Cuprum::Result.new(status: :failure, error:) }
+        let(:expected) { { error: } }
 
         it { expect(response.assigns).to be == expected }
       end
@@ -203,9 +203,9 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
       context 'when the result has an error and a value' do
         let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
         let(:value)    { { ok: false } }
-        let(:expected) { value.merge(error: error) }
+        let(:expected) { value.merge(error:) }
         let(:result) do
-          Cuprum::Result.new(status: :failure, error: error, value: value)
+          Cuprum::Result.new(status: :failure, error:, value:)
         end
 
         it { expect(response.assigns).to be == expected }
@@ -226,7 +226,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
 
       context 'when the result has a Hash value' do
         let(:value)    { { ok: true } }
-        let(:result)   { Cuprum::Result.new(status: :success, value: value) }
+        let(:result)   { Cuprum::Result.new(status: :success, value:) }
         let(:expected) { value }
 
         it { expect(response.assigns).to be == expected }
@@ -235,7 +235,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
 
     describe 'with assigns: value' do
       let(:assigns) { { key: 'value' } }
-      let(:options) { super().merge(assigns: assigns) }
+      let(:options) { super().merge(assigns:) }
 
       it { expect(response.assigns).to be == assigns }
 
@@ -255,7 +255,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it { expect(response.assigns).to be == {} }
 
@@ -270,7 +270,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
 
     describe 'with layout: value' do
       let(:layout)  { 'page' }
-      let(:options) { super().merge(layout: layout) }
+      let(:options) { super().merge(layout:) }
 
       it { expect(response.assigns).to be == {} }
 
@@ -285,7 +285,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
 
     describe 'with status: value' do
       let(:status)  { 201 }
-      let(:options) { super().merge(status: status) }
+      let(:options) { super().merge(status:) }
 
       it { expect(response.assigns).to be == {} }
 

@@ -13,9 +13,9 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
   let(:request)     { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      controller:  controller,
-      request:     request
+      action_name:,
+      controller:,
+      request:
     }
   end
 
@@ -58,7 +58,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
     describe 'with a failing result' do
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
-      let(:result)   { Cuprum::Result.new(status: :failure, error: error) }
+      let(:result)   { Cuprum::Result.new(status: :failure, error:) }
       let(:response) { responder.call(result) }
       let(:response_class) do
         Cuprum::Rails::Responses::Html::RedirectResponse
@@ -94,7 +94,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
             Cuprum::Rails::Routing::PluralRoutes.new(base_path: '/tomes')
           end
           let(:resource) do
-            Cuprum::Rails::Resource.new(name: 'books', routes: routes)
+            Cuprum::Rails::Resource.new(name: 'books', routes:)
           end
 
           it { expect(response).to be_a response_class }
@@ -109,8 +109,8 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
             let(:result) do
               Cuprum::Result.new(
                 status: :failure,
-                error:  error,
-                value:  value
+                error:,
+                value:
               )
             end
 
@@ -129,7 +129,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
             let(:result) do
               Cuprum::Result.new(
                 status: :failure,
-                error:  error,
+                error:,
                 value:  {}
               )
             end
@@ -146,7 +146,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
             let(:result) do
               Cuprum::Result.new(
                 status: :failure,
-                error:  error,
+                error:,
                 value:  { 'book' => value }
               )
             end
@@ -172,7 +172,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
         let(:resource_options) { super().merge(parent: authors_resource) }
         let(:path_params)      { { 'author_id' => 0 } }
         let(:request) do
-          Cuprum::Rails::Request.new(path_params: path_params)
+          Cuprum::Rails::Request.new(path_params:)
         end
         let(:expected_path) do
           resource.routes.with_wildcards(path_params).index_path
@@ -227,7 +227,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
         let(:value) do
           { 'book' => Struct.new(:title).new('Gideon the Ninth') }
         end
-        let(:result) { Cuprum::Result.new(status: :success, value: value) }
+        let(:result) { Cuprum::Result.new(status: :success, value:) }
 
         it { expect(response).to be_a response_class }
 
@@ -243,7 +243,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
           match(:failure) { 'matcher: failure' }
         end
       end
-      let(:constructor_options) { super().merge(matcher: matcher) }
+      let(:constructor_options) { super().merge(matcher:) }
 
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
@@ -327,7 +327,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
       describe 'with a failing result with an error' do
         let(:error)  { Spec::CustomError.new }
-        let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+        let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
         it 'should match the responder' do
           expect(responder.call(result))
@@ -351,7 +351,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
           match(:failure) { 'matcher: failure' }
         end
       end
-      let(:constructor_options) { super().merge(matcher: matcher) }
+      let(:constructor_options) { super().merge(matcher:) }
 
       before(:example) do
         Spec::HtmlResponder.action(:process) do
@@ -378,7 +378,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
         describe 'with a failing result with an error' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the responder' do
             expect(responder.call(result))
@@ -407,7 +407,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
         describe 'with a failing result with an error' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the action' do
             expect(responder.call(result))
@@ -515,7 +515,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
     describe 'with status: value' do
       let(:status)  { 308 }
-      let(:options) { super().merge(status: status) }
+      let(:options) { super().merge(status:) }
 
       it { expect(response).to be_a response_class }
 
@@ -562,8 +562,8 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
       context 'when the result has an error' do
         let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
-        let(:result)   { Cuprum::Result.new(status: :failure, error: error) }
-        let(:expected) { { error: error } }
+        let(:result)   { Cuprum::Result.new(status: :failure, error:) }
+        let(:expected) { { error: } }
 
         it { expect(response.assigns).to be == expected }
       end
@@ -571,9 +571,9 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
       context 'when the result has an error and a value' do
         let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
         let(:value)    { { ok: false } }
-        let(:expected) { value.merge(error: error) }
+        let(:expected) { value.merge(error:) }
         let(:result) do
-          Cuprum::Result.new(status: :failure, error: error, value: value)
+          Cuprum::Result.new(status: :failure, error:, value:)
         end
 
         it { expect(response.assigns).to be == expected }
@@ -594,7 +594,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
       context 'when the result has a Hash value' do
         let(:value)    { { ok: true } }
-        let(:result)   { Cuprum::Result.new(status: :success, value: value) }
+        let(:result)   { Cuprum::Result.new(status: :success, value:) }
         let(:expected) { value }
 
         it { expect(response.assigns).to be == expected }
@@ -603,21 +603,21 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
     describe 'with assigns: value' do
       let(:assigns) { { key: 'value' } }
-      let(:options) { super().merge(assigns: assigns) }
+      let(:options) { super().merge(assigns:) }
 
       it { expect(response.assigns).to be == assigns }
     end
 
     describe 'with layout: value' do
       let(:layout)  { 'page' }
-      let(:options) { super().merge(layout: layout) }
+      let(:options) { super().merge(layout:) }
 
       it { expect(response.layout).to be == layout }
     end
 
     describe 'with status: value' do
       let(:status)  { 201 }
-      let(:options) { super().merge(status: status) }
+      let(:options) { super().merge(status:) }
 
       it { expect(response.status).to be status }
     end

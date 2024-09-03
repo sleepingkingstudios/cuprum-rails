@@ -23,7 +23,7 @@ module Spec::Support::Actions
     end
 
     def build_response
-      super().merge('book' => book)
+      super.merge('book' => book)
     end
 
     def create_entity(attributes:)
@@ -32,7 +32,7 @@ module Spec::Support::Actions
         'chapter_index' => next_chapter_index
       })
 
-      super(attributes: attributes)
+      super
     end
 
     def find_book
@@ -52,7 +52,7 @@ module Spec::Support::Actions
       Cuprum::Rails::Query
         .new(
           Book,
-          native_query: native_query
+          native_query:
         )
         .order(chapter_index: :desc)
         .limit(1)

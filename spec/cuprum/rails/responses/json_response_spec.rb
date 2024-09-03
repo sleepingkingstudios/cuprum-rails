@@ -6,7 +6,7 @@ RSpec.describe Cuprum::Rails::Responses::JsonResponse do
   subject(:response) { described_class.new(**constructor_options) }
 
   let(:data)                { { 'key' => 'value' } }
-  let(:constructor_options) { { data: data } }
+  let(:constructor_options) { { data: } }
 
   describe '.new' do
     it 'should define the constructor' do
@@ -36,7 +36,7 @@ RSpec.describe Cuprum::Rails::Responses::JsonResponse do
 
     context 'when initialized with status: value' do
       let(:status)              { 422 }
-      let(:constructor_options) { super().merge(status: status) }
+      let(:constructor_options) { super().merge(status:) }
 
       it 'should delegate to the #render method' do
         response.call(renderer)
@@ -57,7 +57,7 @@ RSpec.describe Cuprum::Rails::Responses::JsonResponse do
 
     context 'when initialized with status: value' do
       let(:status)              { 422 }
-      let(:constructor_options) { super().merge(status: status) }
+      let(:constructor_options) { super().merge(status:) }
 
       it { expect(response.status).to be status }
     end

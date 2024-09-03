@@ -11,7 +11,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
   subject(:action) { described_class.new }
 
   let(:params)  { {} }
-  let(:request) { instance_double(ActionDispatch::Request, params: params) }
+  let(:request) { instance_double(ActionDispatch::Request, params:) }
   let(:resource) do
     Cuprum::Rails::Resource.new(
       entity_class: Book,
@@ -52,7 +52,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
         end
         let(:expected_error) do
           Cuprum::Errors::UncaughtException.new(
-            exception: exception,
+            exception:,
             message:   expected_message
           )
         end
@@ -137,7 +137,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
           end
           let(:expected_error) do
             Cuprum::Errors::UncaughtException.new(
-              exception: exception,
+              exception:,
               message:   expected_message
             )
           end
@@ -158,7 +158,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     end
 
     let(:params)  { {} }
-    let(:request) { instance_double(ActionDispatch::Request, params: params) }
+    let(:request) { instance_double(ActionDispatch::Request, params:) }
     let(:action_steps) do
       %i[
         find_required_entities
@@ -175,7 +175,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
     end
 
     def call_action
-      mocked_action.call(request: request, resource: resource)
+      mocked_action.call(request:, resource:)
     end
 
     it 'should return a passing result' do
@@ -255,7 +255,7 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
       end
     end
 
-    before(:example) { action.call(request: request, resource: resource) }
+    before(:example) { action.call(request:, resource:) }
 
     it 'should define the private method' do
       expect(action).to respond_to(:transaction, true).with(0).arguments

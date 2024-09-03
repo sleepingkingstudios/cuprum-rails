@@ -13,7 +13,7 @@ module Spec::Support::Middleware
     def process(next_command, **rest)
       start_time = Time.current
 
-      value = super(next_command, **rest)
+      value = super
 
       return if value.nil?
 

@@ -73,13 +73,13 @@ module Cuprum::Rails::Responders
       **options
     )
       super(
-        action_name:   action_name,
-        controller:    controller,
-        matcher:       matcher,
-        member_action: member_action,
-        resource:      resource,
-        request:       request,
-        serializers:   serializers,
+        action_name:,
+        controller:,
+        matcher:,
+        member_action:,
+        resource:,
+        request:,
+        serializers:,
         **options
       )
     end
@@ -106,7 +106,7 @@ module Cuprum::Rails::Responders
     def render(json, status: 200)
       Cuprum::Rails::Responses::JsonResponse.new(
         data:   serialize(json),
-        status: status
+        status:
       )
     end
 
@@ -119,7 +119,7 @@ module Cuprum::Rails::Responders
     def render_failure(error, status: 500)
       json = { 'ok' => false, 'error' => error }
 
-      render(json, status: status)
+      render(json, status:)
     end
 
     # Creates a JsonResponse for a successful result.
@@ -131,7 +131,7 @@ module Cuprum::Rails::Responders
     def render_success(value, status: 200)
       json = { 'ok' => true, 'data' => value }
 
-      render(json, status: status)
+      render(json, status:)
     end
   end
 end

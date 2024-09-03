@@ -26,7 +26,7 @@ module Cuprum::Rails::Controllers::ClassMethods
     def middleware(command = nil, except: [], only: [])
       unless command.nil?
         own_middleware <<
-          build_middleware(command: command, except: except, only: only)
+          build_middleware(command:, except:, only:)
       end
 
       ancestors
@@ -49,9 +49,9 @@ module Cuprum::Rails::Controllers::ClassMethods
       validate_action_names!(only,   as: 'only')
 
       Cuprum::Rails::Controllers::Middleware.new(
-        command: command,
-        except:  except,
-        only:    only
+        command:,
+        except:,
+        only:
       )
     end
 

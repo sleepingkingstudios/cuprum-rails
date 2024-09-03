@@ -49,7 +49,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectResponse do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it 'should assign the flash', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
         response.call(renderer)
@@ -93,7 +93,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectResponse do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it { expect(response.flash).to be == flash }
     end

@@ -13,7 +13,7 @@ module Spec::Support::Actions
     attr_reader :chapters
 
     def build_response
-      super().merge('chapters' => chapters)
+      super.merge('chapters' => chapters)
     end
 
     def chapter_params
@@ -26,7 +26,7 @@ module Spec::Support::Actions
 
     def create_chapter(attributes)
       chapter = step do
-        chapters_collection.build_one.call(attributes: attributes)
+        chapters_collection.build_one.call(attributes:)
       end
 
       step { chapters_collection.validate_one.call(entity: chapter) }

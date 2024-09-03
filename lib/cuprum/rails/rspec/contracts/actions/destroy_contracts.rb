@@ -77,7 +77,7 @@ module Cuprum::Rails::RSpec::Contracts::Actions
 
         include_contract(
           'should destroy the entity',
-          existing_entity: existing_entity,
+          existing_entity:,
           expected_value:  options[:expected_value_on_success],
           params:          options[:params],
           &options[:examples_on_success]

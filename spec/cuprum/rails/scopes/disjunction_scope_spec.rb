@@ -10,7 +10,7 @@ RSpec.describe Cuprum::Rails::Scopes::DisjunctionScope do
   include Cuprum::Collections::RSpec::Contracts::Scopes::LogicalContracts
   include Cuprum::Rails::RSpec::Contracts::ScopeContracts
 
-  subject(:scope) { described_class.new(scopes: scopes) }
+  subject(:scope) { described_class.new(scopes:) }
 
   let(:scopes)       { [] }
   let(:native_query) { Book.all }
@@ -28,7 +28,7 @@ RSpec.describe Cuprum::Rails::Scopes::DisjunctionScope do
 
   def filtered_data
     scope
-      .call(native_query: native_query)
+      .call(native_query:)
       .map do |record|
         record
           .attributes
@@ -55,7 +55,7 @@ RSpec.describe Cuprum::Rails::Scopes::DisjunctionScope do
 
     def filtered_data
       scope
-        .build_relation(record_class: record_class)
+        .build_relation(record_class:)
         .map do |record|
           record
             .attributes

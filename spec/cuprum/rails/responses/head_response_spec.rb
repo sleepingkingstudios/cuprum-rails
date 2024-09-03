@@ -6,7 +6,7 @@ RSpec.describe Cuprum::Rails::Responses::HeadResponse do
   subject(:response) { described_class.new(**constructor_options) }
 
   let(:status)              { 500 }
-  let(:constructor_options) { { status: status } }
+  let(:constructor_options) { { status: } }
 
   describe '.new' do
     it 'should define the constructor' do

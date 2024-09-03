@@ -41,7 +41,7 @@ module Cuprum::Rails::Responses::Html
       assign_flash(renderer)
       assign_variables(renderer)
 
-      options = { status: status }
+      options = { status: }
       options[:layout] = layout if layout
 
       renderer.render(template, **options)

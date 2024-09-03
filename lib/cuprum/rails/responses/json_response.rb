@@ -23,7 +23,7 @@ module Cuprum::Rails::Responses
     # @param renderer [#render] The context for executing the response, such as
     #   a Rails controller.
     def call(renderer)
-      renderer.render(json: data, status: status)
+      renderer.render(json: data, status:)
     end
   end
 end

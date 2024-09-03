@@ -85,9 +85,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
     def call_command
       middleware.call(
         next_command,
-        repository: repository,
-        request:    request,
-        resource:   resource,
+        repository:,
+        request:,
+        resource:,
         **options
       )
     end
@@ -106,9 +106,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
       expect(next_command)
         .to have_received(:call)
         .with(
-          repository: repository,
-          request:    request,
-          resource:   resource,
+          repository:,
+          request:,
+          resource:,
           **options
         )
     end

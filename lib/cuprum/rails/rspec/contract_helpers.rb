@@ -49,7 +49,7 @@ module Cuprum::Rails::RSpec
         .option_with_default(
           value,
           context: context || self,
-          default: default
+          default:
         )
       # :nocov:
     end

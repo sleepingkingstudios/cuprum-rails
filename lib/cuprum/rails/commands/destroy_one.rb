@@ -29,7 +29,7 @@ module Cuprum::Rails::Commands
       Cuprum::Collections::Errors::NotFound.new(
         attribute_name:  primary_key_name,
         attribute_value: primary_key,
-        collection_name: collection_name,
+        collection_name:,
         primary_key:     true
       )
     end

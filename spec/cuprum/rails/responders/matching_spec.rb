@@ -14,9 +14,9 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
   let(:request)     { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      controller:  controller,
-      request:     request
+      action_name:,
+      controller:,
+      request:
     }
   end
 
@@ -158,7 +158,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
           match(:failure) { render('matcher: failure') }
         end
       end
-      let(:constructor_options) { super().merge(matcher: matcher) }
+      let(:constructor_options) { super().merge(matcher:) }
 
       describe 'with a non-matching result' do
         let(:result)        { Cuprum::Result.new(status: :success) }
@@ -214,7 +214,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
             match(:failure) { render('matcher: failure') }
           end
         end
-        let(:constructor_options) { super().merge(matcher: matcher) }
+        let(:constructor_options) { super().merge(matcher:) }
 
         describe 'with a non-matching result' do
           let(:result)        { Cuprum::Result.new(status: :success) }
@@ -236,7 +236,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
         describe 'with a result matching the responder' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the responder' do
             expect(responder.call(result))
@@ -294,7 +294,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
       describe 'with a result matching the subclass' do
         let(:error)  { Spec::CustomError.new }
-        let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+        let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
         it 'should match the responder subclass' do
           expect(responder.call(result)).to be == 'subclass: failure with error'
@@ -308,7 +308,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
         let(:error) { Spec::CustomError.new }
         let(:value) { Spec::RocketPart.new }
         let(:result) do
-          Cuprum::Result.new(status: :failure, error: error, value: value)
+          Cuprum::Result.new(status: :failure, error:, value:)
         end
 
         it 'should match the responder parent class' do
@@ -326,7 +326,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
             match(:failure) { render('matcher: failure') }
           end
         end
-        let(:constructor_options) { super().merge(matcher: matcher) }
+        let(:constructor_options) { super().merge(matcher:) }
 
         describe 'with a non-matching result' do
           let(:result)        { Cuprum::Result.new(status: :success) }
@@ -348,7 +348,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
         describe 'with a result matching the subclass' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the responder subclass' do
             expect(responder.call(result))
@@ -363,7 +363,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
           let(:error) { Spec::CustomError.new }
           let(:value) { Spec::RocketPart.new }
           let(:result) do
-            Cuprum::Result.new(status: :failure, error: error, value: value)
+            Cuprum::Result.new(status: :failure, error:, value:)
           end
 
           it 'should match the responder parent class' do
@@ -426,7 +426,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
       describe 'with a result matching the base responder' do
         let(:error)  { Spec::CustomError.new }
-        let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+        let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
         it 'should match the base responder' do
           expect(responder.call(result))
@@ -441,7 +441,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
         let(:error) { Spec::CustomError.new }
         let(:value) { Spec::RocketPart.new }
         let(:result) do
-          Cuprum::Result.new(status: :failure, error: error, value: value)
+          Cuprum::Result.new(status: :failure, error:, value:)
         end
 
         it 'should match the included responder' do
@@ -459,7 +459,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
             match(:failure) { render('matcher: failure') }
           end
         end
-        let(:constructor_options) { super().merge(matcher: matcher) }
+        let(:constructor_options) { super().merge(matcher:) }
 
         describe 'with a non-matching result' do
           let(:result)        { Cuprum::Result.new(status: :success) }
@@ -481,7 +481,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
         describe 'with a result matching the base responder' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the base responder' do
             expect(responder.call(result))
@@ -496,7 +496,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
           let(:error) { Spec::CustomError.new }
           let(:value) { Spec::RocketPart.new }
           let(:result) do
-            Cuprum::Result.new(status: :failure, error: error, value: value)
+            Cuprum::Result.new(status: :failure, error:, value:)
           end
 
           it 'should match the included responder' do
@@ -563,7 +563,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
       describe 'with a result matching the prepended responder' do
         let(:error)  { Spec::CustomError.new }
-        let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+        let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
         it 'should match the prepended responder' do
           expect(responder.call(result))
@@ -578,7 +578,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
         let(:error) { Spec::CustomError.new }
         let(:value) { Spec::RocketPart.new }
         let(:result) do
-          Cuprum::Result.new(status: :failure, error: error, value: value)
+          Cuprum::Result.new(status: :failure, error:, value:)
         end
 
         it 'should match the base responder' do
@@ -596,7 +596,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
             match(:failure) { render('matcher: failure') }
           end
         end
-        let(:constructor_options) { super().merge(matcher: matcher) }
+        let(:constructor_options) { super().merge(matcher:) }
 
         describe 'with a non-matching result' do
           let(:result)        { Cuprum::Result.new(status: :success) }
@@ -618,7 +618,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
         describe 'with a result matching the prepended responder' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the prepended responder' do
             expect(responder.call(result))
@@ -633,7 +633,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
           let(:error) { Spec::CustomError.new }
           let(:value) { Spec::RocketPart.new }
           let(:result) do
-            Cuprum::Result.new(status: :failure, error: error, value: value)
+            Cuprum::Result.new(status: :failure, error:, value:)
           end
 
           it 'should match the base responder' do
@@ -657,7 +657,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
     context 'when initialized with matcher: a matcher' do
       let(:matcher)             { Cuprum::Matcher.new }
-      let(:constructor_options) { super().merge(matcher: matcher) }
+      let(:constructor_options) { super().merge(matcher:) }
 
       it { expect(responder.matcher).to be matcher }
     end
@@ -691,7 +691,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
     context 'when initialized with matcher: a matcher' do
       let(:matcher)             { Cuprum::Matcher.new }
-      let(:constructor_options) { super().merge(matcher: matcher) }
+      let(:constructor_options) { super().merge(matcher:) }
       let(:expected)            { [matcher] }
 
       it { expect(matchers).to be == expected }
@@ -766,7 +766,7 @@ RSpec.describe Cuprum::Rails::Responders::Matching do
 
       context 'when initialized with matcher: a matcher' do
         let(:matcher)             { Cuprum::Matcher.new }
-        let(:constructor_options) { super().merge(matcher: matcher) }
+        let(:constructor_options) { super().merge(matcher:) }
         let(:expected)            { [matcher] }
 
         it { expect(matchers).to be == expected }

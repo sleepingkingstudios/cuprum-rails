@@ -88,9 +88,9 @@ RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
     def call_command
       middleware.call(
         command,
-        repository: repository,
-        request:    request,
-        resource:   resource
+        repository:,
+        request:,
+        resource:
       )
     end
 
@@ -100,9 +100,9 @@ RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
       expect(command)
         .to have_received(:call)
         .with(
-          repository: repository,
-          request:    request,
-          resource:   resource
+          repository:,
+          request:,
+          resource:
         )
     end
 
@@ -118,7 +118,7 @@ RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
 
     context 'when the result is failing' do
       let(:error)  { Cuprum::Error.new(message: 'Something went wrong.') }
-      let(:result) { Cuprum::Result.new(error: error) }
+      let(:result) { Cuprum::Result.new(error:) }
       let(:expected) do
         <<~RAW
           [ERROR] Action failure: api/books#publish (Something went wrong.)

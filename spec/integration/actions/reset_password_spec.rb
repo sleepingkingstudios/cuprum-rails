@@ -11,7 +11,7 @@ RSpec.describe Spec::Support::Actions::ResetPassword do
     let(:authorization) { nil }
     let(:params)        { {} }
     let(:request) do
-      Cuprum::Rails::Request.new(authorization: authorization, params: params)
+      Cuprum::Rails::Request.new(authorization:, params:)
     end
 
     describe 'with empty params' do
@@ -20,7 +20,7 @@ RSpec.describe Spec::Support::Actions::ResetPassword do
       end
 
       it 'should return a failing result' do
-        expect(action.call(request: request))
+        expect(action.call(request:))
           .to be_a_failing_result
           .with_error(expected_error)
       end
@@ -39,7 +39,7 @@ RSpec.describe Spec::Support::Actions::ResetPassword do
       end
 
       it 'should return a failing result' do
-        expect(action.call(request: request))
+        expect(action.call(request:))
           .to be_a_failing_result
           .with_error(expected_error)
       end
@@ -60,7 +60,7 @@ RSpec.describe Spec::Support::Actions::ResetPassword do
       end
 
       it 'should return a failing result' do
-        expect(action.call(request: request))
+        expect(action.call(request:))
           .to be_a_failing_result
           .with_error(expected_error)
       end
@@ -77,7 +77,7 @@ RSpec.describe Spec::Support::Actions::ResetPassword do
       let(:expected_value) { { 'ok' => true } }
 
       it 'should return a passing result' do
-        expect(action.call(request: request))
+        expect(action.call(request:))
           .to be_a_passing_result
           .with_value(expected_value)
       end

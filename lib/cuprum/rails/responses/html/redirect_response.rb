@@ -30,7 +30,7 @@ module Cuprum::Rails::Responses::Html
     def call(renderer)
       assign_flash(renderer)
 
-      renderer.redirect_to(path, status: status)
+      renderer.redirect_to(path, status:)
     end
 
     private

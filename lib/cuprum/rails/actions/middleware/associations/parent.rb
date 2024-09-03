@@ -22,9 +22,9 @@ module Cuprum::Rails::Actions::Middleware::Associations
     def cache_entities(result:, values:)
       return unless result.success?
 
-      entities = entities_from(result: result)
+      entities = entities_from(result:)
 
-      cache_association(entities: entities, values: values)
+      cache_association(entities:, values:)
     end
 
     def process(next_command, repository:, request:, resource:, **rest)
@@ -33,18 +33,18 @@ module Cuprum::Rails::Actions::Middleware::Associations
       @resource   = resource
 
       primary_key = step { query_keys }
-      values      = step { require_parent(primary_key: primary_key) }
+      values      = step { require_parent(primary_key:) }
       result      = super
-      entities    = step { cache_entities(result: result, values: values) }
+      entities    = step { cache_entities(result:, values:) }
 
-      merge_result(entities: entities, result: result, values: values)
+      merge_result(entities:, result:, values:)
     end
 
     def query_command
       Cuprum::Collections::Commands::Associations::RequireMany.new(
-        association: association,
-        repository:  repository,
-        resource:    resource
+        association:,
+        repository:,
+        resource:
       )
     end
 

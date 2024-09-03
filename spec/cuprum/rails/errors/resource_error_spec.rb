@@ -6,7 +6,7 @@ require 'support/book'
 
 RSpec.describe Cuprum::Rails::Errors::ResourceError do
   subject(:error) do
-    described_class.new(resource: resource, **options)
+    described_class.new(resource:, **options)
   end
 
   let(:resource) { Cuprum::Rails::Resource.new(name: 'books') }
@@ -48,7 +48,7 @@ RSpec.describe Cuprum::Rails::Errors::ResourceError do
 
     context 'when initialized with message: value' do
       let(:message) { "permitted attributes can't be blank" }
-      let(:options) { super().merge(message: message) }
+      let(:options) { super().merge(message:) }
 
       it { expect(error.as_json).to be == expected }
     end
@@ -61,7 +61,7 @@ RSpec.describe Cuprum::Rails::Errors::ResourceError do
 
     context 'when initialized with message: value' do
       let(:message) { "permitted attributes can't be blank" }
-      let(:options) { super().merge(message: message) }
+      let(:options) { super().merge(message:) }
       let(:expected) do
         "#{super()} - #{message}"
       end

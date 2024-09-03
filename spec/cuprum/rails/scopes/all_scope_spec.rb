@@ -16,7 +16,7 @@ RSpec.describe Cuprum::Rails::Scopes::AllScope do
 
   def filtered_data
     subject
-      .call(native_query: native_query)
+      .call(native_query:)
       .map do |record|
         record
           .attributes

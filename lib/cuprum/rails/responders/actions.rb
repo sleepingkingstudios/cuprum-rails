@@ -14,10 +14,10 @@ module Cuprum::Rails::Responders
       # @param action_name [String, Symbol] The name of the action.
       #
       # @yield The matcher definition.
-      def action(action_name, &block)
+      def action(action_name, &)
         validate_action_name!(action_name)
 
-        actions[action_name.intern] = Cuprum::Matcher.new(&block)
+        actions[action_name.intern] = Cuprum::Matcher.new(&)
 
         nil
       end
@@ -67,7 +67,7 @@ module Cuprum::Rails::Responders
     private
 
     def matcher_options
-      super().merge(action_name: action_name)
+      super.merge(action_name:)
     end
   end
 end

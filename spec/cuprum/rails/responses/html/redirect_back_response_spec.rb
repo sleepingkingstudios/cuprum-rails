@@ -28,7 +28,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
         Rails.version >= '7.0' ? [fallback_location] : []
       end
       let(:expected_keywords) do
-        hsh = { status: status }
+        hsh = { status: }
 
         unless Rails.version >= '7.0'
           hsh[:fallback_location] = fallback_location
@@ -74,7 +74,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
       let(:fallback_location) do
         '/path/to/resource'
       end
-      let(:options) { super().merge(fallback_location: fallback_location) }
+      let(:options) { super().merge(fallback_location:) }
 
       include_examples 'should redirect back'
     end
@@ -86,7 +86,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it 'should assign the flash', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
         response.call(renderer)
@@ -103,7 +103,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
 
     context 'when initialized with status: value' do
       let(:status)  { 303 }
-      let(:options) { super().merge(status: status) }
+      let(:options) { super().merge(status:) }
 
       include_examples 'should redirect back'
     end
@@ -129,7 +129,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it { expect(response.flash).to be == flash }
     end

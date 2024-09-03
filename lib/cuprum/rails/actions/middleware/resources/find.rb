@@ -30,7 +30,7 @@ module Cuprum::Rails::Actions::Middleware::Resources
 
       values = step { perform_query }
 
-      merge_result(result: result, values: values)
+      merge_result(result:, values:)
     end
 
     def skip_query?

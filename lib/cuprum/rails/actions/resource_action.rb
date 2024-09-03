@@ -86,7 +86,7 @@ module Cuprum::Rails::Actions
       yield
     rescue StandardError => exception
       error = Cuprum::Errors::UncaughtException.new(
-        exception: exception,
+        exception:,
         message:   "uncaught exception in #{self.class.name} -"
       )
       failure(error)
@@ -122,7 +122,7 @@ module Cuprum::Rails::Actions
 
       error = Cuprum::Rails::Errors::ResourceError.new(
         message:  "permitted attributes can't be blank",
-        resource: resource
+        resource:
       )
       failure(error)
     end
@@ -131,8 +131,8 @@ module Cuprum::Rails::Actions
       false
     end
 
-    def transaction(&block)
-      Cuprum::Rails::Transaction.new.call(&block)
+    def transaction(&)
+      Cuprum::Rails::Transaction.new.call(&)
     end
   end
 end

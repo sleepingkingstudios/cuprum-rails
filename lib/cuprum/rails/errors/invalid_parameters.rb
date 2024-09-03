@@ -14,7 +14,7 @@ module Cuprum::Rails::Errors
     def initialize(errors:)
       @errors = errors
 
-      super(message: default_message, errors: errors)
+      super(message: default_message, errors:)
     end
 
     # @return [Stannum::Errors] the errors returned by the contract.

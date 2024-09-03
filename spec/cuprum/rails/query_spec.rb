@@ -35,7 +35,7 @@ RSpec.describe Cuprum::Rails::Query do
   subject(:query) do
     described_class.new(
       record_class,
-      native_query: native_query,
+      native_query:,
       scope:        initial_scope
     )
   end

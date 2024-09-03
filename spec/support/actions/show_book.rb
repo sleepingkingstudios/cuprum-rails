@@ -22,7 +22,7 @@ module Spec::Support::Actions
       book_id = entity.id
 
       chapters_collection.find_matching.call(order: :title) do
-        { book_id: book_id }
+        { book_id: }
       end
     end
 

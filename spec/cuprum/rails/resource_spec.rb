@@ -39,7 +39,7 @@ RSpec.describe Cuprum::Rails::Resource do
   end
 
   let(:name)                { 'books' }
-  let(:constructor_options) { { name: name } }
+  let(:constructor_options) { { name: } }
 
   example_class 'Grimoire',         'Book'
   example_class 'Spec::ScopedBook', 'Book'
@@ -69,7 +69,7 @@ RSpec.describe Cuprum::Rails::Resource do
       it 'should raise an exception' do # rubocop:disable RSpec/ExampleLength
         expect do
           described_class.new(
-            name:                 name,
+            name:,
             permitted_attributes: Object.new.freeze
           )
         end
@@ -96,7 +96,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
     context 'when initialized with actions: an Array of Strings' do
       let(:actions)             { %w[index show launch recover] }
-      let(:constructor_options) { super().merge(actions: actions) }
+      let(:constructor_options) { super().merge(actions:) }
       let(:expected)            { Set.new(actions) }
 
       it { expect(resource.actions).to be == expected }
@@ -110,7 +110,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
       context 'when initialized with actions: an Array of Strings' do
         let(:actions)             { %w[show launch recover] }
-        let(:constructor_options) { super().merge(actions: actions) }
+        let(:constructor_options) { super().merge(actions:) }
         let(:expected)            { Set.new(actions) }
 
         it { expect(resource.actions).to be == expected }
@@ -145,7 +145,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
     context 'when initialized with base_path: a string' do
       let(:base_path)           { '/path/to/books' }
-      let(:constructor_options) { super().merge(base_path: base_path) }
+      let(:constructor_options) { super().merge(base_path:) }
 
       it { expect(resource.base_path).to be == base_path }
     end
@@ -163,7 +163,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
       context 'when initialized with base_path: a string' do
         let(:base_path)           { '/path/to/books' }
-        let(:constructor_options) { super().merge(base_path: base_path) }
+        let(:constructor_options) { super().merge(base_path:) }
 
         it { expect(resource.base_path).to be == base_path }
       end
@@ -183,7 +183,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
       context 'when initialized with base_path: a string' do
         let(:base_path)           { '/path/to/books' }
-        let(:constructor_options) { super().merge(base_path: base_path) }
+        let(:constructor_options) { super().merge(base_path:) }
 
         it { expect(resource.base_path).to be == base_path }
       end
@@ -203,7 +203,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
       context 'when initialized with base_path: a string' do
         let(:base_path)           { '/path/to/books' }
-        let(:constructor_options) { super().merge(base_path: base_path) }
+        let(:constructor_options) { super().merge(base_path:) }
 
         it { expect(resource.base_path).to be == base_path }
       end
@@ -224,7 +224,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
     context 'when initialized with a default order' do
       let(:default_order)       { { title: :asc } }
-      let(:constructor_options) { super().merge(default_order: default_order) }
+      let(:constructor_options) { super().merge(default_order:) }
 
       it { expect(resource.default_order).to be == default_order }
     end
@@ -296,7 +296,7 @@ RSpec.describe Cuprum::Rails::Resource do
     context 'when initialized with permitted attributes' do
       let(:permitted_attributes) { %i[title author] }
       let(:constructor_options) do
-        super().merge(permitted_attributes: permitted_attributes)
+        super().merge(permitted_attributes:)
       end
 
       it { expect(resource.permitted_attributes).to be == permitted_attributes }
@@ -343,7 +343,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
     context 'when initialized with base_path: a string' do
       let(:base_path)           { '/path/to/books' }
-      let(:constructor_options) { super().merge(base_path: base_path) }
+      let(:constructor_options) { super().merge(base_path:) }
 
       it { expect(resource.routes.base_path).to be == base_path }
 
@@ -352,7 +352,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
     context 'when initialized with routes: a Routes object' do
       let(:routes)              { Spec::Routes.new(base_path: '/books') }
-      let(:constructor_options) { super().merge(routes: routes) }
+      let(:constructor_options) { super().merge(routes:) }
 
       example_class 'Spec::Routes', Cuprum::Rails::Routes
 
@@ -364,11 +364,11 @@ RSpec.describe Cuprum::Rails::Resource do
         let(:wildcards) { { 'key' => 'value' } }
 
         it 'should return the routes' do
-          expect(resource.routes(wildcards: wildcards)).to be_a Spec::Routes
+          expect(resource.routes(wildcards:)).to be_a Spec::Routes
         end
 
         it 'should set the wildcards' do
-          expect(resource.routes(wildcards: wildcards).wildcards)
+          expect(resource.routes(wildcards:).wildcards)
             .to be == wildcards
         end
       end
@@ -406,7 +406,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
       context 'when initialized with base_path: a string' do
         let(:base_path)           { '/path/to/books' }
-        let(:constructor_options) { super().merge(base_path: base_path) }
+        let(:constructor_options) { super().merge(base_path:) }
 
         it { expect(resource.routes.base_path).to be == base_path }
 
@@ -449,7 +449,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
       context 'when initialized with base_path: a string' do
         let(:base_path)           { '/path/to/books' }
-        let(:constructor_options) { super().merge(base_path: base_path) }
+        let(:constructor_options) { super().merge(base_path:) }
 
         it { expect(resource.routes.base_path).to be == base_path }
 
@@ -486,7 +486,7 @@ RSpec.describe Cuprum::Rails::Resource do
 
       context 'when initialized with base_path: a string' do
         let(:base_path)           { '/path/to/books' }
-        let(:constructor_options) { super().merge(base_path: base_path) }
+        let(:constructor_options) { super().merge(base_path:) }
 
         it { expect(resource.routes.base_path).to be == base_path }
 

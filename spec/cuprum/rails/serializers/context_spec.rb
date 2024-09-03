@@ -3,7 +3,7 @@
 require 'cuprum/rails/serializers/context'
 
 RSpec.describe Cuprum::Rails::Serializers::Context do
-  subject(:context) { described_class.new(serializers: serializers) }
+  subject(:context) { described_class.new(serializers:) }
 
   shared_context 'when initialized with serializers' do
     let(:cargo_serializer) { ->(_object, **_) {} }
@@ -82,7 +82,7 @@ RSpec.describe Cuprum::Rails::Serializers::Context do
 
         expect(serializer)
           .to have_received(:call)
-          .with(object, context: context)
+          .with(object, context:)
       end
 
       it 'should return the serialized value' do

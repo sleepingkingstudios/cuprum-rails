@@ -16,7 +16,7 @@ RSpec.describe Cuprum::Rails::Commands::UpdateOne do
 
   subject(:command) do
     described_class.new(
-      record_class: record_class,
+      record_class:,
       **constructor_options
     )
   end
@@ -79,7 +79,7 @@ RSpec.describe Cuprum::Rails::Commands::UpdateOne do
       end
 
       it 'should return a failing result' do
-        expect(command.call(entity: entity))
+        expect(command.call(entity:))
           .to be_a_failing_result
           .with_error(expected_error)
       end

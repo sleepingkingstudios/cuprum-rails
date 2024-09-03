@@ -3,7 +3,7 @@
 require 'cuprum/rails/errors/invalid_statement'
 
 RSpec.describe Cuprum::Rails::Errors::InvalidStatement do
-  subject(:error) { described_class.new(message: message) }
+  subject(:error) { described_class.new(message:) }
 
   let(:message) { 'invalid database statement' }
 

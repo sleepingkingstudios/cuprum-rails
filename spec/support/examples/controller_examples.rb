@@ -131,7 +131,7 @@ module Spec::Support::Examples
 
                 allow(described_class).to receive_messages(
                   build_request: request,
-                  resource:      resource
+                  resource:
                 )
 
                 allow(action).to receive(:call).and_return(response)
@@ -142,7 +142,7 @@ module Spec::Support::Examples
 
                 expect(described_class)
                   .to have_received(:build_request)
-                  .with(controller, { member_action: member_action })
+                  .with(controller, { member_action: })
               end
 
               it 'should call the action' do
@@ -475,7 +475,7 @@ module Spec::Support::Examples
         before(:example) do
           allow(Cuprum::Rails::Request)
             .to receive(:build)
-            .with(context: context, request: native_request)
+            .with(context:, request: native_request)
             .and_return(request)
         end
 
@@ -490,7 +490,7 @@ module Spec::Support::Examples
 
           expect(Cuprum::Rails::Request)
             .to have_received(:build)
-            .with(context: context, request: native_request)
+            .with(context:, request: native_request)
         end
 
         it 'should return the request' do
@@ -874,7 +874,7 @@ module Spec::Support::Examples
             let(:configured_middleware) do
               super() + [
                 {
-                  command: command,
+                  command:,
                   except:  options.fetch(:except, []),
                   only:    options.fetch(:only,   [])
                 }
@@ -913,7 +913,7 @@ module Spec::Support::Examples
             let(:configured_middleware) do
               super() + [
                 {
-                  command: command,
+                  command:,
                   except:  options.fetch(:except, []),
                   only:    options.fetch(:only,   [])
                 }

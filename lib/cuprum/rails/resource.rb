@@ -72,10 +72,10 @@ module Cuprum::Rails
     # Enumerates the resource's ancestors, starting with the resource itself.
     #
     # @yield_param [Resource] the current ancestor.
-    def each_ancestor(&block)
+    def each_ancestor(&)
       return enum_for(:each_ancestor) unless block_given?
 
-      parent&.each_ancestor(&block)
+      parent&.each_ancestor(&)
 
       yield self
     end
@@ -152,8 +152,8 @@ module Cuprum::Rails
 
     def routes_options
       {
-        base_path:   base_path,
-        parent_path: parent_path
+        base_path:,
+        parent_path:
       }
     end
 

@@ -41,7 +41,7 @@ module Cuprum::Rails::RSpec::Contracts
         describe '#build_relation' do
           let(:record_class) { defined?(super()) ? super() : Book }
           let(:relation) do
-            subject.build_relation(record_class: record_class)
+            subject.build_relation(record_class:)
           end
 
           it 'should define the method' do

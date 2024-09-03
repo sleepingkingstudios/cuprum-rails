@@ -11,7 +11,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
   include Cuprum::Rails::RSpec::Contracts::ScopeContracts
 
   subject(:scope) do
-    described_class.new(criteria: criteria, **constructor_options)
+    described_class.new(criteria:, **constructor_options)
   end
 
   let(:criteria)            { [] }
@@ -21,7 +21,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
 
   def filtered_data
     subject
-      .call(native_query: native_query)
+      .call(native_query:)
       .map do |record|
         record
           .attributes
@@ -55,7 +55,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         let(:criteria) { [] }
         let(:expected) { '' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with an equals criterion with value: nil' do
@@ -70,7 +70,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { 'title IS NULL' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with an equals criterion with value: an Integer' do
@@ -85,7 +85,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { 'copies_sold = 10000' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with an equals criterion with value: a String' do
@@ -100,7 +100,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { "title = 'Gideon the Ninth'" }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a greater than criterion' do
@@ -115,7 +115,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { 'copies_sold > 10000' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a greater than or equal to criterion' do
@@ -130,7 +130,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { 'copies_sold >= 10000' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a less than criterion' do
@@ -145,7 +145,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { 'copies_sold < 10000' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a less than or equal to criterion' do
@@ -160,7 +160,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { 'copies_sold <= 10000' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a not equals criterion with value: nil' do
@@ -175,7 +175,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { 'title IS NOT NULL' }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a not equals criterion with value: an Integer' do
@@ -192,7 +192,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
           '(copies_sold != 10000 OR copies_sold IS NULL)'
         end
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a not equals criterion with value: a String' do
@@ -209,7 +209,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
           "(title != 'Gideon the Ninth' OR title IS NULL)"
         end
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a not one of criterion' do
@@ -230,7 +230,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
             'IS NULL)'
         end
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with a one of criterion' do
@@ -250,7 +250,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
           "title IN ('Gideon the Ninth','Harrow the Ninth')"
         end
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
 
       describe 'with an invalid criterion' do
@@ -274,7 +274,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
 
         it 'should raise an exception' do
-          expect { builder.call(criteria: criteria) }
+          expect { builder.call(criteria:) }
             .to raise_error error_class, error_message
         end
       end
@@ -296,7 +296,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
         end
         let(:expected) { "author = 'Tamsyn Muir' AND copies_sold > 10000" }
 
-        it { expect(builder.call(criteria: criteria)).to be == expected }
+        it { expect(builder.call(criteria:)).to be == expected }
       end
     end
   end
@@ -310,7 +310,7 @@ RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
 
     def filtered_data
       scope
-        .build_relation(record_class: record_class)
+        .build_relation(record_class:)
         .map do |record|
           record
             .attributes
