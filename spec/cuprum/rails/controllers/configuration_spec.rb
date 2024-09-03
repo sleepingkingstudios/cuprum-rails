@@ -31,13 +31,13 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
   let(:controller) do
     instance_double(
       Spec::Controller,
-      controller_name: controller_name,
-      default_format:  default_format,
-      middleware:      middleware,
-      repository:      repository,
-      resource:        resource,
-      responders:      responders,
-      serializers:     serializers
+      controller_name:,
+      default_format:,
+      middleware:,
+      repository:,
+      resource:,
+      responders:,
+      serializers:
     )
   end
 

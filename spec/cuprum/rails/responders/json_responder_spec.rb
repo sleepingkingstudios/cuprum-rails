@@ -26,7 +26,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
       end
 
       klass.define_method(:as_json_data) do
-        { error_id: error_id }
+        { error_id: }
       end
     end
   end
@@ -37,10 +37,10 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
   let(:serializers) { Cuprum::Rails::Serializers::Json.default_serializers }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      controller:  controller,
-      request:     request,
-      serializers: serializers
+      action_name:,
+      controller:,
+      request:,
+      serializers:
     }
   end
 
@@ -76,7 +76,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
     describe 'with a failing result' do
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
-      let(:result)   { Cuprum::Result.new(status: :failure, error: error) }
+      let(:result)   { Cuprum::Result.new(status: :failure, error:) }
       let(:response) { responder.call(result) }
       let(:response_class) do
         Cuprum::Rails::Responses::JsonResponse
@@ -163,7 +163,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         }
       end
       let(:value)    { data }
-      let(:result)   { Cuprum::Result.new(status: :success, value: value) }
+      let(:result)   { Cuprum::Result.new(status: :success, value:) }
       let(:response) { responder.call(result) }
       let(:response_class) do
         Cuprum::Rails::Responses::JsonResponse

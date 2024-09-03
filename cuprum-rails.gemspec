@@ -26,7 +26,7 @@ Gem::Specification.new do |gem|
   gem.require_path = 'lib'
   gem.files        = Dir['lib/**/*.rb', 'LICENSE', '*.md']
 
-  gem.required_ruby_version = '>= 2.7'
+  gem.required_ruby_version = '>= 3.1'
 
   gem.add_dependency 'cuprum', '~> 1.2'
   gem.add_dependency 'cuprum-collections', '~> 0.4'

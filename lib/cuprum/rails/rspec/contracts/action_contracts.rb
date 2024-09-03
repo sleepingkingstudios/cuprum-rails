@@ -237,7 +237,7 @@ module Cuprum::Rails::RSpec::Contracts
 
           context 'when called with a resource' do
             let(:params)  { {} }
-            let(:request) { Cuprum::Rails::Request.new(params: params) }
+            let(:request) { Cuprum::Rails::Request.new(params:) }
 
             before(:example) { call_action }
 
@@ -261,7 +261,7 @@ module Cuprum::Rails::RSpec::Contracts
 
           context 'when called with a resource' do
             let(:params)  { {} }
-            let(:request) { Cuprum::Rails::Request.new(params: params) }
+            let(:request) { Cuprum::Rails::Request.new(params:) }
 
             before(:example) { call_action }
 
@@ -535,7 +535,7 @@ module Cuprum::Rails::RSpec::Contracts
                   .add(Stannum::Constraints::Presence::TYPE)
               end
 
-              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
+              Cuprum::Rails::Errors::InvalidParameters.new(errors:)
             end
 
             it 'should return a failing result' do
@@ -565,7 +565,7 @@ module Cuprum::Rails::RSpec::Contracts
                 )
               end
 
-              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
+              Cuprum::Rails::Errors::InvalidParameters.new(errors:)
             end
 
             it 'should return a failing result' do
@@ -613,7 +613,7 @@ module Cuprum::Rails::RSpec::Contracts
                 err['id'].add(Stannum::Constraints::Presence::TYPE)
               end
 
-              Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
+              Cuprum::Rails::Errors::InvalidParameters.new(errors:)
             end
 
             it 'should return a failing result' do

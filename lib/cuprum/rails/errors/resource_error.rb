@@ -15,7 +15,7 @@ module Cuprum::Rails::Errors
     def initialize(resource:, message: nil)
       @resource = resource
 
-      super(message: generate_message(message), resource: resource)
+      super(message: generate_message(message), resource:)
     end
 
     # @return [Cuprum::Rails::Resource] the errored resource.

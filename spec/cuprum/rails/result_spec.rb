@@ -51,7 +51,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with metadata: a Hash' do
       let(:metadata) { { session: { token: '12345' } } }
       let(:constructor_options) do
-        super().merge(metadata: metadata)
+        super().merge(metadata:)
       end
 
       it { expect(result == other_result).to be false }
@@ -64,7 +64,7 @@ RSpec.describe Cuprum::Rails::Result do
       end
 
       describe 'with a result with matching metadata' do
-        let(:other_options) { super().merge(metadata: metadata) }
+        let(:other_options) { super().merge(metadata:) }
 
         it { expect(result == other_result).to be true }
       end
@@ -73,7 +73,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with properties' do
       let(:error) { Cuprum::Error.new(message: 'Something went wrong') }
       let(:constructor_options) do
-        super().merge(error: error, value: { ok: false })
+        super().merge(error:, value: { ok: false })
       end
 
       describe 'with a base result with non-matching properties' do
@@ -115,7 +115,7 @@ RSpec.describe Cuprum::Rails::Result do
       let(:metadata) { { session: { token: '12345' } } }
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong') }
       let(:constructor_options) do
-        super().merge(error: error, metadata: metadata, value: { ok: false })
+        super().merge(error:, metadata:, value: { ok: false })
       end
 
       describe 'with a base result with non-matching properties' do
@@ -161,7 +161,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with error: a value' do
       let(:error) { Cuprum::Error.new(message: 'Something went wrong') }
       let(:constructor_options) do
-        super().merge(error: error)
+        super().merge(error:)
       end
 
       it { expect(result.error).to be == error }
@@ -174,7 +174,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with metadata: a Hash' do
       let(:metadata) { { session: { token: '12345' } } }
       let(:constructor_options) do
-        super().merge(metadata: metadata)
+        super().merge(metadata:)
       end
 
       it { expect(result.metadata).to be == metadata }
@@ -198,7 +198,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with metadata: a Hash' do
       let(:metadata) { { session: { token: '12345' } } }
       let(:constructor_options) do
-        super().merge(metadata: metadata)
+        super().merge(metadata:)
       end
 
       it { expect(result.properties).to be == expected }
@@ -207,7 +207,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with properties' do
       let(:error) { Cuprum::Error.new(message: 'Something went wrong') }
       let(:constructor_options) do
-        super().merge(error: error, value: { ok: false })
+        super().merge(error:, value: { ok: false })
       end
 
       it { expect(result.properties).to be == expected }
@@ -217,7 +217,7 @@ RSpec.describe Cuprum::Rails::Result do
       let(:metadata) { { session: { token: '12345' } } }
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong') }
       let(:constructor_options) do
-        super().merge(error: error, metadata: metadata, value: { ok: false })
+        super().merge(error:, metadata:, value: { ok: false })
       end
 
       it { expect(result.properties).to be == expected }
@@ -230,7 +230,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with error: a value' do
       let(:error) { Cuprum::Error.new(message: 'Something went wrong') }
       let(:constructor_options) do
-        super().merge(error: error)
+        super().merge(error:)
       end
 
       it { expect(result.status).to be :failure }
@@ -267,7 +267,7 @@ RSpec.describe Cuprum::Rails::Result do
     context 'when initialized with value: an object' do
       let(:value) { { ok: true } }
       let(:constructor_options) do
-        super().merge(value: value)
+        super().merge(value:)
       end
 
       it { expect(result.value).to be value }

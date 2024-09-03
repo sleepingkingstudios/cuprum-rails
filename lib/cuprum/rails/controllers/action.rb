@@ -52,7 +52,7 @@ module Cuprum::Rails::Controllers
     def call(controller, request)
       responder  = build_responder(controller, request)
       action     = apply_middleware(controller, action_class.new)
-      result     = action.call(request: request, **controller.action_options)
+      result     = action.call(request:, **controller.action_options)
 
       responder.call(result)
     end
@@ -73,8 +73,8 @@ module Cuprum::Rails::Controllers
           .map { |config| build_middleware(config.command) }
 
       Cuprum::Middleware.apply(
-        command:    command,
-        middleware: middleware
+        command:,
+        middleware:
       )
     end
 
@@ -89,10 +89,10 @@ module Cuprum::Rails::Controllers
       responder_class = configuration.responder_for(request.format)
 
       responder_class.new(
-        action_name:   action_name,
-        controller:    controller,
+        action_name:,
+        controller:,
         member_action: member_action?,
-        request:       request,
+        request:,
         serializers:   configuration.serializers_for(request.format)
       )
     end

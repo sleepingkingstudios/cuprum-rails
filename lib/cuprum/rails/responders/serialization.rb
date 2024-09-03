@@ -27,12 +27,12 @@ module Cuprum::Rails::Responders
     # @return [Object] the serialized data.
     def serialize(object)
       context = Cuprum::Rails::Serializers::Context.new(
-        serializers: serializers
+        serializers:
       )
 
       Cuprum::Rails::Serializers::BaseSerializer
         .instance
-        .call(object, context: context)
+        .call(object, context:)
     end
   end
 end

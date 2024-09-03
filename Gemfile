@@ -29,7 +29,7 @@ end
 
 gem 'cuprum-collections',
   '>= 0.5.0.alpha',
-  git:    'https://github.com/sleepingkingstudios/cuprum-collections',
-  branch: 'main'
+  git: 'https://github.com/sleepingkingstudios/cuprum-collections',
+  ref: 'b1dd8d6aee7c751871cdf63fb6289da392075cea'
 gem 'rails', '~> 7.0'
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'

@@ -16,9 +16,9 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
   let(:request)         { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      controller:  controller,
-      request:     request
+      action_name:,
+      controller:,
+      request:
     }
   end
 
@@ -59,7 +59,7 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
         described_class.action(action_name, &block)
 
         expect(matcher).to be_a(Spec::MockMatcher)
-          .and have_attributes(block: block)
+          .and have_attributes(block:)
       end
     end
 
@@ -234,7 +234,7 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
           match(:failure) { 'matcher: failure' }
         end
       end
-      let(:constructor_options) { super().merge(matcher: matcher) }
+      let(:constructor_options) { super().merge(matcher:) }
 
       describe 'with a non-matching result' do
         let(:result)        { Cuprum::Result.new(status: :success) }
@@ -339,7 +339,7 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
           match(:failure) { 'matcher: failure' }
         end
       end
-      let(:constructor_options) { super().merge(matcher: matcher) }
+      let(:constructor_options) { super().merge(matcher:) }
 
       example_class 'Spec::CustomError', Cuprum::Error
 
@@ -378,7 +378,7 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
 
         describe 'with an exact matching result' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the responder' do
             expect(responder.call(result))
@@ -408,7 +408,7 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
 
         describe 'with an exact matching result' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the responder' do
             expect(responder.call(result)).to be == 'action: failure with error'
@@ -483,7 +483,7 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
 
         describe 'with an exact matching result' do
           let(:error)  { Spec::CustomError.new }
-          let(:result) { Cuprum::Result.new(status: :failure, error: error) }
+          let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
           it 'should match the responder' do
             expect(responder.call(result)).to be == 'action: failure with error'
@@ -496,6 +496,6 @@ RSpec.describe Cuprum::Rails::Responders::Actions do
   describe '#matcher_options' do
     include_examples 'should define private reader',
       :matcher_options,
-      -> { { action_name: action_name } }
+      -> { { action_name: } }
   end
 end

@@ -13,9 +13,9 @@ RSpec.describe Cuprum::Rails::Responders::BaseResponder do
   let(:request)     { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      controller:  controller,
-      request:     request
+      action_name:,
+      controller:,
+      request:
     }
   end
 

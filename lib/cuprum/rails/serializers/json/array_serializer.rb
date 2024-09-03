@@ -26,7 +26,7 @@ module Cuprum::Rails::Serializers::Json
     def call(array, context:)
       raise ArgumentError, 'object must be an Array' unless array.is_a?(Array)
 
-      array.map { |item| super(item, context: context) }
+      array.map { |item| super(item, context:) }
     end
 
     private

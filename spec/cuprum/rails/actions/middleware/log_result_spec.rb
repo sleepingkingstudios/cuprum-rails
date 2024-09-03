@@ -36,7 +36,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogResult do
     end
 
     def call_middleware
-      middleware.call(next_command, request: request, **options)
+      middleware.call(next_command, request:, **options)
     end
 
     def format_expected(str)
@@ -59,7 +59,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogResult do
 
       expect(next_command)
         .to have_received(:call)
-        .with(request: request, **options)
+        .with(request:, **options)
     end
 
     it 'should return the next result' do
@@ -82,7 +82,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogResult do
 
         expect(next_command)
           .to have_received(:call)
-          .with(request: request, **options)
+          .with(request:, **options)
       end
     end
 

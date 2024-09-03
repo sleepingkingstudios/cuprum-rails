@@ -62,13 +62,13 @@ RSpec.describe Cuprum::Rails::Request do
   end
   let(:properties) do
     {
-      body_params:  body_params,
-      format:       format,
-      headers:      headers,
-      http_method:  http_method,
-      params:       params,
-      path:         path,
-      query_params: query_params
+      body_params:,
+      format:,
+      headers:,
+      http_method:,
+      params:,
+      path:,
+      query_params:
     }
   end
   let(:options) { properties }
@@ -125,8 +125,8 @@ RSpec.describe Cuprum::Rails::Request do
         authorization:         nil,
         format:                mime_type,
         fullpath:              path,
-        headers:               headers,
-        params:                params,
+        headers:,
+        params:,
         path_parameters:       path_params,
         query_parameters:      query_params,
         request_method_symbol: http_method,
@@ -152,71 +152,71 @@ RSpec.describe Cuprum::Rails::Request do
     end
 
     it 'should return a request' do
-      expect(described_class.build request: request).to be_a described_class
+      expect(described_class.build request:).to be_a described_class
     end
 
     it 'should set the request action name' do
-      expect(described_class.build(request: request).action_name)
+      expect(described_class.build(request:).action_name)
         .to be params['action'].intern
     end
 
     it 'should set the request authorization' do
-      expect(described_class.build(request: request).authorization).to be nil
+      expect(described_class.build(request:).authorization).to be nil
     end
 
     it 'should set the request body params' do
-      expect(described_class.build(request: request).body_params)
+      expect(described_class.build(request:).body_params)
         .to be == body_params
     end
 
     it 'should set the request controller name' do
-      expect(described_class.build(request: request).controller_name)
+      expect(described_class.build(request:).controller_name)
         .to be == params['controller']
     end
 
     it 'should set the request format' do
-      expect(described_class.build(request: request).format).to be format
+      expect(described_class.build(request:).format).to be format
     end
 
     it 'should set and filter the request headers' do
-      expect(described_class.build(request: request).headers)
+      expect(described_class.build(request:).headers)
         .to be == expected_headers
     end
 
     it 'should set the request http method' do
-      expect(described_class.build(request: request).http_method)
+      expect(described_class.build(request:).http_method)
         .to be http_method
     end
 
     it 'should set the member action property' do
-      expect(described_class.build(request: request).member_action?).to be false
+      expect(described_class.build(request:).member_action?).to be false
     end
 
     it 'should set and filter the request params' do
-      expect(described_class.build(request: request).params)
+      expect(described_class.build(request:).params)
         .to be == expected_params
     end
 
     it 'should set the request path' do
-      expect(described_class.build(request: request).path).to be == path
+      expect(described_class.build(request:).path).to be == path
     end
 
     it 'should set the request path params' do
-      expect(described_class.build(request: request).path_params)
+      expect(described_class.build(request:).path_params)
         .to be == path_params.except('action', 'controller')
     end
 
     it 'should set the request query params' do
-      expect(described_class.build(request: request).query_params)
+      expect(described_class.build(request:).query_params)
         .to be == query_params
     end
 
     context 'when the request has authorization: value' do
       let(:authorization) { 'Bearer 12345' }
-      let(:properties)    { super().merge(authorization: authorization) }
+      let(:properties)    { super().merge(authorization:) }
 
       it 'should set the request authorization' do
-        expect(described_class.build(request: request).authorization)
+        expect(described_class.build(request:).authorization)
           .to be == authorization
       end
     end
@@ -225,12 +225,12 @@ RSpec.describe Cuprum::Rails::Request do
       let(:body_params) { super().merge({ 'action' => 'PG-13' }) }
 
       it 'should set the request body params' do
-        expect(described_class.build(request: request).body_params)
+        expect(described_class.build(request:).body_params)
           .to be == body_params
       end
 
       it 'should set and filter the request params' do
-        expect(described_class.build(request: request).params)
+        expect(described_class.build(request:).params)
           .to be == expected_params
       end
     end
@@ -239,12 +239,12 @@ RSpec.describe Cuprum::Rails::Request do
       let(:query_params) { super().merge({ 'format' => 'Betamax' }) }
 
       it 'should set and filter the request params' do
-        expect(described_class.build(request: request).params)
+        expect(described_class.build(request:).params)
           .to be == expected_params
       end
 
       it 'should set the request query params' do
-        expect(described_class.build(request: request).query_params)
+        expect(described_class.build(request:).query_params)
           .to be == query_params
       end
     end
@@ -253,13 +253,13 @@ RSpec.describe Cuprum::Rails::Request do
       let(:context) { instance_double(ActionController::Base) }
 
       it 'should return a request' do
-        expect(described_class.build(context: context, request: request))
+        expect(described_class.build(context:, request:))
           .to be_a described_class
       end
 
       it 'should set the context' do
         expect(
-          described_class.build(context: context, request: request).context
+          described_class.build(context:, request:).context
         )
           .to be context
       end
@@ -269,12 +269,12 @@ RSpec.describe Cuprum::Rails::Request do
       let(:options) { { custom_key: 'custom value' } }
 
       it 'should return a request' do
-        expect(described_class.build(request: request, **options))
+        expect(described_class.build(request:, **options))
           .to be_a described_class
       end
 
       it 'should set the request properties' do
-        expect(described_class.build(request: request, **options)['custom_key'])
+        expect(described_class.build(request:, **options)['custom_key'])
           .to be == 'custom value'
       end
     end
@@ -284,14 +284,14 @@ RSpec.describe Cuprum::Rails::Request do
 
       it 'should set the member action property' do
         expect(
-          described_class.build(request: request, **options).member_action?
+          described_class.build(request:, **options).member_action?
         )
           .to be true
       end
 
       it 'should set the request properties' do
         expect(
-          described_class.build(request: request, **options)['member_action']
+          described_class.build(request:, **options)['member_action']
         )
           .to be true
       end
@@ -508,7 +508,7 @@ RSpec.describe Cuprum::Rails::Request do
 
     context 'when initialized with context: a controller' do
       let(:context) { instance_double(ActionController::Base) }
-      let(:options) { super().merge(context: context) }
+      let(:options) { super().merge(context:) }
 
       it { expect(request.context).to be context }
     end
@@ -536,9 +536,9 @@ RSpec.describe Cuprum::Rails::Request do
     context 'when initialized with context: a controller' do
       let(:session) { instance_double(ActionDispatch::Request::Session) }
       let(:context) do
-        instance_double(ActionController::Base, session: session)
+        instance_double(ActionController::Base, session:)
       end
-      let(:options) { super().merge(context: context) }
+      let(:options) { super().merge(context:) }
 
       it { expect(request.native_session).to be session }
     end
@@ -581,21 +581,21 @@ RSpec.describe Cuprum::Rails::Request do
 
     context 'when initialized with action_name: value' do
       let(:action_name) { :publish }
-      let(:properties)  { super().merge(action_name: action_name) }
+      let(:properties)  { super().merge(action_name:) }
 
       it { expect(request.properties).to be == properties }
     end
 
     context 'when initialized with authorization: value' do
       let(:authorization) { 'Bearer 12345' }
-      let(:properties)    { super().merge(authorization: authorization) }
+      let(:properties)    { super().merge(authorization:) }
 
       it { expect(request.properties).to be == properties }
     end
 
     context 'when initialized with controller_name: value' do
       let(:controller_name) { 'api/books' }
-      let(:properties)      { super().merge(controller_name: controller_name) }
+      let(:properties)      { super().merge(controller_name:) }
 
       it { expect(request.properties).to be == properties }
     end

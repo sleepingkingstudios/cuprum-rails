@@ -15,7 +15,7 @@ RSpec.describe Cuprum::Rails::Actions::Index do
 
   shared_context 'with a request with parameters' do
     let(:params)  { {} }
-    let(:request) { instance_double(Cuprum::Rails::Request, params: params) }
+    let(:request) { instance_double(Cuprum::Rails::Request, params:) }
 
     before(:example) do
       allow(action).to receive(:request).and_return(request) # rubocop:disable RSpec/SubjectStub
@@ -102,7 +102,7 @@ RSpec.describe Cuprum::Rails::Actions::Index do
       context 'when the resource has a default order' do
         let(:default_order) { { author: :asc, title: :asc } }
         let(:resource_options) do
-          super().merge(default_order: default_order)
+          super().merge(default_order:)
         end
 
         it { expect(action.default_order).to be == default_order }
@@ -185,7 +185,7 @@ RSpec.describe Cuprum::Rails::Actions::Index do
       context 'when the resource has a default order' do
         let(:default_order) { { author: :asc, title: :asc } }
         let(:resource_options) do
-          super().merge(default_order: default_order)
+          super().merge(default_order:)
         end
 
         it { expect(action.send :order).to be == default_order }

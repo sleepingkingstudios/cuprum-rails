@@ -48,7 +48,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Query do
         Cuprum::Collections::Associations::BelongsTo
       end
       let(:constructor_options) do
-        super().merge(association_type: association_type)
+        super().merge(association_type:)
       end
 
       it { expect(association).to be_a association_class }
@@ -74,7 +74,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Query do
     context 'when initialized with association_type: :belongs_to' do
       let(:association_type) { :belongs_to }
       let(:constructor_options) do
-        super().merge(association_type: association_type)
+        super().merge(association_type:)
       end
 
       it { expect(middleware.association_type).to be == association_type }
@@ -92,9 +92,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Query do
     def call_command
       middleware.call(
         next_command,
-        repository: repository,
-        request:    request,
-        resource:   resource,
+        repository:,
+        request:,
+        resource:,
         **options
       )
     end
@@ -113,9 +113,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Query do
       expect(next_command)
         .to have_received(:call)
         .with(
-          repository: repository,
-          request:    request,
-          resource:   resource,
+          repository:,
+          request:,
+          resource:,
           **options
         )
     end
@@ -137,9 +137,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Query do
         expect(next_command)
           .to have_received(:call)
           .with(
-            repository: repository,
-            request:    request,
-            resource:   resource,
+            repository:,
+            request:,
+            resource:,
             **options
           )
       end

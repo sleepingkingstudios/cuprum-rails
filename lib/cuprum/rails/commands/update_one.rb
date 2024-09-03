@@ -33,14 +33,14 @@ module Cuprum::Rails::Commands
     end
 
     def invalid_statement_error(message)
-      Cuprum::Rails::Errors::InvalidStatement.new(message: message)
+      Cuprum::Rails::Errors::InvalidStatement.new(message:)
     end
 
     def not_found_error(primary_key)
       Cuprum::Collections::Errors::NotFound.new(
         attribute_name:  primary_key_name,
         attribute_value: primary_key,
-        collection_name: collection_name,
+        collection_name:,
         primary_key:     true
       )
     end

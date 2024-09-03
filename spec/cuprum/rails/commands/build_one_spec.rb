@@ -16,7 +16,7 @@ RSpec.describe Cuprum::Rails::Commands::BuildOne do
 
   subject(:command) do
     described_class.new(
-      record_class: record_class,
+      record_class:,
       **constructor_options
     )
   end

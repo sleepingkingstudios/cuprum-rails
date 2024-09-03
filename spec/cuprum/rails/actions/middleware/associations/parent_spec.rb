@@ -70,9 +70,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
         call_command
 
         expect(next_command).to have_received(:call).with(
-          repository: repository,
-          request:    request,
-          resource:   resource,
+          repository:,
+          request:,
+          resource:,
           **options
         )
       end
@@ -84,9 +84,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
           call_command
 
           expect(next_command).to have_received(:call).with(
-            repository: repository,
-            request:    request,
-            resource:   resource,
+            repository:,
+            request:,
+            resource:,
             **options
           )
         end
@@ -96,7 +96,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
     let(:next_result)  { Cuprum::Result.new(value: { 'ok' => true }) }
     let(:next_command) { instance_double(Cuprum::Command, call: next_result) }
     let(:params)       { {} }
-    let(:request)      { Cuprum::Rails::Request.new(params: params) }
+    let(:request)      { Cuprum::Rails::Request.new(params:) }
     let(:repository)   { Cuprum::Rails::Repository.new }
     let(:resource)     { Cuprum::Rails::Resource.new(name: 'chapters') }
     let(:options)      { {} }
@@ -104,9 +104,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
     def call_command
       middleware.call(
         next_command,
-        repository: repository,
-        request:    request,
-        resource:   resource,
+        repository:,
+        request:,
+        resource:,
         **options
       )
     end

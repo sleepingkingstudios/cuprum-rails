@@ -42,7 +42,7 @@ module Cuprum::Rails::RSpec::Contracts::Actions
         include_contract 'should be a resource action'
 
         include_contract 'should find the entities',
-          existing_entities: existing_entities,
+          existing_entities:,
           expected_value:    options[:expected_value_on_success],
           params:            options[:params],
           &options[:examples_on_success]

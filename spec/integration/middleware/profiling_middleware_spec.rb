@@ -12,19 +12,19 @@ RSpec.describe Spec::Support::Middleware::ProfilingMiddleware do
 
   describe '#call' do
     it 'should call the command' do
-      middleware.call(command, request: request)
+      middleware.call(command, request:)
 
-      expect(command).to have_received(:call).with(request: request)
+      expect(command).to have_received(:call).with(request:)
     end
 
     it 'should return the result' do
-      expect(middleware.call(command, request: request)).to be == result
+      expect(middleware.call(command, request:)).to be == result
     end
 
     context 'when the result has a value' do
       let(:current_time) { Time.current }
       let(:value)        { { 'ok' => true } }
-      let(:result)       { Cuprum::Result.new(value: value) }
+      let(:result)       { Cuprum::Result.new(value:) }
       let(:expected)     { value.merge('time_elapsed' => '50 milliseconds') }
 
       before(:example) do
@@ -34,7 +34,7 @@ RSpec.describe Spec::Support::Middleware::ProfilingMiddleware do
       end
 
       it 'should return a passing result' do
-        expect(middleware.call(command, request: request))
+        expect(middleware.call(command, request:))
           .to be_a_passing_result
           .with_value(expected)
       end

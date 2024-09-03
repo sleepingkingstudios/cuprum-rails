@@ -10,9 +10,9 @@ module Cuprum::Rails::Actions::Middleware
     private
 
     def format_log(result:)
-      msg = +"  #{self.class.name}#process"
+      msg = "  #{self.class.name}#process"
 
-      logged_properties(result: result).each do |label, formatted|
+      logged_properties(result:).each do |label, formatted|
         msg << "\n    #{label}\n"
         msg << tools.string_tools.indent(formatted, 6)
       end
@@ -36,9 +36,9 @@ module Cuprum::Rails::Actions::Middleware
       result = next_command.call(**options)
 
       if result.success?
-        Rails.logger.info format_log(result: result)
+        Rails.logger.info format_log(result:)
       else
-        Rails.logger.error format_log(result: result)
+        Rails.logger.error format_log(result:)
       end
 
       result

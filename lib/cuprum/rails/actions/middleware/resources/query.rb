@@ -46,13 +46,13 @@ module Cuprum::Rails::Actions::Middleware::Resources
         **result.properties,
         value: merge_values(
           value:  result.value,
-          values: values
+          values:
         )
       )
     end
 
     def merge_values(value:, values:)
-      key = pluralize_name(resource: resource, values: values)
+      key = pluralize_name(resource:, values:)
 
       value.merge(key => values)
     end
@@ -65,9 +65,9 @@ module Cuprum::Rails::Actions::Middleware::Resources
       @repository = repository
       @request    = request
       @result     = next_command.call(
-        repository: repository,
-        request:    request,
-        resource:   resource,
+        repository:,
+        request:,
+        resource:,
         **rest
       )
     end

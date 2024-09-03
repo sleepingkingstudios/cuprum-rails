@@ -90,7 +90,7 @@ module Cuprum::Rails::Serializers::Json
         property(
           name,
           scope:      name,
-          serializer: serializer,
+          serializer:,
           &block
         )
       end

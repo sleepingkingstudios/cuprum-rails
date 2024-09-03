@@ -71,9 +71,9 @@ module Cuprum::Rails::Actions::Middleware::Associations
         self.class.strategies.find { |klass, _| entity.is_a?(klass) }.last
 
       strategy.call(
-        entity: entity,
+        entity:,
         name:   association.name,
-        value:  value
+        value:
       )
     end
 
@@ -101,7 +101,7 @@ module Cuprum::Rails::Actions::Middleware::Associations
       indexed = index_values(values: convert_to_array(values))
       cached  = convert_to_array(entities).map do |entity|
         cache_association(
-          entity: entity,
+          entity:,
           value:  indexed[entity[association.inverse_key_name]]
         )
       end

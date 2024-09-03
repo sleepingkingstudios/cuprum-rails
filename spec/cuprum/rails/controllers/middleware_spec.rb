@@ -9,7 +9,7 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
 
   let(:command) { Cuprum::Command.new }
   let(:constructor_options) do
-    { command: command }
+    { command: }
   end
 
   describe '.new' do
@@ -38,7 +38,7 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
 
     describe 'with middleware with the same command' do
       let(:options) { {} }
-      let(:other)   { described_class.new(command: command, **options) }
+      let(:other)   { described_class.new(command:, **options) }
 
       it { expect(middleware == other).to be true }
 
@@ -67,7 +67,7 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
 
       describe 'with middleware with the same command' do
         let(:options) { {} }
-        let(:other)   { described_class.new(command: command, **options) }
+        let(:other)   { described_class.new(command:, **options) }
 
         it { expect(middleware == other).to be false }
 
@@ -97,7 +97,7 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
 
       describe 'with middleware with the same command' do
         let(:options) { {} }
-        let(:other)   { described_class.new(command: command, **options) }
+        let(:other)   { described_class.new(command:, **options) }
 
         it { expect(middleware == other).to be false }
 

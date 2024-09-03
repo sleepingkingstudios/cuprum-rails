@@ -184,9 +184,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogRequest do
     def call_middleware
       middleware.call(
         next_command,
-        repository: repository,
-        request:    request,
-        resource:   resource,
+        repository:,
+        request:,
+        resource:,
         **options
       )
     end
@@ -228,9 +228,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogRequest do
       call_middleware
 
       expect(next_command).to have_received(:call).with(
-        repository: repository,
-        request:    request,
-        resource:   resource
+        repository:,
+        request:,
+        resource:
       )
     end
 
@@ -257,9 +257,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogRequest do
         call_middleware
 
         expect(next_command).to have_received(:call).with(
-          repository: repository,
-          request:    request,
-          resource:   resource,
+          repository:,
+          request:,
+          resource:,
           **options
         )
       end

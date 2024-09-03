@@ -34,11 +34,11 @@ module Cuprum::Rails::Responses::Html
 
       # :nocov:
       if Rails.version >= '7.0' # @todo Rails 6
-        renderer.redirect_back_or_to(fallback_location, status: status)
+        renderer.redirect_back_or_to(fallback_location, status:)
       else
         renderer.redirect_back(
-          fallback_location: fallback_location,
-          status:            status
+          fallback_location:,
+          status:
         )
       end
       # :nocov:

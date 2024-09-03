@@ -8,8 +8,8 @@ require 'support/controllers/books_controller'
 RSpec.describe BooksController do
   subject(:controller) do
     described_class.new(
-      renderer: renderer,
-      request:  request
+      renderer:,
+      request:
     )
   end
 
@@ -60,7 +60,7 @@ RSpec.describe BooksController do
 
       expect(renderer)
         .to have_received(:render)
-        .with((expected_view || action_name), { status: status })
+        .with((expected_view || action_name), { status: })
     end
 
     it 'should assign the queried data' do
@@ -86,7 +86,7 @@ RSpec.describe BooksController do
 
       expect(renderer)
         .to have_received(:render)
-        .with(json: expected_json, status: status)
+        .with(json: expected_json, status:)
     end
   end
 
@@ -106,7 +106,7 @@ RSpec.describe BooksController do
 
       expect(renderer)
         .to have_received(:render)
-        .with(json: expected_json, status: status)
+        .with(json: expected_json, status:)
     end
   end
 
@@ -119,7 +119,7 @@ RSpec.describe BooksController do
         end
 
         Cuprum::Rails::Errors::InvalidParameters
-          .new(errors: errors)
+          .new(errors:)
           .as_json
       end
 
@@ -136,7 +136,7 @@ RSpec.describe BooksController do
         end
 
         Cuprum::Rails::Errors::InvalidParameters
-          .new(errors: errors)
+          .new(errors:)
           .as_json
       end
 
@@ -155,7 +155,7 @@ RSpec.describe BooksController do
         end
 
         Cuprum::Rails::Errors::InvalidParameters
-          .new(errors: errors)
+          .new(errors:)
           .as_json
       end
       let(:status) { 400 }
@@ -216,7 +216,7 @@ RSpec.describe BooksController do
       authorization:         nil,
       format:                instance_double(Mime::Type, symbol: format),
       fullpath:              path,
-      headers:               headers,
+      headers:,
       params:                combined_params,
       path_parameters:       path_params,
       query_parameters:      query_params,
@@ -263,7 +263,7 @@ RSpec.describe BooksController do
       let(:expected_errors) do
         native_errors = expected_book.tap(&:valid?).errors
         raw_errors    =
-          Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+          Cuprum::Rails::MapErrors.instance.call(native_errors:)
         mapped_errors = Stannum::Errors.new
 
         raw_errors.each do |err|
@@ -359,7 +359,7 @@ RSpec.describe BooksController do
       let(:book_id) { book.id }
       let(:expected_data) do
         {
-          'book'         => serializer.call(book, context: context),
+          'book'         => serializer.call(book, context:),
           'time_elapsed' => '50 milliseconds'
         }
       end
@@ -428,7 +428,7 @@ RSpec.describe BooksController do
     let(:expected_data) do
       {
         'books'        => expected_books.map do |book|
-          serializer.call(book, context: context)
+          serializer.call(book, context:)
         end,
         'time_elapsed' => '50 milliseconds'
       }
@@ -508,7 +508,7 @@ RSpec.describe BooksController do
       end
       let(:expected_data) do
         {
-          'book'         => serializer.call(book.reload, context: context),
+          'book'         => serializer.call(book.reload, context:),
           'time_elapsed' => '50 milliseconds'
         }
       end
@@ -547,7 +547,7 @@ RSpec.describe BooksController do
       end
       let(:expected_data) do
         {
-          'book'         => serializer.call(book, context: context),
+          'book'         => serializer.call(book, context:),
           'time_elapsed' => '50 milliseconds'
         }
       end
@@ -584,7 +584,7 @@ RSpec.describe BooksController do
         let(:expected_errors) do
           native_errors = expected_book.tap(&:valid?).errors
           raw_errors    =
-            Cuprum::Rails::MapErrors.instance.call(native_errors: native_errors)
+            Cuprum::Rails::MapErrors.instance.call(native_errors:)
           mapped_errors = Stannum::Errors.new
 
           raw_errors.each do |err|
@@ -634,7 +634,7 @@ RSpec.describe BooksController do
         let(:expected_book) { book }
         let(:expected_data) do
           {
-            'book'         => serializer.call(book.reload, context: context),
+            'book'         => serializer.call(book.reload, context:),
             'time_elapsed' => '50 milliseconds'
           }
         end

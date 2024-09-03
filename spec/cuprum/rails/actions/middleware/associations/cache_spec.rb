@@ -12,7 +12,7 @@ require 'support/cover'
 
 RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
   subject(:command) do
-    described_class.new(association: association, resource: resource)
+    described_class.new(association:, resource:)
   end
 
   shared_context 'when a custom strategy is defined' do
@@ -76,9 +76,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
 
     def call_strategy
       described_class::ACTIVE_RECORD_STRATEGY.call(
-        entity: entity,
-        name:   name,
-        value:  value
+        entity:,
+        name:,
+        value:
       )
     end
 
@@ -121,9 +121,9 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
 
     def call_strategy
       described_class::DEFAULT_STRATEGY.call(
-        entity: entity,
-        name:   name,
-        value:  value
+        entity:,
+        name:,
+        value:
       )
     end
 
@@ -221,7 +221,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
     let(:values)   { [] }
 
     def call_command
-      command.call(entities: entities, values: values)
+      command.call(entities:, values:)
     end
 
     it 'should define the method' do
@@ -249,7 +249,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
       end
 
       def call_command
-        command.call(entities: entities.first, values: values)
+        command.call(entities: entities.first, values:)
       end
 
       it 'should return the entity' do
@@ -307,7 +307,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
       end
 
       def call_command
-        command.call(entities: entities.first, values: values)
+        command.call(entities: entities.first, values:)
       end
 
       it 'should return the entities' do
@@ -981,7 +981,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Cache do
       end
 
       def call_command
-        command.call(entities: entities.first, values: values)
+        command.call(entities: entities.first, values:)
       end
 
       it 'should return the entities' do

@@ -28,7 +28,7 @@ module Cuprum
         #
         # @see SleepingKingStudios::Tools::SemanticVersion#to_gem_version
         def to_gem_version
-          str = +"#{MAJOR}.#{MINOR}.#{PATCH}"
+          str = "#{MAJOR}.#{MINOR}.#{PATCH}"
 
           prerelease = value_of(:PRERELEASE)
           str << ".#{prerelease}" if prerelease

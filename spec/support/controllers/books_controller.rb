@@ -11,7 +11,7 @@ require 'support/serializers/book_serializer'
 class BooksController < BaseController
   class PublishCommand < Cuprum::Rails::Command
     def initialize(record_class:, repository:, **)
-      super(record_class: record_class)
+      super(record_class:)
 
       @repository = repository
     end
@@ -31,13 +31,13 @@ class BooksController < BaseController
     end
 
     def process(entity_id:)
-      step { validate_parameters(entity_id: entity_id) }
+      step { validate_parameters(entity_id:) }
 
       entity = step { books_collection.find_one.call(primary_key: entity_id) }
 
       entity.published_at = Time.zone.today
 
-      books_collection.update_one.call(entity: entity)
+      books_collection.update_one.call(entity:)
     end
 
     def validate_parameters(entity_id:)
@@ -45,7 +45,7 @@ class BooksController < BaseController
 
       return success(nil) if match
 
-      error = Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
+      error = Cuprum::Rails::Errors::InvalidParameters.new(errors:)
       failure(error)
     end
   end
@@ -94,8 +94,8 @@ class BooksController < BaseController
     entity_id = request.params['id']
     entity    = step do
       PublishCommand
-        .new(record_class: resource.entity_class, repository: repository)
-        .call(entity_id: entity_id)
+        .new(record_class: resource.entity_class, repository:)
+        .call(entity_id:)
     end
 
     { 'book' => entity }

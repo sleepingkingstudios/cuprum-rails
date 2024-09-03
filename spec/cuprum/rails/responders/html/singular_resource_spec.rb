@@ -14,9 +14,9 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
   let(:request)         { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
-      action_name: action_name,
-      controller:  controller,
-      request:     request
+      action_name:,
+      controller:,
+      request:
     }
   end
 
@@ -99,17 +99,17 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         end
         let(:error) do
           Cuprum::Collections::Errors::FailedValidation.new(
-            entity_class: entity_class,
-            errors:       errors
+            entity_class:,
+            errors:
           )
         end
         let(:value)    { { 'book' => entity_class.new('Gideon the Ninth') } }
-        let(:result)   { Cuprum::Result.new(error: error, value: value) }
+        let(:result)   { Cuprum::Result.new(error:, value:) }
         let(:response) { responder.call(result) }
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RenderResponse
         end
-        let(:expected) { value.merge(errors: errors) }
+        let(:expected) { value.merge(errors:) }
 
         it { expect(response).to be_a response_class }
 
@@ -125,7 +125,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a passing result' do
         let(:entity) { Spec::Model.new(0, 'Gideon the Ninth') }
         let(:value)  { { 'book' => entity } }
-        let(:result) { Cuprum::Result.new(value: value) }
+        let(:result) { Cuprum::Result.new(value:) }
         let(:response) { responder.call(result) }
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RedirectResponse
@@ -172,7 +172,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         let(:value) do
           { 'book' => Struct.new(:title).new('Gideon the Ninth') }
         end
-        let(:result) { Cuprum::Result.new(value: value) }
+        let(:result) { Cuprum::Result.new(value:) }
 
         example_class 'Spec::Model', Struct.new(:id, :title) do |klass|
           klass.define_singleton_method(:primary_key) { :id }
@@ -195,7 +195,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         let(:value) do
           { 'book' => Struct.new(:title).new('Gideon the Ninth') }
         end
-        let(:result) { Cuprum::Result.new(value: value) }
+        let(:result) { Cuprum::Result.new(value:) }
 
         include_examples 'should render the template'
       end
@@ -214,7 +214,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         let(:value) do
           { 'book' => Struct.new(:title).new('Gideon the Ninth') }
         end
-        let(:result) { Cuprum::Result.new(value: value) }
+        let(:result) { Cuprum::Result.new(value:) }
 
         include_examples 'should render the template'
       end
@@ -238,17 +238,17 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         end
         let(:error) do
           Cuprum::Collections::Errors::FailedValidation.new(
-            entity_class: entity_class,
-            errors:       errors
+            entity_class:,
+            errors:
           )
         end
         let(:value)    { { 'book' => entity_class.new('Gideon the Ninth') } }
-        let(:result)   { Cuprum::Result.new(error: error, value: value) }
+        let(:result)   { Cuprum::Result.new(error:, value:) }
         let(:response) { responder.call(result) }
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RenderResponse
         end
-        let(:expected) { value.merge(errors: errors) }
+        let(:expected) { value.merge(errors:) }
 
         it { expect(response).to be_a response_class }
 
@@ -264,7 +264,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a passing result' do
         let(:entity) { Spec::Model.new(0, 'Gideon the Ninth') }
         let(:value)  { { 'book' => entity } }
-        let(:result) { Cuprum::Result.new(value: value) }
+        let(:result) { Cuprum::Result.new(value:) }
         let(:response) { responder.call(result) }
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RedirectResponse
@@ -295,7 +295,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         let(:value) do
           { 'book' => Struct.new(:title).new('Gideon the Ninth') }
         end
-        let(:result) { Cuprum::Result.new(value: value) }
+        let(:result) { Cuprum::Result.new(value:) }
 
         include_examples 'should render the template'
       end

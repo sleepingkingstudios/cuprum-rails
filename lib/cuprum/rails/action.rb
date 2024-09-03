@@ -59,10 +59,10 @@ module Cuprum::Rails
 
     def build_result(error: nil, metadata: nil, status: nil, value: nil)
       Cuprum::Rails::Result.new(
-        error:    error,
-        metadata: metadata,
-        status:   status,
-        value:    value
+        error:,
+        metadata:,
+        status:,
+        value:
       )
     end
 

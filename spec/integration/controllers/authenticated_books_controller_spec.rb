@@ -8,8 +8,8 @@ require 'support/controllers/authenticated_books_controller'
 RSpec.describe AuthenticatedBooksController do
   subject(:controller) do
     described_class.new(
-      renderer: renderer,
-      request:  request
+      renderer:,
+      request:
     )
   end
 
@@ -40,7 +40,7 @@ RSpec.describe AuthenticatedBooksController do
 
       expect(renderer)
         .to have_received(:render)
-        .with((expected_view || action_name), { status: status })
+        .with((expected_view || action_name), { status: })
     end
 
     it 'should assign the queried data' do
@@ -66,7 +66,7 @@ RSpec.describe AuthenticatedBooksController do
 
       expect(renderer)
         .to have_received(:render)
-        .with(json: expected_json, status: status)
+        .with(json: expected_json, status:)
     end
   end
 
@@ -91,7 +91,7 @@ RSpec.describe AuthenticatedBooksController do
       authorization:         nil,
       format:                instance_double(Mime::Type, symbol: format),
       fullpath:              path,
-      headers:               headers,
+      headers:,
       params:                combined_params,
       path_parameters:       path_params,
       query_parameters:      query_params,
@@ -136,7 +136,7 @@ RSpec.describe AuthenticatedBooksController do
     let(:expected_data) do
       {
         'books'        => expected_books.map do |book|
-          serializer.call(book, context: context)
+          serializer.call(book, context:)
         end,
         'session'      => { 'token' => '12345' },
         'time_elapsed' => '50 milliseconds'

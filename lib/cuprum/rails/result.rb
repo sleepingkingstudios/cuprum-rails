@@ -19,7 +19,7 @@ module Cuprum::Rails
     # @param status [String, Symbol, nil] the status of the result. Must be
     #   :success, :failure, or nil.
     def initialize(error: nil, metadata: {}, status: nil, value: nil)
-      super(error: error, status: status, value: value)
+      super(error:, status:, value:)
 
       @metadata = metadata
     end
@@ -29,7 +29,7 @@ module Cuprum::Rails
 
     # @return [Hash{Symbol => Object}] a Hash representation of the result.
     def properties
-      super.merge(metadata: metadata)
+      super.merge(metadata:)
     end
     alias to_h properties
   end

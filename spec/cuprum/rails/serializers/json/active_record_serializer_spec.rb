@@ -37,7 +37,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ActiveRecordSerializer do
       let(:error_message) { 'object must be an ActiveRecord record' }
 
       it 'should raise an exception' do
-        expect { serializer.call(object, serializers: serializers) }
+        expect { serializer.call(object, serializers:) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -47,7 +47,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ActiveRecordSerializer do
       let(:error_message) { 'object must be an ActiveRecord record' }
 
       it 'should raise an exception' do
-        expect { serializer.call(object, serializers: serializers) }
+        expect { serializer.call(object, serializers:) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ActiveRecordSerializer do
       end
 
       it 'should serialize the record' do
-        expect(serializer.call(object, serializers: serializers))
+        expect(serializer.call(object, serializers:))
           .to be == expected
       end
 
@@ -87,7 +87,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ActiveRecordSerializer do
         end
 
         it 'should return the object' do
-          expect(serializer.call(object, serializers: serializers))
+          expect(serializer.call(object, serializers:))
             .to be == expected
         end
       end

@@ -9,7 +9,7 @@ RSpec.describe Spec::Support::Actions::Login do
 
   describe '#call' do
     let(:params)  { {} }
-    let(:request) { Cuprum::Rails::Request.new(params: params) }
+    let(:request) { Cuprum::Rails::Request.new(params:) }
 
     describe 'with empty params' do
       let(:expected_errors) do
@@ -23,7 +23,7 @@ RSpec.describe Spec::Support::Actions::Login do
       end
 
       it 'should return a failing result' do
-        expect(action.call(request: request))
+        expect(action.call(request:))
           .to be_a_failing_result
           .with_error(expected_error)
       end
@@ -43,7 +43,7 @@ RSpec.describe Spec::Support::Actions::Login do
       end
 
       it 'should return a failing result' do
-        expect(action.call(request: request))
+        expect(action.call(request:))
           .to be_a_failing_result
           .with_error(expected_error)
       end
@@ -56,7 +56,7 @@ RSpec.describe Spec::Support::Actions::Login do
       let(:expected_value) { { 'ok' => true } }
 
       it 'should return a passing result' do
-        expect(action.call(request: request))
+        expect(action.call(request:))
           .to be_a_passing_result
           .with_value(expected_value)
       end

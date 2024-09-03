@@ -49,7 +49,7 @@ module Cuprum::Rails::RSpec::Contracts::Actions
         include Cuprum::Rails::RSpec::Contracts::ActionContracts
         include Cuprum::Rails::RSpec::Contracts::Actions::CreateContracts
 
-        options = options.merge(valid_attributes: valid_attributes)
+        options = options.merge(valid_attributes:)
         configured_params = lambda do
           attributes =
             Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
@@ -102,7 +102,7 @@ module Cuprum::Rails::RSpec::Contracts::Actions
             :expected_attributes,
             options[:expected_attributes_on_failure]
           ),
-          invalid_attributes:  invalid_attributes,
+          invalid_attributes:,
           params:              configured_params,
           &should_not_create_an_entity
         )
@@ -123,7 +123,7 @@ module Cuprum::Rails::RSpec::Contracts::Actions
           ),
           expected_value:      options[:expected_value_on_success],
           params:              configured_params,
-          valid_attributes:    valid_attributes,
+          valid_attributes:,
           &options[:examples_on_success]
       end
     end

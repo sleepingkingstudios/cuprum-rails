@@ -76,18 +76,18 @@ module Spec::Support::Examples
           end
           errors = contract.errors_for({
             arguments: [],
-            keywords:  { entity: entity },
+            keywords:  { entity: },
             block:     nil
           })
 
           Cuprum::Collections::Errors::InvalidParameters.new(
-            command: command,
-            errors:  errors
+            command:,
+            errors:
           )
         end
 
         it 'should validate the :entity keyword' do
-          expect(command.call(attributes: {}, entity: entity))
+          expect(command.call(attributes: {}, entity:))
             .to be_a_failing_result
             .with_error(expected_error)
         end

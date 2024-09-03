@@ -52,8 +52,8 @@ module Cuprum::Rails::Actions::Middleware::Associations
 
     def cache_association(entities:, values:)
       Cuprum::Rails::Actions::Middleware::Associations::Cache
-        .new(association: association, resource: resource)
-        .call(entities: entities, values: values)
+        .new(association:, resource:)
+        .call(entities:, values:)
     end
 
     def entities_from(result:)
@@ -72,21 +72,21 @@ module Cuprum::Rails::Actions::Middleware::Associations
       Cuprum::Rails::Result.new(
         **result.properties,
         value: merge_values(
-          entities: entities,
+          entities:,
           value:    result.value,
-          values:   values
+          values:
         )
       )
     end
 
     def merge_values(entities:, value:, values:)
       if entities.present?
-        key   = pluralize_name(resource: resource, values: entities)
+        key   = pluralize_name(resource:, values: entities)
         value = value.merge(key => entities)
       end
 
       if values.present?
-        key   = pluralize_name(resource: association, values: values)
+        key   = pluralize_name(resource: association, values:)
         value = value.merge(key => values)
       end
 
@@ -102,9 +102,9 @@ module Cuprum::Rails::Actions::Middleware::Associations
       @request    = request
       @resource   = resource
       @result     = next_command.call(
-        repository: repository,
-        request:    request,
-        resource:   resource,
+        repository:,
+        request:,
+        resource:,
         **rest
       )
     end
@@ -113,7 +113,7 @@ module Cuprum::Rails::Actions::Middleware::Associations
       keys ||= step { query_keys }
 
       if keys.is_a?(Array)
-        query_command.call(keys: keys)
+        query_command.call(keys:)
       else
         query_command.call(key: keys)
       end
@@ -121,14 +121,14 @@ module Cuprum::Rails::Actions::Middleware::Associations
 
     def query_command
       Cuprum::Collections::Commands::Associations::FindMany.new(
-        association: association,
-        repository:  repository,
-        resource:    resource
+        association:,
+        repository:,
+        resource:
       )
     end
 
     def query_keys
-      entities = entities_from(result: result)
+      entities = entities_from(result:)
 
       if entities.is_a?(Array)
         association.map_entities_to_keys(*entities)

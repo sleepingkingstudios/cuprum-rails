@@ -60,7 +60,7 @@ RSpec.describe Cuprum::Rails::Transaction do
     describe 'with a block that returns a failing result' do
       let(:value)  { { 'ok' => false } }
       let(:error)  { Cuprum::Error.new(message: 'Something went wrong') }
-      let(:result) { Cuprum::Result.new(value: value, error: error) }
+      let(:result) { Cuprum::Result.new(value:, error:) }
       let(:block) do
         lambda do
           Book.create!(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
@@ -78,7 +78,7 @@ RSpec.describe Cuprum::Rails::Transaction do
 
     describe 'with a block that returns a passing result' do
       let(:value)  { { 'ok' => true } }
-      let(:result) { Cuprum::Result.new(value: value) }
+      let(:result) { Cuprum::Result.new(value:) }
       let(:block) do
         lambda do
           Book.create!(title: 'Gideon the Ninth', author: 'Tammsyn Muir')

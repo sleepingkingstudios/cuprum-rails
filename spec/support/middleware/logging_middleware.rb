@@ -46,9 +46,9 @@ module Spec::Support::Middleware
 
     def log_request(request:, result:)
       if result.success?
-        log_success(request: request)
+        log_success(request:)
       else
-        log_failure(request: request, error: result.error)
+        log_failure(request:, error: result.error)
       end
     end
 
@@ -65,13 +65,13 @@ module Spec::Support::Middleware
       @resource   = resource
 
       result = next_command.call(
-        request:    request,
-        resource:   resource,
-        repository: repository,
+        request:,
+        resource:,
+        repository:,
         **rest
       )
 
-      log_request(request: request, result: result)
+      log_request(request:, result:)
 
       result
     end

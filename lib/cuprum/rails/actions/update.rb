@@ -22,7 +22,7 @@ module Cuprum::Rails::Actions
     end
 
     def find_entity(primary_key:)
-      collection.find_one.call(primary_key: primary_key)
+      collection.find_one.call(primary_key:)
     end
 
     def find_required_entities
@@ -95,12 +95,12 @@ module Cuprum::Rails::Actions
     def update_entity(attributes:)
       steps do
         step do
-          collection.assign_one.call(attributes: attributes, entity: entity)
+          collection.assign_one.call(attributes:, entity:)
         end
 
-        step { collection.validate_one.call(entity: entity) }
+        step { collection.validate_one.call(entity:) }
 
-        step { collection.update_one.call(entity: entity) }
+        step { collection.update_one.call(entity:) }
       end
     end
   end

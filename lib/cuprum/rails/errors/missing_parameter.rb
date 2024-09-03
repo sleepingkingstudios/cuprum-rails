@@ -16,7 +16,7 @@ module Cuprum::Rails::Errors
 
       super(
         message:        default_message,
-        parameter_name: parameter_name
+        parameter_name:
       )
     end
 

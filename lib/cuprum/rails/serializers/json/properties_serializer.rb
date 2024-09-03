@@ -137,8 +137,8 @@ module Cuprum::Rails::Serializers::Json
         serialized = SerializedProperty.new(
           mapping:    block || :itself.to_proc,
           name:       name.to_s,
-          scope:      scope,
-          serializer: serializer
+          scope:,
+          serializer:
         )
         own_properties[prop_key] = serialized
 
@@ -233,16 +233,16 @@ module Cuprum::Rails::Serializers::Json
     # @return [Hash<String, Object] a JSON-compatible representation of the
     #   object's properties.
     def call(object, context:) # rubocop:disable Metrics/MethodLength
-      return super(nil, context: context) if object.nil?
+      return super(nil, context:) if object.nil?
 
       self.class.properties.each_value.with_object({}) do |property, hsh|
         value      = property.value_for(object)
         mapped     = property.mapping.call(value) if property.mapping
         serialized =
           if property.serializer
-            property.serializer.call(mapped, context: context)
+            property.serializer.call(mapped, context:)
           else
-            super(mapped, context: context)
+            super(mapped, context:)
           end
 
         hsh[property.name] = serialized

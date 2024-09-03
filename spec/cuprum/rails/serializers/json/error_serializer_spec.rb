@@ -23,7 +23,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ErrorSerializer do
     let(:object)      { nil }
     let(:serializers) { {} }
     let(:context) do
-      Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+      Cuprum::Rails::Serializers::Context.new(serializers:)
     end
 
     it 'should define the method' do
@@ -38,7 +38,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ErrorSerializer do
       let(:error_message) { 'object must be a Cuprum::Error' }
 
       it 'should raise an exception' do
-        expect { serializer.call(object, context: context) }
+        expect { serializer.call(object, context:) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -48,7 +48,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ErrorSerializer do
       let(:error_message) { 'object must be a Cuprum::Error' }
 
       it 'should raise an exception' do
-        expect { serializer.call(object, context: context) }
+        expect { serializer.call(object, context:) }
           .to raise_error ArgumentError, error_message
       end
     end
@@ -69,12 +69,12 @@ RSpec.describe Cuprum::Rails::Serializers::Json::ErrorSerializer do
         end
 
         klass.define_method(:as_json_data) do
-          { error_id: error_id }
+          { error_id: }
         end
       end
 
       it 'should serialize the error' do
-        expect(serializer.call object, context: context)
+        expect(serializer.call object, context:)
           .to be == object.as_json
       end
     end

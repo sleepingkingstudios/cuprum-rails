@@ -11,7 +11,7 @@ RSpec.describe Cuprum::Rails::Action do
   subject(:action) { described_class.new }
 
   let(:params)  { {} }
-  let(:request) { instance_double(ActionDispatch::Request, params: params) }
+  let(:request) { instance_double(ActionDispatch::Request, params:) }
 
   include_contract 'should be an action'
 
@@ -30,9 +30,9 @@ RSpec.describe Cuprum::Rails::Action do
 
     def call_action
       action_class.new.call(
-        request:    request,
-        repository: repository,
-        resource:   resource,
+        request:,
+        repository:,
+        resource:,
         **options
       )
     end
@@ -52,9 +52,9 @@ RSpec.describe Cuprum::Rails::Action do
       call_action
 
       expect(delegate).to have_received(:call).with(
-        request:    request,
-        repository: repository,
-        resource:   resource,
+        request:,
+        repository:,
+        resource:,
         **options
       )
     end
@@ -104,7 +104,7 @@ RSpec.describe Cuprum::Rails::Action do
     end
 
     it 'should return a passing result' do
-      expect(action.call(request: request))
+      expect(action.call(request:))
         .to be_a_passing_result(Cuprum::Rails::Result)
         .with_value(nil)
     end
@@ -114,7 +114,7 @@ RSpec.describe Cuprum::Rails::Action do
     context 'when called with options' do
       let(:options) { { key: 'value' } }
 
-      before(:example) { action.call(request: request, **options) }
+      before(:example) { action.call(request:, **options) }
 
       it { expect(action.options).to be == options }
     end
@@ -122,7 +122,7 @@ RSpec.describe Cuprum::Rails::Action do
 
   describe '#params' do
     context 'when called with a request' do
-      before(:example) { action.call(request: request) }
+      before(:example) { action.call(request:) }
 
       it { expect(action.params).to be == params }
     end
@@ -137,7 +137,7 @@ RSpec.describe Cuprum::Rails::Action do
         }
       end
 
-      before(:example) { action.call(request: request) }
+      before(:example) { action.call(request:) }
 
       it { expect(action.params).to be == params }
     end
@@ -149,7 +149,7 @@ RSpec.describe Cuprum::Rails::Action do
     context 'when called with a repository' do
       let(:repository) { Cuprum::Rails::Repository.new }
 
-      before(:example) { action.call(repository: repository, request: request) }
+      before(:example) { action.call(repository:, request:) }
 
       it { expect(action.repository).to be repository }
     end
@@ -157,7 +157,7 @@ RSpec.describe Cuprum::Rails::Action do
 
   describe '#request' do
     context 'when called with a request' do
-      before(:example) { action.call(request: request) }
+      before(:example) { action.call(request:) }
 
       it { expect(action.request).to be == request }
     end

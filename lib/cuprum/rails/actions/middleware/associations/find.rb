@@ -14,10 +14,10 @@ module Cuprum::Rails::Actions::Middleware::Associations
       return result unless result.success?
 
       values   = step { perform_query }
-      entities = entities_from(result: result)
-      entities = step { cache_association(entities: entities, values: values) }
+      entities = entities_from(result:)
+      entities = step { cache_association(entities:, values:) }
 
-      merge_result(entities: entities, result: result, values: values)
+      merge_result(entities:, result:, values:)
     end
   end
 end

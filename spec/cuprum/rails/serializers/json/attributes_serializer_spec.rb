@@ -763,7 +763,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
   describe '#call' do
     shared_examples 'should serialize the properties' do
       it 'should serialize the properties' do
-        expect(serializer.call(object, context: context))
+        expect(serializer.call(object, context:))
           .to be == expected
       end
     end
@@ -784,7 +784,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       Cuprum::Rails::Serializers::Json.default_serializers
     end
     let(:context) do
-      Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+      Cuprum::Rails::Serializers::Context.new(serializers:)
     end
     let(:expected) { {} }
 
@@ -812,7 +812,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the properties'
 
         describe 'with nil' do
-          it { expect(serializer.call(nil, context: context)).to be nil }
+          it { expect(serializer.call(nil, context:)).to be nil }
         end
 
         describe 'with a hash object' do
@@ -842,7 +842,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the properties'
 
         describe 'with nil' do
-          it { expect(serializer.call(nil, context: context)).to be nil }
+          it { expect(serializer.call(nil, context:)).to be nil }
         end
 
         describe 'with a hash object' do
@@ -865,7 +865,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the properties'
 
         describe 'with nil' do
-          it { expect(serializer.call(nil, context: context)).to be nil }
+          it { expect(serializer.call(nil, context:)).to be nil }
         end
 
         describe 'with a hash object' do
@@ -895,7 +895,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the properties'
 
         describe 'with nil' do
-          it { expect(serializer.call(nil, context: context)).to be nil }
+          it { expect(serializer.call(nil, context:)).to be nil }
         end
 
         describe 'with a hash object' do
@@ -917,7 +917,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the properties'
 
         describe 'with nil' do
-          it { expect(serializer.call(nil, context: context)).to be nil }
+          it { expect(serializer.call(nil, context:)).to be nil }
         end
 
         describe 'with a hash object' do
@@ -950,7 +950,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         include_examples 'should serialize the properties'
 
         describe 'with nil' do
-          it { expect(serializer.call(nil, context: context)).to be nil }
+          it { expect(serializer.call(nil, context:)).to be nil }
         end
 
         describe 'with a hash object' do

@@ -18,11 +18,11 @@ module Cuprum::Rails::Actions
 
     def create_entity(attributes:)
       steps do
-        @entity = step { collection.build_one.call(attributes: attributes) }
+        @entity = step { collection.build_one.call(attributes:) }
 
-        step { collection.validate_one.call(entity: entity) }
+        step { collection.validate_one.call(entity:) }
 
-        step { collection.insert_one.call(entity: entity) }
+        step { collection.insert_one.call(entity:) }
       end
     end
 

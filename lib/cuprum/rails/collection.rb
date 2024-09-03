@@ -21,15 +21,15 @@ module Cuprum::Rails
     end
 
     command :find_many do
-      Cuprum::Rails::Commands::FindMany.new(query: query, **command_options)
+      Cuprum::Rails::Commands::FindMany.new(query:, **command_options)
     end
 
     command :find_matching do
-      Cuprum::Rails::Commands::FindMatching.new(query: query, **command_options)
+      Cuprum::Rails::Commands::FindMatching.new(query:, **command_options)
     end
 
     command :find_one do
-      Cuprum::Rails::Commands::FindOne.new(query: query, **command_options)
+      Cuprum::Rails::Commands::FindOne.new(query:, **command_options)
     end
 
     command :insert_one do
@@ -48,7 +48,7 @@ module Cuprum::Rails
     #
     # @return [Cuprum::Rails::Query] the query.
     def query
-      Cuprum::Rails::Query.new(entity_class, scope: scope)
+      Cuprum::Rails::Query.new(entity_class, scope:)
     end
 
     protected

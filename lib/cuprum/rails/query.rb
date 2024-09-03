@@ -22,7 +22,7 @@ module Cuprum::Rails
     # @param scope [Cuprum::Rails::Scopes::Base] the base scope for the query.
     #   Defaults to nil.
     def initialize(record_class, native_query: nil, scope: nil)
-      super(scope: scope)
+      super(scope:)
 
       @native_query = native_query || record_class.all
       @scoped_query = self.scope.call(native_query: @native_query)
@@ -76,7 +76,7 @@ module Cuprum::Rails
     def scoped_query
       return @scoped_query if @scoped_query
 
-      @scoped_query = scope.call(native_query: native_query)
+      @scoped_query = scope.call(native_query:)
       @scoped_query = @scoped_query.limit(@limit)   if @limit
       @scoped_query = @scoped_query.offset(@offset) if @offset
       @scoped_query = @scoped_query.reorder(@order) if @order

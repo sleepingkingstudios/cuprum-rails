@@ -151,7 +151,7 @@ module Cuprum::Rails::RSpec::Contracts
           context 'when the request has path params' do
             let(:path_params) { { 'author_id' => 0 } }
             let(:request) do
-              Cuprum::Rails::Request.new(path_params: path_params)
+              Cuprum::Rails::Request.new(path_params:)
             end
 
             it { expect(responder.routes.wildcards).to be == path_params }
@@ -204,7 +204,7 @@ module Cuprum::Rails::RSpec::Contracts
               let(:path_params) { { 'author_id' => 0, 'series_id' => 1 } }
               let(:parent_path) { '/authors/0/series/1' }
               let(:request) do
-                Cuprum::Rails::Request.new(path_params: path_params)
+                Cuprum::Rails::Request.new(path_params:)
               end
 
               it { expect(responder.routes.wildcards).to be == path_params }

@@ -9,7 +9,7 @@ require 'support/publisher'
 RSpec.describe Cuprum::Rails::Routing::PluralRoutes do
   include Cuprum::Rails::RSpec::Contracts::RoutesContracts
 
-  subject(:routes) { described_class.new(base_path: base_path, &block) }
+  subject(:routes) { described_class.new(base_path:, &block) }
 
   let(:base_path) { '/books' }
   let(:block)     { nil }

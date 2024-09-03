@@ -23,8 +23,8 @@ module Cuprum::Rails::Actions
       #
       #   @yield Used to create an indifferent hash contract to validate the
       #     request parameters.
-      def validate_parameters(contract = nil, &block)
-        contract ||= Cuprum::Rails::Constraints::ParametersContract.new(&block)
+      def validate_parameters(contract = nil, &)
+        contract ||= Cuprum::Rails::Constraints::ParametersContract.new(&)
 
         define_method(:parameters_contract) { contract }
       end
@@ -49,7 +49,7 @@ module Cuprum::Rails::Actions
 
       return success(nil) if match
 
-      error = Cuprum::Rails::Errors::InvalidParameters.new(errors: errors)
+      error = Cuprum::Rails::Errors::InvalidParameters.new(errors:)
       failure(error)
     end
 

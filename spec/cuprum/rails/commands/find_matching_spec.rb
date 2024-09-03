@@ -16,8 +16,8 @@ RSpec.describe Cuprum::Rails::Commands::FindMatching do
 
   subject(:command) do
     described_class.new(
-      query:        query,
-      record_class: record_class,
+      query:,
+      record_class:,
       **constructor_options
     )
   end

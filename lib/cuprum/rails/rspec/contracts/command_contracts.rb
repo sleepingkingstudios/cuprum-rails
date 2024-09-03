@@ -117,7 +117,7 @@ module Cuprum::Rails::RSpec::Contracts
           context 'when initialized with collection_name: string' do
             let(:collection_name) { 'books' }
             let(:constructor_options) do
-              super().merge(collection_name: collection_name)
+              super().merge(collection_name:)
             end
 
             it { expect(command.collection_name).to be == collection_name }
@@ -126,7 +126,7 @@ module Cuprum::Rails::RSpec::Contracts
           context 'when initialized with collection_name: symbol' do
             let(:collection_name) { :books }
             let(:constructor_options) do
-              super().merge(collection_name: collection_name)
+              super().merge(collection_name:)
             end
 
             it { expect(command.collection_name).to be == collection_name.to_s }
@@ -154,7 +154,7 @@ module Cuprum::Rails::RSpec::Contracts
           context 'when initialized with member_name: string' do
             let(:member_name) { 'tome' }
             let(:constructor_options) do
-              super().merge(member_name: member_name)
+              super().merge(member_name:)
             end
 
             it 'should return the singular collection name' do
@@ -165,7 +165,7 @@ module Cuprum::Rails::RSpec::Contracts
           context 'when initialized with member_name: symbol' do
             let(:member_name) { :tome }
             let(:constructor_options) do
-              super().merge(member_name: member_name)
+              super().merge(member_name:)
             end
 
             it 'should return the singular collection name' do
@@ -232,8 +232,8 @@ module Cuprum::Rails::RSpec::Contracts
             )
 
             Cuprum::Collections::Errors::InvalidParameters.new(
-              command: command,
-              errors:  errors
+              command:,
+              errors:
             )
           end
 
@@ -291,8 +291,8 @@ module Cuprum::Rails::RSpec::Contracts
             )
 
             Cuprum::Collections::Errors::InvalidParameters.new(
-              command: command,
-              errors:  errors
+              command:,
+              errors:
             )
           end
 
@@ -367,13 +367,13 @@ module Cuprum::Rails::RSpec::Contracts
               {
                 arguments: [],
                 block:     nil,
-                keywords:  { primary_keys: primary_keys }
+                keywords:  { primary_keys: }
               }
             )
 
             Cuprum::Collections::Errors::InvalidParameters.new(
-              command: command,
-              errors:  errors
+              command:,
+              errors:
             )
           end
 

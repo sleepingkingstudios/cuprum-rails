@@ -52,7 +52,7 @@ module Spec::Support::Actions
       Cuprum::Rails::Query
         .new(
           Book,
-          native_query: native_query
+          native_query:
         )
         .order(chapter_index: :desc)
         .limit(1)

@@ -13,8 +13,8 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
   let(:action_name)     { :process }
   let(:constructor_options) do
     {
-      action_class: action_class,
-      action_name:  action_name
+      action_class:,
+      action_name:
     }
   end
 
@@ -45,10 +45,10 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         expect(responder_class)
           .to have_received(:new)
           .with(
-            action_name:   action_name,
-            controller:    controller,
-            member_action: member_action,
-            request:       request,
+            action_name:,
+            controller:,
+            member_action:,
+            request:,
             serializers:   configured_serializers
           )
       end
@@ -67,9 +67,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       instance_double(
         Cuprum::Rails::Controllers::Configuration,
         middleware_for:  middleware,
-        repository:      repository,
-        resource:        resource,
-        responders:      responders,
+        repository:,
+        resource:,
+        responders:,
         serializers:     configured_serializers,
         serializers_for: configured_serializers
       )
@@ -82,7 +82,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
     let(:responder)       { instance_double(Spec::Responder, call: response) }
     let(:format)          { :json }
     let(:request) do
-      instance_double(Cuprum::Rails::Request, format: format)
+      instance_double(Cuprum::Rails::Request, format:)
     end
 
     example_class 'Spec::Action', Cuprum::Rails::Action
@@ -101,9 +101,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       allow(Spec::Responder).to receive(:new).and_return(responder)
 
       allow(Spec::CustomController).to receive_messages(
-        configuration: configuration,
-        repository:    repository,
-        resource:      resource
+        configuration:,
+        repository:,
+        resource:
       )
 
       allow(configuration)
@@ -122,9 +122,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       action.call(controller, request)
 
       expect(implementation).to have_received(:call).with(
-        repository: repository,
-        request:    request,
-        resource:   resource
+        repository:,
+        request:,
+        resource:
       )
     end
 
@@ -149,8 +149,8 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
       before(:example) do
         allow(controller).to receive(:action_options).and_return(
           custom_option: 'custom value',
-          repository:    repository,
-          resource:      resource
+          repository:,
+          resource:
         )
       end
 
@@ -158,9 +158,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         action.call(controller, request)
 
         expect(implementation).to have_received(:call).with(
-          repository:    repository,
-          request:       request,
-          resource:      resource,
+          repository:,
+          request:,
+          resource:,
           custom_option: 'custom value'
         )
       end
@@ -174,7 +174,7 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         middleware_commands.map do |command|
           instance_double(
             Cuprum::Rails::Controllers::Middleware,
-            command: command
+            command:
           )
         end
       end
@@ -205,9 +205,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
         action.call(controller, request)
 
         expect(implementation).to have_received(:call).with(
-          repository: repository,
-          request:    request,
-          resource:   resource
+          repository:,
+          request:,
+          resource:
         )
       end
 
@@ -218,9 +218,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
           .to all have_received(:call)
             .with(
               a_kind_of(Cuprum::Command),
-              repository: repository,
-              request:    request,
-              resource:   resource
+              repository:,
+              request:,
+              resource:
             )
       end
 
@@ -277,9 +277,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
           action.call(controller, request)
 
           expect(implementation).to have_received(:call).with(
-            repository: repository,
-            request:    request,
-            resource:   resource
+            repository:,
+            request:,
+            resource:
           )
         end
 
@@ -290,9 +290,9 @@ RSpec.describe Cuprum::Rails::Controllers::Action do
             .to all have_received(:call)
               .with(
                 a_kind_of(Cuprum::Command),
-                repository: repository,
-                request:    request,
-                resource:   resource
+                repository:,
+                request:,
+                resource:
               )
         end
 

@@ -73,9 +73,9 @@ module Cuprum::Rails::Actions::Middleware
     private
 
     def format_log(request:, **options)
-      msg = +"  #{self.class.name}#process"
+      msg = "  #{self.class.name}#process"
 
-      logged_properties(request: request, **options).each do |label, formatted|
+      logged_properties(request:, **options).each do |label, formatted|
         msg << "\n    #{label}\n"
         msg << tools.string_tools.indent(formatted, 6)
       end
@@ -100,13 +100,13 @@ module Cuprum::Rails::Actions::Middleware
 
       hsh['Resource'] = resource.pretty_inspect if log_property?(:resource)
 
-      hsh.merge(request_properties(request: request))
+      hsh.merge(request_properties(request:))
     end
 
     def process(next_command, request:, **options)
-      Rails.logger.info format_log(request: request, **options)
+      Rails.logger.info format_log(request:, **options)
 
-      next_command.call(request: request, **options)
+      next_command.call(request:, **options)
     end
 
     def request_properties(request:)

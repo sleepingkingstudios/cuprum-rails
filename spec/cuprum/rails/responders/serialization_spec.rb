@@ -13,7 +13,7 @@ RSpec.describe Cuprum::Rails::Responders::Serialization do
   end
   let(:constructor_options) do
     {
-      serializers: serializers
+      serializers:
     }
   end
 
@@ -67,7 +67,7 @@ RSpec.describe Cuprum::Rails::Responders::Serialization do
 
       expect(Cuprum::Rails::Serializers::Context)
         .to have_received(:new)
-        .with(serializers: serializers)
+        .with(serializers:)
     end
 
     it 'should call the base serializer' do
@@ -75,7 +75,7 @@ RSpec.describe Cuprum::Rails::Responders::Serialization do
 
       expect(base_serializer)
         .to have_received(:call)
-        .with(object, context: context)
+        .with(object, context:)
     end
 
     it 'should return the serialized value' do

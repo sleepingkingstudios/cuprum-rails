@@ -48,7 +48,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
     klass.include Cuprum::Rails::Actions::ParameterValidation # rubocop:disable RSpec/DescribedClass
 
     klass.define_method(:process) do |request:, **options|
-      super(request: request, **options)
+      super(request:, **options)
 
       { 'ok' => true, **options.stringify_keys }
     end
@@ -65,7 +65,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
 
   describe '#call' do
     let(:params)  { {} }
-    let(:request) { Cuprum::Rails::Request.new(params: params) }
+    let(:request) { Cuprum::Rails::Request.new(params:) }
 
     it 'should define the method' do
       expect(action)
@@ -76,14 +76,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
     end
 
     it 'should return a passing result' do
-      expect(action.call(request: request))
+      expect(action.call(request:))
         .to be_a_passing_result
         .with_value({ 'ok' => true })
     end
 
     describe 'with additional options' do
       it 'should return a passing result' do
-        expect(action.call(request: request, option: 'value'))
+        expect(action.call(request:, option: 'value'))
           .to be_a_passing_result
           .with_value({ 'ok' => true, 'option' => 'value' })
       end
@@ -103,7 +103,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         end
 
         it 'should return a failing result' do
-          expect(action.call(request: request))
+          expect(action.call(request:))
             .to be_a_failing_result
             .with_error(expected_error)
         end
@@ -113,14 +113,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         let(:params) { { 'book_id' => '00000000-0000-0000-0000-000000000000' } }
 
         it 'should return a passing result' do
-          expect(action.call(request: request))
+          expect(action.call(request:))
             .to be_a_passing_result
             .with_value({ 'ok' => true })
         end
 
         describe 'with additional options' do
           it 'should return a passing result' do
-            expect(action.call(request: request, option: 'value'))
+            expect(action.call(request:, option: 'value'))
               .to be_a_passing_result
               .with_value({ 'ok' => true, 'option' => 'value' })
           end
@@ -136,14 +136,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         end
 
         it 'should return a passing result' do
-          expect(action.call(request: request))
+          expect(action.call(request:))
             .to be_a_passing_result
             .with_value({ 'ok' => true })
         end
 
         describe 'with additional options' do
           it 'should return a passing result' do
-            expect(action.call(request: request, option: 'value'))
+            expect(action.call(request:, option: 'value'))
               .to be_a_passing_result
               .with_value({ 'ok' => true, 'option' => 'value' })
           end
@@ -166,7 +166,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         end
 
         it 'should return a failing result' do
-          expect(action.call(request: request))
+          expect(action.call(request:))
             .to be_a_failing_result
             .with_error(expected_error)
         end
@@ -176,14 +176,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         let(:params) { { 'book_id' => '00000000-0000-0000-0000-000000000000' } }
 
         it 'should return a passing result' do
-          expect(action.call(request: request))
+          expect(action.call(request:))
             .to be_a_passing_result
             .with_value({ 'ok' => true })
         end
 
         describe 'with additional options' do
           it 'should return a passing result' do
-            expect(action.call(request: request, option: 'value'))
+            expect(action.call(request:, option: 'value'))
               .to be_a_passing_result
               .with_value({ 'ok' => true, 'option' => 'value' })
           end
@@ -205,7 +205,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         end
 
         it 'should return a failing result' do
-          expect(action.call(request: request))
+          expect(action.call(request:))
             .to be_a_failing_result
             .with_error(expected_error)
         end
@@ -215,14 +215,14 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         let(:params) { { 'book_id' => '00000000-0000-0000-0000-000000000000' } }
 
         it 'should return a passing result' do
-          expect(action.call(request: request))
+          expect(action.call(request:))
             .to be_a_passing_result
             .with_value({ 'ok' => true })
         end
 
         describe 'with additional options' do
           it 'should return a passing result' do
-            expect(action.call(request: request, option: 'value'))
+            expect(action.call(request:, option: 'value'))
               .to be_a_passing_result
               .with_value({ 'ok' => true, 'option' => 'value' })
           end
@@ -251,7 +251,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
 
   describe '#validate_parameters' do
     let(:params)  { {} }
-    let(:request) { Cuprum::Rails::Request.new(params: params) }
+    let(:request) { Cuprum::Rails::Request.new(params:) }
     let(:contract) do
       Stannum::Contracts::HashContract.new(&implementation)
     end
@@ -272,7 +272,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
         Cuprum::Rails::Errors::InvalidParameters.new(errors: expected_errors)
       end
 
-      before(:example) { action.call(request: request) }
+      before(:example) { action.call(request:) }
 
       it 'should return a failing result' do
         expect(action.send(:validate_parameters, contract))
@@ -284,7 +284,7 @@ RSpec.describe Cuprum::Rails::Actions::ParameterValidation do
     describe 'with a contract that matches the parameters' do
       let(:params) { { 'book_id' => '00000000-0000-0000-0000-000000000000' } }
 
-      before(:example) { action.call(request: request) }
+      before(:example) { action.call(request:) }
 
       it 'should return a passing result' do
         expect(action.send(:validate_parameters, contract))

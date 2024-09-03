@@ -43,8 +43,8 @@ RSpec.describe Cuprum::Rails::Controller do
 
     let(:expected) do
       {
-        repository: repository,
-        resource:   resource
+        repository:,
+        resource:
       }
     end
 

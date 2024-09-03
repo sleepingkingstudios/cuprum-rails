@@ -41,7 +41,7 @@ module Cuprum::Rails::Commands
     private
 
     def invalid_statement_error(message)
-      Cuprum::Rails::Errors::InvalidStatement.new(message: message)
+      Cuprum::Rails::Errors::InvalidStatement.new(message:)
     end
 
     def process(

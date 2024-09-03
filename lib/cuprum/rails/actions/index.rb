@@ -25,9 +25,9 @@ module Cuprum::Rails::Actions
 
     def find_entities(limit:, offset:, order:, &block)
       collection.find_matching.call(
-        limit:  limit,
-        offset: offset,
-        order:  order,
+        limit:,
+        offset:,
+        order:,
         &block
       )
     end
@@ -50,9 +50,9 @@ module Cuprum::Rails::Actions
 
       @entities = step do
         find_entities(
-          limit:  limit,
-          offset: offset,
-          order:  order,
+          limit:,
+          offset:,
+          order:,
           &block
         )
       end

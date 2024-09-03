@@ -63,30 +63,28 @@ module Cuprum::Rails::Scopes
       end
 
       def equal(attribute, value)
-        if value.nil?
-          return sanitize(':attribute IS NULL', attribute: attribute)
-        end
+        return sanitize(':attribute IS NULL', attribute:) if value.nil?
 
         sanitize(
           ':attribute = :value',
-          attribute: attribute,
-          value:     value
+          attribute:,
+          value:
         )
       end
 
       def greater_than(attribute, value)
         sanitize(
           ':attribute > :value',
-          attribute: attribute,
-          value:     value
+          attribute:,
+          value:
         )
       end
 
       def greater_than_or_equal_to(attribute, value)
         sanitize(
           ':attribute >= :value',
-          attribute: attribute,
-          value:     value
+          attribute:,
+          value:
         )
       end
 
@@ -101,47 +99,45 @@ module Cuprum::Rails::Scopes
       def less_than(attribute, value)
         sanitize(
           ':attribute < :value',
-          attribute: attribute,
-          value:     value
+          attribute:,
+          value:
         )
       end
 
       def less_than_or_equal_to(attribute, value)
         sanitize(
           ':attribute <= :value',
-          attribute: attribute,
-          value:     value
+          attribute:,
+          value:
         )
       end
 
       def not_equal(attribute, value)
-        if value.nil?
-          return sanitize(':attribute IS NOT NULL', attribute: attribute)
-        end
+        return sanitize(':attribute IS NOT NULL', attribute:) if value.nil?
 
         sanitize(
           '(:attribute != :value OR :attribute IS NULL)',
-          attribute: attribute,
-          value:     value
+          attribute:,
+          value:
         )
       end
 
       def not_one_of(attribute, value)
         sanitize(
           '(:attribute NOT IN (:value) OR :attribute IS NULL)',
-          attribute: attribute,
-          value:     value
+          attribute:,
+          value:
         )
       end
 
       def one_of(attribute, value)
-        sanitize(':attribute IN (:value)', attribute: attribute, value: value)
+        sanitize(':attribute IN (:value)', attribute:, value:)
       end
 
       def sanitize(template, attribute:, **conditions)
         attribute =
           ActiveRecord::Base
-            .sanitize_sql([':attribute', { attribute: attribute }])
+            .sanitize_sql([':attribute', { attribute: }])
             .then { |str| str[1...-1] }
         template  = template.gsub(':attribute', attribute)
 
@@ -154,7 +150,7 @@ module Cuprum::Rails::Scopes
     def process(native_query:)
       return inverted? ? native_query.none : native_query if empty?
 
-      sql = Builder.instance.call(criteria: criteria, inverted: inverted?)
+      sql = Builder.instance.call(criteria:, inverted: inverted?)
 
       native_query.where(sql)
     end

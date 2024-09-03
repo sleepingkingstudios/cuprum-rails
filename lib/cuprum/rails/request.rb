@@ -26,15 +26,15 @@ module Cuprum::Rails
         new(
           action_name:     request.params['action']&.intern,
           authorization:   request.authorization,
-          body_params:     body_params,
+          body_params:,
           controller_name: request.params['controller'],
           format:          request.format.symbol,
           headers:         filter_headers(request.headers),
           http_method:     request.request_method_symbol,
           params:          body_params.merge(query_params).merge(path_params),
           path:            request.fullpath,
-          path_params:     path_params,
-          query_params:    query_params,
+          path_params:,
+          query_params:,
           **options
         )
       end

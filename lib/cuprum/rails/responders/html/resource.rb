@@ -88,8 +88,8 @@ module Cuprum::Rails::Responders::Html
 
     private
 
-    def find_ancestor(&block)
-      resource.each_ancestor.find(&block)
+    def find_ancestor(&)
+      resource.each_ancestor.find(&)
     end
 
     def handle_not_found_error(result)

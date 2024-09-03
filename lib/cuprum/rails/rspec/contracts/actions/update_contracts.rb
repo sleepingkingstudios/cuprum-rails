@@ -14,18 +14,18 @@ module Cuprum::Rails::RSpec::Contracts::Actions
       attributes    =
         Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
           options[:valid_attributes],
-          context: context
+          context:
         )
       entity        =
         Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
           options[:existing_entity],
-          context: context
+          context:
         )
       resource_name = resource.singular_name
 
       Cuprum::Rails::RSpec::ContractHelpers.option_with_default(
         options[:params],
-        context: context,
+        context:,
         default: {
           'id'          => entity[resource.primary_key],
           resource_name => attributes
@@ -88,9 +88,9 @@ module Cuprum::Rails::RSpec::Contracts::Actions
         configured_params = lambda do
           Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts.parameters(
             context:          self,
-            existing_entity:  existing_entity,
+            existing_entity:,
             resource:         configured_resource,
-            valid_attributes: valid_attributes,
+            valid_attributes:,
             **options
           )
         end
@@ -135,25 +135,25 @@ module Cuprum::Rails::RSpec::Contracts::Actions
 
         include_contract(
           'should validate attributes',
-          existing_entity:     existing_entity,
+          existing_entity:,
           expected_attributes: options.fetch(
             :expected_attributes,
             options[:expected_attributes_on_failure]
           ),
-          invalid_attributes:  invalid_attributes,
+          invalid_attributes:,
           params:              configured_params,
           &should_not_update_the_entity
         )
 
         include_contract(
           'should update the entity',
-          existing_entity:     existing_entity,
+          existing_entity:,
           expected_attributes: options.fetch(
             :expected_attributes,
             options[:expected_attributes_on_success]
           ),
           expected_value:      options[:expected_value_on_success],
-          valid_attributes:    valid_attributes,
+          valid_attributes:,
           params:              configured_params,
           &options[:examples_on_success]
         )
@@ -194,9 +194,9 @@ module Cuprum::Rails::RSpec::Contracts::Actions
               Cuprum::Rails::RSpec::Contracts::Actions::UpdateContracts
                 .parameters(
                   context:          self,
-                  existing_entity:  existing_entity,
+                  existing_entity:,
                   resource:         configured_resource,
-                  valid_attributes: valid_attributes,
+                  valid_attributes:,
                   **options
                 )
             end

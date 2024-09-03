@@ -22,7 +22,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
 
     context 'when initialized with assigns: a Hash' do
       let(:assigns) { { key: 'value' } }
-      let(:options) { super().merge(assigns: assigns) }
+      let(:options) { super().merge(assigns:) }
 
       it { expect(response.assigns).to be == assigns }
     end
@@ -61,7 +61,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
           title:  'Gideon the Ninth'
         }
       end
-      let(:options) { super().merge(assigns: assigns) }
+      let(:options) { super().merge(assigns:) }
 
       it 'should assign the variables', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
         response.call(renderer)
@@ -89,7 +89,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it 'should assign the flash', :aggregate_failures do # rubocop:disable RSpec/ExampleLength
         response.call(renderer)
@@ -112,27 +112,27 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
 
     context 'when initialized with layout: value' do
       let(:layout)  { 'page' }
-      let(:options) { super().merge(layout: layout) }
+      let(:options) { super().merge(layout:) }
 
       it 'should render the template' do
         response.call(renderer)
 
         expect(renderer)
           .to have_received(:render)
-          .with(template, layout: layout, status: 200)
+          .with(template, layout:, status: 200)
       end
     end
 
     context 'when initialized with status: value' do
       let(:status)  { 201 }
-      let(:options) { super().merge(status: status) }
+      let(:options) { super().merge(status:) }
 
       it 'should render the template' do
         response.call(renderer)
 
         expect(renderer)
           .to have_received(:render)
-          .with(template, status: status)
+          .with(template, status:)
       end
     end
   end
@@ -147,7 +147,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
           notice: 'Initializing activation sequence'
         }
       end
-      let(:options) { super().merge(flash: flash) }
+      let(:options) { super().merge(flash:) }
 
       it { expect(response.flash).to be == flash }
     end
@@ -158,7 +158,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
 
     context 'when initialized with layout: value' do
       let(:layout)  { 'page' }
-      let(:options) { super().merge(layout: layout) }
+      let(:options) { super().merge(layout:) }
 
       it { expect(response.layout).to be == layout }
     end
@@ -169,7 +169,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
 
     context 'when initialized with status: value' do
       let(:status)  { 201 }
-      let(:options) { super().merge(status: status) }
+      let(:options) { super().merge(status:) }
 
       it { expect(response.status).to be status }
     end

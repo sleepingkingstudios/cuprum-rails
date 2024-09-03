@@ -23,7 +23,7 @@ module Cuprum::Rails
           'native_errors must be an instance of ActiveModel::Errors'
       end
 
-      map_errors(native_errors: native_errors)
+      map_errors(native_errors:)
     end
 
     private
@@ -31,9 +31,9 @@ module Cuprum::Rails
     # :nocov:
     def map_errors(native_errors:)
       if Rails.version < '6.1'
-        map_errors_hash(native_errors: native_errors)
+        map_errors_hash(native_errors:)
       else
-        map_errors_object(native_errors: native_errors)
+        map_errors_object(native_errors:)
       end
     end
 
@@ -48,7 +48,7 @@ module Cuprum::Rails
         details[attribute].each.with_index do |hsh, index|
           message = messages[attribute][index]
 
-          scoped.add(hsh[:error], **hsh.except(:error).merge(message: message))
+          scoped.add(hsh[:error], **hsh.except(:error).merge(message:))
         end
       end
 

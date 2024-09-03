@@ -32,7 +32,7 @@ module Cuprum::Rails::RSpec::Contracts
         let(:context) do
           return super() if defined?(super())
 
-          Cuprum::Rails::Serializers::Context.new(serializers: serializers)
+          Cuprum::Rails::Serializers::Context.new(serializers:)
         end
         let(:expected_attributes) do
           tools = SleepingKingStudios::Tools::Toolbelt.instance
@@ -44,7 +44,7 @@ module Cuprum::Rails::RSpec::Contracts
             .merge(attribute_values)
             .then { |hsh| tools.hash_tools.convert_keys_to_strings(hsh) }
         end
-        let(:serialized) { serializer.call(object, context: context) }
+        let(:serialized) { serializer.call(object, context:) }
 
         it 'should serialize the expected attributes' do
           expect(serialized.keys).to contain_exactly(*expected_attributes.keys)
