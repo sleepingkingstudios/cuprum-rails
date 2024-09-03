@@ -9,7 +9,7 @@ gem "sleeping_king_studios-tasks", "~> 0.4", ">= 0.4.1"
 group :development, :test do
   gem "appraisal", "~> 2.4"
   gem "byebug", "~> 11.0"
-  gem "database_cleaner-active_record", "~> 2.1"
+  gem "database_cleaner-active_record", "~> 2.2"
   gem "pg", "~> 1.5"
 end
 
