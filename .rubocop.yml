@@ -2,6 +2,7 @@ require:
   - rubocop-rails
   - rubocop-rake
   - rubocop-rspec
+  - rubocop-rspec_rails
 
 AllCops:
   TargetRubyVersion: 2.7
@@ -84,9 +85,6 @@ RSpec/Eq:
 RSpec/ExampleWording:
   Enabled: false
 
-RSpec/FilePath:
-  Enabled: false
-
 RSpec/HookArgument:
   Enabled: false
 
@@ -103,7 +101,7 @@ RSpec/SpecFilePathFormat:
   Exclude:
     - spec/integration/**/*
 
-RSpec/Rails/HaveHttpStatus:
+RSpecRails/HaveHttpStatus:
   Enabled: false
 
 Style/AccessorGrouping:

@@ -67,7 +67,7 @@ module Cuprum::Rails::Responders
     private
 
     def matcher_options
-      super().merge(action_name: action_name)
+      super.merge(action_name: action_name)
     end
   end
 end

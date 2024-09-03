@@ -33,7 +33,6 @@ module Cuprum::Rails::Responders::Json
       end
     end
 
-    # rubocop:disable Style/RedundantLineContinuation
     match :failure, error: Cuprum::Collections::Errors::AlreadyExists \
     do |result|
       render_failure(result.error, status: 422)
@@ -53,7 +52,6 @@ module Cuprum::Rails::Responders::Json
     do |result|
       render_failure(result.error, status: 404)
     end
-    # rubocop:enable Style/RedundantLineContinuation
 
     match :failure, error: Cuprum::Rails::Errors::InvalidParameters do |result|
       render_failure(result.error, status: 400)

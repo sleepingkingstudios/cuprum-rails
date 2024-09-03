@@ -54,7 +54,7 @@ module Cuprum::Rails
     protected
 
     def command_options
-      super().merge(record_class: entity_class)
+      super.merge(record_class: entity_class)
     end
 
     private

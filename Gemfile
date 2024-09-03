@@ -17,12 +17,13 @@ group :doc do
 end
 
 group :test do
-  gem 'rspec', '~> 3.12'
+  gem 'rspec', '~> 3.13'
   gem 'rspec-sleeping_king_studios', '~> 2.7.0'
-  gem 'rubocop', '~> 1.62'
-  gem 'rubocop-rails', '~> 2.24'
+  gem 'rubocop', '~> 1.66'
+  gem 'rubocop-rails', '~> 2.26'
   gem 'rubocop-rake', '~> 0.6'
-  gem 'rubocop-rspec', '~> 2.27'
+  gem 'rubocop-rspec', '~> 3.0'
+  gem 'rubocop-rspec_rails', '~> 2.30'
   gem 'simplecov', '~> 0.22'
 end
 

@@ -13,7 +13,7 @@ module Spec::Support::Actions
     attr_reader :chapters
 
     def build_response
-      super().merge('chapters' => chapters)
+      super.merge('chapters' => chapters)
     end
 
     def chapters_collection

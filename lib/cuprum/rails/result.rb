@@ -29,7 +29,7 @@ module Cuprum::Rails
 
     # @return [Hash{Symbol => Object}] a Hash representation of the result.
     def properties
-      super().merge(metadata: metadata)
+      super.merge(metadata: metadata)
     end
     alias to_h properties
   end
