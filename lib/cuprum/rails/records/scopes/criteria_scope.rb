@@ -3,12 +3,12 @@
 require 'cuprum/collections/queries'
 require 'cuprum/collections/scopes/criteria'
 
-require 'cuprum/rails/scopes'
-require 'cuprum/rails/scopes/base'
+require 'cuprum/rails/records/scopes'
+require 'cuprum/rails/records/scopes/base'
 
-module Cuprum::Rails::Scopes
+module Cuprum::Rails::Records::Scopes
   # Scope for filtering on collection data based on criteria.
-  class CriteriaScope < Cuprum::Rails::Scopes::Base
+  class CriteriaScope < Cuprum::Rails::Records::Scopes::Base
     include Cuprum::Collections::Scopes::Criteria
 
     # Helper for generating SQL queries from criteria.
@@ -16,8 +16,8 @@ module Cuprum::Rails::Scopes
       Operators = Cuprum::Collections::Queries::Operators
       private_constant :Operators
 
-      # @return [Cuprum::Rails::Scopes::CriteriaScope::Builder] a singleton
-      #   instance of the builder class.
+      # @return [Cuprum::Rails::Records::Scopes::CriteriaScope::Builder] a
+      #   singleton instance of the builder class.
       def self.instance
         @instance ||= new
       end

@@ -31,7 +31,7 @@ module Cuprum::Rails::RSpec::Contracts
         end
 
         describe '#builder' do
-          let(:expected) { Cuprum::Rails::Scopes::Builder.instance }
+          let(:expected) { Cuprum::Rails::Records::Scopes::Builder.instance }
 
           include_examples 'should define private reader',
             :builder,

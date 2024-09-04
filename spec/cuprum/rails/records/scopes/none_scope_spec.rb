@@ -2,10 +2,10 @@
 
 require 'cuprum/collections/rspec/contracts/scope_contracts'
 
+require 'cuprum/rails/records/scopes/none_scope'
 require 'cuprum/rails/rspec/contracts/scope_contracts'
-require 'cuprum/rails/scopes/none_scope'
 
-RSpec.describe Cuprum::Rails::Scopes::NoneScope do
+RSpec.describe Cuprum::Rails::Records::Scopes::NoneScope do
   include Cuprum::Collections::RSpec::Contracts::ScopeContracts
   include Cuprum::Rails::RSpec::Contracts::ScopeContracts
 

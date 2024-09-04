@@ -2,12 +2,12 @@
 
 require 'cuprum/collections/scopes/none'
 
-require 'cuprum/rails/scopes'
-require 'cuprum/rails/scopes/base'
+require 'cuprum/rails/records/scopes'
+require 'cuprum/rails/records/scopes/base'
 
-module Cuprum::Rails::Scopes
+module Cuprum::Rails::Records::Scopes
   # Scope for returning an empty data set.
-  class NoneScope < Cuprum::Rails::Scopes::Base
+  class NoneScope < Cuprum::Rails::Records::Scopes::Base
     include Cuprum::Collections::Scopes::None
 
     # @return [Cuprum::Collections::Rails::Scopes::NoneScope] a cached instance

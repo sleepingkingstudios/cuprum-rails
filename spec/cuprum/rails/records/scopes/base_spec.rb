@@ -2,10 +2,10 @@
 
 require 'cuprum/collections/rspec/fixtures'
 
+require 'cuprum/rails/records/scopes/base'
 require 'cuprum/rails/rspec/contracts/scope_contracts'
-require 'cuprum/rails/scopes/base'
 
-RSpec.describe Cuprum::Rails::Scopes::Base do
+RSpec.describe Cuprum::Rails::Records::Scopes::Base do
   include Cuprum::Rails::RSpec::Contracts::ScopeContracts
 
   subject(:scope) { described_class.new }

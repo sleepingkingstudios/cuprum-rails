@@ -4,6 +4,7 @@ require 'cuprum/collections/collection'
 require 'cuprum/command_factory'
 
 require 'cuprum/rails/records'
+require 'cuprum/rails/records/scopes/all_scope'
 
 module Cuprum::Rails::Records
   # Wraps an ActiveRecord model as a Cuprum collection.
@@ -75,7 +76,7 @@ module Cuprum::Rails::Records
     private
 
     def default_scope
-      Cuprum::Rails::Scopes::AllScope.new
+      Cuprum::Rails::Records::Scopes::AllScope.new
     end
 
     def primary_key_column_type

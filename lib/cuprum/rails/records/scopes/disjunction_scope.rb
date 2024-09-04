@@ -2,12 +2,12 @@
 
 require 'cuprum/collections/scopes/disjunction'
 
-require 'cuprum/rails/scopes'
-require 'cuprum/rails/scopes/base'
+require 'cuprum/rails/records/scopes'
+require 'cuprum/rails/records/scopes/base'
 
-module Cuprum::Rails::Scopes
+module Cuprum::Rails::Records::Scopes
   # Scope for filtering data matching any of the given scopes.
-  class DisjunctionScope < Cuprum::Rails::Scopes::Base
+  class DisjunctionScope < Cuprum::Rails::Records::Scopes::Base
     include Cuprum::Collections::Scopes::Disjunction
 
     private

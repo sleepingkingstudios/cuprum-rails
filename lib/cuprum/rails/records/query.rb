@@ -3,7 +3,7 @@
 require 'cuprum/collections/query'
 
 require 'cuprum/rails/records'
-require 'cuprum/rails/scopes/all_scope'
+require 'cuprum/rails/records/scopes/all_scope'
 
 module Cuprum::Rails::Records
   # Interface for performing query operations on a Rails collection.
@@ -20,8 +20,8 @@ module Cuprum::Rails::Records
     #   subclass of ActiveRecord::Base.
     # @param native_query [ActiveRecord::Relation] A relation used to scope the
     #   query.
-    # @param scope [Cuprum::Rails::Scopes::Base] the base scope for the query.
-    #   Defaults to nil.
+    # @param scope [Cuprum::Rails::Records::Scopes::Base] the base scope for the
+    #   query. Defaults to nil.
     def initialize(record_class, native_query: nil, scope: nil)
       super(scope:)
 
@@ -71,7 +71,7 @@ module Cuprum::Rails::Records
     attr_reader :native_query
 
     def default_scope
-      Cuprum::Rails::Scopes::AllScope.instance
+      Cuprum::Rails::Records::Scopes::AllScope.instance
     end
 
     def scoped_query

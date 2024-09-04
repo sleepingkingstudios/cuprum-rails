@@ -3,10 +3,10 @@
 require 'cuprum/collections/queries'
 require 'cuprum/collections/rspec/contracts/scopes/criteria_contracts'
 
+require 'cuprum/rails/records/scopes/criteria_scope'
 require 'cuprum/rails/rspec/contracts/scope_contracts'
-require 'cuprum/rails/scopes/criteria_scope'
 
-RSpec.describe Cuprum::Rails::Scopes::CriteriaScope do
+RSpec.describe Cuprum::Rails::Records::Scopes::CriteriaScope do
   include Cuprum::Collections::RSpec::Contracts::Scopes::CriteriaContracts
   include Cuprum::Rails::RSpec::Contracts::ScopeContracts
 

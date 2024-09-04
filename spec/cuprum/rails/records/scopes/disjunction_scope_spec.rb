@@ -2,11 +2,11 @@
 
 require 'cuprum/collections/rspec/contracts/scopes/logical_contracts'
 
+require 'cuprum/rails/records/scopes/criteria_scope'
+require 'cuprum/rails/records/scopes/disjunction_scope'
 require 'cuprum/rails/rspec/contracts/scope_contracts'
-require 'cuprum/rails/scopes/criteria_scope'
-require 'cuprum/rails/scopes/disjunction_scope'
 
-RSpec.describe Cuprum::Rails::Scopes::DisjunctionScope do
+RSpec.describe Cuprum::Rails::Records::Scopes::DisjunctionScope do
   include Cuprum::Collections::RSpec::Contracts::Scopes::LogicalContracts
   include Cuprum::Rails::RSpec::Contracts::ScopeContracts
 
@@ -17,7 +17,7 @@ RSpec.describe Cuprum::Rails::Scopes::DisjunctionScope do
   let(:data)         { [] }
 
   def build_scope(filters = nil, &block)
-    scope_class = Cuprum::Rails::Scopes::CriteriaScope
+    scope_class = Cuprum::Rails::Records::Scopes::CriteriaScope
 
     if block_given?
       scope_class.build(&block)

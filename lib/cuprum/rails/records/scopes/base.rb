@@ -2,9 +2,9 @@
 
 require 'cuprum/collections/scopes/base'
 
-require 'cuprum/rails/scopes'
+require 'cuprum/rails/records/scopes'
 
-module Cuprum::Rails::Scopes
+module Cuprum::Rails::Records::Scopes
   # Abstract class representing a set of filters for a Rails query.
   class Base < Cuprum::Collections::Scopes::Base
     # Generates an ActiveRecord relation for the scope and given record class.
@@ -24,7 +24,7 @@ module Cuprum::Rails::Scopes
     private
 
     def builder
-      Cuprum::Rails::Scopes::Builder.instance
+      Cuprum::Rails::Records::Scopes::Builder.instance
     end
 
     def process(native_query:)
@@ -33,4 +33,4 @@ module Cuprum::Rails::Scopes
   end
 end
 
-require 'cuprum/rails/scopes/builder'
+require 'cuprum/rails/records/scopes/builder'
