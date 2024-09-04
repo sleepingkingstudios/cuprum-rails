@@ -3,13 +3,13 @@
 require 'cuprum/collections/rspec/contracts/collection_contracts'
 require 'cuprum/collections/rspec/fixtures'
 
-require 'cuprum/rails/collection'
 require 'cuprum/rails/commands'
+require 'cuprum/rails/records/collection'
 
 require 'support/book'
 require 'support/tome'
 
-RSpec.describe Cuprum::Rails::Collection do
+RSpec.describe Cuprum::Rails::Records::Collection do
   include Cuprum::Collections::RSpec::Contracts::CollectionContracts
 
   subject(:collection) { described_class.new(**constructor_options) }
@@ -30,24 +30,6 @@ RSpec.describe Cuprum::Rails::Collection do
 
   example_class 'Grimoire',         Book
   example_class 'Spec::ScopedBook', Book
-
-  before(:example) do
-    allow(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
-      .to receive(:deprecate)
-  end
-
-  describe '.new' do
-    it 'should print a deprecation warning' do # rubocop:disable RSpec/ExampleLength
-      described_class.new(**constructor_options)
-
-      expect(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
-        .to have_received(:deprecate)
-        .with(
-          described_class.name,
-          'Use Cuprum::Rails::Records::Collection instead'
-        )
-    end
-  end
 
   include_contract 'should be a collection',
     commands_namespace: 'Cuprum::Rails::Commands'

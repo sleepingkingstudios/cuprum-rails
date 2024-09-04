@@ -11,7 +11,7 @@ module Cuprum::Rails
     private
 
     def build_collection(**options)
-      Cuprum::Rails::Collection.new(**options)
+      Cuprum::Rails::Records::Collection.new(**options)
     end
 
     def qualified_name_for(**parameters)
@@ -21,7 +21,7 @@ module Cuprum::Rails
     end
 
     def valid_collection?(collection)
-      collection.is_a?(Cuprum::Rails::Collection)
+      collection.is_a?(Cuprum::Rails::Records::Collection)
     end
   end
 end

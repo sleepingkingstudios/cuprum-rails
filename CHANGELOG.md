@@ -1,5 +1,13 @@
 # Changelog
 
+## O.3.0
+
+### Records
+
+Refactored the existing collection to `Cuprum::Rails::Records::Collection`.
+
+- Refactor `Collection` to `Records::Collection`. Creating a `Cuprum::Rails::Collection` will print a deprecation warning.
+
 ## O.2.0
 
 ### Actions

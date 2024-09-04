@@ -16,7 +16,7 @@ Cuprum::Rails defines the following objects:
 
 ## About
 
-Cuprum::Rails provides a toolkit for using the Cuprum command pattern and the flexibility of Cuprum::Collections to build Rails applications. Using the `Cuprum::Rails::Collection`, you can perform operations on ActiveRecord models, leveraging a standard interface to control where your data is stored and how it is queried. For example, you can inject a mock collection into unit tests for precise control over queried values and blinding fast tests without having to hit the database directly.
+Cuprum::Rails provides a toolkit for using the Cuprum command pattern and the flexibility of Cuprum::Collections to build Rails applications. Using the `Cuprum::Rails::Records::Collection`, you can perform operations on ActiveRecord models, leveraging a standard interface to control where your data is stored and how it is queried. For example, you can inject a mock collection into unit tests for precise control over queried values and blinding fast tests without having to hit the database directly.
 
 Using `Cuprum::Rails::Controller` takes this one step further, breaking apart the traditional controller into a sequence of steps with individual responsibilities. This has two main benefits. First, being explicit about how your controllers perform and respond to actions allows for precise control at each step of the process. Second, each step is encapsulated, which allows for easier testing and reuse. This not only makes testing simpler - you can test your business logic by examining an Action result, rather than parsing a rendered HTML page - but allows you to reuse individual components. The goal is to reduce the boilerplate inherent in writing a Rails application by allowing you to define only the code that is unique to the controller, action, or process.
 
@@ -65,13 +65,13 @@ Please note that the `Cuprum::Collections` project is released with a [Contribut
 ### Collections
 
 ```ruby
-require 'cuprum/rails/collection'
+require 'cuprum/rails/records/collection'
 ```
 
-A `Cuprum::Rails::Collection` implements the [Cuprum::Collections](https://github.com/sleepingkingstudios/cuprum-collections) interface for `ActiveRecord` models. It defines a set of [commands](#commands) that implement persistence and query operations, and a `#query` method to directly perform queries on the data.
+A `Cuprum::Rails::Records::Collection` implements the [Cuprum::Collections](https://github.com/sleepingkingstudios/cuprum-collections) interface for `ActiveRecord` models. It defines a set of [commands](#commands) that implement persistence and query operations, and a `#query` method to directly perform queries on the data.
 
 ```ruby
-collection = Cuprum::Rails::Collection.new(record_class: Book)
+collection = Cuprum::Rails::Records::Collection.new(record_class: Book)
 
 # Add an item to the collection.
 steps do
@@ -395,7 +395,7 @@ repository.key?('books')
 #=> false
 
 collection = repository.find_or_create(entity_class: Book)
-#=> a Cuprum::Rails::Collection
+#=> a Cuprum::Rails::Records::Collection
 collection.collection_name
 #=> 'books'
 collection.qualified_name
@@ -412,7 +412,7 @@ repository.key?('authentication/users')
 #=> false
 
 collection = repository.find_or_create(entity_class: Authentication::User)
-#=> a Cuprum::Rails::Collection
+#=> a Cuprum::Rails::Records::Collection
 collection.collection_name
 #=> 'users'
 collection.qualified_name
@@ -443,7 +443,7 @@ class BooksController
 
   def self.resource
     @resource ||= Cuprum::Rails::Resource.new(
-      collection:           Cuprum::Rails::Collection.new(record_class: Book),
+      collection:           Cuprum::Rails::Records::Collection.new(record_class: Book),
       permitted_attributes: %i[title author series category published_at],
       resource_class:       Book
     )
@@ -962,7 +962,7 @@ A `Cuprum::Rails::Resource` defines the configuration for a resourceful controll
 
 ```ruby
 resource = Cuprum::Rails::Resource.new(
-  collection:     Cuprum::Rails::Collection.new(record_class: Book),
+  collection:     Cuprum::Rails::Records::Collection.new(record_class: Book),
   resource_class: Book
 )
 resource.resource_name
@@ -972,7 +972,7 @@ resource.resource_name
 A resource must be initialized with either a `resource_class` or a `resource_name`. It defines the following properties:
 
 - `#base_url`: The base url for the collection, used when generating routes.
-- `#collection`: A `Cuprum::Collections` collection, used to perform queries and persistence operations on the resource data. If not given and the collection has a `#resource_class`, then a `Cuprum::Rails::Collection` is automatically generated.
+- `#collection`: A `Cuprum::Collections` collection, used to perform queries and persistence operations on the resource data. If not given and the collection has a `#resource_class`, then a `Cuprum::Rails::Records::Collection` is automatically generated.
 - `#resource_class`: The `Class` of items in the resource.
 - `#resource_name`: The name of the resource as a `String`. If the resource is initialized with a `resource_class`, the `resource_name` is derived from the given class.
 - `#routes`: A [Cuprum::Rails::Routes](#routes) object for the resource. If not given, a default routes object is generated for the resource.

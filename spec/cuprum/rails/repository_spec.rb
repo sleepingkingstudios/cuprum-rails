@@ -15,17 +15,17 @@ RSpec.describe Cuprum::Rails::Repository do
 
   shared_context 'when the repository has many collections' do
     let(:books_collection) do
-      Cuprum::Rails::Collection.new(entity_class: Book)
+      Cuprum::Rails::Records::Collection.new(entity_class: Book)
     end
     let(:magazines_collection) do
-      Cuprum::Rails::Collection.new(
+      Cuprum::Rails::Records::Collection.new(
         name:           'magazines',
         qualified_name: 'magazines',
         entity_class:   Spec::Magazine
       )
     end
     let(:periodicals_collection) do
-      Cuprum::Rails::Collection.new(
+      Cuprum::Rails::Records::Collection.new(
         name:         'periodicals',
         entity_class: Spec::Periodical
       )
@@ -51,7 +51,7 @@ RSpec.describe Cuprum::Rails::Repository do
   end
 
   let(:example_collection) do
-    Cuprum::Rails::Collection.new(entity_class: Tome)
+    Cuprum::Rails::Records::Collection.new(entity_class: Tome)
   end
 
   describe '.new' do
@@ -63,7 +63,7 @@ RSpec.describe Cuprum::Rails::Repository do
   example_class 'Spec::ScopedBook', 'Book'
 
   include_contract 'should be a repository',
-    collection_class: Cuprum::Rails::Collection
+    collection_class: Cuprum::Rails::Records::Collection
 
   describe '#add' do
     describe 'with an invalid collection' do

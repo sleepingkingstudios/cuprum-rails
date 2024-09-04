@@ -3,7 +3,7 @@
 require 'cuprum/collections/resource'
 
 require 'cuprum/rails'
-require 'cuprum/rails/collection'
+require 'cuprum/rails/records/collection'
 
 module Cuprum::Rails
   # Value object representing a controller resource.
