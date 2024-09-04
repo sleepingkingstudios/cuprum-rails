@@ -22,7 +22,7 @@ RSpec.describe Cuprum::Rails::Commands::FindMany do
     )
   end
 
-  let(:query) { Cuprum::Rails::Query.new(record_class) }
+  let(:query) { Cuprum::Rails::Records::Query.new(record_class) }
   let(:expected_data) do
     matching_data.map do |attributes|
       attributes ? record_class.new(attributes) : nil
@@ -50,7 +50,8 @@ RSpec.describe Cuprum::Rails::Commands::FindMany do
       before(:context) do # rubocop:disable RSpec/BeforeAfterAll
         value = '12345'
         query =
-          Cuprum::Rails::Query.new(Tome).where { { uuid: one_of([value]) } }
+          Cuprum::Rails::Records::Query.new(Tome)
+            .where { { uuid: one_of([value]) } }
 
         query.limit(1).to_a
       rescue ActiveRecord::StatementInvalid => exception

@@ -21,7 +21,6 @@ RSpec.describe Cuprum::Rails::Commands::DestroyOne do
     )
   end
 
-  # let(:query)         { Cuprum::Rails::Query.new(record_class) }
   let(:expected_data) { record_class.new(matching_data) }
 
   include_contract 'should be a rails command'

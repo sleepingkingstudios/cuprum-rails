@@ -8,6 +8,7 @@ Refactored the existing collection to `Cuprum::Rails::Records::Collection`.
 
 - Refactor `Collection` to `Records::Collection`. Creating a `Cuprum::Rails::Collection` will print a deprecation warning.
 - Refactor `Repository` to `Records::Repository`. Creating a `Cuprum::Rails::Repository` will print a deprecation warning.
+- Refactor `Query` to `Records::Query`. Creating a `Cuprum::Rails::Query` will print a deprecation warning.
 
 ## O.2.0
 

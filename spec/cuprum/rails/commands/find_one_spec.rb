@@ -22,7 +22,7 @@ RSpec.describe Cuprum::Rails::Commands::FindOne do
     )
   end
 
-  let(:query) { Cuprum::Rails::Query.new(record_class) }
+  let(:query) { Cuprum::Rails::Records::Query.new(record_class) }
   let(:expected_data) do
     record_class.new(matching_data)
   end
@@ -47,7 +47,8 @@ RSpec.describe Cuprum::Rails::Commands::FindOne do
 
       before(:context) do # rubocop:disable RSpec/BeforeAfterAll
         value = '12345'
-        query = Cuprum::Rails::Query.new(Tome).where { { uuid: value } }
+        query =
+          Cuprum::Rails::Records::Query.new(Tome).where { { uuid: value } }
 
         query.limit(1).to_a
       rescue ActiveRecord::StatementInvalid => exception

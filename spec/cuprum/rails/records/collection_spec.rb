@@ -24,7 +24,7 @@ RSpec.describe Cuprum::Rails::Records::Collection do
   let(:name)                { 'books' }
   let(:entity_class)        { Book }
   let(:constructor_options) { { name: } }
-  let(:query_class)         { Cuprum::Rails::Query }
+  let(:query_class)         { Cuprum::Rails::Records::Query }
   let(:query_options)       { { record_class: entity_class } }
   let(:default_order)       { { entity_class.primary_key => :asc } }
 

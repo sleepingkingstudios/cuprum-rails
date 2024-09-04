@@ -22,7 +22,7 @@ RSpec.describe Cuprum::Rails::Commands::FindMatching do
     )
   end
 
-  let(:query) { Cuprum::Rails::Query.new(record_class) }
+  let(:query) { Cuprum::Rails::Records::Query.new(record_class) }
   let(:expected_data) do
     matching_data.map do |attributes|
       Book.where(attributes).first

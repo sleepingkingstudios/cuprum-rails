@@ -2,12 +2,12 @@
 
 require 'cuprum/collections/rspec/contracts/query_contracts'
 
-require 'cuprum/rails/query'
+require 'cuprum/rails/records/query'
 
 require 'support/book'
 require 'support/tome'
 
-RSpec.describe Cuprum::Rails::Query do
+RSpec.describe Cuprum::Rails::Records::Query do
   include Cuprum::Collections::RSpec::Contracts::QueryContracts
 
   shared_context 'with a mock native query' do
@@ -62,9 +62,6 @@ RSpec.describe Cuprum::Rails::Query do
 
   before(:example) do
     data.each { |attributes| add_item_to_collection(attributes) }
-
-    allow(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
-      .to receive(:deprecate)
   end
 
   describe '.new' do
@@ -73,17 +70,6 @@ RSpec.describe Cuprum::Rails::Query do
         .to respond_to(:new)
         .with(1).argument
         .and_keywords(:native_query)
-    end
-
-    it 'should print a deprecation warning' do # rubocop:disable RSpec/ExampleLength
-      described_class.new(record_class)
-
-      expect(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
-        .to have_received(:deprecate)
-        .with(
-          described_class.name,
-          'Use Cuprum::Rails::Records::Query instead'
-        )
     end
   end
 

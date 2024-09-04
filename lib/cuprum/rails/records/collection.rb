@@ -61,9 +61,9 @@ module Cuprum::Rails::Records
 
     # A new Query instance, used for querying against the collection data.
     #
-    # @return [Cuprum::Rails::Query] the query.
+    # @return [Cuprum::Rails::Records::Query] the query.
     def query
-      Cuprum::Rails::Query.new(entity_class, scope:)
+      Cuprum::Rails::Records::Query.new(entity_class, scope:)
     end
 
     protected

@@ -5,7 +5,7 @@ require 'cuprum/collections/constraints/ordering'
 
 require 'cuprum/rails/command'
 require 'cuprum/rails/commands'
-require 'cuprum/rails/query'
+require 'cuprum/rails/records/query'
 
 module Cuprum::Rails::Commands
   # Command for querying filtered, ordered data from a Rails collection.

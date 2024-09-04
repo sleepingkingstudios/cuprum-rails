@@ -49,7 +49,7 @@ module Spec::Support::Actions
 
     def next_chapter_query
       native_query = book.chapters.select(:chapter_index)
-      Cuprum::Rails::Query
+      Cuprum::Rails::Records::Query
         .new(
           Book,
           native_query:
