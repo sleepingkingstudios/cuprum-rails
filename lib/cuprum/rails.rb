@@ -14,8 +14,6 @@ module Cuprum
     autoload :Action,      'cuprum/rails/action'
     autoload :Actions,     'cuprum/rails/actions'
     autoload :Collection,  'cuprum/rails/collection'
-    autoload :Command,     'cuprum/rails/command'
-    autoload :Commands,    'cuprum/rails/commands'
     autoload :Constraints, 'cuprum/rails/constraints'
     autoload :Controller,  'cuprum/rails/controller'
     autoload :Controllers, 'cuprum/rails/controllers'
@@ -23,13 +21,13 @@ module Cuprum
     autoload :Query,       'cuprum/rails/query'
     autoload :Repository,  'cuprum/rails/repository'
     autoload :Request,     'cuprum/rails/request'
+    autoload :Records,     'cuprum/rails/records'
     autoload :Responders,  'cuprum/rails/responders'
     autoload :Responses,   'cuprum/rails/responses'
     autoload :Resource,    'cuprum/rails/resource'
     autoload :Result,      'cuprum/rails/result'
     autoload :Routes,      'cuprum/rails/routes'
     autoload :Routing,     'cuprum/rails/routing'
-    autoload :Scopes,      'cuprum/rails/scopes'
     autoload :Serializers, 'cuprum/rails/serializers'
   end
 end

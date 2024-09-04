@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/action'
-require 'cuprum/rails/repository'
+require 'cuprum/rails/records/repository'
 require 'cuprum/rails/request'
 require 'cuprum/rails/rspec/contracts/action_contracts'
 
@@ -17,7 +17,7 @@ RSpec.describe Cuprum::Rails::Action do
 
   describe '.build' do
     let(:request)    { Cuprum::Rails::Request.new }
-    let(:repository) { Cuprum::Rails::Repository.new }
+    let(:repository) { Cuprum::Rails::Records::Repository.new }
     let(:resource)   { Cuprum::Rails::Resource.new(name: 'books') }
     let(:options)    { { optional: 'value' } }
     let(:delegate)   { instance_double(Proc, call: nil) }
@@ -147,7 +147,7 @@ RSpec.describe Cuprum::Rails::Action do
     include_examples 'should define reader', :repository
 
     context 'when called with a repository' do
-      let(:repository) { Cuprum::Rails::Repository.new }
+      let(:repository) { Cuprum::Rails::Records::Repository.new }
 
       before(:example) { action.call(repository:, request:) }
 

@@ -91,7 +91,7 @@ module Cuprum::Rails::RSpec::Contracts
         let(:configured_repository) do
           return repository if defined?(repository)
 
-          Cuprum::Rails::Repository.new
+          Cuprum::Rails::Records::Repository.new
         end
         let(:configured_request) do
           return request if defined?(request)

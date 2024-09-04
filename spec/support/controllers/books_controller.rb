@@ -9,7 +9,7 @@ require 'support/middleware/profiling_middleware'
 require 'support/serializers/book_serializer'
 
 class BooksController < BaseController
-  class PublishCommand < Cuprum::Rails::Command
+  class PublishCommand < Cuprum::Rails::Records::Command
     def initialize(record_class:, repository:, **)
       super(record_class:)
 

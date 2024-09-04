@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/middleware/resources/find'
+require 'cuprum/rails/records/repository'
 require 'cuprum/rails/request'
-require 'cuprum/rails/repository'
 require 'cuprum/rails/resource'
 
 require 'support/book'
@@ -76,7 +76,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
       instance_double(Cuprum::Command, call: next_result)
     end
     let(:request)         { Cuprum::Rails::Request.new(http_method: :get) }
-    let(:repository)      { Cuprum::Rails::Repository.new }
+    let(:repository)      { Cuprum::Rails::Records::Repository.new }
     let(:resource)        { Cuprum::Rails::Resource.new(name: 'authors') }
     let(:options)         { {} }
     let(:expected_status) { next_result.status }

@@ -4,7 +4,7 @@ require 'rspec/sleeping_king_studios/concerns/shared_example_group'
 
 require 'cuprum/collections/rspec/fixtures'
 
-require 'cuprum/rails/query'
+require 'cuprum/rails/records/query'
 
 require 'support/book'
 require 'support/examples'
@@ -24,7 +24,9 @@ module Spec::Support::Examples
       let(:primary_key_name)    { 'id' }
       let(:primary_key_type)    { Integer }
       let(:entity_type)         { record_class }
-      let(:query)               { Cuprum::Rails::Query.new(record_class) }
+      let(:query) do
+        Cuprum::Rails::Records::Query.new(record_class)
+      end
       let(:fixtures_data) do
         Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES.dup
       end

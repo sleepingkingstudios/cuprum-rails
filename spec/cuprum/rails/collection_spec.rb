@@ -4,7 +4,7 @@ require 'cuprum/collections/rspec/contracts/collection_contracts'
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/collection'
-require 'cuprum/rails/commands'
+require 'cuprum/rails/records/commands'
 
 require 'support/book'
 require 'support/tome'
@@ -18,19 +18,73 @@ RSpec.describe Cuprum::Rails::Collection do
     let(:data)  { Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES }
     let(:items) { data.map { |attributes| Book.new(attributes) } }
 
-    before(:each) { items.each(&:save!) }
+    before(:example) { items.each(&:save!) }
   end
 
   let(:name)                { 'books' }
   let(:entity_class)        { Book }
   let(:constructor_options) { { name: } }
-  let(:query_class)         { Cuprum::Rails::Query }
+  let(:query_class)         { Cuprum::Rails::Records::Query }
   let(:query_options)       { { record_class: entity_class } }
   let(:default_order)       { { entity_class.primary_key => :asc } }
 
   example_class 'Grimoire',         Book
   example_class 'Spec::ScopedBook', Book
 
+  before(:example) do
+    allow(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
+      .to receive(:deprecate)
+  end
+
+  describe '.new' do
+    it 'should print a deprecation warning' do # rubocop:disable RSpec/ExampleLength
+      described_class.new(**constructor_options)
+
+      expect(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
+        .to have_received(:deprecate)
+        .with(
+          described_class.name,
+          'Use Cuprum::Rails::Records::Collection instead'
+        )
+    end
+  end
+
   include_contract 'should be a collection',
-    commands_namespace: 'Cuprum::Rails::Commands'
+    commands_namespace: 'Cuprum::Rails::Records::Commands'
+
+  describe '#primary_key_name' do
+    context 'when the record class defines a custom primary key' do
+      let(:name)         { 'tomes' }
+      let(:entity_class) { Tome }
+
+      it { expect(collection.primary_key_name).to be == 'uuid' }
+
+      context 'when initialized with primary_key_name: a String' do
+        let(:primary_key_name) { 'id' }
+        let(:constructor_options) do
+          super().merge(primary_key_name:)
+        end
+
+        it { expect(collection.primary_key_name).to be == primary_key_name }
+      end
+    end
+  end
+
+  describe '#primary_key_type' do
+    context 'when the record class defines a custom primary key' do
+      let(:name)         { 'tomes' }
+      let(:entity_class) { Tome }
+
+      it { expect(collection.primary_key_type).to be String }
+
+      context 'when initialized with primary_key_name: a Class' do
+        let(:primary_key_type) { Integer }
+        let(:constructor_options) do
+          super().merge(primary_key_type:)
+        end
+
+        it { expect(collection.primary_key_type).to be primary_key_type }
+      end
+    end
+  end
 end

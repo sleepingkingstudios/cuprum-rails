@@ -15,17 +15,17 @@ RSpec.describe Cuprum::Rails::Repository do
 
   shared_context 'when the repository has many collections' do
     let(:books_collection) do
-      Cuprum::Rails::Collection.new(entity_class: Book)
+      Cuprum::Rails::Records::Collection.new(entity_class: Book)
     end
     let(:magazines_collection) do
-      Cuprum::Rails::Collection.new(
+      Cuprum::Rails::Records::Collection.new(
         name:           'magazines',
         qualified_name: 'magazines',
         entity_class:   Spec::Magazine
       )
     end
     let(:periodicals_collection) do
-      Cuprum::Rails::Collection.new(
+      Cuprum::Rails::Records::Collection.new(
         name:         'periodicals',
         entity_class: Spec::Periodical
       )
@@ -51,19 +51,34 @@ RSpec.describe Cuprum::Rails::Repository do
   end
 
   let(:example_collection) do
-    Cuprum::Rails::Collection.new(entity_class: Tome)
+    Cuprum::Rails::Records::Collection.new(entity_class: Tome)
   end
 
-  describe '.new' do
-    it { expect(described_class).to respond_to(:new).with(0).arguments }
+  before(:example) do
+    allow(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
+      .to receive(:deprecate)
   end
 
   example_class 'Grimoire',         'Book'
-
   example_class 'Spec::ScopedBook', 'Book'
 
+  describe '.new' do
+    it { expect(described_class).to respond_to(:new).with(0).arguments }
+
+    it 'should print a deprecation warning' do # rubocop:disable RSpec/ExampleLength
+      described_class.new
+
+      expect(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
+        .to have_received(:deprecate)
+        .with(
+          described_class.name,
+          'Use Cuprum::Rails::Records::Repository instead'
+        )
+    end
+  end
+
   include_contract 'should be a repository',
-    collection_class: Cuprum::Rails::Collection
+    collection_class: Cuprum::Rails::Records::Collection
 
   describe '#add' do
     describe 'with an invalid collection' do

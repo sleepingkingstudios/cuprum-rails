@@ -1,5 +1,18 @@
 # Changelog
 
+## O.3.0
+
+### Records
+
+Refactored the existing collection to `Cuprum::Rails::Records::Collection`.
+
+- Refactor `Collection` to `Records::Collection`. Creating a `Cuprum::Rails::Collection` will print a deprecation warning.
+- Refactor `Repository` to `Records::Repository`. Creating a `Cuprum::Rails::Repository` will print a deprecation warning.
+- Refactor `Query` to `Records::Query`. Creating a `Cuprum::Rails::Query` will print a deprecation warning.
+- **Breaking Change**: Refactor `Command` to `Records::Command`.
+- **Breaking Change**: Refactor `Commands` to `Records::Commands`.
+- **Breaking Change**: Refactor `Scopes` to `Records::Scopes`.
+
 ## O.2.0
 
 ### Actions

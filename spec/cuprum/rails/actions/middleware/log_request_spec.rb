@@ -137,7 +137,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogRequest do
         query_params:    { 'countdown' => 'T-Minus 10 seconds' }
       )
     end
-    let(:repository) { Cuprum::Rails::Repository.new }
+    let(:repository) { Cuprum::Rails::Records::Repository.new }
     let(:resource)   { Cuprum::Rails::Resource.new(name: 'books') }
     let(:logger)     { instance_double(ActiveSupport::Logger, info: nil) }
     let(:options)    { {} }
