@@ -2,13 +2,13 @@
 
 require 'cuprum/collections/errors/failed_validation'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
 require 'cuprum/rails/map_errors'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for validating an ActiveRecord record.
-  class ValidateOne < Cuprum::Rails::Command
+  class ValidateOne < Cuprum::Rails::Records::Command
     # @!method call(entity:, contract: nil)
     #   Validates the record against the given or default contract.
     #

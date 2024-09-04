@@ -2,12 +2,12 @@
 
 require 'cuprum/collections/rspec/contracts/command_contracts'
 
-require 'cuprum/rails/commands/assign_one'
+require 'cuprum/rails/records/commands/build_one'
 require 'cuprum/rails/rspec/contracts/command_contracts'
 
 require 'support/examples/rails_command_examples'
 
-RSpec.describe Cuprum::Rails::Commands::AssignOne do
+RSpec.describe Cuprum::Rails::Records::Commands::BuildOne do
   include Cuprum::Collections::RSpec::Contracts::CommandContracts
   include Cuprum::Rails::RSpec::Contracts::CommandContracts
   include Spec::Support::Examples::RailsCommandExamples
@@ -21,17 +21,11 @@ RSpec.describe Cuprum::Rails::Commands::AssignOne do
     )
   end
 
-  let(:initial_attributes)  { {} }
-  let(:entity)              { Book.new(initial_attributes) }
-  let(:expected_value)      { Book.new(expected_attributes) }
-  let(:valid_attributes)    { record_class.column_names }
+  let(:expected_value)   { Book.new(expected_attributes) }
+  let(:valid_attributes) { Book.attribute_names }
 
   include_contract 'should be a rails command'
 
-  include_contract 'should be an assign one command',
+  include_contract 'should be a build one command',
     allow_extra_attributes: false
-
-  describe '#call' do
-    include_examples 'should validate the :entity keyword'
-  end
 end

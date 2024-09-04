@@ -2,12 +2,12 @@
 
 require 'cuprum/collections/rspec/contracts/command_contracts'
 
-require 'cuprum/rails/commands/insert_one'
+require 'cuprum/rails/records/commands/insert_one'
 require 'cuprum/rails/rspec/contracts/command_contracts'
 
 require 'support/examples/rails_command_examples'
 
-RSpec.describe Cuprum::Rails::Commands::InsertOne do
+RSpec.describe Cuprum::Rails::Records::Commands::InsertOne do
   include Cuprum::Collections::RSpec::Contracts::CommandContracts
   include Cuprum::Rails::RSpec::Contracts::CommandContracts
   include Spec::Support::Examples::RailsCommandExamples

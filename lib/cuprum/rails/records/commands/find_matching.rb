@@ -3,13 +3,13 @@
 require 'cuprum/collections/commands/abstract_find_matching'
 require 'cuprum/collections/constraints/ordering'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 require 'cuprum/rails/records/query'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for querying filtered, ordered data from a Rails collection.
-  class FindMatching < Cuprum::Rails::Command
+  class FindMatching < Cuprum::Rails::Records::Command
     include Cuprum::Collections::Commands::AbstractFindMatching
 
     # @!method call(envelope: false, limit: nil, offset: nil, order: nil, where: nil, &block)

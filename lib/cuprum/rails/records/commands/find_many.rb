@@ -4,13 +4,13 @@ require 'stannum/constraints/boolean'
 
 require 'cuprum/collections/commands/abstract_find_many'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
 require 'cuprum/rails/errors/invalid_statement'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for finding multiple ActiveRecord records by primary key.
-  class FindMany < Cuprum::Rails::Command
+  class FindMany < Cuprum::Rails::Records::Command
     include Cuprum::Collections::Commands::AbstractFindMany
 
     # @!method call(primary_keys:, allow_partial: false, envelope: false)

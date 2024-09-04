@@ -3,8 +3,8 @@
 require 'cuprum/collections/rspec/contracts/collection_contracts'
 require 'cuprum/collections/rspec/fixtures'
 
-require 'cuprum/rails/commands'
 require 'cuprum/rails/records/collection'
+require 'cuprum/rails/records/commands'
 
 require 'support/book'
 require 'support/tome'
@@ -32,7 +32,7 @@ RSpec.describe Cuprum::Rails::Records::Collection do
   example_class 'Spec::ScopedBook', Book
 
   include_contract 'should be a collection',
-    commands_namespace: 'Cuprum::Rails::Commands'
+    commands_namespace: 'Cuprum::Rails::Records::Commands'
 
   describe '#primary_key_name' do
     context 'when the record class defines a custom primary key' do

@@ -4,12 +4,12 @@ require 'stannum/constraints/types/hash_with_indifferent_keys'
 
 require 'cuprum/collections/errors/extra_attributes'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for generating an ActiveRecord model from an attributes hash.
-  class BuildOne < Cuprum::Rails::Command
+  class BuildOne < Cuprum::Rails::Records::Command
     # @!method call(attributes:)
     #   Builds a new record with the given attributes.
     #

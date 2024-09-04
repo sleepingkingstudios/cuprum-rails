@@ -2,10 +2,10 @@
 
 require 'cuprum/collections'
 
-require 'cuprum/rails'
+require 'cuprum/rails/records'
 
-module Cuprum::Rails
-  # Abstract base class for Rails collection commands.
+module Cuprum::Rails::Records
+  # Abstract base class for Records collection commands.
   class Command < Cuprum::Collections::Command
     # Creates a subclass with the given parameters applied to the constructor.
     def self.subclass(**default_options)

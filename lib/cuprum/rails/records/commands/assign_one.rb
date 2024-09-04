@@ -4,12 +4,12 @@ require 'stannum/constraints/types/hash_with_indifferent_keys'
 
 require 'cuprum/collections/errors/extra_attributes'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for assigning attributes to an ActiveRecord model.
-  class AssignOne < Cuprum::Rails::Command
+  class AssignOne < Cuprum::Rails::Records::Command
     # @!method call(attributes:, entity:)
     #   Assigns the given attributes to the record.
     #

@@ -10,39 +10,40 @@ module Cuprum::Rails::Records
   # Wraps an ActiveRecord model as a Cuprum collection.
   class Collection < Cuprum::Collections::Collection
     command :assign_one do
-      Cuprum::Rails::Commands::AssignOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::AssignOne.new(**command_options)
     end
 
     command :build_one do
-      Cuprum::Rails::Commands::BuildOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::BuildOne.new(**command_options)
     end
 
     command :destroy_one do
-      Cuprum::Rails::Commands::DestroyOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::DestroyOne.new(**command_options)
     end
 
     command :find_many do
-      Cuprum::Rails::Commands::FindMany.new(query:, **command_options)
+      Cuprum::Rails::Records::Commands::FindMany.new(query:, **command_options)
     end
 
     command :find_matching do
-      Cuprum::Rails::Commands::FindMatching.new(query:, **command_options)
+      Cuprum::Rails::Records::Commands::FindMatching
+        .new(query:, **command_options)
     end
 
     command :find_one do
-      Cuprum::Rails::Commands::FindOne.new(query:, **command_options)
+      Cuprum::Rails::Records::Commands::FindOne.new(query:, **command_options)
     end
 
     command :insert_one do
-      Cuprum::Rails::Commands::InsertOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::InsertOne.new(**command_options)
     end
 
     command :update_one do
-      Cuprum::Rails::Commands::UpdateOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::UpdateOne.new(**command_options)
     end
 
     command :validate_one do
-      Cuprum::Rails::Commands::ValidateOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::ValidateOne.new(**command_options)
     end
 
     # @return [String] the name of the primary key attribute.

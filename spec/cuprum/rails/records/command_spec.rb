@@ -2,10 +2,10 @@
 
 require 'cuprum/collections/rspec/fixtures'
 
-require 'cuprum/rails/command'
+require 'cuprum/rails/records/command'
 require 'cuprum/rails/rspec/contracts/command_contracts'
 
-RSpec.describe Cuprum::Rails::Command do
+RSpec.describe Cuprum::Rails::Records::Command do
   include Cuprum::Rails::RSpec::Contracts::CommandContracts
 
   subject(:command) do

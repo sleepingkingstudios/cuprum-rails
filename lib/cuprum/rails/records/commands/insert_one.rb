@@ -2,13 +2,13 @@
 
 require 'cuprum/collections/errors/already_exists'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
 require 'cuprum/rails/errors/invalid_statement'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for inserting an ActiveRecord record into the collection.
-  class InsertOne < Cuprum::Rails::Command
+  class InsertOne < Cuprum::Rails::Records::Command
     # @!method call(entity:)
     #   Inserts the record into the collection.
     #

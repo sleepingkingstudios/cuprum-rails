@@ -2,12 +2,12 @@
 
 require 'cuprum/collections/errors/not_found'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for destroying an ActiveRecord record by primary key.
-  class DestroyOne < Cuprum::Rails::Command
+  class DestroyOne < Cuprum::Rails::Records::Command
     # @!method call(primary_key:)
     #   Finds and destroys the record with the given primary key.
     #

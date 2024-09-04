@@ -5,13 +5,13 @@ require 'stannum/errors'
 
 require 'cuprum/collections/commands/abstract_find_one'
 
-require 'cuprum/rails/command'
-require 'cuprum/rails/commands'
 require 'cuprum/rails/errors/invalid_statement'
+require 'cuprum/rails/records/command'
+require 'cuprum/rails/records/commands'
 
-module Cuprum::Rails::Commands
+module Cuprum::Rails::Records::Commands
   # Command for finding one ActiveRecord record by primary key.
-  class FindOne < Cuprum::Rails::Command
+  class FindOne < Cuprum::Rails::Records::Command
     include Cuprum::Collections::Commands::AbstractFindOne
 
     # @!method call(primary_key:, envelope: false)
