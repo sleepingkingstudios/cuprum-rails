@@ -13,7 +13,7 @@ RSpec.describe Cuprum::Rails::Actions::Create do
 
   subject(:action) { described_class.new }
 
-  let(:repository) { Cuprum::Rails::Repository.new }
+  let(:repository) { Cuprum::Rails::Records::Repository.new }
   let(:resource) do
     Cuprum::Rails::Resource.new(
       entity_class:         Book,

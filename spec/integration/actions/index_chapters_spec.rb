@@ -13,7 +13,7 @@ RSpec.describe Spec::Support::Actions::IndexChapters do
   subject(:action) { described_class.new }
 
   let(:repository) do
-    Cuprum::Rails::Repository
+    Cuprum::Rails::Records::Repository
       .new
       .tap { |repo| repo.create(entity_class: Book) }
   end

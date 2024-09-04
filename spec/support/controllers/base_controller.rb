@@ -12,7 +12,7 @@ class BaseController
   responder :json, Cuprum::Rails::Responders::Json::Resource
 
   def self.repository
-    Cuprum::Rails::Repository.new
+    Cuprum::Rails::Records::Repository.new
   end
 
   def initialize(renderer:, request:)

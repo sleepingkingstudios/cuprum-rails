@@ -384,13 +384,13 @@ If the contract does not match the entity, the `#validate_one` command will retu
 #### Repositories
 
 ```ruby
-require 'cuprum/rails/repository'
+require 'cuprum/rails/records/repository'
 ```
 
-A `Cuprum::Rails::Repository` is a group of Rails collections. A single repository might represent all or a subset of the tables in your database.
+A `Cuprum::Rails::Records::Repository` is a group of Rails collections. A single repository might represent all or a subset of the tables in your database.
 
 ```ruby
-repository = Cuprum::Rails::Repository.new
+repository = Cuprum::Rails::Records::Repository.new
 repository.key?('books')
 #=> false
 
@@ -407,7 +407,7 @@ repository['books']
 If the model has a namespace, e.g. `Authentication::User`, the `#collection_name` will be based on the last name segment, while the `#qualified_name` will be based on the entire name.
 
 ```ruby
-repository = Cuprum::Rails::Repository.new
+repository = Cuprum::Rails::Records::Repository.new
 repository.key?('authentication/users')
 #=> false
 

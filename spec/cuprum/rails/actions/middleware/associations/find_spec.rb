@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/actions/middleware/associations/find'
+require 'cuprum/rails/records/repository'
 require 'cuprum/rails/request'
-require 'cuprum/rails/repository'
 require 'cuprum/rails/resource'
 
 require 'support/book'
@@ -124,7 +124,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Find do
     let(:next_result)  { Cuprum::Result.new(value: next_value) }
     let(:next_command) { instance_double(Cuprum::Command, call: next_result) }
     let(:request)      { Cuprum::Rails::Request.new }
-    let(:repository)   { Cuprum::Rails::Repository.new }
+    let(:repository)   { Cuprum::Rails::Records::Repository.new }
     let(:resource)     { Cuprum::Rails::Resource.new(name: 'books') }
     let(:options)      { {} }
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/repository'
+require 'cuprum/rails/records/repository'
 require 'cuprum/rails/rspec/contracts/actions/create_contracts'
 
 require 'support/actions/create_book'
@@ -15,7 +15,7 @@ RSpec.describe Spec::Support::Actions::CreateBook do
   subject(:action) { described_class.new }
 
   let(:repository) do
-    Cuprum::Rails::Repository
+    Cuprum::Rails::Records::Repository
       .new
       .tap { |repo| repo.create(entity_class: Chapter) }
   end

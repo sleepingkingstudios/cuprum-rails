@@ -3,12 +3,12 @@
 require 'cuprum/collections/basic/repository'
 require 'cuprum/collections/rspec/contracts/repository_contracts'
 
-require 'cuprum/rails/repository'
+require 'cuprum/rails/records/repository'
 
 require 'support/book'
 require 'support/tome'
 
-RSpec.describe Cuprum::Rails::Repository do
+RSpec.describe Cuprum::Rails::Records::Repository do
   include Cuprum::Collections::RSpec::Contracts::RepositoryContracts
 
   subject(:repository) { described_class.new }
@@ -54,27 +54,11 @@ RSpec.describe Cuprum::Rails::Repository do
     Cuprum::Rails::Records::Collection.new(entity_class: Tome)
   end
 
-  before(:example) do
-    allow(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
-      .to receive(:deprecate)
-  end
-
   example_class 'Grimoire',         'Book'
   example_class 'Spec::ScopedBook', 'Book'
 
   describe '.new' do
     it { expect(described_class).to respond_to(:new).with(0).arguments }
-
-    it 'should print a deprecation warning' do # rubocop:disable RSpec/ExampleLength
-      described_class.new
-
-      expect(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
-        .to have_received(:deprecate)
-        .with(
-          described_class.name,
-          'Use Cuprum::Rails::Records::Repository instead'
-        )
-    end
   end
 
   include_contract 'should be a repository',
