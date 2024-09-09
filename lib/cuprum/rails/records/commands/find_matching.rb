@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require 'cuprum/collections/commands/abstract_find_matching'
-require 'cuprum/collections/constraints/ordering'
 
 require 'cuprum/rails/records/command'
 require 'cuprum/rails/records/commands'
-require 'cuprum/rails/records/query'
 
 module Cuprum::Rails::Records::Commands
   # Command for querying filtered, ordered data from a Rails collection.
@@ -95,16 +93,10 @@ module Cuprum::Rails::Records::Commands
     #     @return [Cuprum::Result<Hash{String, Array<ActiveRecord::Base>}>] a
     #       hash with the collection name as key and the matching records as
     #       value.
-    validate_parameters :call do
-      keyword :envelope,
-        Stannum::Constraints::Boolean.new,
-        default: true
-      keyword :limit, Integer, optional: true
-      keyword :offset, Integer, optional: true
-      keyword :order,
-        Cuprum::Collections::Constraints::Ordering.new,
-        optional: true
-      keyword :where, Object, optional: true
-    end
+    validate :envelope, :boolean, optional: true
+    validate :limit,    Integer,  optional: true
+    validate :offset,   Integer,  optional: true
+    validate :order
+    validate :where
   end
 end

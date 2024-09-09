@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'stannum/constraints/boolean'
-
 require 'cuprum/collections/commands/abstract_find_many'
 
-require 'cuprum/rails/errors/invalid_statement'
 require 'cuprum/rails/records/command'
 require 'cuprum/rails/records/commands'
 
@@ -32,25 +29,13 @@ module Cuprum::Rails::Records::Commands
     #
     #   @return [Cuprum::Result<Array<ActiveRecord>>] a result with the
     #     requested records.
-    validate_parameters :call do
-      keyword :allow_partial, Stannum::Constraints::Boolean.new, default: true
-      keyword :envelope,      Stannum::Constraints::Boolean.new, default: true
-      keyword :primary_keys,  Array
-    end
+    validate :allow_partial, :boolean, optional: true
+    validate :envelope,      :boolean, optional: true
+    validate :primary_keys
 
     private
 
-    def invalid_statement_error(message)
-      Cuprum::Rails::Errors::InvalidStatement.new(message:)
-    end
-
-    def process(
-      primary_keys:,
-      allow_partial: false,
-      envelope:      false
-    )
-      step { validate_primary_keys(primary_keys) }
-
+    def process(primary_keys:, allow_partial: false, envelope: false)
       super
     rescue ActiveRecord::StatementInvalid => exception
       failure(invalid_statement_error(exception.message))

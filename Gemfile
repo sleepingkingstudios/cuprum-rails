@@ -4,6 +4,25 @@ source 'https://rubygems.org'
 
 gemspec
 
+gem 'cuprum',
+  '>= 1.3.0.alpha',
+  git:    'https://github.com/sleepingkingstudios/cuprum.git',
+  branch: 'main'
+gem 'cuprum-collections',
+  '>= 0.5.0.alpha',
+  git:    'https://github.com/sleepingkingstudios/cuprum-collections',
+  branch: 'main'
+gem 'rails', '~> 7.2.0'
+gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
+gem 'sleeping_king_studios-tools',
+  '>= 1.2.0.alpha',
+  git:    'https://github.com/sleepingkingstudios/sleeping_king_studios-tools.git',
+  branch: 'main'
+gem 'stannum',
+  '>= 0.4.0.alpha',
+  git:    'https://github.com/sleepingkingstudios/stannum.git',
+  branch: 'main'
+
 group :development, :test do
   gem 'appraisal', '~> 2.4'
   gem 'byebug', '~> 11.0'
@@ -18,7 +37,10 @@ end
 
 group :test do
   gem 'rspec', '~> 3.13'
-  gem 'rspec-sleeping_king_studios', '~> 2.7.0'
+  gem 'rspec-sleeping_king_studios',
+    '>= 2.8.0.alpha',
+    git:    'https://github.com/sleepingkingstudios/rspec-sleeping_king_studios.git',
+    branch: 'main'
   gem 'rubocop', '~> 1.66'
   gem 'rubocop-rails', '~> 2.26'
   gem 'rubocop-rake', '~> 0.6'
@@ -26,10 +48,3 @@ group :test do
   gem 'rubocop-rspec_rails', '~> 2.30'
   gem 'simplecov', '~> 0.22'
 end
-
-gem 'cuprum-collections',
-  '>= 0.5.0.alpha',
-  git: 'https://github.com/sleepingkingstudios/cuprum-collections',
-  ref: 'b1dd8d6aee7c751871cdf63fb6289da392075cea'
-gem 'rails', '~> 7.2.0'
-gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'

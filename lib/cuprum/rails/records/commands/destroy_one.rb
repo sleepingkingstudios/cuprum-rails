@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/errors/not_found'
-
 require 'cuprum/rails/records/command'
 require 'cuprum/rails/records/commands'
 
@@ -19,20 +17,9 @@ module Cuprum::Rails::Records::Commands
     #
     #   @return [Cuprum::Result<Hash{String, Object}>] a result with the
     #     destroyed record.
-    validate_parameters :call do
-      keyword :primary_key, Object
-    end
+    validate :primary_key
 
     private
-
-    def not_found_error(primary_key)
-      Cuprum::Collections::Errors::NotFound.new(
-        attribute_name:  primary_key_name,
-        attribute_value: primary_key,
-        collection_name:,
-        primary_key:     true
-      )
-    end
 
     def process(primary_key:)
       step { validate_primary_key(primary_key) }

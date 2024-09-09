@@ -10,40 +10,39 @@ module Cuprum::Rails::Records
   # Wraps an ActiveRecord model as a Cuprum collection.
   class Collection < Cuprum::Collections::Collection
     command :assign_one do
-      Cuprum::Rails::Records::Commands::AssignOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::AssignOne.new(collection: self)
     end
 
     command :build_one do
-      Cuprum::Rails::Records::Commands::BuildOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::BuildOne.new(collection: self)
     end
 
     command :destroy_one do
-      Cuprum::Rails::Records::Commands::DestroyOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::DestroyOne.new(collection: self)
     end
 
     command :find_many do
-      Cuprum::Rails::Records::Commands::FindMany.new(query:, **command_options)
+      Cuprum::Rails::Records::Commands::FindMany.new(collection: self)
     end
 
     command :find_matching do
-      Cuprum::Rails::Records::Commands::FindMatching
-        .new(query:, **command_options)
+      Cuprum::Rails::Records::Commands::FindMatching.new(collection: self)
     end
 
     command :find_one do
-      Cuprum::Rails::Records::Commands::FindOne.new(query:, **command_options)
+      Cuprum::Rails::Records::Commands::FindOne.new(collection: self)
     end
 
     command :insert_one do
-      Cuprum::Rails::Records::Commands::InsertOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::InsertOne.new(collection: self)
     end
 
     command :update_one do
-      Cuprum::Rails::Records::Commands::UpdateOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::UpdateOne.new(collection: self)
     end
 
     command :validate_one do
-      Cuprum::Rails::Records::Commands::ValidateOne.new(**command_options)
+      Cuprum::Rails::Records::Commands::ValidateOne.new(collection: self)
     end
 
     # @return [String] the name of the primary key attribute.
@@ -66,12 +65,6 @@ module Cuprum::Rails::Records
     # @return [Cuprum::Rails::Records::Query] the query.
     def query
       Cuprum::Rails::Records::Query.new(entity_class, scope:)
-    end
-
-    protected
-
-    def command_options
-      super.merge(record_class: entity_class)
     end
 
     private

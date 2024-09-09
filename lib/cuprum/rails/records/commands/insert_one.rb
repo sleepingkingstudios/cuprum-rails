@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/errors/already_exists'
-
-require 'cuprum/rails/errors/invalid_statement'
 require 'cuprum/rails/records/command'
 require 'cuprum/rails/records/commands'
 
@@ -18,29 +15,12 @@ module Cuprum::Rails::Records::Commands
     #   @param entity [ActiveRecord::Base] The record to persist.
     #
     #   @return [Cuprum::Result<ActiveRecord::Base>] the persisted record.
-    validate_parameters :call do
-      keyword :entity, Object
-    end
+    validate :entity
 
     private
 
-    def already_exists_error(primary_key)
-      Cuprum::Collections::Errors::AlreadyExists.new(
-        attribute_name:  primary_key_name,
-        attribute_value: primary_key,
-        collection_name:,
-        primary_key:     true
-      )
-    end
-
-    def invalid_statement_error(message)
-      Cuprum::Rails::Errors::InvalidStatement.new(message:)
-    end
-
     def process(entity:)
-      step { validate_entity(entity) }
-
-      entity.save
+      entity.save(validate: false)
 
       entity
     rescue ActiveRecord::RecordNotUnique

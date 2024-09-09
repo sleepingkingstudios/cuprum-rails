@@ -1,48 +1,37 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/command_contracts'
+require 'cuprum/collections/rspec/deferred/commands/find_many_examples'
 
 require 'cuprum/rails/records/commands/find_many'
-require 'cuprum/rails/rspec/contracts/command_contracts'
 
-require 'support/examples/rails_command_examples'
+require 'support/examples/records/command_examples'
 
 RSpec.describe Cuprum::Rails::Records::Commands::FindMany do
-  include Cuprum::Collections::RSpec::Contracts::CommandContracts
-  include Cuprum::Rails::RSpec::Contracts::CommandContracts
-  include Spec::Support::Examples::RailsCommandExamples
+  include Cuprum::Collections::RSpec::Deferred::Commands::FindManyExamples
+  include Spec::Support::Examples::Records::CommandExamples
 
-  include_context 'with parameters for a Rails command'
+  subject(:command) { described_class.new(collection:) }
 
-  subject(:command) do
-    described_class.new(
-      query:,
-      record_class:,
-      **constructor_options
-    )
-  end
-
-  let(:query) { Cuprum::Rails::Records::Query.new(record_class) }
   let(:expected_data) do
     matching_data.map do |attributes|
       attributes ? record_class.new(attributes) : nil
     end
   end
 
-  include_contract 'should be a rails command'
+  include_deferred 'with parameters for a records command'
 
-  include_contract 'should be a find many command'
+  include_deferred 'should implement the Records::Command methods'
 
-  wrap_context 'with a custom primary key' do
-    include_contract 'should be a find many command'
+  include_deferred 'should implement the FindMany command'
+
+  wrap_deferred 'with a collection with a custom primary key' do
+    include_deferred 'should implement the FindMany command'
   end
 
   describe '#call' do
     describe 'with a malformed primary key value' do
-      include_context 'with a custom primary key'
-
       let(:primary_key_values) { %w[12345] }
-      let(:expected_message) { @message } # rubocop:disable RSpec/InstanceVariable
+      let(:expected_message)   { @message } # rubocop:disable RSpec/InstanceVariable
       let(:expected_error) do
         Cuprum::Rails::Errors::InvalidStatement.new(message: expected_message)
       end
@@ -51,12 +40,14 @@ RSpec.describe Cuprum::Rails::Records::Commands::FindMany do
         value = '12345'
         query =
           Cuprum::Rails::Records::Query.new(Tome)
-            .where { { uuid: one_of([value]) } }
+            .where { |scope| { uuid: scope.one_of([value]) } }
 
         query.limit(1).to_a
       rescue ActiveRecord::StatementInvalid => exception
         @message = exception.message
       end
+
+      include_deferred 'with a collection with a custom primary key'
 
       it 'should return a failing result' do
         expect(command.call(primary_keys: primary_key_values))
