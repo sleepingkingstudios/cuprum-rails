@@ -23,12 +23,8 @@ module Cuprum::Rails::Records::Commands
     #   @param entity [ActiveRecord::Base] The collection record to validate.
     #
     #   @return [Cuprum::Result<ActiveRecord::Base>] the validated record.
-    validate_parameters :call do
-      keyword :contract,
-        Stannum::Constraints::Base,
-        optional: true
-      keyword :entity, Object
-    end
+    validate :contract, Stannum::Constraints::Base, optional: true
+    validate :entity
 
     private
 

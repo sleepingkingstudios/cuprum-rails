@@ -1,26 +1,17 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/command_contracts'
+require 'cuprum/collections/rspec/deferred/commands/validate_one_examples'
 require 'stannum/errors'
 
 require 'cuprum/rails/records/commands/validate_one'
-require 'cuprum/rails/rspec/contracts/command_contracts'
 
-require 'support/examples/rails_command_examples'
+require 'support/examples/records/command_examples'
 
 RSpec.describe Cuprum::Rails::Records::Commands::ValidateOne do
-  include Cuprum::Collections::RSpec::Contracts::CommandContracts
-  include Cuprum::Rails::RSpec::Contracts::CommandContracts
-  include Spec::Support::Examples::RailsCommandExamples
+  include Cuprum::Collections::RSpec::Deferred::Commands::ValidateOneExamples
+  include Spec::Support::Examples::Records::CommandExamples
 
-  include_context 'with parameters for a Rails command'
-
-  subject(:command) do
-    described_class.new(
-      record_class:,
-      **constructor_options
-    )
-  end
+  subject(:command) { described_class.new(collection:) }
 
   let(:contract) do
     Stannum::Contract.new do
@@ -45,8 +36,10 @@ RSpec.describe Cuprum::Rails::Records::Commands::ValidateOne do
     Cuprum::Rails::MapErrors.instance.call(native_errors:)
   end
 
-  include_contract 'should be a rails command'
+  include_deferred 'with parameters for a records command'
 
-  include_contract 'should be a validate one command',
+  include_deferred 'should implement the Records::Command methods'
+
+  include_deferred 'should implement the ValidateOne command',
     default_contract: true
 end

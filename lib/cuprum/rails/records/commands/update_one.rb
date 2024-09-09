@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/errors/not_found'
-
-require 'cuprum/rails/errors/invalid_statement'
 require 'cuprum/rails/records/command'
 require 'cuprum/rails/records/commands'
 
@@ -18,9 +15,7 @@ module Cuprum::Rails::Records::Commands
     #   @param entity [ActiveRecord::Base] The collection record to persist.
     #
     #   @return [Cuprum::Result<ActiveRecord::Base>] the persisted record.
-    validate_parameters :call do
-      keyword :entity, Object
-    end
+    validate :entity
 
     private
 
@@ -32,22 +27,7 @@ module Cuprum::Rails::Records::Commands
       failure(not_found_error(primary_key))
     end
 
-    def invalid_statement_error(message)
-      Cuprum::Rails::Errors::InvalidStatement.new(message:)
-    end
-
-    def not_found_error(primary_key)
-      Cuprum::Collections::Errors::NotFound.new(
-        attribute_name:  primary_key_name,
-        attribute_value: primary_key,
-        collection_name:,
-        primary_key:     true
-      )
-    end
-
     def process(entity:)
-      step { validate_entity(entity) }
-
       step { handle_missing_record(primary_key: entity[primary_key_name]) }
 
       entity.save

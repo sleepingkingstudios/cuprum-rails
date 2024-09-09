@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'stannum/constraints/types/hash_with_indifferent_keys'
-
 require 'cuprum/collections/errors/extra_attributes'
 
 require 'cuprum/rails/records/command'
@@ -40,27 +38,17 @@ module Cuprum::Rails::Records::Commands
     #       'series'   => nil,
     #       'category' => 'Science Fiction and Fantasy'
     #     }
-    validate_parameters :call do
-      keyword :attributes,
-        Stannum::Constraints::Types::HashWithIndifferentKeys.new
-      keyword :entity, Object
-    end
+    validate :attributes
+    validate :entity
 
     private
 
     def process(attributes:, entity:)
-      step { validate_entity(entity) }
-
       entity.assign_attributes(attributes)
 
       entity
     rescue ActiveModel::UnknownAttributeError => exception
-      error = Cuprum::Collections::Errors::ExtraAttributes.new(
-        entity_class:     record_class,
-        extra_attributes: [exception.attribute],
-        valid_attributes: record_class.attribute_names
-      )
-      failure(error)
+      failure(extra_attributes_error([exception.attribute]))
     end
   end
 end

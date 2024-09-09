@@ -1,44 +1,33 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/command_contracts'
+require 'cuprum/collections/rspec/deferred/commands/find_one_examples'
 
 require 'cuprum/rails/records/commands/find_one'
-require 'cuprum/rails/rspec/contracts/command_contracts'
 
-require 'support/examples/rails_command_examples'
+require 'support/examples/records/command_examples'
 
 RSpec.describe Cuprum::Rails::Records::Commands::FindOne do
-  include Cuprum::Collections::RSpec::Contracts::CommandContracts
-  include Cuprum::Rails::RSpec::Contracts::CommandContracts
-  include Spec::Support::Examples::RailsCommandExamples
+  include Cuprum::Collections::RSpec::Deferred::Commands::FindOneExamples
+  include Spec::Support::Examples::Records::CommandExamples
 
-  include_context 'with parameters for a Rails command'
+  subject(:command) { described_class.new(collection:) }
 
-  subject(:command) do
-    described_class.new(
-      query:,
-      record_class:,
-      **constructor_options
-    )
-  end
-
-  let(:query) { Cuprum::Rails::Records::Query.new(record_class) }
   let(:expected_data) do
     record_class.new(matching_data)
   end
 
-  include_contract 'should be a rails command'
+  include_deferred 'with parameters for a records command'
 
-  include_contract 'should be a find one command'
+  include_deferred 'should implement the Records::Command methods'
 
-  wrap_context 'with a custom primary key' do
-    include_contract 'should be a find one command'
+  include_deferred 'should implement the FindOne command'
+
+  wrap_deferred 'with a collection with a custom primary key' do
+    include_deferred 'should implement the FindOne command'
   end
 
   describe '#call' do
     describe 'with a malformed primary key value' do
-      include_context 'with a custom primary key'
-
       let(:primary_key_value) { '12345' }
       let(:expected_message) { @message } # rubocop:disable RSpec/InstanceVariable
       let(:expected_error) do
@@ -54,6 +43,8 @@ RSpec.describe Cuprum::Rails::Records::Commands::FindOne do
       rescue ActiveRecord::StatementInvalid => exception
         @message = exception.message
       end
+
+      include_deferred 'with a collection with a custom primary key'
 
       it 'should return a failing result' do
         expect(command.call(primary_key: primary_key_value))

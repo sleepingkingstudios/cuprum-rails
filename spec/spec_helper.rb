@@ -32,6 +32,13 @@ Stannum::RSpec::ValidateParameterMatcher.add_parameter_mapping(
   end
 )
 
+Stannum::Messages.strategy = Stannum::Messages::DefaultStrategy.new(
+  load_paths: [
+    Stannum::Messages.locales_path,
+    File.join(Cuprum::Collections.gem_path, 'config', 'locales')
+  ]
+)
+
 # Isolated namespace for defining spec-only or transient objects.
 module Spec; end
 
@@ -45,6 +52,8 @@ RSpec.configure do |config|
   config.extend  RSpec::SleepingKingStudios::Concerns::FocusExamples
   config.extend  RSpec::SleepingKingStudios::Concerns::IncludeContract
   config.extend  RSpec::SleepingKingStudios::Concerns::WrapExamples
+  config.include RSpec::SleepingKingStudios::Deferred::Consumer
+  config.include RSpec::SleepingKingStudios::Deferred::Provider
   config.include RSpec::SleepingKingStudios::Examples::PropertyExamples
 
   config.before(:suite) do
