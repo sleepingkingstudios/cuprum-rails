@@ -37,6 +37,11 @@ RSpec.describe Cuprum::Rails::Action do
       )
     end
 
+    before(:example) do
+      allow(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
+        .to receive(:deprecate)
+    end
+
     it 'should define the class method' do
       expect(described_class)
         .to respond_to(:build)
@@ -94,12 +99,35 @@ RSpec.describe Cuprum::Rails::Action do
     end
   end
 
+  describe '.new' do
+    it 'should define the constructor' do
+      expect(described_class)
+        .to be_constructible
+        .with(0).arguments
+        .and_keywords(:command_class)
+        .and_a_block
+    end
+
+    describe 'with command_class: value and a block' do
+      let(:command_class)  { Cuprum::Rails::Command }
+      let(:implementation) { -> { { ok: true } } }
+      let(:error_message) do
+        'implementation block overrides command_class parameter'
+      end
+
+      it 'should raise an exception' do
+        expect { described_class.new(command_class:, &implementation) }
+          .to raise_error ArgumentError, error_message
+      end
+    end
+  end
+
   describe '#call' do
     it 'should define the method' do
       expect(action)
         .to be_callable
         .with(0).arguments
-        .and_keywords(:repository, :request)
+        .and_keywords(:repository, :request, :resource)
         .and_any_keywords
     end
 
@@ -107,6 +135,62 @@ RSpec.describe Cuprum::Rails::Action do
       expect(action.call(request:))
         .to be_a_passing_result(Cuprum::Rails::Result)
         .with_value(nil)
+    end
+
+    context 'when initialized with a command class' do
+      subject(:action) do
+        described_class.new(command_class: Spec::ExampleCommand)
+      end
+
+      let(:repository)     { Cuprum::Rails::Records::Repository.new }
+      let(:resource)       { Cuprum::Rails::Resource.new(name: 'books') }
+      let(:params)         { { 'book' => { 'title' => 'Gideon the Ninth' } } }
+      let(:expected_value) { params.merge('ok' => true) }
+
+      example_class 'Spec::ExampleCommand', Cuprum::Rails::Command do |klass|
+        klass.define_method(:process) do |**params|
+          params.merge('ok' => true)
+        end
+      end
+
+      it 'should initialize the command class' do
+        allow(Spec::ExampleCommand).to receive(:new).and_call_original
+
+        action.call(repository:, request:, resource:)
+
+        expect(Spec::ExampleCommand)
+          .to have_received(:new)
+          .with(repository:, resource:)
+      end
+
+      it 'should return a passing result' do
+        expect(action.call(repository:, request:, resource:))
+          .to be_a_passing_result(Cuprum::Rails::Result)
+          .with_value(expected_value)
+      end
+    end
+
+    context 'when initialized with an implementation' do
+      subject(:action) { described_class.new(&implementation) }
+
+      let(:implementation) { ->(**params) { params.merge(ok: true) } }
+      let(:repository)     { Cuprum::Rails::Records::Repository.new }
+      let(:resource)       { Cuprum::Rails::Resource.new(name: 'books') }
+      let(:expected_value) do
+        {
+          ok:         true,
+          option:     'value',
+          repository:,
+          request:,
+          resource:
+        }
+      end
+
+      it 'should return a passing result' do
+        expect(action.call(option: 'value', repository:, request:, resource:))
+          .to be_a_passing_result(Cuprum::Rails::Result)
+          .with_value(expected_value)
+      end
     end
   end
 
@@ -160,6 +244,16 @@ RSpec.describe Cuprum::Rails::Action do
       before(:example) { action.call(request:) }
 
       it { expect(action.request).to be == request }
+    end
+  end
+
+  describe '#resource' do
+    context 'when called with a resource' do
+      let(:resource) { Cuprum::Rails::Resource.new(name: 'books') }
+
+      before(:example) { action.call(request:, resource:) }
+
+      it { expect(action.resource).to be == resource }
     end
   end
 end

@@ -107,7 +107,7 @@ module Cuprum::Rails::Actions
 
       step { require_permitted_attributes }
 
-      super(**rest)
+      super
 
       handle_exceptions do
         step { find_required_entities }

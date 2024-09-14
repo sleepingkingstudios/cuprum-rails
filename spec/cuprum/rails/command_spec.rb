@@ -3,7 +3,15 @@
 require 'cuprum/rails/command'
 
 RSpec.describe Cuprum::Rails::Command do
-  subject(:command) { described_class.new(**constructor_options) }
+  subject(:command) do
+    described_class.new(**constructor_options, &implementation)
+  end
+
+  deferred_context 'when initialized with an implementation block' do
+    let(:implementation) do
+      ->(**params) { params.merge(ok: true) }
+    end
+  end
 
   deferred_context 'when initialized with repository: value' do
     let(:repository)          { Cuprum::Collections::Repository.new }
@@ -16,15 +24,23 @@ RSpec.describe Cuprum::Rails::Command do
   end
 
   let(:options)             { {} }
+  let(:implementation)      { nil }
   let(:constructor_options) { options }
 
+  describe '.subclass' do
+    it 'should define the class method' do
+      expect(described_class).to respond_to(:subclass)
+    end
+  end
+
   describe '.new' do
-    it 'should define the constructor' do
+    it 'should define the constructor' do # rubocop:disable RSpec/ExampleLength
       expect(described_class)
         .to be_constructible
         .with(0).arguments
         .and_keywords(:repository, :resource)
         .and_any_keywords
+        .and_a_block
     end
   end
 
@@ -41,6 +57,27 @@ RSpec.describe Cuprum::Rails::Command do
         .with_error(expected_error)
     end
 
+    wrap_deferred 'when initialized with an implementation block' do
+      let(:expected_value) { { ok: true } }
+
+      it 'should return a passing result' do
+        expect(command.call)
+          .to be_a_passing_result
+          .with_value(expected_value)
+      end
+
+      describe 'with keywords' do
+        let(:keywords)       { { key: 'value' } }
+        let(:expected_value) { keywords.merge(super()) }
+
+        it 'should return a passing result' do
+          expect(command.call(**keywords))
+            .to be_a_passing_result
+            .with_value(expected_value)
+        end
+      end
+    end
+
     context 'with a command subclass that raises an exception' do
       let(:described_class) { Spec::CustomCommand }
       let(:expected_error) do
@@ -50,7 +87,7 @@ RSpec.describe Cuprum::Rails::Command do
         )
       end
 
-      example_class 'Spec::CustomCommand', Cuprum::Rails::Command do |klass|
+      example_class 'Spec::CustomCommand', Cuprum::Rails::Command do |klass| # rubocop:disable RSpec/DescribedClass
         klass.define_method(:process) do
           raise StandardError, 'Something went wrong'
         end
@@ -81,11 +118,13 @@ RSpec.describe Cuprum::Rails::Command do
         SleepingKingStudios::Tools::Toolbelt.instance
       end
 
-      example_class 'Spec::CustomCommand', Cuprum::Rails::Command do |klass|
+      example_class 'Spec::CustomCommand', Cuprum::Rails::Command do |klass| # rubocop:disable RSpec/DescribedClass
         klass.validate :name, :presence
 
         klass.define_method(:process) do |name = nil|
+          # :nocov:
           "Greetings, #{name}"
+          # :nocov:
         end
       end
 
@@ -106,11 +145,11 @@ RSpec.describe Cuprum::Rails::Command do
       it { expect(command.options).to be == options }
     end
 
-    wrap_deferred 'when initialized with repository: value' do
+    wrap_deferred 'when initialized with repository: value' do # rubocop:disable RSpec/RepeatedExampleGroupBody
       it { expect(command.options).to be == options }
     end
 
-    wrap_deferred 'when initialized with resource: value' do
+    wrap_deferred 'when initialized with resource: value' do # rubocop:disable RSpec/RepeatedExampleGroupBody
       it { expect(command.options).to be == options }
     end
   end

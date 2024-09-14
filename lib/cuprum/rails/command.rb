@@ -14,8 +14,17 @@ module Cuprum::Rails
     # @param repository [Cuprum::Collections::Repository] the repository
     #   containing the data collections for the application or scope.
     # @param options [Hash<Symbol, Object>] additional options for the command.
-    def initialize(repository: nil, resource: nil, **options)
-      super()
+    #
+    # @yield If a block is given, the block is used to define a private #process
+    #   method. This overwrites any existing #process method. When the command
+    #   is called, #process will be called internally and passed the parameters.
+    #
+    # @yieldparam keywords [Hash] the keywords passed to #call.
+    #
+    # @yieldreturn [Cuprum::Result, Object] the returned result or object is
+    #   converted to a Cuprum::Result and returned by #call.
+    def initialize(repository: nil, resource: nil, **options, &implementation)
+      super(&implementation)
 
       @repository = repository
       @resource   = resource
