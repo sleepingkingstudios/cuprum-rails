@@ -64,6 +64,17 @@ RSpec.describe Cuprum::Rails::Action do
       )
     end
 
+    it 'should print a deprecation warning' do # rubocop:disable RSpec/ExampleLength
+      call_action
+
+      expect(SleepingKingStudios::Tools::Toolbelt.instance.core_tools)
+        .to have_received(:deprecate)
+        .with(
+          'Cuprum::Rails::Action.build',
+          message: 'Use Action.subclass instead'
+        )
+    end
+
     context 'when the implementation returns a failing result' do
       let(:expected_error) do
         Cuprum::Error.new(message: 'Something went wrong')

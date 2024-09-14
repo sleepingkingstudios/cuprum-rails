@@ -36,7 +36,14 @@ module Cuprum::Rails
     # @yieldparam options [Hash<Symbol, Object>] additional options for the
     #   action.
     # @yieldreturn [Cuprum::Result] the result of the action.
+    #
+    # @deprecated 0.3.0 Calling Action.build is deprecated.
     def self.build(&implementation)
+      SleepingKingStudios::Tools::Toolbelt.instance.core_tools.deprecate(
+        'Cuprum::Rails::Action.build',
+        message: 'Use Action.subclass instead'
+      )
+
       Class.new(self) do
         define_method(:process, &implementation)
       end

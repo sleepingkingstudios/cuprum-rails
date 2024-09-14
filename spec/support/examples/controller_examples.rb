@@ -331,7 +331,7 @@ module Spec::Support::Examples
 
           before(:example) do
             allow(Cuprum::Rails::Action)
-              .to receive(:build)
+              .to receive(:subclass)
               .and_return(Spec::Action)
           end
 
