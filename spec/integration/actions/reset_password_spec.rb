@@ -2,8 +2,7 @@
 
 require 'support/actions/reset_password'
 
-# @note Integration spec for
-#   Cuprum::Rails::RSpec::Contracts::Actions::ParameterValidation.
+# @note Integration spec for Cuprum::Rails::Action parameter validation.
 RSpec.describe Spec::Support::Actions::ResetPassword do
   subject(:action) { described_class.new }
 

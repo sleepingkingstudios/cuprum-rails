@@ -49,12 +49,33 @@ module Cuprum::Rails
       end
     end
 
-    # @overload initialize(command_class:)
+    # @overload validate_parameters(contract)
+    #   Sets the contract to automatically validate the request parameters.
+    #
+    #   @param contract [Stannum::Contract] the contract used to validate the
+    #     request parameters.
+    #
+    # @overload validate_parameters(&block)
+    #   Defines a contract to automatically validate the request parameters.
+    #
+    #   @yield Used to create an indifferent hash contract to validate the
+    #     request parameters.
+    def self.validate_parameters(contract = nil, &)
+      contract ||= Cuprum::Rails::Constraints::ParametersContract.new(&)
+
+      define_method(:parameters_contract) { contract }
+    end
+
+    # @overload initialize(command_class:, parameters_contract: nil)
     #   @todo
     #
-    # @overload initialize(&implementation)
+    # @overload initialize(parameters_contract: nil, &implementation)
     #   @todo
-    def initialize(command_class: nil, &implementation)
+    def initialize(
+      command_class:       nil,
+      parameters_contract: nil,
+      &implementation
+    )
       if implementation && command_class
         raise ArgumentError,
           'implementation block overrides command_class parameter'
@@ -62,7 +83,8 @@ module Cuprum::Rails
 
       super(&implementation)
 
-      @command_class = command_class
+      @command_class       = command_class
+      @parameters_contract = parameters_contract
     end
 
     # @!method params
@@ -71,6 +93,10 @@ module Cuprum::Rails
 
     # @return [Hash<Symbol, Object>] additional options for the action.
     attr_reader :options
+
+    # @return [Stannum::Constraints::Base, nil] constraint validating the
+    #   request parameters.
+    attr_reader :parameters_contract
 
     # @return [Cuprum::Collections::Repository] the repository containing the
     #   data collections for the application or scope.
@@ -128,7 +154,9 @@ module Cuprum::Rails
       @resource   = resource
       @options    = options
 
-      step { process_command } if command_class
+      step { validate_parameters(parameters_contract) } if parameters_contract
+
+      command_class ? process_command : super
     end
 
     def process_command
@@ -137,6 +165,15 @@ module Cuprum::Rails
       value   = step { command.call(**params) }
 
       build_response(value)
+    end
+
+    def validate_parameters(contract)
+      match, errors = contract.match(params)
+
+      return success(nil) if match
+
+      error = Cuprum::Rails::Errors::InvalidParameters.new(errors:)
+      failure(error)
     end
   end
 end

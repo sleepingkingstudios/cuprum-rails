@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/action'
-require 'cuprum/rails/actions/parameter_validation'
 
 require 'support/actions'
 
 module Spec::Support::Actions
   class ResetPassword < Cuprum::Rails::Action
-    include Cuprum::Rails::Actions::ParameterValidation
-
     CONTRACT =
       Cuprum::Rails::Constraints::ParametersContract.new do
         key :password,     Stannum::Constraints::Presence.new

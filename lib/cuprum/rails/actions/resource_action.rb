@@ -3,7 +3,6 @@
 require 'cuprum/errors/uncaught_exception'
 
 require 'cuprum/rails/action'
-require 'cuprum/rails/actions/parameter_validation'
 require 'cuprum/rails/errors/resource_error'
 require 'cuprum/rails/transaction'
 
@@ -29,8 +28,6 @@ module Cuprum::Rails::Actions
   # result, or wrap the exception in a failing result with a
   # Cuprum::Errors::UncaughtException error.
   class ResourceAction < Cuprum::Rails::Action
-    include Cuprum::Rails::Actions::ParameterValidation
-
     # @!method call(request:, resource:, repository: nil, **options)
     #   Performs the controller action.
     #
