@@ -15,6 +15,7 @@ module Cuprum
     autoload :Actions,     'cuprum/rails/actions'
     autoload :Collection,  'cuprum/rails/collection'
     autoload :Command,     'cuprum/rails/command'
+    autoload :Commands,    'cuprum/rails/commands'
     autoload :Constraints, 'cuprum/rails/constraints'
     autoload :Controller,  'cuprum/rails/controller'
     autoload :Controllers, 'cuprum/rails/controllers'
