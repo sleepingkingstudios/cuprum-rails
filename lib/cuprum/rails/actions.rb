@@ -12,7 +12,7 @@ module Cuprum::Rails
     autoload :Middleware,      'cuprum/rails/actions/middleware'
     autoload :New,             'cuprum/rails/actions/new'
     autoload :ResourceAction,  'cuprum/rails/actions/resource_action'
-    autoload :ResourceMethods, 'cuprum/rails/actions/resource_methods'
+    autoload :Resources,       'cuprum/rails/actions/resources'
     autoload :Show,            'cuprum/rails/actions/show'
     autoload :Update,          'cuprum/rails/actions/update'
   end
