@@ -99,7 +99,7 @@ module Cuprum::Rails::Controllers::ClassMethods
       if block_given? && action_class
         raise ArgumentError, 'unexpected block when action class is given'
       elsif block_given?
-        Cuprum::Rails::Action.build(&)
+        Cuprum::Rails::Action.subclass(&)
       else
         validate_class(action_class, as: 'action class')
 

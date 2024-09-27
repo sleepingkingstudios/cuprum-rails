@@ -2,8 +2,7 @@
 
 require 'support/actions/login'
 
-# @note Integration spec for
-#   Cuprum::Rails::RSpec::Contracts::Actions::ParameterValidation.
+# @note Integration spec for Cuprum::Rails::Action parameter validation.
 RSpec.describe Spec::Support::Actions::Login do
   subject(:action) { described_class.new }
 
