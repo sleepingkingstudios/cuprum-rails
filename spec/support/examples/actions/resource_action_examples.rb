@@ -54,7 +54,9 @@ module Spec::Support::Examples::Actions
       let(:expected_command_class) do
         next command_class if command_class.is_a?(Class)
 
+        # :nocov:
         Object.const_get(command_class)
+        # :nocov:
       end
       let(:expected_result) do
         defined?(super()) ? super() : Cuprum::Result.new
