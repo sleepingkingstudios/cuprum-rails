@@ -17,7 +17,7 @@ module Cuprum::Rails::Commands::Resources
       @order ||= resource.default_order
     end
 
-    def process(limit: nil, offset: nil, order: nil, where: nil)
+    def process(limit: nil, offset: nil, order: nil, where: nil, **)
       @limit  = limit
       @offset = offset
       @order  = order
