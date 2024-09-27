@@ -167,6 +167,10 @@ module Cuprum::Rails
       build_response(value)
     end
 
+    def tools
+      SleepingKingStudios::Tools::Toolbelt.instance
+    end
+
     def validate_parameters(contract)
       match, errors = contract.match(params)
 
