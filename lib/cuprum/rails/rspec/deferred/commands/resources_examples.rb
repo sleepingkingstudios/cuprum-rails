@@ -35,5 +35,39 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         end
       end
     end
+
+    deferred_examples 'should require permitted attributes' do
+      context 'when a resource with permitted_attributes: nil' do
+        let(:resource_options) { super().merge(permitted_attributes: nil) }
+        let(:expected_error) do
+          Cuprum::Rails::Errors::ResourceError.new(
+            message:  "permitted attributes can't be blank",
+            resource:
+          )
+        end
+
+        it 'should return a failing result' do
+          expect(call_command)
+            .to be_a_failing_result
+            .with_error(expected_error)
+        end
+      end
+
+      context 'when a resource with permitted_attributes: an empty Array' do
+        let(:resource_options) { super().merge(permitted_attributes: []) }
+        let(:expected_error) do
+          Cuprum::Rails::Errors::ResourceError.new(
+            message:  "permitted attributes can't be blank",
+            resource:
+          )
+        end
+
+        it 'should return a failing result' do
+          expect(call_command)
+            .to be_a_failing_result
+            .with_error(expected_error)
+        end
+      end
+    end
   end
 end
