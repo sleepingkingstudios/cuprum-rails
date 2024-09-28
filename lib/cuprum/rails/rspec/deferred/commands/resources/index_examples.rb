@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rspec/sleeping_king_studios/deferred/provider'
+
 require 'cuprum/rails/rspec/deferred/commands/resources'
 require 'cuprum/rails/rspec/deferred/commands/resources_examples'
 

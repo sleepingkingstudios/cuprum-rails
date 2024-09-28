@@ -11,6 +11,8 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Index do
 
   subject(:command) { described_class.new(repository:, resource:) }
 
+  let(:resource_options) { super().merge(default_order: 'id') }
+
   include_deferred 'with parameters for a resource command'
 
   include_deferred 'should implement the resource command methods'

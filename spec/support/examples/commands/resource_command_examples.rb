@@ -13,11 +13,9 @@ module Spec::Support::Examples::Commands
     deferred_context 'with parameters for a resource command' do
       let(:repository) { Cuprum::Collections::Basic::Repository.new }
       let(:resource) do
-        Cuprum::Rails::Resource.new(
-          default_order: 'id',
-          name:          'books'
-        )
+        Cuprum::Rails::Resource.new(name: 'books', **resource_options)
       end
+      let(:resource_options) { {} }
 
       def tools
         SleepingKingStudios::Tools::Toolbelt.instance
