@@ -2,10 +2,18 @@
 
 require 'cuprum/rails/actions/resources/action'
 
+require 'support/examples/actions/resource_action_examples'
+
 RSpec.describe Cuprum::Rails::Actions::Resources::Action do
-  subject(:action) { described_class.new(command_class:) }
+  include Spec::Support::Examples::Actions::ResourceActionExamples
+
+  subject(:action) { described_class.new(**options) }
 
   let(:command_class) { Cuprum::Rails::Command.subclass(&:itself) }
+  let(:options)       { { command_class: } }
+
+  include_deferred 'should implement the resource action methods',
+    command_class: -> { command_class }
 
   describe '#call' do
     let(:params)          { { secret: '12345' } }
@@ -27,8 +35,8 @@ RSpec.describe Cuprum::Rails::Actions::Resources::Action do
         .with_value(expected_value)
     end
 
-    describe 'with resource params: an empty Hash' do
-      let(:params) { super().merge('books' => resource_params) }
+    describe 'with params: { resource_name: an empty Hash }' do
+      let(:params) { super().merge('book' => resource_params) }
 
       it 'should return a passing result' do
         expect(call_action)
@@ -37,14 +45,14 @@ RSpec.describe Cuprum::Rails::Actions::Resources::Action do
       end
     end
 
-    describe 'with resource_params: a non-empty Hash' do
+    describe 'with params: { resource_name: a non-empty Hash }' do
       let(:resource_params) do
         {
           'title'  => 'Gideon the Ninth',
           'author' => 'Tamsyn Muir'
         }
       end
-      let(:params) { super().merge('books' => resource_params) }
+      let(:params) { super().merge('book' => resource_params) }
 
       it 'should return a passing result' do
         expect(call_action)

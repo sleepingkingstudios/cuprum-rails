@@ -11,5 +11,6 @@ module Cuprum::Rails::Actions
     autoload :Action,   'cuprum/rails/actions/resources/action'
     autoload :Concerns, 'cuprum/rails/actions/resources/concerns'
     autoload :Index,    'cuprum/rails/actions/resources/index'
+    autoload :New,      'cuprum/rails/actions/resources/new'
   end
 end

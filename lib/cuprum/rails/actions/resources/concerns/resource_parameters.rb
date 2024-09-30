@@ -8,7 +8,7 @@ module Cuprum::Rails::Actions::Resources::Concerns
     private
 
     def resource_params
-      params[resource.name] || {}
+      params[resource.singular_name] || {}
     end
   end
 end

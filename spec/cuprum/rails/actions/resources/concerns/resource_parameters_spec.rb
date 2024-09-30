@@ -55,7 +55,7 @@ do
           'author' => 'Tamsyn Muir'
         }
       end
-      let(:params) { super().merge('books' => resource_params) }
+      let(:params) { super().merge('book' => resource_params) }
 
       it 'should return a passing result' do
         expect(call_action)

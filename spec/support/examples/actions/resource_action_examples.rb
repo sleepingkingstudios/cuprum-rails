@@ -12,7 +12,8 @@ module Spec::Support::Examples::Actions
       let(:options) { super().merge(command_class: Spec::CustomCommand) }
     end
 
-    deferred_examples 'should implement the resource action methods' do
+    deferred_examples 'should implement the resource action methods' \
+    do |command_class:|
       describe '#call' do
         it 'should define the method' do
           expect(action)
@@ -26,7 +27,7 @@ module Spec::Support::Examples::Actions
       describe '#command_class' do
         include_examples 'should define private reader',
           :command_class,
-          Cuprum::Rails::Commands::Resources::Index
+          command_class
 
         wrap_deferred 'when initialized with a command class' do
           it { expect(action.send(:command_class)).to be Spec::CustomCommand }
