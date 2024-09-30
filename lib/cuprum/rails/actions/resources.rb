@@ -8,6 +8,7 @@ require 'cuprum/rails/actions'
 module Cuprum::Rails::Actions
   # Namespace for actions that implement REST resource actions.
   module Resources
-    autoload :Index, 'cuprum/rails/actions/resources/index'
+    autoload :Concerns, 'cuprum/rails/actions/resources/concerns'
+    autoload :Index,    'cuprum/rails/actions/resources/index'
   end
 end

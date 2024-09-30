@@ -87,10 +87,21 @@ module Spec::Support::Examples::Actions
           .with(repository:, resource:)
       end
 
-      it 'should call the command' do
+      it 'should call the command' do # rubocop:disable RSpec/ExampleLength
         call_action
 
-        expect(mock_command).to have_received(:call).with(**expected_parameters)
+        matcher = have_received(:call)
+
+        # :nocov:
+        matcher =
+          if expected_parameters.empty?
+            matcher.with(no_args)
+          else
+            matcher.with(**expected_parameters)
+          end
+        # :nocov:
+
+        expect(mock_command).to matcher
       end
 
       it 'should return a passing result' do
