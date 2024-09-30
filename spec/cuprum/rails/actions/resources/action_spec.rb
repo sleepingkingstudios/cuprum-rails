@@ -1,22 +1,11 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/actions/resources/concerns/resource_parameters'
+require 'cuprum/rails/actions/resources/action'
 
-RSpec.describe Cuprum::Rails::Actions::Resources::Concerns::ResourceParameters \
-do
+RSpec.describe Cuprum::Rails::Actions::Resources::Action do
   subject(:action) { described_class.new(command_class:) }
 
-  let(:described_class) { Spec::ExampleAction }
-  let(:command_class)   { Cuprum::Rails::Command.subclass(&:itself) }
-
-  example_class 'Spec::ExampleAction', Cuprum::Rails::Action do |klass|
-    klass.include \
-      Cuprum::Rails::Actions::Resources::Concerns::ResourceParameters # rubocop:disable RSpec/DescribedClass
-
-    klass.define_method(:map_parameters) do
-      { resource_params: }
-    end
-  end
+  let(:command_class) { Cuprum::Rails::Command.subclass(&:itself) }
 
   describe '#call' do
     let(:params)          { { secret: '12345' } }
@@ -25,7 +14,7 @@ do
     let(:request)         { instance_double(Cuprum::Rails::Request, params:) }
     let(:resource_params) { {} }
     let(:expected_value) do
-      { resource_params: }
+      { resource.singular_name => { attributes: resource_params } }
     end
 
     def call_action
