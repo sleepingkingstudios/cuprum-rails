@@ -12,7 +12,8 @@ module Spec::Support::Examples::Actions
       let(:options) { super().merge(command_class: Spec::CustomCommand) }
     end
 
-    deferred_examples 'should implement the resource action methods' do
+    deferred_examples 'should implement the resource action methods' \
+    do |command_class:|
       describe '#call' do
         it 'should define the method' do
           expect(action)
@@ -26,7 +27,7 @@ module Spec::Support::Examples::Actions
       describe '#command_class' do
         include_examples 'should define private reader',
           :command_class,
-          Cuprum::Rails::Commands::Resources::Index
+          command_class
 
         wrap_deferred 'when initialized with a command class' do
           it { expect(action.send(:command_class)).to be Spec::CustomCommand }
@@ -87,10 +88,21 @@ module Spec::Support::Examples::Actions
           .with(repository:, resource:)
       end
 
-      it 'should call the command' do
+      it 'should call the command' do # rubocop:disable RSpec/ExampleLength
         call_action
 
-        expect(mock_command).to have_received(:call).with(**expected_parameters)
+        matcher = have_received(:call)
+
+        # :nocov:
+        matcher =
+          if expected_parameters.empty?
+            matcher.with(no_args)
+          else
+            matcher.with(**expected_parameters)
+          end
+        # :nocov:
+
+        expect(mock_command).to matcher
       end
 
       it 'should return a passing result' do

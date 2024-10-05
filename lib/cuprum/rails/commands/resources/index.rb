@@ -13,6 +13,10 @@ module Cuprum::Rails::Commands::Resources
 
     attr_reader :where
 
+    def find_entities
+      collection.find_matching.call(**query_options)
+    end
+
     def order
       @order ||= resource.default_order
     end
@@ -22,7 +26,7 @@ module Cuprum::Rails::Commands::Resources
       @offset = offset
       @order  = order
       @where  = where
-      values  = step { collection.find_matching.call(**query_options) }
+      values  = step { find_entities }
 
       values.to_a
     end

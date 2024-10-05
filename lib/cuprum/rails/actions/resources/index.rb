@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/action'
 require 'cuprum/rails/actions/resources'
 require 'cuprum/rails/commands/resources/index'
 

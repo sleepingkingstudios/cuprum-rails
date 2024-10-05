@@ -14,4 +14,8 @@ class Tome < ActiveRecord::Base # rubocop:disable Rails/ApplicationRecord
     other.class == Tome && other.attributes == attributes
     # :nocov:
   end
+
+  def inspect
+    "#<Tome uuid: #{uuid.inspect}>"
+  end
 end

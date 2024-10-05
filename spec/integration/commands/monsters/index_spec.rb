@@ -13,15 +13,15 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Index do
 
   let(:repository) { Cuprum::Collections::Basic::Repository.new }
   let(:resource) do
-    Cuprum::Rails::Resource.new(
-      default_order: 'challenge',
-      name:          'monsters'
-    )
+    Cuprum::Rails::Resource.new(name: 'monsters', **resource_options)
   end
-  let(:fixtures_data) { Spec::Support::Commands::Monsters::FIXTURES }
-  let(:ordered_data)  { filtered_data.sort_by { |entity| entity['challenge'] } }
-  let(:order)         { { 'name' => 'asc' } }
-  let(:where_hash)    { { 'type' => 'bones' } }
+  let(:resource_options) { { default_order: 'challenge' } }
+  let(:fixtures_data)    { Spec::Support::Commands::Monsters::FIXTURES }
+  let(:ordered_data) do
+    filtered_data.sort_by { |entity| entity['challenge'] }
+  end
+  let(:order)      { { 'name' => 'asc' } }
+  let(:where_hash) { { 'type' => 'bones' } }
 
   def filter_data_hash(entities)
     entities.select { |entity| entity['type'] == 'bones' }
