@@ -34,11 +34,9 @@ RSpec.describe Spec::Support::Commands::Chapters::Index do
 
   let(:repository) { Cuprum::Collections::Basic::Repository.new }
   let(:resource) do
-    Cuprum::Rails::Resource.new(
-      default_order: 'id',
-      name:          'chapters'
-    )
+    Cuprum::Rails::Resource.new(name: 'chapters', **resource_options)
   end
+  let(:resource_options) { { default_order: 'id' } }
 
   describe '#call' do
     let(:authors_data)    { [] }

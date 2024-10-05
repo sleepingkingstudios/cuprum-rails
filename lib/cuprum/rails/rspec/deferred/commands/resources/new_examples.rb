@@ -47,13 +47,18 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             'published_at' => '2019-09-10'
           }
         end
+        let(:empty_attributes) do
+          next super() if defined?(super())
+
+          {}
+        end
         let(:expected_attributes) do
           next super() if defined?(super())
 
-          {
+          empty_attributes.merge(
             'title'  => 'Gideon the Ninth',
             'author' => 'Tamsyn Muir'
-          }
+          )
         end
 
         def call_command
@@ -78,7 +83,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
         describe 'with attributes: an empty Hash' do
           let(:attributes)          { {} }
-          let(:expected_attributes) { {} }
+          let(:expected_attributes) { empty_attributes }
 
           include_deferred 'should build the entity'
         end
