@@ -31,7 +31,6 @@ RSpec.describe Cuprum::Rails::Actions::Index do
   end
   let(:resource_options) { {} }
 
-  # rubocop:disable Style/RedundantLineContinuation
   include_contract 'should be an index action',
     existing_entities: [] \
   do
@@ -89,7 +88,6 @@ RSpec.describe Cuprum::Rails::Actions::Index do
       end
     end
   end
-  # rubocop:enable Style/RedundantLineContinuation
 
   describe '#default_order' do
     include_examples 'should define reader', :default_order
@@ -246,7 +244,6 @@ RSpec.describe Cuprum::Rails::Actions::Index do
       )
     end
 
-    # rubocop:disable Style/RedundantLineContinuation
     include_contract 'should be an index action',
       existing_entities: [] \
     do
@@ -309,6 +306,5 @@ RSpec.describe Cuprum::Rails::Actions::Index do
         end
       end
     end
-    # rubocop:enable Style/RedundantLineContinuation
   end
 end
