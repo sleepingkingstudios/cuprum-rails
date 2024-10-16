@@ -19,7 +19,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::New do
   let(:resource_options) do
     { permitted_attributes: %w[uuid title author series category] }
   end
-  let(:entity_class) { Tome }
   let(:attributes) do
     {
       'uuid'   => '00000000-0000-0000-0000-000000000000',

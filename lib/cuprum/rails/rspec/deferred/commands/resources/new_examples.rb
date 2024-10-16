@@ -6,13 +6,17 @@ require 'cuprum/rails/rspec/deferred/commands/resources'
 require 'cuprum/rails/rspec/deferred/commands/resources_examples'
 
 module Cuprum::Rails::RSpec::Deferred::Commands::Resources
-  # Deferred examples for validating Index command implementations.
+  # Deferred examples for validating New command implementations.
   module NewExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
     include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
 
     deferred_examples 'should build the entity' do
-      let(:entity_class) { defined?(super()) ? super() : Hash }
+      let(:entity_class) do
+        repository
+          .find_or_create(qualified_name: resource.qualified_name)
+          .entity_class
+      end
       let(:entity_attributes) do
         next super() if defined?(super())
 
@@ -100,7 +104,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           include_deferred 'should build the entity'
         end
 
-        describe 'with extra attributes' do
+        describe 'with attributes: a Hash with extra attributes' do
           let(:attributes) { super().merge(extra_attributes) }
 
           include_deferred 'should build the entity'
