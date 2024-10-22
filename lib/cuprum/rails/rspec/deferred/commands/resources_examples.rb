@@ -36,6 +36,26 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    deferred_examples 'should require default contract' do
+      context 'with a resource with default_contract: nil' do
+        let(:default_contract) { nil }
+        let(:entity_class) do
+          repository
+            .find_or_create(qualified_name: resource.qualified_name)
+            .entity_class
+        end
+        let(:expected_error) do
+          Cuprum::Collections::Errors::MissingDefaultContract.new(entity_class:)
+        end
+
+        it 'should return a failing result' do
+          expect(call_command)
+            .to be_a_failing_result
+            .with_error(expected_error)
+        end
+      end
+    end
+
     deferred_examples 'should require permitted attributes' do
       context 'when a resource with permitted_attributes: nil' do
         let(:resource_options) { super().merge(permitted_attributes: nil) }
@@ -68,6 +88,44 @@ module Cuprum::Rails::RSpec::Deferred::Commands
             .with_error(expected_error)
         end
       end
+    end
+
+    deferred_examples 'should validate the entity' do
+      let(:entity_class) do
+        repository
+          .find_or_create(qualified_name: resource.qualified_name)
+          .entity_class
+      end
+      let(:entity_attributes) do
+        next super() if defined?(super())
+
+        value = call_command.value
+
+        value.is_a?(Hash) ? value : value&.attributes
+      end
+      let(:expected_error) do
+        collection = repository[resource.qualified_name]
+        entity     =
+          collection
+            .build_one
+            .call(attributes: entity_attributes || {})
+            .value || {}
+        result     = collection.validate_one.call(entity:)
+
+        Cuprum::Collections::Errors::FailedValidation.new(
+          entity_class:,
+          errors:       result.error.errors
+        )
+      end
+
+      it 'should return a failing result' do
+        expect(call_command)
+          .to be_a_failing_result
+          .with_value(an_instance_of(entity_class))
+          .and_error(expected_error)
+      end
+
+      it { expect(entity_attributes).to be == expected_attributes }
     end
   end
 end
