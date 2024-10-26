@@ -39,7 +39,7 @@ do
     end
 
     describe 'with resource params: an empty Hash' do
-      let(:params) { super().merge('books' => resource_params) }
+      let(:params) { super().merge('book' => resource_params) }
 
       it 'should return a passing result' do
         expect(call_action)
@@ -61,6 +61,56 @@ do
         expect(call_action)
           .to be_a_passing_result
           .with_value(expected_value)
+      end
+    end
+
+    context 'when the command requires resource parameters' do
+      let(:expected_error) do
+        errors = Stannum::Errors.new
+        errors[resource.singular_name.to_s]
+          .add(Stannum::Constraints::Presence::TYPE)
+
+        Cuprum::Rails::Errors::InvalidParameters.new(errors:)
+      end
+
+      before(:example) do
+        described_class.define_method(:map_parameters) do
+          resource_params = step { require_resource_params }
+
+          { resource_params: }
+        end
+      end
+
+      it 'should return a failing result' do
+        expect(call_action)
+          .to be_a_failing_result
+          .with_error(expected_error)
+      end
+
+      describe 'with resource params: an empty Hash' do
+        let(:params) { super().merge('book' => resource_params) }
+
+        it 'should return a failing result' do
+          expect(call_action)
+            .to be_a_failing_result
+            .with_error(expected_error)
+        end
+      end
+
+      describe 'with resource_params: a non-empty Hash' do
+        let(:resource_params) do
+          {
+            'title'  => 'Gideon the Ninth',
+            'author' => 'Tamsyn Muir'
+          }
+        end
+        let(:params) { super().merge('book' => resource_params) }
+
+        it 'should return a passing result' do
+          expect(call_action)
+            .to be_a_passing_result
+            .with_value(expected_value)
+        end
       end
     end
   end

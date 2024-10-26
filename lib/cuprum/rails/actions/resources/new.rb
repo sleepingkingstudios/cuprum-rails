@@ -2,6 +2,7 @@
 
 require 'cuprum/rails/action'
 require 'cuprum/rails/actions/resources'
+require 'cuprum/rails/actions/resources/concerns/resource_parameters'
 require 'cuprum/rails/commands/resources/new'
 
 module Cuprum::Rails::Actions::Resources
