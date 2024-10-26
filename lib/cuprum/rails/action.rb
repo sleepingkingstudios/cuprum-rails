@@ -137,6 +137,10 @@ module Cuprum::Rails
       )
     end
 
+    def call_command(command, **params)
+      command.call(**params)
+    end
+
     def command_class
       @command_class ||= default_command_class
     end
@@ -172,7 +176,7 @@ module Cuprum::Rails
     def process_command
       params  = step { map_parameters }
       command = step { build_command }
-      value   = step { command.call(**params) }
+      value   = step { call_command(command, **params) }
 
       build_response(value)
     end
