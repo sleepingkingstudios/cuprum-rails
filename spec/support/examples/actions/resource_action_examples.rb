@@ -12,6 +12,30 @@ module Spec::Support::Examples::Actions
       let(:options) { super().merge(command_class: Spec::CustomCommand) }
     end
 
+    deferred_context 'with parameters for a resource action' do
+      let(:params) { defined?(super()) ? super() : {} }
+      let(:repository) do
+        next super() if defined?(super())
+
+        Cuprum::Collections::Basic::Repository.new
+      end
+      let(:resource_options) do
+        next super if defined?(super())
+
+        {}
+      end
+      let(:resource) do
+        next super() if defined?(super())
+
+        Cuprum::Rails::Resource.new(name: 'books', **resource_options)
+      end
+      let(:request) do
+        next super() if defined?(super())
+
+        instance_double(Cuprum::Rails::Request, params:)
+      end
+    end
+
     deferred_examples 'should implement the resource action methods' \
     do |command_class:|
       describe '#call' do
@@ -36,22 +60,6 @@ module Spec::Support::Examples::Actions
     end
 
     deferred_examples 'should wrap the command' do |command_class:|
-      let(:params) { defined?(super()) ? super() : {} }
-      let(:repository) do
-        next super() if defined?(super())
-
-        Cuprum::Collections::Basic::Repository.new
-      end
-      let(:resource) do
-        next super() if defined?(super())
-
-        Cuprum::Rails::Resource.new(name: 'books')
-      end
-      let(:request) do
-        next super() if defined?(super())
-
-        instance_double(Cuprum::Rails::Request, params:)
-      end
       let(:expected_command_class) do
         next command_class if command_class.is_a?(Class)
 
@@ -77,6 +85,8 @@ module Spec::Support::Examples::Actions
       end
 
       def call_action
+        return super if defined?(super)
+
         action.call(repository:, request:, resource:)
       end
 
