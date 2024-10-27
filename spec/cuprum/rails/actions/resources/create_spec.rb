@@ -86,7 +86,7 @@ RSpec.describe Cuprum::Rails::Actions::Resources::Create do
       end
       let(:params) { { resource.singular_name => resource_params } }
       let(:expected_value) do
-        { 'book' => {} }
+        { 'book' => resource_params }
       end
       let(:expected_error) do
         errors = Stannum::Errors.new
@@ -101,7 +101,8 @@ RSpec.describe Cuprum::Rails::Actions::Resources::Create do
       it 'should return a failing result' do
         expect(call_action)
           .to be_a_failing_result
-          .with_error(expected_error)
+          .with_value(expected_value)
+          .and_error(expected_error)
       end
     end
 

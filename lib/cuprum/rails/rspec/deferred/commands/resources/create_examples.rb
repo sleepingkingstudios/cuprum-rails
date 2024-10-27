@@ -117,12 +117,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         end
 
         before(:example) do
-          next unless default_contract
+          options = default_contract ? { default_contract: } : {}
 
-          repository.create(
-            default_contract:,
-            qualified_name:   resource.qualified_name
-          )
+          repository.create(qualified_name: resource.qualified_name, **options)
         end
 
         it 'should define the method' do
