@@ -11,6 +11,8 @@ RSpec.describe Cuprum::Rails::Actions::Resources::New do
 
   let(:options) { {} }
 
+  include_deferred 'with parameters for a resource action'
+
   include_deferred 'should implement the resource action methods',
     command_class: Cuprum::Rails::Commands::Resources::New
 
@@ -21,8 +23,16 @@ RSpec.describe Cuprum::Rails::Actions::Resources::New do
       { 'book' => expected_result.value }
     end
 
+    describe 'with params: an empty Hash' do
+      let(:params) { {} }
+
+      include_deferred 'should wrap the command',
+        command_class: Cuprum::Rails::Commands::Resources::New
+    end
+
     describe 'with params: { resource_name: an empty Hash }' do
       let(:resource_params) { {} }
+      let(:params)          { { resource.singular_name => resource_params } }
 
       include_deferred 'should wrap the command',
         command_class: Cuprum::Rails::Commands::Resources::New

@@ -11,6 +11,8 @@ RSpec.describe Cuprum::Rails::Actions::Resources::Index do
 
   let(:options) { {} }
 
+  include_deferred 'with parameters for a resource action'
+
   include_deferred 'should implement the resource action methods',
     command_class: Cuprum::Rails::Commands::Resources::Index
 

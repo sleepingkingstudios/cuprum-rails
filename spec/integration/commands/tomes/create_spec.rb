@@ -2,13 +2,13 @@
 
 require 'cuprum/rails/records/repository'
 require 'cuprum/rails/resource'
-require 'cuprum/rails/rspec/deferred/commands/resources/new_examples'
+require 'cuprum/rails/rspec/deferred/commands/resources/create_examples'
 
 require 'support/tome'
 
 # @note Integration test for command with custom collection.
-RSpec.describe Cuprum::Rails::Commands::Resources::New do
-  include Cuprum::Rails::RSpec::Deferred::Commands::Resources::NewExamples
+RSpec.describe Cuprum::Rails::Commands::Resources::Create do
+  include Cuprum::Rails::RSpec::Deferred::Commands::Resources::CreateExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
@@ -36,6 +36,12 @@ RSpec.describe Cuprum::Rails::Commands::Resources::New do
       'published_at' => nil
     }
   end
+  let(:invalid_attributes) do
+    {
+      'uuid'  => '00000000-0000-0000-0000-000000000000',
+      'title' => 'Gideon the Ninth'
+    }
+  end
   let(:expected_attributes) do
     empty_attributes.merge(
       'uuid'   => '00000000-0000-0000-0000-000000000000',
@@ -44,5 +50,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::New do
     )
   end
 
-  include_deferred 'should implement the New command'
+  include_deferred 'should implement the Create command',
+    default_contract: true
 end

@@ -6,6 +6,7 @@ module Cuprum::Rails::Commands
   # Namespace for commands that implement resourceful controller actions.
   module Resources
     autoload :Concerns, 'cuprum/rails/commands/resources/concerns'
+    autoload :Create,   'cuprum/rails/commands/resources/create'
     autoload :Index,    'cuprum/rails/commands/resources/index'
     autoload :New,      'cuprum/rails/commands/resources/new'
   end

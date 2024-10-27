@@ -67,10 +67,20 @@ module Cuprum::Rails
     end
 
     # @overload initialize(command_class:, parameters_contract: nil)
-    #   @todo
+    #   @param command_class [Class] a subclass of Cuprum::Rails::Command, used
+    #     to implement the action logic.
+    #   @param parameters_contract [Stannum::Constraints::Base] the contract
+    #     used to validate the request parameters, if any.
     #
     # @overload initialize(parameters_contract: nil, &implementation)
-    #   @todo
+    #   @param parameters_contract [Stannum::Constraints::Base] the contract
+    #     used to validate the request parameters, if any.
+    #
+    #   @yield block used to generate a Cuprum::Rails::Command to implement the
+    #     action logic.
+    #   @yieldparam options [Hash] the options passed to the command, such as
+    #     attributes, associations, filtering options, and so on.
+    #   @yieldreturn [Object] the value returned by the command.
     def initialize(
       command_class:       nil,
       parameters_contract: nil,
@@ -127,6 +137,10 @@ module Cuprum::Rails
       )
     end
 
+    def call_command(command, **params)
+      command.call(**params)
+    end
+
     def command_class
       @command_class ||= default_command_class
     end
@@ -162,7 +176,7 @@ module Cuprum::Rails
     def process_command
       params  = step { map_parameters }
       command = step { build_command }
-      value   = step { command.call(**params) }
+      value   = step { call_command(command, **params) }
 
       build_response(value)
     end
