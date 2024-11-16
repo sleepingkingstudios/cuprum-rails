@@ -97,6 +97,22 @@ module Spec::Support::Examples::Commands
         include_examples 'should define private reader',
           :collection,
           -> { expected }
+
+        context 'when the resource has a scope' do
+          let(:resource_scope) do
+            ->(query) { { 'series' => query.not_equal(nil) } }
+          end
+          let(:resource_options) do
+            super().merge(scope: resource_scope)
+          end
+          let(:expected_scope) { expected.scope.and(&resource_scope) }
+
+          it 'should apply the resource scope to the collection' do
+            collection = subject.send(:collection)
+
+            expect(collection.scope).to be == expected_scope
+          end
+        end
       end
 
       describe '#tools' do

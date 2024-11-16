@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/relations/parameters'
 require 'cuprum/collections/repository'
 
 require 'cuprum/rails/records'
@@ -15,7 +16,7 @@ module Cuprum::Rails::Records
     end
 
     def qualified_name_for(**parameters)
-      Cuprum::Collections::Relation::Parameters
+      Cuprum::Collections::Relations::Parameters
         .resolve_parameters(parameters)
         .fetch(:qualified_name)
     end
