@@ -56,6 +56,365 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    deferred_examples 'should require entity' do |**options|
+      if options.fetch(:plural, !options.fetch(:singular, false))
+        context 'when initialized with a plural resource' do
+          let(:resource_options) { super().merge(plural: true) }
+
+          include_deferred 'should require entity by primary key'
+        end
+      end
+
+      if options.fetch(:singular, !options.fetch(:plural, false))
+        context 'when initialized with a singular resource' do
+          let(:resource_options) { super().merge(plural: false) }
+
+          include_deferred 'should require entity by scoped uniqueness'
+        end
+      end
+    end
+
+    deferred_examples 'should require entity by primary key' do
+      describe 'with no entity parameters' do
+        let(:entity)      { nil }
+        let(:primary_key) { nil }
+
+        # @todo: Remove this spec when parameter validation is implemented for
+        #   commands.
+        it 'should return a failing result' do
+          expect(call_command).to be_a_failing_result
+        end
+      end
+
+      describe 'with entity: value' do
+        let(:fixtures_data) do
+          next super() if defined?(super())
+
+          Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
+        end
+        let(:collection_data) do
+          fixtures_data
+        end
+        let(:entity) do
+          defined?(super()) ? super() : collection_data[0]
+        end
+        let(:primary_key) { nil }
+
+        it 'should return a passing result' do
+          expect(call_command)
+            .to be_a_passing_result
+            .with_value(entity)
+        end
+      end
+
+      describe 'with primary_key: an invalid value' do
+        let(:fixtures_data) do
+          next super() if defined?(super())
+
+          Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
+        end
+        let(:collection_data) do
+          fixtures_data
+        end
+        let(:invalid_primary_key_value) do
+          next super() if defined?(super())
+
+          collection_data.map { |item| item['id'] }.max + 1 # rubocop:disable Rails/Pluck
+        end
+        let(:entity)      { nil }
+        let(:primary_key) { invalid_primary_key_value }
+        let(:expected_error) do
+          Cuprum::Collections::Errors::NotFound.new(
+            attribute_name:  resource.primary_key_name,
+            attribute_value: invalid_primary_key_value,
+            collection_name: resource.name,
+            primary_key:     true
+          )
+        end
+
+        it 'should return a failing result' do
+          expect(call_command)
+            .to be_a_failing_result
+            .with_error(expected_error)
+        end
+      end
+
+      wrap_deferred 'when the collection has many items' do
+        describe 'with primary_key: an invalid value' do
+          let(:invalid_primary_key_value) do
+            next super() if defined?(super())
+
+            collection_data.map { |item| item['id'] }.max + 1 # rubocop:disable Rails/Pluck
+          end
+          let(:entity)      { nil }
+          let(:primary_key) { invalid_primary_key_value }
+          let(:expected_error) do
+            Cuprum::Collections::Errors::NotFound.new(
+              attribute_name:  resource.primary_key_name,
+              attribute_value: invalid_primary_key_value,
+              collection_name: resource.name,
+              primary_key:     true
+            )
+          end
+
+          it 'should return a failing result' do
+            expect(call_command)
+              .to be_a_failing_result
+              .with_error(expected_error)
+          end
+        end
+
+        describe 'with primary_key: a valid value' do
+          let(:expected_entity) do
+            collection_data.first
+          end
+          let(:valid_primary_key_value) do
+            next super() if defined?(super())
+
+            expected_entity[resource.primary_key_name]
+          end
+          let(:entity)      { nil }
+          let(:primary_key) { valid_primary_key_value }
+
+          it 'should return a passing result' do
+            expect(call_command)
+              .to be_a_passing_result
+              .with_value(expected_entity)
+          end
+        end
+
+        context 'when the resource defines a scope' do
+          let(:resource_scope) do
+            next super() if defined?(super())
+
+            Cuprum::Collections::Scope.new do |query|
+              { 'published_at' => query.gte('1970-01-01') }
+            end
+          end
+          let(:resource_options) do
+            super().merge(scope: resource_scope)
+          end
+
+          describe 'with primary_key: an invalid value' do
+            let(:invalid_scoped_primary_key_value) do
+              next super() if defined?(super())
+
+              collection_data
+                .select { |item| item['published_at'] < '1970-01-01' }
+                .first
+                .then { |item| item['id'] }
+            end
+            let(:entity)      { nil }
+            let(:primary_key) { invalid_scoped_primary_key_value }
+            let(:expected_error) do
+              Cuprum::Collections::Errors::NotFound.new(
+                attribute_name:  resource.primary_key_name,
+                attribute_value: invalid_scoped_primary_key_value,
+                collection_name: resource.name,
+                primary_key:     true
+              )
+            end
+
+            it 'should return a failing result' do
+              expect(call_command)
+                .to be_a_failing_result
+                .with_error(expected_error)
+            end
+          end
+
+          describe 'with primary_key: an valid value' do
+            let(:valid_scoped_primary_key_value) do
+              next super() if defined?(super())
+
+              collection_data
+                .select { |item| item['published_at'] >= '1970-01-01' }
+                .first
+                .then { |item| item['id'] }
+            end
+            let(:entity)      { nil }
+            let(:primary_key) { valid_scoped_primary_key_value }
+            let(:expected_entity) do
+              collection_data.find do |item|
+                item[resource.primary_key_name] ==
+                  valid_scoped_primary_key_value
+              end
+            end
+
+            it 'should return a passing result' do
+              expect(call_command)
+                .to be_a_passing_result
+                .with_value(expected_entity)
+            end
+          end
+        end
+      end
+    end
+
+    deferred_examples 'should require entity by scoped uniqueness' do
+      let(:primary_key) { nil }
+
+      describe 'with entity: value' do
+        let(:fixtures_data) do
+          next super() if defined?(super())
+
+          Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
+        end
+        let(:collection_data) do
+          fixtures_data
+        end
+        let(:entity) do
+          defined?(super()) ? super() : collection_data[0]
+        end
+
+        it 'should return a passing result' do
+          expect(call_command)
+            .to be_a_passing_result
+            .with_value(entity)
+        end
+      end
+
+      context 'when there are no matching items' do
+        let(:entity) { nil }
+        let(:expected_error) do
+          collection = repository[resource.qualified_name]
+
+          Cuprum::Collections::Errors::NotFound.new(
+            collection_name: collection.name,
+            query:           collection.query
+          )
+        end
+
+        it 'should return a failing result' do
+          expect(call_command)
+            .to be_a_failing_result
+            .with_error(expected_error)
+        end
+      end
+
+      wrap_deferred 'when the collection has many items' do
+        let(:entity) { nil }
+
+        context 'when there is one matching item' do
+          let(:fixtures_data) { super()[0..0] }
+          let(:expected_entity) do
+            collection_data.first
+          end
+
+          it 'should return a passing result' do
+            expect(call_command)
+              .to be_a_passing_result
+              .with_value(expected_entity)
+          end
+        end
+
+        context 'when there are many matching items' do
+          let(:expected_error) do
+            collection = repository[resource.qualified_name]
+
+            Cuprum::Collections::Errors::NotUnique.new(
+              collection_name: collection.name,
+              query:           collection.query
+            )
+          end
+
+          it 'should return a failing result' do
+            expect(call_command)
+              .to be_a_failing_result
+              .with_error(expected_error)
+          end
+        end
+
+        context 'when the resource defines a scope' do
+          let(:resource_scope) do
+            next super() if defined?(super())
+
+            Cuprum::Collections::Scope.new do |query|
+              { 'published_at' => query.gte('1970-01-01') }
+            end
+          end
+          let(:resource_options) do
+            super().merge(scope: resource_scope)
+          end
+
+          context 'when there are no matching items' do
+            let(:non_matching_scope) do
+              next super() if defined?(super())
+
+              Cuprum::Collections::Scope.new do |query|
+                { 'published_at' => query.gte('2070-01-01') }
+              end
+            end
+            let(:resource_scope) { non_matching_scope }
+            let(:entity)         { nil }
+            let(:expected_error) do
+              collection =
+                repository[resource.qualified_name].with_scope(resource_scope)
+
+              Cuprum::Collections::Errors::NotFound.new(
+                collection_name: collection.name,
+                query:           collection.query
+              )
+            end
+
+            it 'should return a failing result' do
+              expect(call_command)
+                .to be_a_failing_result
+                .with_error(expected_error)
+            end
+          end
+
+          context 'when there is one matching item' do
+            let(:unique_scope) do
+              next super() if defined?(super())
+
+              Cuprum::Collections::Scope.new do |query|
+                {
+                  'author'       => 'J.R.R. Tolkien',
+                  'published_at' => query.gte('1970-01-01')
+                }
+              end
+            end
+            let(:resource_scope) { unique_scope }
+            let(:entity)         { nil }
+            let(:unique_entity) do
+              next super() if defined?(super())
+
+              collection_data.find do |item|
+                item['author'] == 'J.R.R. Tolkien' &&
+                  item['published_at'] >= '1970-01-01'
+              end
+            end
+            let(:expected_entity) { unique_entity }
+
+            it 'should return a passing result' do
+              expect(call_command)
+                .to be_a_passing_result
+                .with_value(expected_entity)
+            end
+          end
+
+          context 'when there are many matching items' do
+            let(:entity)         { nil }
+            let(:expected_error) do
+              collection =
+                repository[resource.qualified_name].with_scope(resource_scope)
+
+              Cuprum::Collections::Errors::NotUnique.new(
+                collection_name: collection.name,
+                query:           collection.query
+              )
+            end
+
+            it 'should return a failing result' do
+              expect(call_command)
+                .to be_a_failing_result
+                .with_error(expected_error)
+            end
+          end
+        end
+      end
+    end
+
     deferred_examples 'should require permitted attributes' do
       context 'when a resource with permitted_attributes: nil' do
         let(:resource_options) { super().merge(permitted_attributes: nil) }
