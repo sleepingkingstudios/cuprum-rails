@@ -9,5 +9,6 @@ module Cuprum::Rails::Commands
     autoload :Create,   'cuprum/rails/commands/resources/create'
     autoload :Index,    'cuprum/rails/commands/resources/index'
     autoload :New,      'cuprum/rails/commands/resources/new'
+    autoload :Show,     'cuprum/rails/commands/resources/show'
   end
 end

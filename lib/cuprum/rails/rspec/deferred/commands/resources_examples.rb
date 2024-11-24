@@ -56,8 +56,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
-    deferred_examples 'should require entity' do |**options|
-      if options.fetch(:plural, !options.fetch(:singular, false))
+    deferred_examples 'should require entity' do |**examples_opts|
+      if examples_opts.fetch(:plural, !examples_opts.fetch(:singular, false))
         context 'when initialized with a plural resource' do
           let(:resource_options) { super().merge(plural: true) }
 
@@ -65,7 +65,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         end
       end
 
-      if options.fetch(:singular, !options.fetch(:plural, false))
+      if examples_opts.fetch(:singular, !examples_opts.fetch(:plural, false))
         context 'when initialized with a singular resource' do
           let(:resource_options) { super().merge(plural: false) }
 
@@ -87,23 +87,20 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
 
       describe 'with entity: value' do
-        let(:fixtures_data) do
-          next super() if defined?(super())
+        include_deferred 'when the collection has many items'
 
-          Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
-        end
-        let(:collection_data) do
-          fixtures_data
-        end
         let(:entity) do
-          defined?(super()) ? super() : collection_data[0]
+          defined?(super()) ? super() : collection_data.first
         end
         let(:primary_key) { nil }
+        let(:expected_entity) do
+          defined?(super()) ? super() : entity
+        end
 
         it 'should return a passing result' do
           expect(call_command)
             .to be_a_passing_result
-            .with_value(entity)
+            .with_value(expected_entity)
         end
       end
 
@@ -114,12 +111,17 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
         end
         let(:collection_data) do
+          next super() if defined?(super())
+
           fixtures_data
         end
         let(:invalid_primary_key_value) do
           next super() if defined?(super())
 
-          collection_data.map { |item| item['id'] }.max + 1 # rubocop:disable Rails/Pluck
+          collection_data
+            .map { |item| item[resource.primary_key_name] } # rubocop:disable Rails/Pluck
+            .max
+            .then { |value| (value || 0) + 1 }
         end
         let(:entity)      { nil }
         let(:primary_key) { invalid_primary_key_value }
@@ -144,7 +146,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           let(:invalid_primary_key_value) do
             next super() if defined?(super())
 
-            collection_data.map { |item| item['id'] }.max + 1 # rubocop:disable Rails/Pluck
+            collection_data
+              .map { |item| item[resource.primary_key_name] } # rubocop:disable Rails/Pluck
+              .max + 1
           end
           let(:entity)      { nil }
           let(:primary_key) { invalid_primary_key_value }
@@ -166,7 +170,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
 
         describe 'with primary_key: a valid value' do
           let(:expected_entity) do
-            collection_data.first
+            defined?(super()) ? super() : collection_data.first
           end
           let(:valid_primary_key_value) do
             next super() if defined?(super())
@@ -184,6 +188,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         end
 
         context 'when the resource defines a scope' do
+          let(:collection) do
+            next super() if defined?(super())
+
+            repository.find_or_create(qualified_name: resource.qualified_name)
+          end
           let(:resource_scope) do
             next super() if defined?(super())
 
@@ -199,10 +208,13 @@ module Cuprum::Rails::RSpec::Deferred::Commands
             let(:invalid_scoped_primary_key_value) do
               next super() if defined?(super())
 
-              collection_data
-                .select { |item| item['published_at'] < '1970-01-01' }
+              collection
+                .with_scope(resource_scope.invert)
+                .find_matching
+                .call(limit: 1)
+                .value
                 .first
-                .then { |item| item['id'] }
+                .then { |item| item[resource.primary_key_name] }
             end
             let(:entity)      { nil }
             let(:primary_key) { invalid_scoped_primary_key_value }
@@ -226,14 +238,19 @@ module Cuprum::Rails::RSpec::Deferred::Commands
             let(:valid_scoped_primary_key_value) do
               next super() if defined?(super())
 
-              collection_data
-                .select { |item| item['published_at'] >= '1970-01-01' }
+              collection
+                .with_scope(resource_scope)
+                .find_matching
+                .call(limit: 1)
+                .value
                 .first
-                .then { |item| item['id'] }
+                .then { |item| item[resource.primary_key_name] }
             end
             let(:entity)      { nil }
             let(:primary_key) { valid_scoped_primary_key_value }
             let(:expected_entity) do
+              next super() if defined?(super())
+
               collection_data.find do |item|
                 item[resource.primary_key_name] ==
                   valid_scoped_primary_key_value
@@ -254,22 +271,19 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       let(:primary_key) { nil }
 
       describe 'with entity: value' do
-        let(:fixtures_data) do
-          next super() if defined?(super())
+        include_deferred 'when the collection has many items'
 
-          Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
-        end
-        let(:collection_data) do
-          fixtures_data
-        end
         let(:entity) do
           defined?(super()) ? super() : collection_data[0]
+        end
+        let(:expected_entity) do
+          defined?(super()) ? super() : entity
         end
 
         it 'should return a passing result' do
           expect(call_command)
             .to be_a_passing_result
-            .with_value(entity)
+            .with_value(expected_entity)
         end
       end
 
@@ -297,6 +311,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         context 'when there is one matching item' do
           let(:fixtures_data) { super()[0..0] }
           let(:expected_entity) do
+            next super() if defined?(super())
+
             collection_data.first
           end
 
@@ -325,6 +341,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         end
 
         context 'when the resource defines a scope' do
+          let(:collection) do
+            next super() if defined?(super())
+
+            repository.find_or_create(qualified_name: resource.qualified_name)
+          end
           let(:resource_scope) do
             next super() if defined?(super())
 
@@ -377,19 +398,23 @@ module Cuprum::Rails::RSpec::Deferred::Commands
             let(:resource_scope) { unique_scope }
             let(:entity)         { nil }
             let(:unique_entity) do
+              collection
+                .with_scope(unique_scope)
+                .find_matching
+                .call
+                .value
+                .first
+            end
+            let(:expected_unique_entity) do
               next super() if defined?(super())
 
-              collection_data.find do |item|
-                item['author'] == 'J.R.R. Tolkien' &&
-                  item['published_at'] >= '1970-01-01'
-              end
+              unique_entity
             end
-            let(:expected_entity) { unique_entity }
 
             it 'should return a passing result' do
               expect(call_command)
                 .to be_a_passing_result
-                .with_value(expected_entity)
+                .with_value(expected_unique_entity)
             end
           end
 
