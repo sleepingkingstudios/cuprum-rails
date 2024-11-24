@@ -21,14 +21,14 @@ RSpec.describe Cuprum::Rails::Commands::Resources::New do
   let(:attributes) do
     {
       'name'      => 'Dracolich',
-      'challenge' => '30',
+      'challenge' => 30,
       'type'      => 'bones'
     }
   end
   let(:expected_attributes) do
     {
       'name'      => 'Dracolich',
-      'challenge' => '30',
+      'challenge' => 30,
       'type'      => 'bones'
     }
   end

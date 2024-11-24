@@ -344,7 +344,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           let(:collection) do
             next super() if defined?(super())
 
+            # :nocov:
             repository.find_or_create(qualified_name: resource.qualified_name)
+            # :nocov:
           end
           let(:resource_scope) do
             next super() if defined?(super())
