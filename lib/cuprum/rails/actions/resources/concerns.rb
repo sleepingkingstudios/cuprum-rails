@@ -7,6 +7,8 @@ module Cuprum::Rails::Actions::Resources
   module Concerns
     autoload :EntityValidation,
       'cuprum/rails/actions/resources/concerns/entity_validation'
+    autoload :PrimaryKey,
+      'cuprum/rails/actions/resources/concerns/primary_key'
     autoload :ResourceParameters,
       'cuprum/rails/actions/resources/concerns/resource_parameters'
   end
