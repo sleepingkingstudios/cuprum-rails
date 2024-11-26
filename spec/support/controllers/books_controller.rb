@@ -90,7 +90,7 @@ class BooksController < BaseController
   action :edit,    Cuprum::Rails::Actions::Edit,              member: true
   action :new,     Cuprum::Rails::Actions::Resources::New,    member: false
   action :index,   Cuprum::Rails::Actions::Resources::Index,  member: false
-  action :show,    Cuprum::Rails::Actions::Show,              member: true
+  action :show,    Cuprum::Rails::Actions::Resources::Show,   member: true
   action :update,  Cuprum::Rails::Actions::Update,            member: true
 
   action :publish, member: true do |repository:, request:, resource:, **|
