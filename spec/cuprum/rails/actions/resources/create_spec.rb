@@ -45,66 +45,7 @@ RSpec.describe Cuprum::Rails::Actions::Resources::Create do
       action.call(repository:, request:, resource:)
     end
 
-    describe 'with params: an empty Hash' do
-      let(:params) { {} }
-      let(:expected_error) do
-        errors = Stannum::Errors.new
-        errors['book'].add(Stannum::Constraints::Presence::TYPE)
-
-        Cuprum::Rails::Errors::InvalidParameters.new(errors:)
-      end
-
-      it 'should return a failing result' do
-        expect(call_action)
-          .to be_a_failing_result
-          .with_error(expected_error)
-      end
-    end
-
-    describe 'with params: { resource_name: an empty Hash }' do
-      let(:resource_params) { {} }
-      let(:params)          { { resource.singular_name => resource_params } }
-      let(:expected_error) do
-        errors = Stannum::Errors.new
-        errors['book'].add(Stannum::Constraints::Presence::TYPE)
-
-        Cuprum::Rails::Errors::InvalidParameters.new(errors:)
-      end
-
-      it 'should return a failing result' do
-        expect(call_action)
-          .to be_a_failing_result
-          .with_error(expected_error)
-      end
-    end
-
-    describe 'with params: { resource_name: an invalid Hash }' do
-      let(:resource_params) do
-        {
-          'title' => 'Gideon the Ninth'
-        }
-      end
-      let(:params) { { resource.singular_name => resource_params } }
-      let(:expected_value) do
-        { 'book' => resource_params }
-      end
-      let(:expected_error) do
-        errors = Stannum::Errors.new
-        errors['book']['author'].add(Stannum::Constraints::Presence::TYPE)
-
-        Cuprum::Collections::Errors::FailedValidation.new(
-          entity_class: Hash,
-          errors:
-        )
-      end
-
-      it 'should return a failing result' do
-        expect(call_action)
-          .to be_a_failing_result
-          .with_value(expected_value)
-          .and_error(expected_error)
-      end
-    end
+    include_deferred 'should require resource params'
 
     describe 'with params: { resource_name: a valid Hash }' do
       let(:resource_params) do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/records/repository'
+require 'cuprum/rails/resource'
 require 'cuprum/rails/rspec/deferred/commands/resources/index_examples'
 
 require 'support/commands/chapters/index'

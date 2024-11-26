@@ -28,7 +28,7 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
   let(:attributes) do
     {
       'name'      => 'Dracolich',
-      'challenge' => '30',
+      'challenge' => 30,
       'type'      => 'bones'
     }
   end
@@ -41,7 +41,7 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
   let(:expected_attributes) do
     {
       'name'      => 'Dracolich',
-      'challenge' => '30',
+      'challenge' => 30,
       'type'      => 'bones'
     }
   end

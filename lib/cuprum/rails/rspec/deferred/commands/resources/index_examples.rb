@@ -122,6 +122,53 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             include_deferred 'should find the matching collection data'
           end
         end
+
+        context 'when the resource has a scope' do
+          let(:resource_scope) do
+            next super() if defined?(super())
+
+            ->(query) { { 'series' => query.not_equal(nil) } }
+          end
+          let(:resource_options) do
+            super().merge(scope: resource_scope)
+          end
+          let(:scoped_data) do
+            next super() if defined?(super())
+
+            collection_data.reject do |entity|
+              entity['series'].nil?
+            end
+          end
+          let(:filtered_data) { scoped_data }
+
+          include_deferred 'should find the matching collection data'
+
+          wrap_deferred 'when the collection has many items' do
+            include_deferred 'should find the matching collection data'
+          end
+
+          describe 'with where: a Hash' do
+            let(:where_hash) do
+              defined?(super()) ? super() : { 'author' => 'Ursula K. LeGuin' }
+            end
+            let(:command_options) { super().merge(where: where_hash) }
+            let(:filtered_data)   { filter_data_hash(super()) }
+
+            def filter_data_hash(entities)
+              return super if defined?(super())
+
+              entities.select do |entity|
+                entity['author'] == 'Ursula K. LeGuin'
+              end
+            end
+
+            include_deferred 'should find the matching collection data'
+
+            wrap_deferred 'when the collection has many items' do
+              include_deferred 'should find the matching collection data'
+            end
+          end
+        end
       end
     end
   end

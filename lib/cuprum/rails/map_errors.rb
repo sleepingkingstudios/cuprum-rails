@@ -37,7 +37,7 @@ module Cuprum::Rails
       end
     end
 
-    def map_errors_hash(native_errors:) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def map_errors_hash(native_errors:) # rubocop:disable Metrics/MethodLength
       errors   = Stannum::Errors.new
       details  = native_errors.details
       messages = native_errors.messages
@@ -48,7 +48,7 @@ module Cuprum::Rails
         details[attribute].each.with_index do |hsh, index|
           message = messages[attribute][index]
 
-          scoped.add(hsh[:error], **hsh.except(:error).merge(message:))
+          scoped.add(hsh[:error], **hsh.except(:error), message:)
         end
       end
 
@@ -62,7 +62,7 @@ module Cuprum::Rails
         attribute = error.attribute
         scoped    = attribute == :base ? errors : errors[attribute]
 
-        scoped.add(error.type, **error.options.merge(message: error.message))
+        scoped.add(error.type, **error.options, message: error.message)
       end
 
       errors

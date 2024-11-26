@@ -5,7 +5,7 @@ require 'cuprum/rails/commands/resources/concerns/entity_validation'
 require 'cuprum/rails/commands/resources/concerns/permitted_attributes'
 
 module Cuprum::Rails::Commands::Resources
-  # Command implementing a New action.
+  # Command implementing a Create action.
   class Create < Cuprum::Rails::Commands::ResourceCommand
     include Cuprum::Rails::Commands::Resources::Concerns::EntityValidation
     include Cuprum::Rails::Commands::Resources::Concerns::PermittedAttributes

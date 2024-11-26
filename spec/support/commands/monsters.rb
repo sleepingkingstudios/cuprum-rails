@@ -8,43 +8,43 @@ module Spec::Support::Commands
       {
         'id'        => 0,
         'name'      => 'Skeleton',
-        'challenge' => '1/2',
+        'challenge' => 1,
         'type'      => 'bones'
       },
       {
         'id'        => 1,
         'name'      => 'Ghoul',
-        'challenge' => '1',
+        'challenge' => 1,
         'type'      => 'flesh'
       },
       {
         'id'        => 2,
         'name'      => 'Ghost',
-        'challenge' => '2',
+        'challenge' => 2,
         'type'      => 'ectoplasm'
       },
       {
         'id'        => 3,
         'name'      => 'Ghast',
-        'challenge' => '3',
+        'challenge' => 3,
         'type'      => 'flesh'
       },
       {
         'id'        => 4,
         'name'      => 'Mummy',
-        'challenge' => '5',
+        'challenge' => 5,
         'type'      => 'flesh'
       },
       {
         'id'        => 5,
         'name'      => 'Vampire',
-        'challenge' => '10',
+        'challenge' => 10,
         'type'      => 'flesh'
       },
       {
         'id'        => 6,
         'name'      => 'Lich',
-        'challenge' => '20',
+        'challenge' => 20,
         'type'      => 'bones'
       }
     ].map(&:freeze).freeze
