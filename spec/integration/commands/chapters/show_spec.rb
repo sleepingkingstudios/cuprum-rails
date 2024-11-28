@@ -79,5 +79,9 @@ RSpec.describe Spec::Support::Commands::Chapters::Show do
     end
 
     include_deferred 'should require entity'
+
+    include_deferred 'with a valid entity' do
+      include_deferred 'should find the entity'
+    end
   end
 end
