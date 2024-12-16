@@ -22,6 +22,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     deferred_examples 'should implement the Show command' do |**examples_opts|
       describe '#call' do
         def call_command
+          return super if defined?(super)
+
           command.call(entity:, primary_key:)
         end
 

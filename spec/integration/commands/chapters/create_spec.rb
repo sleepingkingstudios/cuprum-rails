@@ -1,44 +1,26 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/records/repository'
-require 'cuprum/rails/resource'
 require 'cuprum/rails/rspec/deferred/commands/resources/create_examples'
 
-require 'support/book'
 require 'support/commands/chapters/create'
+require 'support/commands/chapters_examples'
 
 # @note Integration test for command with custom logic.
 RSpec.describe Spec::Support::Commands::Chapters::Create do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::CreateExamples
+  include Spec::Support::Commands::ChaptersExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
-  let(:repository) { Cuprum::Collections::Basic::Repository.new }
-  let(:resource) do
-    Cuprum::Rails::Resource.new(name: 'chapters', **resource_options)
+  let(:book) { nil }
+
+  def call_command
+    command.call(attributes:, book:)
   end
-  let(:resource_options) { { permitted_attributes: %w[title chapter_index] } }
-  let(:default_contract) do
-    Stannum::Contracts::HashContract.new(allow_extra_keys: true) do
-      key 'chapter_index',  Stannum::Constraints::Presence.new
-      key 'title',          Stannum::Constraints::Presence.new
-    end
-  end
-  let(:attributes) do
-    {
-      'title'         => 'Introduction',
-      'chapter_index' => 0
-    }
-  end
-  let(:empty_attributes)   { { 'book' => nil, 'book_id' => nil } }
-  let(:invalid_attributes) { { 'title' => nil, 'chapter_index' => 0 } }
-  let(:extra_attributes)   { { 'book_id' => 10 } }
-  let(:expected_attributes) do
-    empty_attributes.merge(
-      'title'         => 'Introduction',
-      'chapter_index' => 0
-    )
-  end
+
+  include_deferred 'with parameters for a Chapter command'
+
+  include_deferred 'with resource parameters for a Chapter command'
 
   include_deferred 'should implement the Create command'
 
@@ -50,10 +32,6 @@ RSpec.describe Spec::Support::Commands::Chapters::Create do
           'book'    => book,
           'book_id' => book['id']
         )
-      end
-
-      def call_command
-        command.call(attributes:, book:)
       end
 
       before(:example) do

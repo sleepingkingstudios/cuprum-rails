@@ -15,7 +15,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       item.is_a?(Hash) ? item : item&.attributes
     end
 
-    def collection_data
+    def persisted_data
       return super if defined?(super)
 
       repository[resource.qualified_name]
@@ -26,7 +26,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     end
 
     deferred_examples 'should not create an entity' do
-      it { expect { call_command }.not_to(change { collection_data }) }
+      it { expect { call_command }.not_to(change { persisted_data }) }
     end
 
     deferred_examples 'should create the entity' do
@@ -51,11 +51,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
       it { expect(entity_attributes).to be == expected_attributes }
 
-      it { expect { call_command }.to change { collection_data.count }.by(1) }
+      it { expect { call_command }.to change { persisted_data.count }.by(1) }
 
       it 'should add the entity to the collection' do
         expect { call_command }.to(
-          change { collection_data }.to(
+          change { persisted_data }.to(
             satisfy do |data|
               data.any? { |item| attributes_for(item) == expected_attributes }
             end
