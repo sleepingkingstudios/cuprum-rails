@@ -7,6 +7,7 @@ module Cuprum::Rails::Commands
   module Resources
     autoload :Concerns, 'cuprum/rails/commands/resources/concerns'
     autoload :Create,   'cuprum/rails/commands/resources/create'
+    autoload :Edit,     'cuprum/rails/commands/resources/edit'
     autoload :Index,    'cuprum/rails/commands/resources/index'
     autoload :New,      'cuprum/rails/commands/resources/new'
     autoload :Show,     'cuprum/rails/commands/resources/show'
