@@ -34,7 +34,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
     deferred_examples 'should implement the Index command' do
       describe '#call' do
-        let(:collection_data) { [] }
+        let(:collection_data) { defined?(super()) ? super() : [] }
         let(:command_options) { {} }
 
         def call_command
@@ -60,7 +60,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         describe 'with limit: value' do
           let(:limit)           { defined?(super()) ? super() : 3 }
           let(:command_options) { super().merge(limit:) }
-          let(:expected_data)   { super()[...limit] || [] }
+          let(:matching_data)   { ordered_data[...limit] || [] }
 
           include_deferred 'should find the matching collection data'
 
@@ -72,7 +72,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         describe 'with offset: value' do
           let(:offset)          { defined?(super()) ? super() : 2 }
           let(:command_options) { super().merge(offset:) }
-          let(:expected_data)   { super()[offset...] || [] }
+          let(:matching_data)   { ordered_data[offset...] || [] }
 
           include_deferred 'should find the matching collection data'
 
