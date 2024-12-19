@@ -87,7 +87,7 @@ class BooksController < BaseController
 
   action :create,  Cuprum::Rails::Actions::Resources::Create, member: false
   action :destroy, Cuprum::Rails::Actions::Destroy,           member: true
-  action :edit,    Cuprum::Rails::Actions::Edit,              member: true
+  action :edit,    Cuprum::Rails::Actions::Resources::Edit,   member: true
   action :new,     Cuprum::Rails::Actions::Resources::New,    member: false
   action :index,   Cuprum::Rails::Actions::Resources::Index,  member: false
   action :show,    Cuprum::Rails::Actions::Resources::Show,   member: true
