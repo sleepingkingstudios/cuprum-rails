@@ -265,7 +265,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           next super() if defined?(super())
 
           collection_data
-            .map { |item| item[resource.primary_key_name] } # rubocop:disable Rails/Pluck
+            .map { |item| item[resource.primary_key_name] }
             .max
             .then { |value| (value || 0) + 1 }
         end
@@ -293,7 +293,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
             next super() if defined?(super())
 
             collection_data
-              .map { |item| item[resource.primary_key_name] } # rubocop:disable Rails/Pluck
+              .map { |item| item[resource.primary_key_name] }
               .max + 1
           end
           let(:entity)      { nil }
