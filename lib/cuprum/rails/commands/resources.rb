@@ -11,5 +11,6 @@ module Cuprum::Rails::Commands
     autoload :Index,    'cuprum/rails/commands/resources/index'
     autoload :New,      'cuprum/rails/commands/resources/new'
     autoload :Show,     'cuprum/rails/commands/resources/show'
+    autoload :Update,   'cuprum/rails/commands/resources/update'
   end
 end

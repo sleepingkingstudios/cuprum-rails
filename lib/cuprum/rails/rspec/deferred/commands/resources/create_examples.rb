@@ -25,10 +25,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         .to_a
     end
 
-    deferred_examples 'should not create an entity' do
-      it { expect { call_command }.not_to(change { persisted_data }) }
-    end
-
     deferred_examples 'should create the entity' do
       let(:entity_class) do
         repository
@@ -176,6 +172,10 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           include_deferred 'should create the entity'
         end
       end
+    end
+
+    deferred_examples 'should not create an entity' do
+      it { expect { call_command }.not_to(change { persisted_data }) }
     end
   end
 end
