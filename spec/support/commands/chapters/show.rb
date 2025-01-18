@@ -8,6 +8,8 @@ module Spec::Support::Commands::Chapters
   class Show < Cuprum::Rails::Commands::Resources::Show
     private
 
+    attr_reader :author
+
     attr_reader :book
 
     def assign_author(author:, chapter:)
@@ -31,6 +33,12 @@ module Spec::Support::Commands::Chapters
     end
 
     def process(author: nil, **options)
+      @author = author
+
+      super(**options)
+    end
+
+    def require_entity(**options)
       chapter = step { super(**options) }
       book_id = chapter['book_id']
       book    = step { find_book(book_id) }

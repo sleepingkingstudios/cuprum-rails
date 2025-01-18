@@ -8,6 +8,10 @@ module Spec::Support::Commands
       {
         'id'   => 0,
         'name' => 'Tamsyn Muir'
+      },
+      {
+        'id'   => 1,
+        'name' => 'Shelby Cragg'
       }
     ].map(&:freeze).freeze
 
