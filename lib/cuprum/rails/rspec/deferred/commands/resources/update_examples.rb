@@ -35,8 +35,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           nil
         end
 
-        def call_command
-          return super if defined?(super)
+        define_method(:call_command) do
+          return super() if defined?(super())
 
           command.call(
             attributes:  defined?(attributes)  ? attributes  : {},
@@ -121,11 +121,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             value = expected_entity
 
             value.is_a?(Hash) ? value : value.attributes
-          end
-          let(:empty_attributes) do
-            next super() if defined?(super())
-
-            {}
           end
           let(:expected_attributes) do
             next super() if defined?(super())

@@ -497,7 +497,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
 
         Cuprum::Collections::Errors::FailedValidation.new(
           entity_class:,
-          errors:       result.error.errors
+          errors:       result.error&.errors
         )
       end
 
