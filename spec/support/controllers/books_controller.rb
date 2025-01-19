@@ -91,7 +91,7 @@ class BooksController < BaseController
   action :new,     Cuprum::Rails::Actions::Resources::New,    member: false
   action :index,   Cuprum::Rails::Actions::Resources::Index,  member: false
   action :show,    Cuprum::Rails::Actions::Resources::Show,   member: true
-  action :update,  Cuprum::Rails::Actions::Update,            member: true
+  action :update,  Cuprum::Rails::Actions::Resources::Update, member: true
 
   action :publish, member: true do |repository:, request:, resource:, **|
     entity_id = request.params['id']

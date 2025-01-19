@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/commands/resources/new'
+require 'cuprum/rails/commands/resources/update'
 
 require 'support/commands/chapters'
 
 module Spec::Support::Commands::Chapters
-  class Show < Cuprum::Rails::Commands::Resources::Show
+  class Update < Cuprum::Rails::Commands::Resources::Update
     private
 
     attr_reader :author

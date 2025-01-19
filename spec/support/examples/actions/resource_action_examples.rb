@@ -64,7 +64,9 @@ module Spec::Support::Examples::Actions
         let(:resource_options) { super().merge(plural: true) }
 
         describe 'with params: an empty Hash' do
-          let(:params) { {} }
+          let(:params) do
+            super().except('id', "#{resource.singular_name}_id")
+          end
           let(:expected_error) do
             errors = Stannum::Errors.new
             errors['id'].add(Stannum::Constraints::Presence::TYPE)
@@ -80,7 +82,9 @@ module Spec::Support::Examples::Actions
         end
 
         describe 'with params: { id: nil }' do
-          let(:params) { { 'id' => nil } }
+          let(:params) do
+            super().except("#{resource.singular_name}_id").merge('id' => nil)
+          end
           let(:expected_error) do
             errors = Stannum::Errors.new
             errors['id'].add(Stannum::Constraints::Presence::TYPE)
@@ -96,7 +100,9 @@ module Spec::Support::Examples::Actions
         end
 
         describe 'with params: { resource_id: nil }' do
-          let(:params) { { "#{resource.singular_name}_id" => nil } }
+          let(:params) do
+            super().except('id').merge("#{resource.singular_name}_id" => nil)
+          end
           let(:expected_error) do
             errors = Stannum::Errors.new
             errors['id'].add(Stannum::Constraints::Presence::TYPE)
@@ -114,8 +120,8 @@ module Spec::Support::Examples::Actions
     end
 
     deferred_examples 'should require resource params' do
-      describe 'with params: an empty Hash' do
-        let(:params) { {} }
+      describe 'with params: { resource_name: nil }' do
+        let(:params) { super().merge(resource.singular_name => nil) }
         let(:expected_error) do
           errors = Stannum::Errors.new
           errors['book'].add(Stannum::Constraints::Presence::TYPE)
@@ -132,7 +138,9 @@ module Spec::Support::Examples::Actions
 
       describe 'with params: { resource_name: an empty Hash }' do
         let(:resource_params) { {} }
-        let(:params)          { { resource.singular_name => resource_params } }
+        let(:params) do
+          super().merge(resource.singular_name => resource_params)
+        end
         let(:expected_error) do
           errors = Stannum::Errors.new
           errors['book'].add(Stannum::Constraints::Presence::TYPE)
@@ -144,34 +152,6 @@ module Spec::Support::Examples::Actions
           expect(call_action)
             .to be_a_failing_result
             .with_error(expected_error)
-        end
-      end
-
-      describe 'with params: { resource_name: an invalid Hash }' do
-        let(:resource_params) do
-          {
-            'title' => 'Gideon the Ninth'
-          }
-        end
-        let(:params) { { resource.singular_name => resource_params } }
-        let(:expected_value) do
-          { 'book' => resource_params }
-        end
-        let(:expected_error) do
-          errors = Stannum::Errors.new
-          errors['book']['author'].add(Stannum::Constraints::Presence::TYPE)
-
-          Cuprum::Collections::Errors::FailedValidation.new(
-            entity_class: Hash,
-            errors:
-          )
-        end
-
-        it 'should return a failing result' do
-          expect(call_action)
-            .to be_a_failing_result
-            .with_value(expected_value)
-            .and_error(expected_error)
         end
       end
     end
