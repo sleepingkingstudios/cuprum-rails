@@ -40,10 +40,17 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::LogResult do
     end
 
     def format_expected(str)
-      str
-        .lines
-        .map { |line| line == "\n" ? "\n" : "  #{line}" }
-        .join
+      expected =
+        str
+          .lines
+          .map { |line| line == "\n" ? "\n" : "  #{line}" }
+          .join
+
+      return expected unless RUBY_VERSION >= '3.4.0'
+
+      expected
+        .gsub(/:\w+=>/) { |match| "#{match[1...-2]}: " }
+        .gsub('=>', ' => ')
     end
 
     it 'should define the method' do

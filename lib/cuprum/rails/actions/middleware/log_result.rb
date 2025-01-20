@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pp'
+
 require 'cuprum/rails/actions/middleware'
 
 module Cuprum::Rails::Actions::Middleware
