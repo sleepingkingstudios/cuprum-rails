@@ -16,18 +16,14 @@ class Application < Rails::Application
   # Initialize configuration defaults for originally generated Rails version.
 
   # :nocov:
-  if Rails.version >= '7.1'
+  if Rails.version >= '8.0'
+    config.load_defaults 8.0
+  elsif Rails.version >= '7.2'
+    config.load_defaults 7.2
+  elsif Rails.version >= '7.1'
     config.load_defaults 7.1
-  elsif Rails.version >= '7.0'
-    config.load_defaults 7.0
-  elsif Rails.version >= '6.1'
-    config.load_defaults 6.1
   else
-    config.load_defaults 6.0
-  end
-
-  if Rails.version == '6.1'
-    config.active_record.legacy_connection_handling = false
+    config.load_defaults 7.0
   end
   # :nocov:
 

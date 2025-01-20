@@ -30,6 +30,6 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'cuprum', '~> 1.2'
   gem.add_dependency 'cuprum-collections', '~> 0.4'
-  gem.add_dependency 'rails', '>= 6.0', '< 8'
+  gem.add_dependency 'rails', '>= 7.0', '< 9'
   gem.add_dependency 'stannum', '~> 0.3'
 end
