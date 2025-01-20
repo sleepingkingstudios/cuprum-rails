@@ -85,13 +85,13 @@ class BooksController < BaseController
     only: %i[create destroy update]
   middleware Spec::Support::Middleware::ProfilingMiddleware
 
-  action :create,  Cuprum::Rails::Actions::Resources::Create, member: false
-  action :destroy, Cuprum::Rails::Actions::Destroy,           member: true
-  action :edit,    Cuprum::Rails::Actions::Resources::Edit,   member: true
-  action :new,     Cuprum::Rails::Actions::Resources::New,    member: false
-  action :index,   Cuprum::Rails::Actions::Resources::Index,  member: false
-  action :show,    Cuprum::Rails::Actions::Resources::Show,   member: true
-  action :update,  Cuprum::Rails::Actions::Resources::Update, member: true
+  action :create,  Cuprum::Rails::Actions::Resources::Create,  member: false
+  action :destroy, Cuprum::Rails::Actions::Resources::Destroy, member: true
+  action :edit,    Cuprum::Rails::Actions::Resources::Edit,    member: true
+  action :new,     Cuprum::Rails::Actions::Resources::New,     member: false
+  action :index,   Cuprum::Rails::Actions::Resources::Index,   member: false
+  action :show,    Cuprum::Rails::Actions::Resources::Show,    member: true
+  action :update,  Cuprum::Rails::Actions::Resources::Update,  member: true
 
   action :publish, member: true do |repository:, request:, resource:, **|
     entity_id = request.params['id']

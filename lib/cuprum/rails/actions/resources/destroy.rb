@@ -3,11 +3,11 @@
 require 'cuprum/rails/action'
 require 'cuprum/rails/actions/resources'
 require 'cuprum/rails/actions/resources/concerns/primary_key'
-require 'cuprum/rails/commands/resources/show'
+require 'cuprum/rails/commands/resources/destroy'
 
 module Cuprum::Rails::Actions::Resources
-  # Action wrapper for performing a resourceful Show request.
-  class Show < Cuprum::Rails::Action
+  # Action wrapper for performing a resourceful Destroy request.
+  class Destroy < Cuprum::Rails::Action
     include Cuprum::Rails::Actions::Resources::Concerns::PrimaryKey
 
     private
@@ -17,7 +17,7 @@ module Cuprum::Rails::Actions::Resources
     end
 
     def default_command_class
-      Cuprum::Rails::Commands::Resources::Show
+      Cuprum::Rails::Commands::Resources::Destroy
     end
 
     def map_parameters
