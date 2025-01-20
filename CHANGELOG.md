@@ -2,6 +2,30 @@
 
 ## O.3.0
 
+Dropped support for Rails 6.X
+
+### Actions
+
+Split out actions into Action classes (handling parameter validation, parameter mapping, and response generation) and Command classes (business logic).
+
+- Updated `Action` to wrap either a block or an instance of `Cuprum::Rails::Command`.
+- Implemented `Actions::Resources` to wrap the new `Commands::Resources` commands or custom commands implementing a resourceful action.
+- Deprecated `Action.build` in favor of `Action.subclass`.
+- Deprecated the following existing implementations:
+  - `Actions::Create`.
+  - `Actions::Destroy`.
+  - `Actions::Edit`.
+  - `Actions::Index`.
+  - `Actions::New`.
+  - `Actions::Show`.
+  - `Actions::Update`.
+
+### Commands
+
+Implemented `Cuprum::Rails::Command` as an abstract base class for action-compatible business logic. Commands take optional `:resource` and `:repository` keyword parameters.
+
+- Implemented `Commands::Resources` to implement resourceful CRUD actions for plural or singular resources.
+
 ### Records
 
 Refactored the existing collection to `Cuprum::Rails::Records::Collection`.
