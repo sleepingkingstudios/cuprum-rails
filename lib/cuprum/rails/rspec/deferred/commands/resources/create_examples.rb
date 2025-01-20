@@ -11,11 +11,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     include RSpec::SleepingKingStudios::Deferred::Provider
     include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
 
-    def attributes_for(item)
+    define_method :attributes_for do |item|
       item.is_a?(Hash) ? item : item&.attributes
     end
 
-    def persisted_data
+    define_method :persisted_data do
       return super if defined?(super)
 
       repository[resource.qualified_name]
