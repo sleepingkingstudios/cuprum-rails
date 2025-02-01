@@ -2,14 +2,12 @@
 
 require 'cuprum/rails/commands/resource_command'
 require 'cuprum/rails/commands/resources'
-require 'cuprum/rails/commands/resources/concerns/entity_validation'
 require 'cuprum/rails/commands/resources/concerns/permitted_attributes'
 require 'cuprum/rails/commands/resources/concerns/require_entity'
 
 module Cuprum::Rails::Commands::Resources
   # Command implementing an Update action.
   class Update < Cuprum::Rails::Commands::ResourceCommand
-    include Cuprum::Rails::Commands::Resources::Concerns::EntityValidation
     include Cuprum::Rails::Commands::Resources::Concerns::PermittedAttributes
     include Cuprum::Rails::Commands::Resources::Concerns::RequireEntity
 
@@ -31,6 +29,10 @@ module Cuprum::Rails::Commands::Resources
 
     def update_entity(attributes:, entity:)
       collection.assign_one.call(attributes:, entity:)
+    end
+
+    def validate_entity(entity:)
+      Cuprum::Rails::Commands::ValidateEntity.new(collection:).call(entity:)
     end
   end
 end

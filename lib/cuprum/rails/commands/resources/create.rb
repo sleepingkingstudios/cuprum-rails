@@ -2,13 +2,12 @@
 
 require 'cuprum/rails/commands/resource_command'
 require 'cuprum/rails/commands/resources'
-require 'cuprum/rails/commands/resources/concerns/entity_validation'
 require 'cuprum/rails/commands/resources/concerns/permitted_attributes'
+require 'cuprum/rails/commands/validate_entity'
 
 module Cuprum::Rails::Commands::Resources
   # Command implementing a Create action.
   class Create < Cuprum::Rails::Commands::ResourceCommand
-    include Cuprum::Rails::Commands::Resources::Concerns::EntityValidation
     include Cuprum::Rails::Commands::Resources::Concerns::PermittedAttributes
 
     private
@@ -28,6 +27,10 @@ module Cuprum::Rails::Commands::Resources
       step { validate_entity(entity:) }
 
       persist_entity(entity:)
+    end
+
+    def validate_entity(entity:)
+      Cuprum::Rails::Commands::ValidateEntity.new(collection:).call(entity:)
     end
   end
 end
