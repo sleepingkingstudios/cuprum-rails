@@ -68,7 +68,7 @@ module Cuprum::Rails::Actions
 
       @resource_params =
         resource_params
-          .select { |key, _| permitted_attributes.include?(key) }
+          .select { |key, _| permitted_attributes.include?(key) } # rubocop:disable Style/HashSlice
           .to_h
     end
 

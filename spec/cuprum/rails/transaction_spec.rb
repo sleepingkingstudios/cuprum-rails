@@ -15,7 +15,7 @@ RSpec.describe Cuprum::Rails::Transaction do
     describe 'with a block that returns nil' do
       let(:block) do
         lambda do
-          Book.create!(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+          Book.create!(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
 
           nil
         end
@@ -38,7 +38,7 @@ RSpec.describe Cuprum::Rails::Transaction do
       let(:value) { { 'ok' => true } }
       let(:block) do
         lambda do
-          Book.create!(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+          Book.create!(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
 
           value
         end
@@ -63,7 +63,7 @@ RSpec.describe Cuprum::Rails::Transaction do
       let(:result) { Cuprum::Result.new(value:, error:) }
       let(:block) do
         lambda do
-          Book.create!(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+          Book.create!(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
 
           result
         end
@@ -81,7 +81,7 @@ RSpec.describe Cuprum::Rails::Transaction do
       let(:result) { Cuprum::Result.new(value:) }
       let(:block) do
         lambda do
-          Book.create!(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+          Book.create!(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
 
           result
         end
@@ -100,7 +100,7 @@ RSpec.describe Cuprum::Rails::Transaction do
       let(:error_message) { 'Something went wrong' }
       let(:block) do
         lambda do
-          Book.create!(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+          Book.create!(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
 
           raise error_message
         end

@@ -11,7 +11,7 @@ module Cuprum::Rails
   #
   # @example
   #   result = Cuprum::Rails::Transaction.new.call do
-  #     Book.create(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+  #     Book.create(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
   #
   #     success({ ok: true })
   #   end
@@ -21,7 +21,7 @@ module Cuprum::Rails
   #   #=> true
   #
   #   result = Cuprum::Rails::Transaction.new.call do
-  #     Book.create(title: 'Harrow the Ninth', author: 'Tammsyn Muir')
+  #     Book.create(title: 'Harrow the Ninth', author: 'Tamsyn Muir')
   #
   #     error = Cuprum::Error.new(message: 'Something went wrong')
   #     failure(error)

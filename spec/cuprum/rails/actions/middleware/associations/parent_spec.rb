@@ -58,7 +58,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
       let(:book) do
         Book.create(
           'title'  => 'Gideon the Ninth',
-          'author' => 'Tammsyn Muir'
+          'author' => 'Tamsyn Muir'
         )
       end
       let(:book_id) { book.id }
