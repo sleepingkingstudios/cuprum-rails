@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/commands/permit_attributes'
 require 'cuprum/rails/commands/resource_command'
 require 'cuprum/rails/commands/resources'
-require 'cuprum/rails/commands/resources/concerns/permitted_attributes'
 
 module Cuprum::Rails::Commands::Resources
   # Command implementing a New action.
   class New < Cuprum::Rails::Commands::ResourceCommand
-    include Cuprum::Rails::Commands::Resources::Concerns::PermittedAttributes
-
     private
 
     def build_entity(attributes:)
       collection.build_one.call(attributes:)
+    end
+
+    def permit_attributes(attributes:)
+      Cuprum::Rails::Commands::PermitAttributes.new(resource:).call(attributes:)
     end
 
     def process(attributes: {}, **)

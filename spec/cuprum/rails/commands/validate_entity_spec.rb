@@ -11,6 +11,15 @@ RSpec.describe Cuprum::Rails::Commands::ValidateEntity do
     Cuprum::Rails::Records::Collection.new(entity_class: Book)
   end
 
+  describe '.new' do
+    it 'should define the constructor' do
+      expect(described_class)
+        .to be_constructible
+        .with(0).arguments
+        .and_keywords(:collection)
+    end
+  end
+
   describe '#call' do
     it 'should define the method' do
       expect(command)
@@ -21,7 +30,7 @@ RSpec.describe Cuprum::Rails::Commands::ValidateEntity do
 
     describe 'when the validation returns a passing result' do
       let(:entity) do
-        Book.new(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+        Book.new(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
       end
 
       it 'should return a passing result with the entity' do
@@ -33,7 +42,7 @@ RSpec.describe Cuprum::Rails::Commands::ValidateEntity do
 
     describe 'when the validation returns a failing result' do
       let(:entity) do
-        Book.new(title: 'Gideon the Ninth', author: 'Tammsyn Muir')
+        Book.new(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
       end
       let(:error)  { Cuprum::Error.new(message: 'Something went wrong') }
       let(:result) { Cuprum::Result.new(error:) }
