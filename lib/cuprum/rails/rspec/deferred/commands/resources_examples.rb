@@ -440,7 +440,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
     end
 
     deferred_examples 'should require permitted attributes' do
-      context 'when a resource with permitted_attributes: nil' do
+      context 'with a resource with permitted_attributes: nil' do
         let(:resource_options) { super().merge(permitted_attributes: nil) }
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(
@@ -456,7 +456,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         end
       end
 
-      context 'when a resource with permitted_attributes: an empty Array' do
+      context 'with a resource with permitted_attributes: an empty Array' do
         let(:resource_options) { super().merge(permitted_attributes: []) }
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(

@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/commands/permit_attributes'
+require 'cuprum/rails/commands/require_entity'
 require 'cuprum/rails/commands/resource_command'
 require 'cuprum/rails/commands/resources'
-require 'cuprum/rails/commands/resources/concerns/require_entity'
 require 'cuprum/rails/commands/validate_entity'
 
 module Cuprum::Rails::Commands::Resources
   # Command implementing an Update action.
   class Update < Cuprum::Rails::Commands::ResourceCommand
-    include Cuprum::Rails::Commands::Resources::Concerns::RequireEntity
-
     private
 
     def permit_attributes(attributes:)
@@ -29,6 +27,12 @@ module Cuprum::Rails::Commands::Resources
       step { validate_entity(entity:) }
 
       persist_entity(entity:)
+    end
+
+    def require_entity(...)
+      Cuprum::Rails::Commands::RequireEntity
+        .new(collection:, require_primary_key: resource.plural?)
+        .call(...)
     end
 
     def update_entity(attributes:, entity:)
