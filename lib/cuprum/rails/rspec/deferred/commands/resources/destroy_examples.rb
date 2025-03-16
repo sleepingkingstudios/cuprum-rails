@@ -34,9 +34,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           .with_value(expected_entity)
       end
 
-      it { expect { call_command }.to change { persisted_data.count }.by(-1) }
+      it { expect { call_command }.to change { persisted_data.count }.by(-1) } # rubocop:disable RSpec/ExpectChange
 
-      it 'should remove the entity from the collection' do
+      it 'should remove the entity from the collection' do # rubocop:disable RSpec/ExampleLength
         primary_key_value = primary_key_for(expected_entity)
 
         expect { call_command }.to(

@@ -35,11 +35,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
         if examples_opts.fetch(:require_permitted_attributes, true)
           describe 'with a valid entity' do
-            include_deferred 'when the collection has many items'
-
             let(:entity) do
               defined?(super()) ? super() : collection_data[0]
             end
+
+            include_deferred 'when the collection has many items'
 
             include_deferred 'should require permitted attributes'
           end

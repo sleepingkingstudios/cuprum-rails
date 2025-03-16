@@ -17,6 +17,11 @@ AllCops:
     - gemfiles/*
     - vendor/**/*
 
+RSpec:
+  Include:
+    - '**/*_examples.rb'
+    - '**/*_spec.rb'
+
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
 

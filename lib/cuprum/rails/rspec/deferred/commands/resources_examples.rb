@@ -76,8 +76,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
 
     deferred_context 'with a valid entity by primary key' do |&block|
       describe 'with entity: value' do
-        include_deferred 'when the collection has many items'
-
         let(:entity) do
           defined?(super()) ? super() : collection_data.first
         end
@@ -85,6 +83,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           defined?(super()) ? super() : entity
         end
         let(:primary_key) { nil }
+
+        include_deferred 'when the collection has many items'
 
         block ? instance_exec(&block) : pending
       end
@@ -139,14 +139,14 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       let(:primary_key) { nil }
 
       describe 'with entity: value' do
-        include_deferred 'when the collection has many items'
-
         let(:entity) do
           defined?(super()) ? super() : collection_data[0]
         end
         let(:expected_entity) do
           defined?(super()) ? super() : entity
         end
+
+        include_deferred 'when the collection has many items'
 
         block ? instance_exec(&block) : pending
       end

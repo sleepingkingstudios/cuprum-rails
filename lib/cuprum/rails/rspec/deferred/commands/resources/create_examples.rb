@@ -47,9 +47,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
       it { expect(entity_attributes).to be == expected_attributes }
 
-      it { expect { call_command }.to change { persisted_data.count }.by(1) }
+      it { expect { call_command }.to change { persisted_data.count }.by(1) } # rubocop:disable RSpec/ExpectChange
 
-      it 'should add the entity to the collection' do
+      it 'should add the entity to the collection' do # rubocop:disable RSpec/ExampleLength
         expect { call_command }.to(
           change { persisted_data }.to(
             satisfy do |data|

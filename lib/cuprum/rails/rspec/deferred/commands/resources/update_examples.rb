@@ -67,11 +67,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         unless examples_opts.fetch(:default_contract, false)
           # @todo: This should be a deferred context.
           describe 'with a valid entity' do
-            include_deferred 'when the collection has many items'
-
             let(:entity) do
               defined?(super()) ? super() : collection_data[0]
             end
+
+            include_deferred 'when the collection has many items'
 
             include_deferred 'should require default contract'
           end
@@ -79,11 +79,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
         if examples_opts.fetch(:require_permitted_attributes, true)
           describe 'with a valid entity' do
-            include_deferred 'when the collection has many items'
-
             let(:entity) do
               defined?(super()) ? super() : collection_data[0]
             end
+
+            include_deferred 'when the collection has many items'
 
             include_deferred 'should require permitted attributes'
           end
@@ -200,9 +200,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
       it { expect(entity_attributes).to be == expected_attributes }
 
-      it { expect { call_command }.not_to(change { persisted_data.count }) }
+      it { expect { call_command }.not_to(change { persisted_data.count }) } # rubocop:disable RSpec/ExpectChange
 
-      it 'should update the entity in the collection' do
+      it 'should update the entity in the collection' do # rubocop:disable RSpec/ExampleLength
         call_command
 
         primary_key    = original_attributes[resource.primary_key_name]
