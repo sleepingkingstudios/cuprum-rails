@@ -43,6 +43,10 @@ module Cuprum::Rails::RSpec::Contracts
           end
         end
 
+        describe '#command_class' do
+          include_examples 'should define reader', :command_class
+        end
+
         describe '#options' do
           include_examples 'should define reader', :options
         end
