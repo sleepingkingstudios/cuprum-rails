@@ -1,4 +1,5 @@
-require:
+plugins:
+  - rubocop-factory_bot
   - rubocop-rails
   - rubocop-rake
   - rubocop-rspec
