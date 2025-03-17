@@ -2,10 +2,14 @@
 
 require 'cuprum/collections/rspec/fixtures'
 
+require 'cuprum/rails/rspec/deferred/controller_examples'
+
 require 'support/controllers/books_controller'
 
 # @note Integration spec for Cuprum::Rails::Controller.
 RSpec.describe BooksController do
+  include Cuprum::Rails::RSpec::Deferred::ControllerExamples
+
   subject(:controller) do
     described_class.new(
       renderer:,
@@ -205,6 +209,8 @@ RSpec.describe BooksController do
   let(:renderer) do
     instance_double(Spec::Renderer, redirect_to: nil, render: nil)
   end
+  let(:http_method) { :get }
+  let(:path)        { '/' }
   let(:request) do
     combined_params =
       query_params
@@ -220,7 +226,7 @@ RSpec.describe BooksController do
       params:                combined_params,
       path_parameters:       path_params,
       query_parameters:      query_params,
-      request_method_symbol: method,
+      request_method_symbol: http_method,
       request_parameters:    params
     )
   end
@@ -246,9 +252,68 @@ RSpec.describe BooksController do
       .and_return(current_time, current_time + 0.05)
   end
 
+  include_deferred 'should respond to format',
+    :html,
+    using: Cuprum::Rails::Responders::Html::Resource
+
+  include_deferred 'should respond to format',
+    :json,
+    using: Cuprum::Rails::Responders::Json::Resource
+
+  include_deferred 'should not respond to format', :xml
+
+  include_deferred 'should define middleware',
+    Spec::Support::Middleware::LoggingMiddleware,
+    only: %i[create destroy update]
+
+  include_deferred 'should define middleware',
+    Spec::Support::Middleware::ProfilingMiddleware
+
+  include_deferred 'should define action',
+    :create,
+    Cuprum::Rails::Actions::Resources::Create,
+    command_class: Cuprum::Rails::Commands::Resources::Create,
+    member:        false
+
+  include_deferred 'should define action',
+    :destroy,
+    Cuprum::Rails::Actions::Resources::Destroy,
+    command_class: Cuprum::Rails::Commands::Resources::Destroy,
+    member:        true
+
+  include_deferred 'should define action',
+    :edit,
+    Cuprum::Rails::Actions::Resources::Edit,
+    command_class: Cuprum::Rails::Commands::Resources::Edit,
+    member:        true
+
+  include_deferred 'should define action',
+    :index,
+    Cuprum::Rails::Actions::Resources::Index,
+    command_class: Cuprum::Rails::Commands::Resources::Index,
+    member:        false
+
+  include_deferred 'should define action',
+    :new,
+    Cuprum::Rails::Actions::Resources::New,
+    command_class: Cuprum::Rails::Commands::Resources::New,
+    member:        false
+
+  include_deferred 'should define action',
+    :show,
+    Cuprum::Rails::Actions::Resources::Show,
+    command_class: Cuprum::Rails::Commands::Resources::Show,
+    member:        true
+
+  include_deferred 'should define action',
+    :update,
+    Cuprum::Rails::Actions::Resources::Update,
+    command_class: Cuprum::Rails::Commands::Resources::Update,
+    member:        true
+
   describe '#create' do
     let(:action_name) { :create }
-    let(:method)      { :post }
+    let(:http_method) { :post }
     let(:path)        { '/books' }
     let(:attributes)  { { title: 'Gideon the Ninth' } }
     let(:params)      { { 'book' => attributes } }
@@ -345,7 +410,7 @@ RSpec.describe BooksController do
 
   describe '#destroy' do
     let(:action_name)  { :destroy }
-    let(:method)       { :delete }
+    let(:http_method)  { :delete }
     let(:path)         { "/books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
@@ -391,7 +456,7 @@ RSpec.describe BooksController do
 
   describe '#edit' do
     let(:action_name)  { :edit }
-    let(:method)       { :get }
+    let(:http_method)  { :get }
     let(:path)         { "books/#{book_id}/edit" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
@@ -416,7 +481,7 @@ RSpec.describe BooksController do
 
   describe '#index' do
     let(:action_name)    { :index }
-    let(:method)         { :get }
+    let(:http_method)    { :get }
     let(:path)           { '/books' }
     let(:expected_books) { [] }
     let(:expected_assigns) do
@@ -467,7 +532,7 @@ RSpec.describe BooksController do
 
   describe '#new' do
     let(:action_name) { :new }
-    let(:method)      { :get }
+    let(:http_method) { :get }
     let(:path)        { '/books/new' }
     let(:expected_assigns) do
       {
@@ -484,7 +549,7 @@ RSpec.describe BooksController do
   describe '#publish' do
     let(:current_date) { Time.zone.today }
     let(:action_name)  { :publish }
-    let(:method)       { :patch }
+    let(:http_method)  { :patch }
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
@@ -527,7 +592,7 @@ RSpec.describe BooksController do
 
   describe '#show' do
     let(:action_name)  { :show }
-    let(:method)       { :get }
+    let(:http_method)  { :get }
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
@@ -560,7 +625,7 @@ RSpec.describe BooksController do
 
   describe '#update' do
     let(:action_name)  { :update }
-    let(:method)       { :patch }
+    let(:http_method)  { :patch }
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:attributes)   { { 'title' => 'Gideon the Ninth' } }
