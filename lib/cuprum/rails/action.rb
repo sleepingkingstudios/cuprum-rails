@@ -118,6 +118,12 @@ module Cuprum::Rails
     # @return [Cuprum::Rails::Resource] the controller resource.
     attr_reader :resource
 
+    # @return [Class] the configured command class wrapped by the action, if
+    #   any.
+    def command_class
+      @command_class ||= default_command_class
+    end
+
     private
 
     def build_command
@@ -139,10 +145,6 @@ module Cuprum::Rails
 
     def call_command(command, **params)
       command.call(**params)
-    end
-
-    def command_class
-      @command_class ||= default_command_class
     end
 
     def command_options

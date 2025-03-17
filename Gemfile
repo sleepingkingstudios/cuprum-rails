@@ -41,10 +41,11 @@ group :test do
     '>= 2.8.0.alpha',
     git:    'https://github.com/sleepingkingstudios/rspec-sleeping_king_studios.git',
     branch: 'main'
-  gem 'rubocop', '~> 1.69', '>= 1.69.2'
-  gem 'rubocop-rails', '~> 2.28'
-  gem 'rubocop-rake', '~> 0.6'
-  gem 'rubocop-rspec', '~> 3.3'
-  gem 'rubocop-rspec_rails', '~> 2.30'
+  gem 'rubocop', '~> 1.74'
+  gem 'rubocop-factory_bot', '~> 2.27'
+  gem 'rubocop-rails', '~> 2.30'
+  gem 'rubocop-rake', '~> 0.7'
+  gem 'rubocop-rspec', '~> 3.5'
+  gem 'rubocop-rspec_rails', '~> 2.31'
   gem 'simplecov', '~> 0.22'
 end

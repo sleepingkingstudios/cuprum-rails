@@ -49,12 +49,16 @@ module Spec::Support::Examples::Actions
       end
 
       describe '#command_class' do
-        include_examples 'should define private reader',
-          :command_class,
+        let(:expected_class) do
+          next instance_exec(&command_class) if command_class.is_a?(Proc)
+
           command_class
+        end
+
+        it { expect(action.command_class).to be expected_class }
 
         wrap_deferred 'when initialized with a command class' do
-          it { expect(action.send(:command_class)).to be Spec::CustomCommand }
+          it { expect(action.command_class).to be Spec::CustomCommand }
         end
       end
     end
