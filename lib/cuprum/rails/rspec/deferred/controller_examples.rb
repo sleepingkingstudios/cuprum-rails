@@ -49,7 +49,9 @@ module Cuprum::Rails::RSpec::Deferred
           end
 
           if expected.respond_to?(:matches?)
+            # :nocov:
             return expected.matches?(actual.command)
+            # :nocov:
           end
 
           actual.command == expected

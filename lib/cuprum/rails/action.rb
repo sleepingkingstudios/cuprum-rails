@@ -163,6 +163,11 @@ module Cuprum::Rails
       request.params
     end
 
+    def normalize_parameters(params)
+      # Use #to_h to convert from a HashWithIndifferentKeys to a core Hash.
+      params.to_h { |key, value| [key.is_a?(String) ? key.to_sym : key, value] } # rubocop:disable Style/HashTransformKeys
+    end
+
     def process(request:, repository: nil, resource: nil, **options)
       @params     = nil
       @repository = repository
@@ -177,6 +182,7 @@ module Cuprum::Rails
 
     def process_command
       params  = step { map_parameters }
+      params  = step { normalize_parameters(params) }
       command = step { build_command }
       value   = step { call_command(command, **params) }
 
