@@ -297,10 +297,13 @@ RSpec.describe Cuprum::Rails::Action do
       let(:constructor_options) do
         super().merge(command_class: Spec::ExampleCommand)
       end
-      let(:repository)     { Cuprum::Rails::Records::Repository.new }
-      let(:resource)       { Cuprum::Rails::Resource.new(name: 'books') }
-      let(:params)         { { 'book' => { 'title' => 'Gideon the Ninth' } } }
-      let(:expected_value) { params.merge('ok' => true) }
+      let(:repository) { Cuprum::Rails::Records::Repository.new }
+      let(:resource)   { Cuprum::Rails::Resource.new(name: 'books') }
+      let(:expected_value) do
+        expected_hash = params.to_h.transform_keys(&:to_sym).merge('ok' => true)
+
+        an_instance_of(Hash).and(be == expected_hash)
+      end
 
       example_class 'Spec::ExampleCommand', Cuprum::Rails::Command do |klass|
         klass.define_method(:process) do |**params|
@@ -322,13 +325,45 @@ RSpec.describe Cuprum::Rails::Action do
           .with(repository:, resource:)
       end
 
-      it 'should return a passing result' do
-        expect(call_action)
-          .to be_a_passing_result(Cuprum::Rails::Result)
-          .with_value(expected_value)
+      describe 'with a params hash with indifferent keys' do
+        let(:params) do
+          ActiveSupport::HashWithIndifferentAccess.new(
+            'book' => { 'title' => 'Gideon the Ninth' }
+          )
+        end
+
+        it 'should return a passing result' do
+          expect(call_action)
+            .to be_a_passing_result(Cuprum::Rails::Result)
+            .with_value(expected_value)
+        end
+
+        include_examples 'should implement parameter validation'
       end
 
-      include_examples 'should implement parameter validation'
+      describe 'with a params hash with string keys' do
+        let(:params) { { 'book' => { 'title' => 'Gideon the Ninth' } } }
+
+        it 'should return a passing result' do
+          expect(call_action)
+            .to be_a_passing_result(Cuprum::Rails::Result)
+            .with_value(expected_value)
+        end
+
+        include_examples 'should implement parameter validation'
+      end
+
+      describe 'with a params hash with symbol keys' do
+        let(:params) { { book: { title: 'Gideon the Ninth' } } }
+
+        it 'should return a passing result' do
+          expect(call_action)
+            .to be_a_passing_result(Cuprum::Rails::Result)
+            .with_value(expected_value)
+        end
+
+        include_examples 'should implement parameter validation'
+      end
     end
 
     context 'when initialized with an implementation' do
