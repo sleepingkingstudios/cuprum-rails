@@ -42,9 +42,11 @@ module Cuprum::Rails
       private
 
       def filter_headers(headers)
-        headers.reject do |key, _|
-          FILTERED_HEADER_PREFIXES.any? { |prefix| key.start_with?(prefix) }
-        end
+        headers
+          .reject do |key, _|
+            FILTERED_HEADER_PREFIXES.any? { |prefix| key.start_with?(prefix) }
+          end
+          .to_h
       end
 
       def filter_path_parameters(path_parameters)

@@ -249,6 +249,15 @@ RSpec.describe Cuprum::Rails::Request do
       end
     end
 
+    context 'when the headers are wrapped in ActionDispatch::Http::Headers' do
+      let(:headers) { ActionDispatch::Http::Headers.from_hash(super()) }
+
+      it 'should set and filter the request headers' do
+        expect(described_class.build(request:).headers)
+          .to be == expected_headers
+      end
+    end
+
     context 'with a context object' do
       let(:context) { instance_double(ActionController::Base) }
 
