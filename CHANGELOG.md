@@ -37,6 +37,10 @@ Refactored the existing collection to `Cuprum::Rails::Records::Collection`.
 - **Breaking Change**: Refactor `Commands` to `Records::Commands`.
 - **Breaking Change**: Refactor `Scopes` to `Records::Scopes`.
 
+### Responders
+
+Added support for Turbo Frames when rendering HTML content.
+
 ## O.2.0
 
 ### Actions

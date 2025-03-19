@@ -1,13 +1,29 @@
 # frozen_string_literal: true
 
+require 'cuprum/rails/responders/base_responder'
 require 'cuprum/rails/responders/html/rendering'
 
 RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
-  subject(:responder) { described_class.new }
+  subject(:responder) do
+    described_class.new(action_name:, controller:, request:)
+  end
 
   let(:described_class) { Spec::Responder }
+  let(:action_name)     { :published }
+  let(:controller)      { Spec::CustomController.new }
+  let(:request)         { Cuprum::Rails::Request.new(**request_options) }
+  let(:request_options) { {} }
 
-  example_class 'Spec::Responder' do |klass|
+  example_class 'Spec::CustomController' do |klass|
+    klass.include(Cuprum::Rails::Controller)
+
+    klass.define_singleton_method(:resource) do
+      Cuprum::Rails::Resource.new(name: 'books')
+    end
+  end
+
+  example_class 'Spec::Responder', Cuprum::Rails::Responders::BaseResponder \
+  do |klass|
     klass.include Cuprum::Rails::Responders::Html::Rendering # rubocop:disable RSpec/DescribedClass
 
     klass.attr_reader :result
@@ -296,6 +312,44 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
       it { expect(response.status).to be status }
 
       it { expect(response.template).to be == template }
+    end
+
+    describe 'with a turbo frame request' do
+      let(:request_options) do
+        headers =
+          super()
+            .fetch(:headers, {})
+            .merge('HTTP_TURBO_FRAME' => '#frame_id')
+
+        super().merge(headers:)
+      end
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.assigns).to be == {} }
+
+      it { expect(response.flash).to be == {} }
+
+      it { expect(response.layout).to be == 'turbo_rails/frame' }
+
+      it { expect(response.status).to be 200 }
+
+      it { expect(response.template).to be == template }
+
+      describe 'with layout: value' do
+        let(:layout)  { 'page' }
+        let(:options) { super().merge(layout:) }
+
+        it { expect(response.assigns).to be == {} }
+
+        it { expect(response.flash).to be == {} }
+
+        it { expect(response.layout).to be == layout }
+
+        it { expect(response.status).to be 200 }
+
+        it { expect(response.template).to be == template }
+      end
     end
   end
 end
