@@ -351,5 +351,36 @@ RSpec.describe Cuprum::Rails::Responders::Html::Rendering do
         it { expect(response.template).to be == template }
       end
     end
+
+    describe 'with a turbo stream request' do
+      let(:request_options) { super().merge(format: :turbo_stream) }
+
+      it { expect(response).to be_a response_class }
+
+      it { expect(response.assigns).to be == {} }
+
+      it { expect(response.flash).to be == {} }
+
+      it { expect(response.layout).to be false }
+
+      it { expect(response.status).to be 200 }
+
+      it { expect(response.template).to be == template }
+
+      describe 'with layout: value' do
+        let(:layout)  { 'page' }
+        let(:options) { super().merge(layout:) }
+
+        it { expect(response.assigns).to be == {} }
+
+        it { expect(response.flash).to be == {} }
+
+        it { expect(response.layout).to be == layout }
+
+        it { expect(response.status).to be 200 }
+
+        it { expect(response.template).to be == template }
+      end
+    end
   end
 end

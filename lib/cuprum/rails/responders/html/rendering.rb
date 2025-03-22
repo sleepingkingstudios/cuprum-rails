@@ -81,6 +81,8 @@ module Cuprum::Rails::Responders::Html
     def resolve_layout(layout)
       return layout if layout.present?
 
+      return false if turbo_stream_request?
+
       return turbo_frame_layout if turbo_frame_request?
 
       nil
@@ -92,6 +94,10 @@ module Cuprum::Rails::Responders::Html
 
     def turbo_frame_request?
       request.headers['HTTP_TURBO_FRAME'].present?
+    end
+
+    def turbo_stream_request?
+      request.format.to_s == 'turbo_stream'
     end
   end
 end
