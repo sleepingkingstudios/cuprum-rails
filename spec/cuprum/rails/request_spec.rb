@@ -6,14 +6,14 @@ RSpec.describe Cuprum::Rails::Request do
   subject(:request) { described_class.new(**options) }
 
   shared_examples 'should define request property' \
-  do |property_name, value:, optional: false|
+  do |property_name, value:, default: nil, optional: false|
     reader_name = property_name
     writer_name = :"#{property_name}="
 
     describe "##{reader_name}" do
       include_examples 'should define reader',
         reader_name,
-        -> { properties[property_name] }
+        -> { properties.fetch(property_name, default) }
 
       if optional
         context "when initialized with #{property_name}: value" do
@@ -55,20 +55,11 @@ RSpec.describe Cuprum::Rails::Request do
       'project_id' => 1
     }
   end
-  let(:params) do
-    filtered = path_params.except('action', 'controller')
-
-    body_params.merge(query_params).merge(filtered)
-  end
   let(:properties) do
     {
-      body_params:,
       format:,
-      headers:,
       http_method:,
-      params:,
-      path:,
-      query_params:
+      path:
     }
   end
   let(:options) { properties }
@@ -249,6 +240,15 @@ RSpec.describe Cuprum::Rails::Request do
       end
     end
 
+    context 'when the headers are wrapped in ActionDispatch::Http::Headers' do
+      let(:headers) { ActionDispatch::Http::Headers.from_hash(super()) }
+
+      it 'should set and filter the request headers' do
+        expect(described_class.build(request:).headers)
+          .to be == expected_headers
+      end
+    end
+
     context 'with a context object' do
       let(:context) { instance_double(ActionController::Base) }
 
@@ -310,7 +310,8 @@ RSpec.describe Cuprum::Rails::Request do
 
   include_examples 'should define request property',
     :body_params,
-    value: { 'foo' => 'bar' }
+    default: {},
+    value:   { 'foo' => 'bar' }
 
   include_examples 'should define request property',
     :controller_name,
@@ -323,7 +324,8 @@ RSpec.describe Cuprum::Rails::Request do
 
   include_examples 'should define request property',
     :headers,
-    value: { 'foo' => 'bar' }
+    default: {},
+    value:   { 'foo' => 'bar' }
 
   include_examples 'should define request property',
     :http_method,
@@ -331,7 +333,8 @@ RSpec.describe Cuprum::Rails::Request do
 
   include_examples 'should define request property',
     :params,
-    value: { 'foo' => 'bar' }
+    default: {},
+    value:   { 'foo' => 'bar' }
 
   include_examples 'should define request property',
     :path,
@@ -339,11 +342,13 @@ RSpec.describe Cuprum::Rails::Request do
 
   include_examples 'should define request property',
     :path_params,
-    value: { 'foo' => 'bar' }
+    default: {},
+    value:   { 'foo' => 'bar' }
 
   include_examples 'should define request property',
     :query_params,
-    value: { 'foo' => 'bar' }
+    default: {},
+    value:   { 'foo' => 'bar' }
 
   describe '#[]' do
     it { expect(request).to respond_to(:[]).with(1).argument }

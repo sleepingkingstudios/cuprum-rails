@@ -42,18 +42,20 @@ module Cuprum::Rails
       private
 
       def filter_headers(headers)
-        headers.reject do |key, _|
-          FILTERED_HEADER_PREFIXES.any? { |prefix| key.start_with?(prefix) }
-        end
+        headers
+          .reject do |key, _|
+            FILTERED_HEADER_PREFIXES.any? { |prefix| key.start_with?(prefix) }
+          end
+          .to_h
       end
 
       def filter_path_parameters(path_parameters)
         path_parameters.except('action', 'controller')
       end
 
-      def property(property_name)
+      def property(property_name, default: nil)
         define_method(property_name) do
-          @properties[property_name]
+          @properties.fetch(property_name, default)
         end
 
         define_method(:"#{property_name}=") do |value|
@@ -101,7 +103,7 @@ module Cuprum::Rails
 
     # @!attribute body_params
     #   @return [Hash<String, Object>] the parameters from the request body.
-    property :body_params
+    property :body_params, default: {}
     alias body_parameters  body_params
     alias body_parameters= body_params=
 
@@ -115,7 +117,7 @@ module Cuprum::Rails
 
     # @!attribute headers
     #   @return [Hash<String, String>] the request headers.
-    property :headers
+    property :headers, default: {}
 
     # @!attribute method
     #   @return [Symbol] the HTTP method used for the request.
@@ -123,7 +125,7 @@ module Cuprum::Rails
 
     # @!attribute params
     #   @return [Hash<String, Object>] The merged GET and POST parameters.
-    property :params
+    property :params, default: {}
     alias parameters  params
     alias parameters= params=
 
@@ -133,13 +135,13 @@ module Cuprum::Rails
 
     # @!attribute path_params
     #   @return [Hash<String, Object>] the path parameters.
-    property :path_params
+    property :path_params, default: {}
     alias path_parameters  path_params
     alias path_parameters= path_params=
 
     # @!attribute query_params
     #   @return [Hash<String, Object>] the query parameters.
-    property :query_params
+    property :query_params, default: {}
     alias query_parameters  query_params
     alias query_parameters= query_params=
 

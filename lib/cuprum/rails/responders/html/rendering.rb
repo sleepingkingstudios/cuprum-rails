@@ -51,7 +51,7 @@ module Cuprum::Rails::Responders::Html
         template,
         assigns: assigns || default_assigns,
         flash:,
-        layout:,
+        layout:  resolve_layout(layout),
         status:
       )
     end
@@ -76,6 +76,28 @@ module Cuprum::Rails::Responders::Html
       else
         {}
       end
+    end
+
+    def resolve_layout(layout)
+      return layout if layout.present?
+
+      return false if turbo_stream_request?
+
+      return turbo_frame_layout if turbo_frame_request?
+
+      nil
+    end
+
+    def turbo_frame_layout
+      'turbo_rails/frame'
+    end
+
+    def turbo_frame_request?
+      request.headers['HTTP_TURBO_FRAME'].present?
+    end
+
+    def turbo_stream_request?
+      request.format.to_s == 'turbo_stream'
     end
   end
 end
