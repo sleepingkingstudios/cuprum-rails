@@ -3,12 +3,12 @@
 require 'cuprum/rails/rspec/deferred/commands/resources/update_examples'
 
 require 'support/commands/chapters/update'
-require 'support/commands/chapters_examples'
+require 'support/examples/commands/chapters_examples'
 
 # @note Integration test for command with custom logic.
 RSpec.describe Spec::Support::Commands::Chapters::Update do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::UpdateExamples
-  include Spec::Support::Commands::ChaptersExamples
+  include Spec::Support::Examples::Commands::ChaptersExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 

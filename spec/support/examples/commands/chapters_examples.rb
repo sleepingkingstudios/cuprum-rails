@@ -6,9 +6,9 @@ require 'cuprum/rails/records/repository'
 require 'cuprum/rails/resource'
 
 require 'support/book'
-require 'support/commands'
+require 'support/examples/commands'
 
-module Spec::Support::Commands
+module Spec::Support::Examples::Commands
   module ChaptersExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
 
