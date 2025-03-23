@@ -3,10 +3,12 @@
 require 'cuprum/rails/rspec/deferred/commands/resources/index_examples'
 
 require 'support/commands/books/index_standalone_books'
+require 'support/examples/commands/books_examples'
 
 # @note Integration test for command with custom logic.
 RSpec.describe Spec::Support::Commands::Books::IndexStandaloneBooks do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::IndexExamples
+  include Spec::Support::Examples::Commands::BooksExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
@@ -35,6 +37,8 @@ RSpec.describe Spec::Support::Commands::Books::IndexStandaloneBooks do
   let(:ordered_data) do
     filtered_data.sort_by { |entity| entity['published_at'] }
   end
+
+  include_deferred 'with parameters for a Book command'
 
   include_deferred 'should implement the Index command'
 end

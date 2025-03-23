@@ -3,17 +3,19 @@
 require 'cuprum/rails/commands/resources/index'
 require 'cuprum/rails/rspec/deferred/commands/resources/index_examples'
 
-require 'support/examples/commands/resource_command_examples'
+require 'support/examples/commands/books_examples'
+require 'support/examples/commands/resources_examples'
 
 RSpec.describe Cuprum::Rails::Commands::Resources::Index do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::IndexExamples
-  include Spec::Support::Examples::Commands::ResourceCommandExamples
+  include Spec::Support::Examples::Commands::BooksExamples
+  include Spec::Support::Examples::Commands::ResourcesExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
   let(:resource_options) { super().merge(default_order: 'id') }
 
-  include_deferred 'with parameters for a resource command'
+  include_deferred 'with parameters for a Book command'
 
   include_deferred 'should implement the resource command methods'
 

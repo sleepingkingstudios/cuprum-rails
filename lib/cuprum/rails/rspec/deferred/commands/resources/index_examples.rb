@@ -34,11 +34,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
     deferred_examples 'should implement the Index command' do
       describe '#call' do
-        let(:collection_data) { defined?(super()) ? super() : [] }
+        let(:collection_data) { [] }
         let(:command_options) { {} }
 
-        def call_command
-          defined?(super) ? super : command.call(**command_options)
+        define_method :call_command do
+          defined?(super()) ? super() : command.call(**command_options)
         end
 
         it 'should define the method' do

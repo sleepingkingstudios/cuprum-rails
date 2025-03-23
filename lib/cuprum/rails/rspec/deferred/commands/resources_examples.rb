@@ -11,17 +11,15 @@ module Cuprum::Rails::RSpec::Deferred::Commands
     include RSpec::SleepingKingStudios::Deferred::Provider
 
     deferred_context 'when the collection has many items' do
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :fixtures_data,
+        'an Array containing the entity attributes for the fixture entities'
+
       let(:collection) do
         repository.find_or_create(qualified_name: resource.qualified_name)
       end
-      let(:fixtures_data) do
-        next super() if defined?(super())
-
-        Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
-      end
-      let(:collection_data) do
-        fixtures_data
-      end
+      let(:collection_data) { fixtures_data }
 
       before(:example) do
         collection_data.each do |entity|

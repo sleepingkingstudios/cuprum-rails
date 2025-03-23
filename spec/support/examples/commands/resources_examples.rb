@@ -7,7 +7,7 @@ require 'cuprum/collections/rspec/fixtures'
 require 'support/examples/commands'
 
 module Spec::Support::Examples::Commands
-  module ResourceCommandExamples
+  module ResourcesExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
 
     deferred_context 'with parameters for a resource command' do
@@ -24,6 +24,10 @@ module Spec::Support::Examples::Commands
 
     deferred_examples 'should implement the resource command methods' do
       describe '.new' do
+        define_method :tools do
+          SleepingKingStudios::Tools::Toolbelt.instance
+        end
+
         describe 'with repository: nil' do
           let(:repository) { nil }
           let(:error_message) do
@@ -116,9 +120,13 @@ module Spec::Support::Examples::Commands
       end
 
       describe '#tools' do
+        let(:toolbelt) do
+          SleepingKingStudios::Tools::Toolbelt.instance
+        end
+
         include_examples 'should define private reader', :tools
 
-        it { expect(command.send(:tools)).to be == tools }
+        it { expect(subject.send(:tools)).to be toolbelt }
       end
     end
   end
