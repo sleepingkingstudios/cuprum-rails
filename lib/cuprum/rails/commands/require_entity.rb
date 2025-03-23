@@ -22,6 +22,33 @@ module Cuprum::Rails::Commands
     # @return [Cuprum::Collection] the collection used to find the entity.
     attr_reader :collection
 
+    # Finds an entity by a unique identifier.
+    #
+    # This method can be overridden in a subclass to change the query behavior,
+    # such as to enable querying by a non-private key identifier.
+    #
+    # @param value [Object] the identifier to query by.
+    #
+    # @return [Cuprum::Result] the result of the query.
+    def find_entity_by_identifier(value)
+      collection.find_one.call(primary_key: value)
+    end
+
+    # Finds a unique entity in the collection scope.
+    #
+    # @return [Cuprum::Result] the result of the query.
+    def find_matching_entity
+      matching = step { collection.find_matching.call(limit: 2) }.to_a
+
+      if matching.empty?
+        failure(entity_not_found_error)
+      elsif matching.size > 1
+        failure(entity_not_unique_error)
+      else
+        success(matching.first)
+      end
+    end
+
     # @return [true, false] if true, finds the entity using a :primary_key
     #   parameter, if given.
     def require_primary_key?
@@ -44,22 +71,10 @@ module Cuprum::Rails::Commands
       )
     end
 
-    def find_matching_entity
-      matching = step { collection.find_matching.call(limit: 2) }.to_a
-
-      if matching.empty?
-        failure(entity_not_found_error)
-      elsif matching.size > 1
-        failure(entity_not_unique_error)
-      else
-        matching.first
-      end
-    end
-
     def process(entity: nil, primary_key: nil, **)
       return entity if entity
 
-      return collection.find_one.call(primary_key:) if require_primary_key?
+      return find_entity_by_identifier(primary_key) if require_primary_key?
 
       find_matching_entity
     end
