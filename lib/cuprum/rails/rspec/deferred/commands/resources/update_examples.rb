@@ -198,7 +198,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           .with_value(an_instance_of(entity_class))
       end
 
-      it { expect(entity_attributes).to be == expected_attributes }
+      it { expect(entity_attributes).to match(expected_attributes) }
 
       it { expect { call_command }.not_to(change { persisted_data.count }) } # rubocop:disable RSpec/ExpectChange
 
@@ -210,7 +210,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           entity[resource.primary_key_name] == primary_key
         end
 
-        expect(attributes_for(updated_entity)).to be == expected_attributes
+        expect(attributes_for(updated_entity)).to match(expected_attributes)
       end
     end
   end

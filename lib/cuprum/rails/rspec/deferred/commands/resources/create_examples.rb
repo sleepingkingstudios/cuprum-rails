@@ -45,7 +45,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           .with_value(an_instance_of(entity_class))
       end
 
-      it { expect(entity_attributes).to be == expected_attributes }
+      it { expect(entity_attributes).to match(expected_attributes) }
 
       it { expect { call_command }.to change { persisted_data.count }.by(1) } # rubocop:disable RSpec/ExpectChange
 
@@ -53,7 +53,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         expect { call_command }.to(
           change { persisted_data }.to(
             satisfy do |data|
-              data.any? { |item| attributes_for(item) == expected_attributes }
+              data.any? do |item|
+                match(expected_attributes).matches?(attributes_for(item))
+              end
             end
           )
         )
