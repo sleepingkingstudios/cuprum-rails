@@ -66,7 +66,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           let(:original_attributes) do
             next super() if defined?(super())
 
-            value = expected_entity
+            value = matched_entity
 
             value.is_a?(Hash) ? value : value.attributes
           end
@@ -135,7 +135,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           .with_value(an_instance_of(entity_class))
       end
 
-      it { expect(entity_attributes).to be == expected_attributes }
+      it { expect(entity_attributes).to match(expected_attributes) }
     end
   end
 end

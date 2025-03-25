@@ -34,5 +34,26 @@ module Spec::Support::Examples::Commands
         Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
       end
     end
+
+    deferred_context 'with query parameters for a Book command' do
+      let(:resource_scope) do
+        Cuprum::Collections::Scope.new do |query|
+          { 'published_at' => query.gte('1970-01-01') }
+        end
+      end
+      let(:non_matching_scope) do
+        Cuprum::Collections::Scope.new do |query|
+          { 'published_at' => query.gte('2070-01-01') }
+        end
+      end
+      let(:unique_scope) do
+        Cuprum::Collections::Scope.new do |query|
+          {
+            'author'       => 'J.R.R. Tolkien',
+            'published_at' => query.gte('1970-01-01')
+          }
+        end
+      end
+    end
   end
 end

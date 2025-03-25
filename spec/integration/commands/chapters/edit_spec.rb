@@ -20,6 +20,12 @@ RSpec.describe Spec::Support::Commands::Chapters::Edit do
       'chapter_index' => 0
     )
   end
+  let(:original_attributes) do
+    expected_chapter.merge(
+      'author' => expected_author,
+      'book'   => expected_book
+    )
+  end
 
   def call_command
     command.call(attributes:, author:, entity:, primary_key:)

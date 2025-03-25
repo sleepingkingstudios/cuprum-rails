@@ -15,6 +15,8 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Edit do
 
   include_deferred 'with parameters for a Book command'
 
+  include_deferred 'with query parameters for a Book command'
+
   include_deferred 'should implement the resource command methods'
 
   include_deferred 'should implement the Edit command'

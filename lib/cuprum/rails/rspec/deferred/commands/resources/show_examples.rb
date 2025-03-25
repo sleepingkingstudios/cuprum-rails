@@ -15,7 +15,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       it 'should return a passing result' do
         expect(call_command)
           .to be_a_passing_result
-          .with_value(expected_entity)
+          .with_value(expected_value)
       end
     end
 

@@ -83,7 +83,7 @@ module Spec::Support::Examples::Commands
 
         expected_unique_chapter
       end
-      let(:expected_entity) do
+      let(:expected_value) do
         expected_chapter.merge(
           'author' => author,
           'book'   => expected_book
@@ -114,9 +114,10 @@ module Spec::Support::Examples::Commands
           'chapter_index' => 0
         }
       end
-      let(:empty_attributes)   { { 'book' => nil, 'book_id' => nil } }
-      let(:invalid_attributes) { { 'title' => nil, 'chapter_index' => 0 } }
-      let(:extra_attributes)   { { 'book_id' => 10 } }
+      let(:original_attributes) { expected_chapter }
+      let(:empty_attributes)    { { 'book' => nil, 'book_id' => nil } }
+      let(:invalid_attributes)  { { 'title' => nil, 'chapter_index' => 0 } }
+      let(:extra_attributes)    { { 'book_id' => 10 } }
       let(:expected_attributes) do
         empty_attributes.merge(
           'title'         => 'Introduction',

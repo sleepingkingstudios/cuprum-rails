@@ -4,11 +4,13 @@ require 'cuprum/rails/records/repository'
 require 'cuprum/rails/resource'
 require 'cuprum/rails/rspec/deferred/commands/resources/update_examples'
 
+require 'support/examples/commands/books_examples'
 require 'support/tome'
 
 # @note Integration test for command with custom collection.
 RSpec.describe Cuprum::Rails::Commands::Resources::Update do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::UpdateExamples
+  include Spec::Support::Examples::Commands::BooksExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
@@ -50,6 +52,10 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
       'author' => 'Tamsyn Muir'
     )
   end
+
+  include_deferred 'with parameters for a Book command'
+
+  include_deferred 'with query parameters for a Book command'
 
   include_deferred 'should implement the Update command',
     default_contract: true

@@ -16,10 +16,6 @@ module Spec::Support::Examples::Commands
         Cuprum::Rails::Resource.new(name: 'books', **resource_options)
       end
       let(:resource_options) { {} }
-
-      def tools
-        SleepingKingStudios::Tools::Toolbelt.instance
-      end
     end
 
     deferred_examples 'should implement the resource command methods' do
