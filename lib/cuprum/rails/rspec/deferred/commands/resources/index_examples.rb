@@ -32,7 +32,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       end
     end
 
-    deferred_examples 'should implement the Index command' do
+    deferred_examples 'should implement the Index command' do |&block|
       describe '#call' do
         let(:collection_data) { [] }
         let(:command_options) { {} }
@@ -88,8 +88,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           let(:command_options) { super().merge(order:) }
           let(:ordered_data)    { sort_data(super()) }
 
-          def sort_data(entities)
-            return super if defined?(super)
+          define_method :sort_data do |entities|
+            return super(entities) if defined?(super(entities))
 
             entities.sort_by { |entity| entity['title'] }
           end
@@ -108,12 +108,14 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           let(:command_options) { super().merge(where: where_hash) }
           let(:filtered_data)   { filter_data_hash(super()) }
 
-          def filter_data_hash(entities)
-            return super if defined?(super())
+          define_method :filter_data_hash do |entities|
+            return super(entities) if defined?(super(entities))
 
+            # :nocov:
             entities.select do |entity|
               entity['author'] == 'Ursula K. LeGuin'
             end
+            # :nocov:
           end
 
           include_deferred 'should find the matching collection data'
@@ -154,12 +156,14 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             let(:command_options) { super().merge(where: where_hash) }
             let(:filtered_data)   { filter_data_hash(super()) }
 
-            def filter_data_hash(entities)
-              return super if defined?(super())
+            define_method :filter_data_hash do |entities|
+              return super(entities) if defined?(super(entities))
 
+              # :nocov:
               entities.select do |entity|
                 entity['author'] == 'Ursula K. LeGuin'
               end
+              # :nocov:
             end
 
             include_deferred 'should find the matching collection data'
@@ -169,6 +173,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             end
           end
         end
+
+        instance_exec(&block) if block
       end
     end
   end

@@ -62,7 +62,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       end
     end
 
-    deferred_examples 'should implement the Create command' do |**examples_opts|
+    deferred_examples 'should implement the Create command' \
+    do |**examples_opts, &block|
       describe '#call' do
         let(:default_contract) do
           next super() if defined?(super())
@@ -106,11 +107,13 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           )
         end
 
-        def call_command
-          defined?(super) ? super : command.call(attributes:)
+        define_method :call_command do
+          return super() if defined?(super())
+
+          command.call(attributes:)
         end
 
-        def tools
+        define_method :tools do
           SleepingKingStudios::Tools::Toolbelt.instance
         end
 
@@ -173,6 +176,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
           include_deferred 'should create the entity'
         end
+
+        instance_exec(&block) if block
       end
     end
 

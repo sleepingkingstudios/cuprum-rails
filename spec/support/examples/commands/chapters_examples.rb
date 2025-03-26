@@ -95,13 +95,6 @@ module Spec::Support::Examples::Commands
       let(:expected_unique_chapter) do
         chapters_data.find { |chapter| chapter['book_id'] == 1 }
       end
-      let(:expected_unique_entity) do
-        expected_unique_chapter
-          .merge(
-            'author' => expected_author,
-            'book'   => books_data.find { |book| book['id'] == 1 }
-          )
-      end
     end
 
     deferred_context 'with resource parameters for a Chapter command' do

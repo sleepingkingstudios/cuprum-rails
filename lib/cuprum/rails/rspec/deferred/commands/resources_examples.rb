@@ -69,14 +69,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       depends_on :resource_scope,
         'a Cuprum::Collections::Scope that matches a subset of the fixtures'
 
-      let(:collection) do
-        next super() if defined?(super())
-
-        repository.find_or_create(qualified_name: resource.qualified_name)
-      end
-      let(:resource_options) do
-        super().merge(scope: resource_scope)
-      end
+      let(:resource_options) { super().merge(scope: resource_scope) }
     end
 
     # Asserts that the command finds entities by entity, primary key, or scope.

@@ -29,11 +29,6 @@ RSpec.describe Spec::Support::Commands::Books::IndexStandaloneBooks do
   let(:filtered_data) do
     collection_data.select { |entity| entity['series'].nil? }
   end
-  let(:scoped_data) do
-    collection_data
-      .select { |entity| entity['series'].nil? }
-      .select { |entity| entity['published_at'] >= '1970-01-01' }
-  end
   let(:ordered_data) do
     filtered_data.sort_by { |entity| entity['published_at'] }
   end

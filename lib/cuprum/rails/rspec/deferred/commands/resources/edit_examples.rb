@@ -11,12 +11,13 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     include RSpec::SleepingKingStudios::Deferred::Provider
     include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
 
-    deferred_examples 'should implement the Edit command' do |**examples_opts|
+    deferred_examples 'should implement the Edit command' \
+    do |**examples_opts, &block|
       include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
 
       describe '#call' do
-        def call_command
-          return super if defined?(super)
+        define_method :call_command do
+          return super() if defined?(super())
 
           command.call(
             attributes:  defined?(attributes)  ? attributes  : {},
@@ -112,6 +113,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             include_deferred 'should update the entity'
           end
         end
+
+        instance_exec(&block) if block
       end
     end
 

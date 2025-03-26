@@ -54,14 +54,6 @@ RSpec.describe Spec::Support::Commands::Chapters::Update do
       end
 
       include_deferred 'with a valid entity' do
-        let!(:original_attributes) do # rubocop:disable RSpec/LetSetup
-          next super() if defined?(super())
-
-          value = expected_entity
-
-          value.is_a?(Hash) ? value : value.attributes
-        end
-
         include_deferred 'should update the entity'
       end
     end

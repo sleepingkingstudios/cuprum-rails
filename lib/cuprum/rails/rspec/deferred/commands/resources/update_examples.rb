@@ -11,12 +11,12 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     include RSpec::SleepingKingStudios::Deferred::Provider
     include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
 
-    def attributes_for(item)
+    define_method :attributes_for do |item|
       item.is_a?(Hash) ? item : item&.attributes
     end
 
-    def persisted_data
-      return super if defined?(super)
+    define_method :persisted_data do
+      return super() if defined?(super())
 
       repository[resource.qualified_name]
         .find_matching
@@ -25,14 +25,13 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         .to_a
     end
 
-    deferred_examples 'should implement the Update command' do |**examples_opts|
+    deferred_examples 'should implement the Update command' \
+    do |**examples_opts, &block|
       include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
 
       describe '#call' do
         let(:default_contract) do
-          next super() if defined?(super())
-
-          nil
+          defined?(super()) ? super() : nil
         end
 
         define_method(:call_command) do
@@ -171,6 +170,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             include_deferred 'should update the entity'
           end
         end
+
+        instance_exec(&block) if block
       end
     end
 

@@ -50,10 +50,10 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     end
 
     deferred_examples 'should implement the Destroy command' \
-    do |**examples_opts|
+    do |**examples_opts, &block|
       describe '#call' do
-        def call_command
-          return super if defined?(super)
+        define_method :call_command do
+          return super() if defined?(super())
 
           command.call(entity:, primary_key:)
         end
@@ -71,6 +71,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         include_deferred('with a valid entity', **examples_opts) do
           include_deferred 'should destroy the entity'
         end
+
+        instance_exec(&block) if block
       end
     end
   end
