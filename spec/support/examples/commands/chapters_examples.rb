@@ -19,6 +19,9 @@ module Spec::Support::Examples::Commands
       let(:chapters_collection) do
         repository.find_or_create(qualified_name: 'chapters')
       end
+      let(:collection) do
+        chapters_collection
+      end
       let(:authors_data) do
         Spec::Support::Commands::Chapters::AUTHORS_FIXTURES
       end

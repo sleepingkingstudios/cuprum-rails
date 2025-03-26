@@ -203,11 +203,13 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       it { expect { call_command }.not_to(change { persisted_data.count }) } # rubocop:disable RSpec/ExpectChange
 
       it 'should update the entity in the collection' do # rubocop:disable RSpec/ExampleLength
+        entity = matched_entity
+
         call_command
 
-        primary_key    = original_attributes[resource.primary_key_name]
-        updated_entity = persisted_data.find do |entity|
-          entity[resource.primary_key_name] == primary_key
+        primary_key    = entity[resource.primary_key_name]
+        updated_entity = persisted_data.find do |updated|
+          updated[resource.primary_key_name] == primary_key
         end
 
         expect(attributes_for(updated_entity)).to match(expected_attributes)
