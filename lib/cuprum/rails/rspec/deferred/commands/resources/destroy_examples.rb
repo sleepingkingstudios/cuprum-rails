@@ -25,19 +25,43 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       entity[resource.primary_key_name]
     end
 
+    # Examples that assert that the command destroys the entity.
+    #
+    # The following examples are defined:
+    #
+    # - The command should return a passing result, with the result value equal
+    #   to the removed entity.
+    # - Calling the command should decrement the collection count by -1.
+    # - After calling the command, the collection should not include any items
+    #   whose attributes match the destroyed entity's attributes.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by a successful call. Defaults to
+    #   the destroyed entity.
     deferred_examples 'should destroy the entity' do
-      before(:example) { expected_entity }
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
+
+      before(:example) { expected_value }
 
       it 'should return a passing result' do
         expect(call_command)
           .to be_a_passing_result
-          .with_value(expected_entity)
+          .with_value(expected_value)
       end
 
       it { expect { call_command }.to change { persisted_data.count }.by(-1) } # rubocop:disable RSpec/ExpectChange
 
       it 'should remove the entity from the collection' do # rubocop:disable RSpec/ExampleLength
-        primary_key_value = primary_key_for(expected_entity)
+        primary_key_value = primary_key_for(expected_value)
 
         expect { call_command }.to(
           change { persisted_data }.to(
@@ -49,6 +73,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       end
     end
 
+    # Exampels that assert the command implements the Destroy contract.
+    #
+    # To access the actual entity for each case, call #matched_entity.
     deferred_examples 'should implement the Destroy command' \
     do |**examples_opts, &block|
       describe '#call' do

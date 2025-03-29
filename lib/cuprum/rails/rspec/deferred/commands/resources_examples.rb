@@ -285,6 +285,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the command requires an entity.
+    #
+    # Delegates to 'should require entity by primary key' if the command
+    # supports plural resources, and to 'should require entity by scoped
+    # uniqueness' if the command supports singular resources.
     deferred_examples 'should require entity' do |**examples_opts|
       if examples_opts.fetch(:plural, !examples_opts.fetch(:singular, false))
         context 'when initialized with a plural resource' do
@@ -303,7 +308,27 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert the command requires an entity by primary key.
+    #
+    # This example group handles the following cases:
+    #
+    # - when the command is not passed an entity or primary key parameter.
+    # - when the collection has no items.
+    # - when the given primary key parameter is not a valid primary key for an
+    #   item in the collection.
+    # - when the given primary key parameter is not a valid primary key for an
+    #   item in the collection matching the collection scope.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should require entity by primary key' do
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
+
       describe 'with no entity parameters' do
         let(:entity)      { nil }
         let(:primary_key) { nil }
@@ -408,9 +433,26 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert the command requires a unique entity.
+    #
+    # This example group handles the following cases:
+    #
+    # - when the collection has no items.
+    # - when the collection has multiple items.
+    # - when the collection has no items matching the scope.
+    # - when the collection has multiple items matching the scope.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
+    # - #non_matching_scope: A Cuprum::Collections::Scope that does not match
+    #   any fixtures.
     deferred_examples 'should require entity by scoped uniqueness' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
       depends_on :non_matching_scope,
         'a Cuprum::Collections::Scope that does not match any fixtures'
 
