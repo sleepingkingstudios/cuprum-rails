@@ -42,8 +42,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     #
     # The behavior can be customized by defining the following methods:
     #
-    # - #expected_value: The value returned by a successful call. Defaults to
-    #   the destroyed entity.
+    # - #expected_value: The value returned by the command. Defaults to the
+    #   matched entity.
     deferred_examples 'should destroy the entity' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
@@ -73,9 +73,22 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       end
     end
 
-    # Exampels that assert the command implements the Destroy contract.
+    # Examples that assert the command implements the Destroy contract.
     #
     # To access the actual entity for each case, call #matched_entity.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by the command. Defaults to the
+    #   matched entity.
+    # - #entity: The entity directly passed to the command. Defaults to the
+    #   first item in the fixtures.
+    # - #valid_primary_key_value: The value for the primary key for an unscoped
+    #   collection. Defaults to the primary key value for the first item in the
+    #   fixtures.
+    # - #valid_scoped_primary_key_value: The value for the primary key for a
+    #   scoped collection. Defaults to the primary key value for the first item
+    #   in the collection that matches #resource_scope.
     deferred_examples 'should implement the Destroy command' \
     do |**examples_opts, &block|
       describe '#call' do

@@ -88,7 +88,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       end
     end
 
-    # Exampels that assert the command implements the Create contract.
+    # Examples that assert the command implements the Create contract.
     #
     # The following methods must be defined in the example group:
     #
@@ -108,7 +108,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     #   entity when given no parameters. Use this method when creating an object
     #   that initializes its properties to null or default values.
     # - #expected_attributes: A Hash containing the expected attributes when
-    #   creating an object. Defaults to the valid attributes merged into the
+    #   creating an object. Defaults to the matched attributes merged into the
     #   empty attributes.
     # - #valid_attributes_for_create: An attributes Hash that will pass
     #   validation. This method overrides #valid_attributes if present.
@@ -135,7 +135,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         let(:expected_attributes) do
           next super() if defined?(super())
 
-          tools.hash_tools.convert_keys_to_strings(matched_attributes)
+          empty_attributes.merge(
+            tools.hash_tools.convert_keys_to_strings(matched_attributes)
+          )
         end
 
         define_method :call_command do
