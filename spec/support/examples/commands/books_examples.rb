@@ -55,5 +55,25 @@ module Spec::Support::Examples::Commands
         end
       end
     end
+
+    deferred_context 'with resource parameters for a Book command' do
+      let(:extra_attributes) do
+        {
+          'published_at' => '2019-09-10'
+        }
+      end
+      let(:invalid_attributes) do
+        {
+          'title'  => 'Gideon the Ninth',
+          'author' => nil
+        }
+      end
+      let(:valid_attributes) do
+        {
+          'title'  => 'Gideon the Ninth',
+          'author' => 'Tamsyn Muir'
+        }
+      end
+    end
   end
 end

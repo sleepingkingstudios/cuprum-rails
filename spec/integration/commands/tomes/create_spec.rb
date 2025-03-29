@@ -19,13 +19,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
   let(:resource_options) do
     { permitted_attributes: %w[uuid title author series category] }
   end
-  let(:attributes) do
-    {
-      'uuid'   => '00000000-0000-0000-0000-000000000000',
-      'title'  => 'Gideon the Ninth',
-      'author' => 'Tamsyn Muir'
-    }
-  end
   let(:empty_attributes) do
     {
       'uuid'         => nil,
@@ -34,6 +27,13 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
       'series'       => nil,
       'category'     => nil,
       'published_at' => nil
+    }
+  end
+  let(:valid_attributes) do
+    {
+      'uuid'   => '00000000-0000-0000-0000-000000000000',
+      'title'  => 'Gideon the Ninth',
+      'author' => 'Tamsyn Muir'
     }
   end
   let(:invalid_attributes) do
@@ -48,6 +48,11 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
       'title'  => 'Gideon the Ninth',
       'author' => 'Tamsyn Muir'
     )
+  end
+  let(:extra_attributes) do
+    {
+      'published_at' => '2019-09-10'
+    }
   end
 
   include_deferred 'should implement the Create command',

@@ -257,9 +257,17 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the collection requires a default contract.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should require default contract' do
       context 'with a resource with default_contract: nil' do
-        let(:default_contract) { nil }
+        let(:default_contract)   { nil }
+        let(:matched_attributes) { {} }
+        let(:atttributes) { {} } # @todo Remove this.
         let(:entity_class) do
           repository
             .find_or_create(qualified_name: resource.qualified_name)
@@ -489,9 +497,17 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the collection requires permitted attributes.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should require permitted attributes' do
       context 'with a resource with permitted_attributes: nil' do
-        let(:resource_options) { super().merge(permitted_attributes: nil) }
+        let(:resource_options)   { super().merge(permitted_attributes: nil) }
+        let(:matched_attributes) { {} }
+        let(:atttributes) { {} } # @todo Remove this.
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(
             message:  "permitted attributes can't be blank",
@@ -507,7 +523,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
 
       context 'with a resource with permitted_attributes: an empty Array' do
-        let(:resource_options) { super().merge(permitted_attributes: []) }
+        let(:resource_options)   { super().merge(permitted_attributes: []) }
+        let(:matched_attributes) { {} }
+        let(:atttributes) { {} } # @todo Remove this.
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(
             message:  "permitted attributes can't be blank",
@@ -523,6 +541,12 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the command validates the entity.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should validate the entity' do
       let(:entity_class) do
         repository
