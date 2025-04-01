@@ -109,13 +109,13 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           describe 'with attributes: an empty Hash' do
             let(:matched_attributes) { {} }
 
-            include_deferred 'should update the entity attributes'
+            include_deferred 'should edit the entity'
           end
 
           describe 'with attributes: a Hash with invalid attributes' do
             let(:matched_attributes) { invalid_attributes }
 
-            include_deferred 'should update the entity attributes'
+            include_deferred 'should edit the entity'
           end
 
           describe 'with attributes: a Hash with String keys' do
@@ -125,7 +125,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
                 .convert_keys_to_strings(configured_valid_attributes)
             end
 
-            include_deferred 'should update the entity attributes'
+            include_deferred 'should edit the entity'
           end
 
           describe 'with attributes: a Hash with Symbol keys' do
@@ -135,7 +135,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
                 .convert_keys_to_symbols(configured_valid_attributes)
             end
 
-            include_deferred 'should update the entity attributes'
+            include_deferred 'should edit the entity'
           end
 
           describe 'with attributes: a Hash with extra attributes' do
@@ -151,7 +151,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
               original_attributes.merge(configured_valid_attributes)
             end
 
-            include_deferred 'should update the entity attributes'
+            include_deferred 'should edit the entity'
           end
         end
 
@@ -175,7 +175,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     # - #expected_attributes: A hash containing the expected attributes for the
     #   updated entity. The hash can contain or be wrapped in RSpec matchers,
     #   such as when asserting that a timestamp is any time value.
-    deferred_examples 'should update the entity attributes' do
+    deferred_examples 'should edit the entity' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
       depends_on :call_command,

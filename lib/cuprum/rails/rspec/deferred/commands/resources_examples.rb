@@ -10,7 +10,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
   module ResourcesExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
 
-    # Context that populates the collection with the fixtures data.
+    # Populates the collection with the fixtures data.
     #
     # Before each example, iterates over the fixtures data and inserts the
     # fixture into the collection. If the insert fails, an exception is raised.
@@ -52,17 +52,12 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
-    # Context that defines a scope for the collection.
+    # Defines a scope for the collection.
     #
     # The following methods must be defined in the example group:
     #
     # - #resource_scope: Must return a Cuprum::Collections::Scope that matches a
     #   subset of the fixtures.
-    #
-    # The behavior can be customized by defining the following methods:
-    #
-    # - #collection: The collection object. Defaults to finding or creating the
-    #   collection from the repository using the qualified name of the resource.
     deferred_context 'when the resource defines a scope' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
@@ -72,7 +67,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       let(:resource_options) { super().merge(scope: resource_scope) }
     end
 
-    # Asserts that the command finds entities by entity, primary key, or scope.
+    # Iterates over cases for commands acting on an existing entity.
     #
     # Delegates to 'with a valid entity by primary key' if the command supports
     # plural resources, and to 'with a valid entity by scoped uniqueness' if
@@ -95,7 +90,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
-    # Asserts that the command finds entities by entity or primary key.
+    # Iterates over cases for an existing entity by value or primary key.
     #
     # This example group handles the following cases:
     #
@@ -183,7 +178,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
-    # Asserts that the command finds entities by entity or unique scope.
+    # Iterates over cases for an existing entity by value or unique scope.
     #
     # This example group handles the following cases:
     #

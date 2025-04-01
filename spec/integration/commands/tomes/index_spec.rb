@@ -27,6 +27,11 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Index do
     # :nocov:
   end
   let(:ordered_data) { filtered_data.sort_by(&:uuid) }
+  let(:resource_scope) do
+    Cuprum::Collections::Scope.new({ 'series' => nil })
+  end
+  let(:order)        { { 'title' => 'asc' } }
+  let(:where_hash)   { { 'author' => 'Ursula K. LeGuin' } }
 
   include_deferred 'should implement the Index command'
 end

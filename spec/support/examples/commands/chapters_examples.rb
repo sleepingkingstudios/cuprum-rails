@@ -66,6 +66,8 @@ module Spec::Support::Examples::Commands
     deferred_context 'with query parameters for a Chapter command' do
       let(:primary_key) { nil }
       let(:author)      { nil }
+      let(:order)       { { 'title' => 'asc' } }
+      let(:where_hash)  { { 'chapter_index' => 0 } }
       let(:resource_scope) do
         Cuprum::Collections::Scope.new({ 'book_id' => 0 })
       end

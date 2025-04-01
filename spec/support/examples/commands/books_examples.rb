@@ -37,9 +37,7 @@ module Spec::Support::Examples::Commands
 
     deferred_context 'with query parameters for a Book command' do
       let(:resource_scope) do
-        Cuprum::Collections::Scope.new do |query|
-          { 'published_at' => query.gte('1970-01-01') }
-        end
+        Cuprum::Collections::Scope.new({ 'series' => nil })
       end
       let(:non_matching_scope) do
         Cuprum::Collections::Scope.new do |query|
@@ -54,6 +52,8 @@ module Spec::Support::Examples::Commands
           }
         end
       end
+      let(:order)      { { 'title' => 'asc' } }
+      let(:where_hash) { { 'author' => 'Ursula K. LeGuin' } }
     end
 
     deferred_context 'with resource parameters for a Book command' do

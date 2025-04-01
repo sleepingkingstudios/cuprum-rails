@@ -42,7 +42,7 @@ Documentation is generated using [YARD](https://yardoc.org/), and can be generat
 
 Copyright (c) 2021-2025 Rob Smith
 
-Stannum is released under the [MIT License](https://opensource.org/licenses/MIT).
+Cuprum::Rails is released under the [MIT License](https://opensource.org/licenses/MIT).
 
 ### Contribute
 

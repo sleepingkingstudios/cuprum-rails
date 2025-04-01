@@ -30,5 +30,7 @@ RSpec.describe Spec::Support::Commands::Chapters::Index do
 
   include_deferred 'with parameters for a Chapter command'
 
+  include_deferred 'with query parameters for a Chapter command'
+
   include_deferred 'should implement the Index command'
 end
