@@ -117,7 +117,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       let(:expected_value) do
         defined?(super()) ? super() : matched_entity
       end
-      let(:expected_entity) { expected_value } # @todo: Remove this.
 
       describe 'with entity: value' do
         let(:entity) do
@@ -210,7 +209,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       let(:expected_value) do
         defined?(super()) ? super() : matched_entity
       end
-      let(:expected_entity) { expected_value } # @todo: Remove this.
 
       describe 'with entity: value' do
         let(:entity) do
@@ -262,7 +260,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       context 'with a resource with default_contract: nil' do
         let(:default_contract)   { nil }
         let(:matched_attributes) { {} }
-        let(:atttributes) { {} } # @todo Remove this.
         let(:entity_class) do
           repository
             .find_or_create(qualified_name: resource.qualified_name)
@@ -544,7 +541,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       context 'with a resource with permitted_attributes: nil' do
         let(:resource_options)   { super().merge(permitted_attributes: nil) }
         let(:matched_attributes) { {} }
-        let(:atttributes) { {} } # @todo Remove this.
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(
             message:  "permitted attributes can't be blank",
@@ -562,7 +558,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       context 'with a resource with permitted_attributes: an empty Array' do
         let(:resource_options)   { super().merge(permitted_attributes: []) }
         let(:matched_attributes) { {} }
-        let(:atttributes) { {} } # @todo Remove this.
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(
             message:  "permitted attributes can't be blank",

@@ -54,8 +54,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
 
   include_deferred 'with parameters for a Book command'
 
-  include_deferred 'with query parameters for a Book command'
-
   include_deferred 'should implement the Update command',
     default_contract: true
 end

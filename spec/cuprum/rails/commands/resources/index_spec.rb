@@ -17,8 +17,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Index do
 
   include_deferred 'with parameters for a Book command'
 
-  include_deferred 'with query parameters for a Book command'
-
   include_deferred 'should implement the resource command methods'
 
   include_deferred 'should implement the Index command'

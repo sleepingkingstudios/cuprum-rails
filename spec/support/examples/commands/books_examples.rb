@@ -33,9 +33,11 @@ module Spec::Support::Examples::Commands
       let(:fixtures_data) do
         Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
       end
-    end
 
-    deferred_context 'with query parameters for a Book command' do
+      ##########################################################################
+      ###                         Querying Parameters                        ###
+      ##########################################################################
+
       let(:resource_scope) do
         Cuprum::Collections::Scope.new({ 'series' => nil })
       end
@@ -54,9 +56,11 @@ module Spec::Support::Examples::Commands
       end
       let(:order)      { { 'title' => 'asc' } }
       let(:where_hash) { { 'author' => 'Ursula K. LeGuin' } }
-    end
 
-    deferred_context 'with resource parameters for a Book command' do
+      ##########################################################################
+      ###                         Resource Parameters                        ###
+      ##########################################################################
+
       let(:extra_attributes) do
         {
           'published_at' => '2019-09-10'
