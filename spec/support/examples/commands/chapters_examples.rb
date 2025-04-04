@@ -6,9 +6,9 @@ require 'cuprum/rails/records/repository'
 require 'cuprum/rails/resource'
 
 require 'support/book'
-require 'support/commands'
+require 'support/examples/commands'
 
-module Spec::Support::Commands
+module Spec::Support::Examples::Commands
   module ChaptersExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
 
@@ -18,6 +18,9 @@ module Spec::Support::Commands
       end
       let(:chapters_collection) do
         repository.find_or_create(qualified_name: 'chapters')
+      end
+      let(:collection) do
+        chapters_collection
       end
       let(:authors_data) do
         Spec::Support::Commands::Chapters::AUTHORS_FIXTURES
@@ -63,6 +66,8 @@ module Spec::Support::Commands
     deferred_context 'with query parameters for a Chapter command' do
       let(:primary_key) { nil }
       let(:author)      { nil }
+      let(:order)       { { 'title' => 'asc' } }
+      let(:where_hash)  { { 'chapter_index' => 0 } }
       let(:resource_scope) do
         Cuprum::Collections::Scope.new({ 'book_id' => 0 })
       end
@@ -83,7 +88,7 @@ module Spec::Support::Commands
 
         expected_unique_chapter
       end
-      let(:expected_entity) do
+      let(:expected_value) do
         expected_chapter.merge(
           'author' => author,
           'book'   => expected_book
@@ -91,13 +96,6 @@ module Spec::Support::Commands
       end
       let(:expected_unique_chapter) do
         chapters_data.find { |chapter| chapter['book_id'] == 1 }
-      end
-      let(:expected_unique_entity) do
-        expected_unique_chapter
-          .merge(
-            'author' => expected_author,
-            'book'   => books_data.find { |book| book['id'] == 1 }
-          )
       end
     end
 
@@ -108,21 +106,16 @@ module Spec::Support::Commands
           key 'title',          Stannum::Constraints::Presence.new
         end
       end
-      let(:attributes) do
+      let(:original_attributes) { expected_chapter }
+      let(:empty_attributes)    { { 'book' => nil, 'book_id' => nil } }
+      let(:valid_attributes) do
         {
           'title'         => 'Introduction',
           'chapter_index' => 0
         }
       end
-      let(:empty_attributes)   { { 'book' => nil, 'book_id' => nil } }
-      let(:invalid_attributes) { { 'title' => nil, 'chapter_index' => 0 } }
-      let(:extra_attributes)   { { 'book_id' => 10 } }
-      let(:expected_attributes) do
-        empty_attributes.merge(
-          'title'         => 'Introduction',
-          'chapter_index' => 0
-        )
-      end
+      let(:invalid_attributes)  { { 'title' => nil, 'chapter_index' => 0 } }
+      let(:extra_attributes)    { { 'book_id' => 10 } }
     end
   end
 end

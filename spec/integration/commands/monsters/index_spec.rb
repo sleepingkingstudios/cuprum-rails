@@ -17,15 +17,16 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Index do
   end
   let(:resource_options) { { default_order: 'challenge' } }
   let(:fixtures_data)    { Spec::Support::Commands::Monsters::FIXTURES }
+  let(:resource_scope) do
+    Cuprum::Collections::Scope.new do |query|
+      { 'challenge' => query.gte(10) }
+    end
+  end
   let(:ordered_data) do
     filtered_data.sort_by { |entity| entity['challenge'] }
   end
   let(:order)      { { 'name' => 'asc' } }
   let(:where_hash) { { 'type' => 'bones' } }
-
-  def filter_data_hash(entities)
-    entities.select { |entity| entity['type'] == 'bones' }
-  end
 
   def sort_data(entities)
     entities.sort_by { |entity| entity['name'] }

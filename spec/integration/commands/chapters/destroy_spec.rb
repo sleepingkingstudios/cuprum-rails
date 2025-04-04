@@ -3,12 +3,12 @@
 require 'cuprum/rails/rspec/deferred/commands/resources/destroy_examples'
 
 require 'support/commands/chapters/destroy'
-require 'support/commands/chapters_examples'
+require 'support/examples/commands/chapters_examples'
 
 # @note Integration test for command with custom logic.
 RSpec.describe Spec::Support::Commands::Chapters::Destroy do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::DestroyExamples
-  include Spec::Support::Commands::ChaptersExamples
+  include Spec::Support::Examples::Commands::ChaptersExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 

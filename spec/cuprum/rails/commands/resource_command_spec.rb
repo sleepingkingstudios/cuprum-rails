@@ -2,10 +2,10 @@
 
 require 'cuprum/rails/commands/resource_command'
 
-require 'support/examples/commands/resource_command_examples'
+require 'support/examples/commands/resources_examples'
 
 RSpec.describe Cuprum::Rails::Commands::ResourceCommand do
-  include Spec::Support::Examples::Commands::ResourceCommandExamples
+  include Spec::Support::Examples::Commands::ResourcesExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 

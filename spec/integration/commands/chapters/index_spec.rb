@@ -3,12 +3,12 @@
 require 'cuprum/rails/rspec/deferred/commands/resources/index_examples'
 
 require 'support/commands/chapters/index'
-require 'support/commands/chapters_examples'
+require 'support/examples/commands/chapters_examples'
 
 # @note Integration test for command with custom logic.
 RSpec.describe Spec::Support::Commands::Chapters::Index do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::IndexExamples
-  include Spec::Support::Commands::ChaptersExamples
+  include Spec::Support::Examples::Commands::ChaptersExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
@@ -29,6 +29,8 @@ RSpec.describe Spec::Support::Commands::Chapters::Index do
   end
 
   include_deferred 'with parameters for a Chapter command'
+
+  include_deferred 'with query parameters for a Chapter command'
 
   include_deferred 'should implement the Index command'
 end

@@ -18,13 +18,20 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Index do
   end
   let(:resource_options) { { default_order: 'uuid' } }
   let(:fixtures_data) do
+    # :nocov:
     Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES.map do |attributes|
       attributes = attributes.except('id').merge('uuid' => SecureRandom.uuid)
 
       Tome.new(**attributes)
     end
+    # :nocov:
   end
   let(:ordered_data) { filtered_data.sort_by(&:uuid) }
+  let(:resource_scope) do
+    Cuprum::Collections::Scope.new({ 'series' => nil })
+  end
+  let(:order)        { { 'title' => 'asc' } }
+  let(:where_hash)   { { 'author' => 'Ursula K. LeGuin' } }
 
   include_deferred 'should implement the Index command'
 end

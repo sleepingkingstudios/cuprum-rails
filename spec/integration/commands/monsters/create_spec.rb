@@ -25,7 +25,7 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
       key 'type',       Stannum::Constraints::Presence.new
     end
   end
-  let(:attributes) do
+  let(:valid_attributes) do
     {
       'name'      => 'Dracolich',
       'challenge' => 30,
@@ -38,11 +38,9 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
       'challenge' => 30
     }
   end
-  let(:expected_attributes) do
+  let(:extra_attributes) do
     {
-      'name'      => 'Dracolich',
-      'challenge' => 30,
-      'type'      => 'bones'
+      'resistances' => %w[necrotic poison]
     }
   end
 

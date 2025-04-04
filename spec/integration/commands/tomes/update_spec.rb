@@ -4,11 +4,13 @@ require 'cuprum/rails/records/repository'
 require 'cuprum/rails/resource'
 require 'cuprum/rails/rspec/deferred/commands/resources/update_examples'
 
+require 'support/examples/commands/books_examples'
 require 'support/tome'
 
 # @note Integration test for command with custom collection.
 RSpec.describe Cuprum::Rails::Commands::Resources::Update do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::UpdateExamples
+  include Spec::Support::Examples::Commands::BooksExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
@@ -32,7 +34,7 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
   let(:invalid_primary_key_value) do
     SecureRandom.uuid
   end
-  let(:attributes) do
+  let(:valid_attributes) do
     {
       'title'  => 'Gideon the Ninth',
       'author' => 'Tamsyn Muir'
@@ -44,12 +46,13 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
       'author' => nil
     }
   end
-  let(:expected_attributes) do
-    original_attributes.merge(
-      'title'  => 'Gideon the Ninth',
-      'author' => 'Tamsyn Muir'
-    )
+  let(:extra_attributes) do
+    {
+      'published_at' => '2019-09-10'
+    }
   end
+
+  include_deferred 'with parameters for a Book command'
 
   include_deferred 'should implement the Update command',
     default_contract: true

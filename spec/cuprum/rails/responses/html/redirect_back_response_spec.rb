@@ -17,39 +17,16 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
   end
 
   describe '#call' do
-    # @todo Rails 6
-    def self.redirect_method_name
-      Rails.version >= '7.0' ? :redirect_back_or_to : :redirect_back
-    end
-
     shared_examples 'should redirect back' do
-      # :nocov:
-      let(:expected_arguments) do
-        Rails.version >= '7.0' ? [fallback_location] : []
-      end
-      let(:expected_keywords) do
-        hsh = { status: }
-
-        unless Rails.version >= '7.0'
-          hsh[:fallback_location] = fallback_location
-        end
-
-        hsh
-      end
-      # :nocov:
-
-      it "should call #{redirect_method_name}" do
+      it 'should call #redirect_back_or_to' do
         response.call(renderer)
 
         expect(renderer)
-          .to have_received(redirect_method_name)
-          .with(*expected_arguments, **expected_keywords)
+          .to have_received(:redirect_back_or_to)
+          .with(fallback_location, status:)
       end
     end
 
-    let(:redirect_method_name) do
-      self.class.redirect_method_name
-    end
     let(:renderer_flash) do
       instance_double(
         ActionDispatch::Flash::FlashHash,
@@ -59,8 +36,8 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
     let(:renderer) do
       instance_double(
         ActionController::Base,
-        flash:                  renderer_flash,
-        redirect_method_name => nil
+        flash:               renderer_flash,
+        redirect_back_or_to: nil
       )
     end
     let(:fallback_location) { '/' }

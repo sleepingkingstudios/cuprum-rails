@@ -4,11 +4,13 @@ require 'cuprum/rails/records/repository'
 require 'cuprum/rails/resource'
 require 'cuprum/rails/rspec/deferred/commands/resources/edit_examples'
 
+require 'support/examples/commands/books_examples'
 require 'support/tome'
 
 # @note Integration test for command with custom collection.
 RSpec.describe Cuprum::Rails::Commands::Resources::Edit do
   include Cuprum::Rails::RSpec::Deferred::Commands::Resources::EditExamples
+  include Spec::Support::Examples::Commands::BooksExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
@@ -32,6 +34,8 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Edit do
   let(:invalid_primary_key_value) do
     SecureRandom.uuid
   end
+
+  include_deferred 'with parameters for a Book command'
 
   include_deferred 'should implement the Edit command'
 end

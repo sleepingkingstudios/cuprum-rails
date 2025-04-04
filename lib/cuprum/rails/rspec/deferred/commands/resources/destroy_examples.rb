@@ -25,19 +25,43 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       entity[resource.primary_key_name]
     end
 
+    # Examples that assert that the command destroys the entity.
+    #
+    # The following examples are defined:
+    #
+    # - The command should return a passing result, with the result value equal
+    #   to the removed entity.
+    # - Calling the command should decrement the collection count by -1.
+    # - After calling the command, the collection should not include any items
+    #   whose attributes match the destroyed entity's attributes.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by the command. Defaults to the
+    #   matched entity.
     deferred_examples 'should destroy the entity' do
-      before(:example) { expected_entity }
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
+
+      before(:example) { expected_value }
 
       it 'should return a passing result' do
         expect(call_command)
           .to be_a_passing_result
-          .with_value(expected_entity)
+          .with_value(expected_value)
       end
 
       it { expect { call_command }.to change { persisted_data.count }.by(-1) } # rubocop:disable RSpec/ExpectChange
 
       it 'should remove the entity from the collection' do # rubocop:disable RSpec/ExampleLength
-        primary_key_value = primary_key_for(expected_entity)
+        primary_key_value = primary_key_for(expected_value)
 
         expect { call_command }.to(
           change { persisted_data }.to(
@@ -49,11 +73,27 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       end
     end
 
+    # Examples that assert the command implements the Destroy contract.
+    #
+    # To access the actual entity for each case, call #matched_entity.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by the command. Defaults to the
+    #   matched entity.
+    # - #entity: The entity directly passed to the command. Defaults to the
+    #   first item in the fixtures.
+    # - #valid_primary_key_value: The value for the primary key for an unscoped
+    #   collection. Defaults to the primary key value for the first item in the
+    #   fixtures.
+    # - #valid_scoped_primary_key_value: The value for the primary key for a
+    #   scoped collection. Defaults to the primary key value for the first item
+    #   in the collection that matches #resource_scope.
     deferred_examples 'should implement the Destroy command' \
-    do |**examples_opts|
+    do |**examples_opts, &block|
       describe '#call' do
-        def call_command
-          return super if defined?(super)
+        define_method :call_command do
+          return super() if defined?(super())
 
           command.call(entity:, primary_key:)
         end
@@ -71,6 +111,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         include_deferred('with a valid entity', **examples_opts) do
           include_deferred 'should destroy the entity'
         end
+
+        instance_exec(&block) if block
       end
     end
   end

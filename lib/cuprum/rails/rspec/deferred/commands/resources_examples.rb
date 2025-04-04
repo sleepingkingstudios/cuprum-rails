@@ -10,16 +10,32 @@ module Cuprum::Rails::RSpec::Deferred::Commands
   module ResourcesExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
 
+    # Populates the collection with the fixtures data.
+    #
+    # Before each example, iterates over the fixtures data and inserts the
+    # fixture into the collection. If the insert fails, an exception is raised.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #fixtures_data: Must return an Array containing the entity attributes
+    #   for the fixtures.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #collection_data: The processed fixture data, prior to inserting it into
+    #   the collection. Defaults to the value of #fixtures_data.
     deferred_context 'when the collection has many items' do
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :fixtures_data,
+        'an Array containing the entity attributes for the fixture entities'
+
       let(:collection) do
         repository.find_or_create(qualified_name: resource.qualified_name)
       end
-      let(:fixtures_data) do
+      let(:collection_data) do
         next super() if defined?(super())
 
-        Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
-      end
-      let(:collection_data) do
         fixtures_data
       end
 
@@ -36,26 +52,26 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Defines a scope for the collection.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #resource_scope: Must return a Cuprum::Collections::Scope that matches a
+    #   subset of the fixtures.
     deferred_context 'when the resource defines a scope' do
-      let(:collection) do
-        next super() if defined?(super())
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
 
-        # :nocov:
-        repository.find_or_create(qualified_name: resource.qualified_name)
-        # :nocov:
-      end
-      let(:resource_scope) do
-        next super() if defined?(super())
+      depends_on :resource_scope,
+        'a Cuprum::Collections::Scope that matches a subset of the fixtures'
 
-        Cuprum::Collections::Scope.new do |query|
-          { 'published_at' => query.gte('1970-01-01') }
-        end
-      end
-      let(:resource_options) do
-        super().merge(scope: resource_scope)
-      end
+      let(:resource_options) { super().merge(scope: resource_scope) }
     end
 
+    # Iterates over cases for commands acting on an existing entity.
+    #
+    # Delegates to 'with a valid entity by primary key' if the command supports
+    # plural resources, and to 'with a valid entity by scoped uniqueness' if
+    # the command supports singular resources.
     deferred_context 'with a valid entity' do |**examples_opts, &block|
       if examples_opts.fetch(:plural, !examples_opts.fetch(:singular, false))
         context 'when initialized with a plural resource' do
@@ -74,15 +90,40 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Iterates over cases for an existing entity by value or primary key.
+    #
+    # This example group handles the following cases:
+    #
+    # - when the command is passed an entity
+    # - when the command is passed a valid primary key
+    # - when the command is passed a valid primary key for a given scope
+    #
+    # To access the actual entity for each case, call #matched_entity.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by the command. Defaults to the
+    #   matched entity.
+    # - #entity: The entity directly passed to the command. Defaults to the
+    #   first item in the fixtures.
+    # - #valid_primary_key_value: The value for the primary key for an unscoped
+    #   collection. Defaults to the primary key value for the first item in the
+    #   fixtures.
+    # - #valid_scoped_primary_key_value: The value for the primary key for a
+    #   scoped collection. Defaults to the primary key value for the first item
+    #   in the collection that matches #resource_scope.
     deferred_context 'with a valid entity by primary key' do |&block|
+      let(:matched_entity) { nil }
+      let(:expected_value) do
+        defined?(super()) ? super() : matched_entity
+      end
+
       describe 'with entity: value' do
         let(:entity) do
           defined?(super()) ? super() : collection_data.first
         end
-        let(:expected_entity) do
-          defined?(super()) ? super() : entity
-        end
-        let(:primary_key) { nil }
+        let(:primary_key)    { nil }
+        let(:matched_entity) { entity }
 
         include_deferred 'when the collection has many items'
 
@@ -91,13 +132,16 @@ module Cuprum::Rails::RSpec::Deferred::Commands
 
       wrap_deferred 'when the collection has many items' do
         describe 'with primary_key: a valid value' do
-          let(:expected_entity) do
-            defined?(super()) ? super() : collection_data.first
-          end
           let(:valid_primary_key_value) do
             next super() if defined?(super())
 
-            expected_entity[resource.primary_key_name]
+            collection_data.first[resource.primary_key_name]
+          end
+          let(:matched_entity) do
+            collection
+              .find_one
+              .call(primary_key: valid_primary_key_value)
+              .value
           end
           let(:entity)      { nil }
           let(:primary_key) { valid_primary_key_value }
@@ -118,16 +162,14 @@ module Cuprum::Rails::RSpec::Deferred::Commands
                 .first
                 .then { |item| item[resource.primary_key_name] }
             end
+            let(:matched_entity) do
+              collection
+                .find_one
+                .call(primary_key: valid_scoped_primary_key_value)
+                .value
+            end
             let(:entity)      { nil }
             let(:primary_key) { valid_scoped_primary_key_value }
-            let(:expected_entity) do
-              next super() if defined?(super())
-
-              collection_data.find do |item|
-                item[resource.primary_key_name] ==
-                  valid_scoped_primary_key_value
-              end
-            end
 
             block ? instance_exec(&block) : pending
           end
@@ -135,16 +177,44 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Iterates over cases for an existing entity by value or unique scope.
+    #
+    # This example group handles the following cases:
+    #
+    # - when the command is passed an entity.
+    # - when the collection has one item.
+    # - when the scoped collection has one item.
+    #
+    # To access the actual entity for each case, call #matched_entity.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #unique_scope: Must return a Cuprum::Collections::Scope that matches
+    #   exactly one of the fixtures.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by the command. Defaults to the
+    #   matched entity.
+    # - #entity: The entity directly passed to the command. Defaults to the
+    #   first item in the fixtures.
     deferred_context 'with a valid entity by scoped uniqueness' do |&block|
-      let(:primary_key) { nil }
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :unique_scope,
+        'a Cuprum::Collections::Scope that exactly one of fixtures'
+
+      let(:primary_key)    { nil }
+      let(:matched_entity) { nil }
+      let(:expected_value) do
+        defined?(super()) ? super() : matched_entity
+      end
 
       describe 'with entity: value' do
         let(:entity) do
-          defined?(super()) ? super() : collection_data[0]
+          defined?(super()) ? super() : collection_data.first
         end
-        let(:expected_entity) do
-          defined?(super()) ? super() : entity
-        end
+        let(:matched_entity) { entity }
 
         include_deferred 'when the collection has many items'
 
@@ -155,31 +225,17 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         let(:entity) { nil }
 
         context 'when there is one matching item' do
-          let(:fixtures_data) { super()[0..0] }
-          let(:expected_entity) do
-            next super() if defined?(super())
-
-            collection_data.first
-          end
+          let(:fixtures_data)  { super()[0..0] }
+          let(:matched_entity) { collection_data.first }
 
           block ? instance_exec(&block) : pending
         end
 
         wrap_deferred 'when the resource defines a scope' do
           context 'when there is one matching item' do
-            let(:unique_scope) do
-              next super() if defined?(super())
-
-              Cuprum::Collections::Scope.new do |query|
-                {
-                  'author'       => 'J.R.R. Tolkien',
-                  'published_at' => query.gte('1970-01-01')
-                }
-              end
-            end
             let(:resource_scope) { unique_scope }
             let(:entity)         { nil }
-            let(:unique_entity) do
+            let(:matched_entity) do
               collection
                 .with_scope(unique_scope)
                 .find_matching
@@ -187,12 +243,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
                 .value
                 .first
             end
-            let(:expected_unique_entity) do
-              next super() if defined?(super())
-
-              unique_entity
-            end
-            let(:expected_entity) { expected_unique_entity }
 
             block ? instance_exec(&block) : pending
           end
@@ -200,9 +250,16 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the collection requires a default contract.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should require default contract' do
       context 'with a resource with default_contract: nil' do
-        let(:default_contract) { nil }
+        let(:default_contract)   { nil }
+        let(:matched_attributes) { {} }
         let(:entity_class) do
           repository
             .find_or_create(qualified_name: resource.qualified_name)
@@ -220,6 +277,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the command requires an entity.
+    #
+    # Delegates to 'should require entity by primary key' if the command
+    # supports plural resources, and to 'should require entity by scoped
+    # uniqueness' if the command supports singular resources.
     deferred_examples 'should require entity' do |**examples_opts|
       if examples_opts.fetch(:plural, !examples_opts.fetch(:singular, false))
         context 'when initialized with a plural resource' do
@@ -238,7 +300,27 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert the command requires an entity by primary key.
+    #
+    # This example group handles the following cases:
+    #
+    # - when the command is not passed an entity or primary key parameter.
+    # - when the collection has no items.
+    # - when the given primary key parameter is not a valid primary key for an
+    #   item in the collection.
+    # - when the given primary key parameter is not a valid primary key for an
+    #   item in the collection matching the collection scope.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should require entity by primary key' do
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
+
       describe 'with no entity parameters' do
         let(:entity)      { nil }
         let(:primary_key) { nil }
@@ -251,11 +333,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
 
       describe 'with primary_key: an invalid value' do
-        let(:fixtures_data) do
-          next super() if defined?(super())
-
-          Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
-        end
         let(:collection_data) do
           next super() if defined?(super())
 
@@ -348,7 +425,29 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert the command requires a unique entity.
+    #
+    # This example group handles the following cases:
+    #
+    # - when the collection has no items.
+    # - when the collection has multiple items.
+    # - when the collection has no items matching the scope.
+    # - when the collection has multiple items matching the scope.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
+    # - #non_matching_scope: A Cuprum::Collections::Scope that does not match
+    #   any fixtures.
     deferred_examples 'should require entity by scoped uniqueness' do
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
+      depends_on :non_matching_scope,
+        'a Cuprum::Collections::Scope that does not match any fixtures'
+
       let(:primary_key) { nil }
 
       context 'when there are no matching items' do
@@ -391,13 +490,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
 
         wrap_deferred 'when the resource defines a scope' do
           context 'when there are no matching items' do
-            let(:non_matching_scope) do
-              next super() if defined?(super())
-
-              Cuprum::Collections::Scope.new do |query|
-                { 'published_at' => query.gte('2070-01-01') }
-              end
-            end
             let(:resource_scope) { non_matching_scope }
             let(:entity)         { nil }
             let(:expected_error) do
@@ -439,9 +531,16 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the collection requires permitted attributes.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should require permitted attributes' do
       context 'with a resource with permitted_attributes: nil' do
-        let(:resource_options) { super().merge(permitted_attributes: nil) }
+        let(:resource_options)   { super().merge(permitted_attributes: nil) }
+        let(:matched_attributes) { {} }
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(
             message:  "permitted attributes can't be blank",
@@ -457,7 +556,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
 
       context 'with a resource with permitted_attributes: an empty Array' do
-        let(:resource_options) { super().merge(permitted_attributes: []) }
+        let(:resource_options)   { super().merge(permitted_attributes: []) }
+        let(:matched_attributes) { {} }
         let(:expected_error) do
           Cuprum::Rails::Errors::ResourceError.new(
             message:  "permitted attributes can't be blank",
@@ -473,6 +573,12 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
+    # Examples that assert that the command validates the entity.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should validate the entity' do
       let(:entity_class) do
         repository

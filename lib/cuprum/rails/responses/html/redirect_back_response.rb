@@ -32,16 +32,7 @@ module Cuprum::Rails::Responses::Html
     def call(renderer)
       assign_flash(renderer)
 
-      # :nocov:
-      if Rails.version >= '7.0' # @todo Rails 6
-        renderer.redirect_back_or_to(fallback_location, status:)
-      else
-        renderer.redirect_back(
-          fallback_location:,
-          status:
-        )
-      end
-      # :nocov:
+      renderer.redirect_back_or_to(fallback_location, status:)
     end
 
     private

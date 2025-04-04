@@ -18,18 +18,22 @@ RSpec.describe Cuprum::Rails::Commands::Resources::New do
   let(:resource_options) do
     { permitted_attributes: %w[challenge name type] }
   end
-  let(:attributes) do
+  let(:valid_attributes) do
     {
       'name'      => 'Dracolich',
       'challenge' => 30,
       'type'      => 'bones'
     }
   end
-  let(:expected_attributes) do
+  let(:invalid_attributes) do
     {
       'name'      => 'Dracolich',
-      'challenge' => 30,
-      'type'      => 'bones'
+      'challenge' => 30
+    }
+  end
+  let(:extra_attributes) do
+    {
+      'resistances' => %w[necrotic poison]
     }
   end
 
