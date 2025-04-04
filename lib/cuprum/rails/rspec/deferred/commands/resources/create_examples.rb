@@ -183,8 +183,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         end
 
         describe 'with attributes: an empty Hash' do
-          let(:matched_attributes)  { {} }
-          let(:expected_attributes) { empty_attributes }
+          let(:matched_attributes) { {} }
 
           include_deferred 'should validate the entity'
 
@@ -193,9 +192,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
         describe 'with attributes: an Hash with invalid attributes' do
           let(:matched_attributes) { invalid_attributes }
-          let(:expected_attributes) do
-            empty_attributes.merge(invalid_attributes)
-          end
 
           include_deferred 'should validate the entity'
 

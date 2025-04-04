@@ -15,23 +15,24 @@ RSpec.describe Spec::Support::Commands::Chapters::New do
   let(:book) { nil }
 
   def call_command
-    command.call(attributes:, book:)
+    command.call(attributes: matched_attributes, book:)
   end
 
   include_deferred 'with parameters for a Chapter command'
 
   include_deferred 'with resource parameters for a Chapter command'
 
-  include_deferred 'should implement the New command'
-
-  describe '#call' do
+  include_deferred 'should implement the New command' do
     describe 'with book: value' do
       let(:book) { Spec::Support::Commands::Chapters::BOOKS_FIXTURES.first }
+      let(:matched_attributes) { configured_valid_attributes }
       let(:expected_attributes) do
-        super().merge(
-          'book'    => book,
-          'book_id' => book['id']
-        )
+        empty_attributes
+          .merge(matched_attributes)
+          .merge(
+            'book'    => book,
+            'book_id' => book['id']
+          )
       end
 
       include_deferred 'should build the entity'

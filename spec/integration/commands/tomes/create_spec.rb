@@ -42,13 +42,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
       'title' => 'Gideon the Ninth'
     }
   end
-  let(:expected_attributes) do
-    empty_attributes.merge(
-      'uuid'   => '00000000-0000-0000-0000-000000000000',
-      'title'  => 'Gideon the Ninth',
-      'author' => 'Tamsyn Muir'
-    )
-  end
   let(:extra_attributes) do
     {
       'published_at' => '2019-09-10'

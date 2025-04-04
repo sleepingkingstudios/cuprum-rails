@@ -28,10 +28,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Index do
   let(:order)      { { 'name' => 'asc' } }
   let(:where_hash) { { 'type' => 'bones' } }
 
-  def filter_data_hash(entities)
-    entities.select { |entity| entity['type'] == 'bones' }
-  end
-
   def sort_data(entities)
     entities.sort_by { |entity| entity['name'] }
   end

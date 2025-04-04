@@ -19,9 +19,19 @@ RSpec.describe Cuprum::Rails::Commands::Resources::New do
   let(:resource_options) do
     { permitted_attributes: %w[uuid title author series category] }
   end
-  let(:attributes) do
+  let(:extra_attributes) do
     {
-      'uuid'   => '00000000-0000-0000-0000-000000000000',
+      'published_at' => '2019-09-10'
+    }
+  end
+  let(:invalid_attributes) do
+    {
+      'title'  => 'Gideon the Ninth',
+      'author' => nil
+    }
+  end
+  let(:valid_attributes) do
+    {
       'title'  => 'Gideon the Ninth',
       'author' => 'Tamsyn Muir'
     }
@@ -35,13 +45,6 @@ RSpec.describe Cuprum::Rails::Commands::Resources::New do
       'category'     => nil,
       'published_at' => nil
     }
-  end
-  let(:expected_attributes) do
-    empty_attributes.merge(
-      'uuid'   => '00000000-0000-0000-0000-000000000000',
-      'title'  => 'Gideon the Ninth',
-      'author' => 'Tamsyn Muir'
-    )
   end
 
   include_deferred 'should implement the New command'

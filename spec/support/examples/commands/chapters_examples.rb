@@ -122,12 +122,6 @@ module Spec::Support::Examples::Commands
       end
       let(:invalid_attributes)  { { 'title' => nil, 'chapter_index' => 0 } }
       let(:extra_attributes)    { { 'book_id' => 10 } }
-      let(:expected_attributes) do
-        empty_attributes.merge(
-          'title'         => 'Introduction',
-          'chapter_index' => 0
-        )
-      end
     end
   end
 end
