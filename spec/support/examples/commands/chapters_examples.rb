@@ -106,12 +106,6 @@ module Spec::Support::Examples::Commands
           key 'title',          Stannum::Constraints::Presence.new
         end
       end
-      let(:attributes) do # @todo: Remove this.
-        {
-          'title'         => 'Introduction',
-          'chapter_index' => 0
-        }
-      end
       let(:original_attributes) { expected_chapter }
       let(:empty_attributes)    { { 'book' => nil, 'book_id' => nil } }
       let(:valid_attributes) do

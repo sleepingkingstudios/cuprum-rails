@@ -47,7 +47,7 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
       }
     end
   end
-  let(:attributes) do
+  let(:valid_attributes) do
     {
       'name'      => 'Dracolich',
       'challenge' => 30,
@@ -61,12 +61,9 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
       'type'      => nil
     }
   end
-  let(:expected_attributes) do
+  let(:extra_attributes) do
     {
-      'id'        => expected_entity['id'],
-      'name'      => 'Dracolich',
-      'challenge' => 30,
-      'type'      => 'bones'
+      'resistances' => %w[necrotic poison]
     }
   end
 

@@ -12,14 +12,6 @@ RSpec.describe Spec::Support::Commands::Chapters::Update do
 
   subject(:command) { described_class.new(repository:, resource:) }
 
-  let(:expected_attributes) do
-    original_attributes.merge(
-      'author'        => expected_author,
-      'book'          => expected_book,
-      'title'         => 'Introduction',
-      'chapter_index' => 0
-    )
-  end
   let(:original_attributes) do
     expected_chapter.merge(
       'author' => expected_author,
@@ -27,8 +19,15 @@ RSpec.describe Spec::Support::Commands::Chapters::Update do
     )
   end
 
-  def call_command
-    command.call(attributes:, author:, entity:, primary_key:)
+  define_method :call_command do
+    attributes = defined?(matched_attributes) ? matched_attributes : {}
+
+    command.call(
+      attributes:,
+      author:,
+      entity:      defined?(entity)      ? entity      : nil,
+      primary_key: defined?(primary_key) ? primary_key : nil
+    )
   end
 
   include_deferred 'with parameters for a Chapter command'
@@ -37,20 +36,16 @@ RSpec.describe Spec::Support::Commands::Chapters::Update do
 
   include_deferred 'with resource parameters for a Chapter command'
 
-  include_deferred 'should implement the Update command'
-
-  describe '#call' do
+  include_deferred 'should implement the Update command' do
     describe 'with author: value' do
       let(:author) { Spec::Support::Commands::Chapters::AUTHORS_FIXTURES.last }
-      let(:expected_attributes) do
-        super().merge('author' => author)
+      let(:matched_attributes) do
+        configured_valid_attributes
       end
-
-      before(:example) do
-        repository.create(
-          default_contract:,
-          qualified_name:   resource.qualified_name
-        )
+      let(:expected_attributes) do
+        original_attributes
+          .merge(tools.hash_tools.convert_keys_to_strings(matched_attributes))
+          .merge('author' => author)
       end
 
       include_deferred 'with a valid entity' do

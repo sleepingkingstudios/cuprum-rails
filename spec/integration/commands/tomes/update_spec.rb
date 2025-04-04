@@ -34,7 +34,7 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
   let(:invalid_primary_key_value) do
     SecureRandom.uuid
   end
-  let(:attributes) do
+  let(:valid_attributes) do
     {
       'title'  => 'Gideon the Ninth',
       'author' => 'Tamsyn Muir'
@@ -46,11 +46,10 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Update do
       'author' => nil
     }
   end
-  let(:expected_attributes) do
-    original_attributes.merge(
-      'title'  => 'Gideon the Ninth',
-      'author' => 'Tamsyn Muir'
-    )
+  let(:extra_attributes) do
+    {
+      'published_at' => '2019-09-10'
+    }
   end
 
   include_deferred 'with parameters for a Book command'

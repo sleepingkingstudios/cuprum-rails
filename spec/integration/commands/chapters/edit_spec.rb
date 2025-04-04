@@ -12,14 +12,6 @@ RSpec.describe Spec::Support::Commands::Chapters::Edit do
 
   subject(:command) { described_class.new(repository:, resource:) }
 
-  let(:expected_attributes) do
-    original_attributes.merge(
-      'author'        => expected_author,
-      'book'          => expected_book,
-      'title'         => 'Introduction',
-      'chapter_index' => 0
-    )
-  end
   let(:original_attributes) do
     expected_chapter.merge(
       'author' => expected_author,
@@ -28,6 +20,8 @@ RSpec.describe Spec::Support::Commands::Chapters::Edit do
   end
 
   def call_command
+    attributes = defined?(matched_attributes) ? matched_attributes : {}
+
     command.call(attributes:, author:, entity:, primary_key:)
   end
 

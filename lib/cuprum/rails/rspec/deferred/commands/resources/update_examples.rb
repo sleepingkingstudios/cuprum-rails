@@ -25,9 +25,49 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         .to_a
     end
 
+    # Examples that assert the command implements the Update contract.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #extra_attributes: A Hash containing attributes that are not defined for
+    #   the entity such as when asserting that a timestamp is any time value.
+    #   The value must not include any defined attributes.
+    # - #invalid_attributes: An attributes Hash that will fail validation - will
+    #   preferentially use #valid_attributes_for_update if present.
+    # - #valid_attributes: An attributes Hash that will pass validation - will
+    #   preferentially use #valid_attributes_for_update if present.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #empty_attributes: A Hash containing the attributes for a newly built
+    #   entity when given no parameters. Use this method when creating an object
+    #   that initializes its properties to null or default values.
+    # - #entity: The entity directly passed to the command. Defaults to the
+    #   first item in the fixtures.
+    # - #expected_attributes: A Hash containing the expected attributes when
+    #   creating an object. Defaults to the matched attributes merged into the
+    #   empty attributes.
+    # - #valid_attributes_for_update: An attributes Hash that will pass
+    #   validation. This method overrides #valid_attributes if present.
+    # - #valid_primary_key_value: The value for the primary key for an unscoped
+    #   collection. Defaults to the primary key value for the first item in the
+    #   fixtures.
+    # - #valid_scoped_primary_key_value: The value for the primary key for a
+    #   scoped collection. Defaults to the primary key value for the first item
+    #   in the collection that matches #resource_scope.
     deferred_examples 'should implement the Update command' \
     do |**examples_opts, &block|
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
       include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
+
+      depends_on :extra_attributes,
+        'a Hash containing attributes that are not defined for the entity'
+      depends_on :invalid_attributes,
+        'an attributes Hash that will fail validation - will preferentially' \
+        'use #valid_attributes_for_update if present'
+      depends_on :valid_attributes,
+        'an attributes Hash that will pass validation - will preferentially' \
+        'use #valid_attributes_for_update if present'
 
       describe '#call' do
         let(:default_contract) do
@@ -37,11 +77,23 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         define_method(:call_command) do
           return super() if defined?(super())
 
+          attributes = defined?(matched_attributes) ? matched_attributes : {}
+
           command.call(
-            attributes:  defined?(attributes)  ? attributes  : {},
+            attributes:,
             entity:      defined?(entity)      ? entity      : nil,
             primary_key: defined?(primary_key) ? primary_key : nil
           )
+        end
+
+        define_method :configured_valid_attributes do
+          if defined?(valid_attributes_for_update)
+            # :nocov:
+            return valid_attributes_for_update
+            # :nocov:
+          end
+
+          valid_attributes
         end
 
         define_method(:tools) do
@@ -64,10 +116,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         end
 
         unless examples_opts.fetch(:default_contract, false)
-          # @todo: This should be a deferred context.
           describe 'with a valid entity' do
-            let(:entity) do
-              defined?(super()) ? super() : collection_data[0]
+            let(:entity)             { matched_entity }
+            let(:matched_attributes) { configured_valid_attributes }
+            let(:matched_entity) do
+              defined?(super()) ? super() : collection_data.first
             end
 
             include_deferred 'when the collection has many items'
@@ -78,8 +131,10 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
         if examples_opts.fetch(:require_permitted_attributes, true)
           describe 'with a valid entity' do
-            let(:entity) do
-              defined?(super()) ? super() : collection_data[0]
+            let(:entity)             { matched_entity }
+            let(:matched_attributes) { configured_valid_attributes }
+            let(:matched_entity) do
+              defined?(super()) ? super() : collection_data.first
             end
 
             include_deferred 'when the collection has many items'
@@ -91,33 +146,10 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         include_deferred('should require entity', **examples_opts)
 
         include_deferred('with a valid entity', **examples_opts) do
-          let(:attributes) do
-            next super() if defined?(super())
-
-            {
-              'title'  => 'Gideon the Ninth',
-              'author' => 'Tamsyn Muir'
-            }
-          end
-          let(:invalid_attributes) do
-            next super() if defined?(super())
-
-            {
-              'title'  => 'Gideon the Ninth',
-              'author' => nil
-            }
-          end
-          let(:extra_attributes) do
-            next super() if defined?(super())
-
-            {
-              'published_at' => '2019-09-10'
-            }
-          end
           let!(:original_attributes) do
             next super() if defined?(super())
 
-            value = expected_entity
+            value = matched_entity
 
             value.is_a?(Hash) ? value : value.attributes
           end
@@ -125,23 +157,18 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             next super() if defined?(super())
 
             original_attributes.merge(
-              'title'  => 'Gideon the Ninth',
-              'author' => 'Tamsyn Muir'
+              tools.hash_tools.convert_keys_to_strings(matched_attributes)
             )
           end
 
           describe 'with attributes: an empty Hash' do
-            let(:attributes)          { {} }
-            let(:expected_attributes) { original_attributes }
+            let(:matched_attributes) { {} }
 
             include_deferred 'should update the entity'
           end
 
           describe 'with attributes: an Hash with invalid attributes' do
-            let(:attributes) { invalid_attributes }
-            let(:expected_attributes) do
-              original_attributes.merge(invalid_attributes)
-            end
+            let(:matched_attributes) { invalid_attributes }
 
             include_deferred 'should validate the entity'
 
@@ -149,23 +176,37 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           end
 
           describe 'with attributes: a Hash with String keys' do
-            let(:attributes) do
-              tools.hash_tools.convert_keys_to_strings(super())
+            let(:matched_attributes) do
+              tools
+                .hash_tools
+                .convert_keys_to_strings(configured_valid_attributes)
             end
 
             include_deferred 'should update the entity'
           end
 
           describe 'with attributes: a Hash with Symbol keys' do
-            let(:attributes) do
-              tools.hash_tools.convert_keys_to_symbols(super())
+            let(:matched_attributes) do
+              tools
+                .hash_tools
+                .convert_keys_to_symbols(configured_valid_attributes)
             end
 
             include_deferred 'should update the entity'
           end
 
           describe 'with attributes: a Hash with extra attributes' do
-            let(:attributes) { super().merge(extra_attributes) }
+            let(:matched_attributes) do
+              [
+                configured_valid_attributes,
+                extra_attributes
+              ]
+                .map { |hsh| tools.hash_tools.convert_keys_to_symbols(hsh) }
+                .reduce(&:merge)
+            end
+            let(:expected_attributes) do
+              original_attributes.merge(configured_valid_attributes)
+            end
 
             include_deferred 'should update the entity'
           end
@@ -175,11 +216,40 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       end
     end
 
+    # Examples that assert the commend does not update the entity.
+    #
+    # The following methods must be defined in the example group:
+    #
+    # - #call_command: A method that calls the command being tested with all
+    #   required parameters.
     deferred_examples 'should not update the entity' do
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
+
       it { expect { call_command }.not_to(change { persisted_data }) }
     end
 
+    # Examples that assert that the command updates the entity.
+    #
+    # The following examples are defined:
+    #
+    # - The command should return a passing result, with the result value an
+    #   instance of the entity class.
+    # - The attributes of the returned entity should match the expected
+    #   attributes.
+    # - Calling the command should not change the collection count.
+    # - After calling the command, the item in the collection matching the
+    #   entity's primary key should match the expected attributes.
     deferred_examples 'should update the entity' do
+      include RSpec::SleepingKingStudios::Deferred::Dependencies
+
+      depends_on :call_command,
+        'method that calls the command being tested with required parameters'
+      depends_on :expected_attributes,
+        'a Hash containing the expected attributes for the created entity'
+
       let(:entity_class) do
         repository
           .find_or_create(qualified_name: resource.qualified_name)
