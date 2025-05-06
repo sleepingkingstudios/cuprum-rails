@@ -30,8 +30,10 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     # - #matching_data: The subset of the ordered data returned by the command,
     #   such as :limit or :offset clauses. Defaults to the value of
     #   #ordered_data.
-    # - #expected_data: The actual data returned by the command, including any
+    # - #expected_data: The actual items returned by the command, including any
     #   additional processing. Defaults to the value of #matching_data.
+    # - #expected_value: The value returned by the command. Defaults to the
+    #   value of #expected_data.
     deferred_examples 'should find the matching collection data' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
@@ -52,11 +54,14 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       let(:expected_data) do
         defined?(super()) ? super() : matching_data
       end
+      let(:expected_value) do
+        defined?(super()) ? super() : expected_data
+      end
 
       it 'should return a passing result' do
         expect(call_command)
           .to be_a_passing_result
-          .with_value(expected_data)
+          .with_value(match(expected_value))
       end
     end
 
