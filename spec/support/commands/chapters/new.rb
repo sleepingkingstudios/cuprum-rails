@@ -19,10 +19,11 @@ module Spec::Support::Commands::Chapters
       super
     end
 
-    def process(book: nil, **options)
-      @book = book
+    def process(book: nil, tags: [], **options)
+      @book   = book
+      chapter = step { super }
 
-      super
+      chapter.merge('tags' => tags)
     end
   end
 end

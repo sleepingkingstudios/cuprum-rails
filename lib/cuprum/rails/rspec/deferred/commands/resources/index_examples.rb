@@ -58,10 +58,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         defined?(super()) ? super() : expected_data
       end
 
-      it 'should return a passing result' do
-        expect(call_command)
-          .to be_a_passing_result
-          .with_value(match(expected_value))
+      it 'should return a passing result', :aggregate_failures do
+        result = call_command
+
+        expect(result).to be_a_passing_result
+        expect(result.value).to match(expected_value)
       end
     end
 
