@@ -106,6 +106,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             .and_any_keywords
         end
 
+        include_deferred 'when the collection is defined'
+
         include_deferred('should require entity', **examples_opts)
 
         include_deferred('with a valid entity', **examples_opts) do

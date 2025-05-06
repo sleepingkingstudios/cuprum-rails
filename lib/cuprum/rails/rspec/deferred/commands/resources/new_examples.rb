@@ -121,6 +121,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           SleepingKingStudios::Tools::Toolbelt.instance
         end
 
+        include_deferred 'when the collection is defined'
+
         it 'should define the method' do
           expect(command)
             .to be_callable

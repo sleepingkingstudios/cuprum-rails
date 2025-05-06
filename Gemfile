@@ -37,10 +37,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.13'
-  gem 'rspec-sleeping_king_studios',
-    '>= 2.8.0.alpha',
-    git:    'https://github.com/sleepingkingstudios/rspec-sleeping_king_studios.git',
-    branch: 'main'
+  gem 'rspec-sleeping_king_studios', '~> 2.8', '>= 2.8.1'
   gem 'rubocop', '~> 1.74'
   gem 'rubocop-factory_bot', '~> 2.27'
   gem 'rubocop-rails', '~> 2.30'

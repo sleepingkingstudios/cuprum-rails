@@ -10,6 +10,25 @@ module Cuprum::Rails::RSpec::Deferred::Commands
   module ResourcesExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
 
+    # Utility context for pre-defining the collection.
+    deferred_context 'when the collection is defined' do
+      let!(:collection) do # rubocop:disable RSpec/LetSetup
+        default_contract =
+          defined?(self.default_contract) ? self.default_contract : nil
+
+        repository.find_or_create(
+          default_contract:,
+          qualified_name:   resource.qualified_name,
+          **collection_options
+        )
+      end
+      let(:collection_options) do
+        next super() if defined?(super())
+
+        {}
+      end
+    end
+
     # Populates the collection with the fixtures data.
     #
     # Before each example, iterates over the fixtures data and inserts the
@@ -25,14 +44,14 @@ module Cuprum::Rails::RSpec::Deferred::Commands
     # - #collection_data: The processed fixture data, prior to inserting it into
     #   the collection. Defaults to the value of #fixtures_data.
     deferred_context 'when the collection has many items' do
+      include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
       depends_on :fixtures_data,
         'an Array containing the entity attributes for the fixture entities'
 
-      let(:collection) do
-        repository.find_or_create(qualified_name: resource.qualified_name)
-      end
+      include_deferred 'when the collection is defined'
+
       let(:collection_data) do
         next super() if defined?(super())
 
@@ -260,11 +279,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       context 'with a resource with default_contract: nil' do
         let(:default_contract)   { nil }
         let(:matched_attributes) { {} }
-        let(:entity_class) do
-          repository
-            .find_or_create(qualified_name: resource.qualified_name)
-            .entity_class
-        end
+        let(:entity_class)       { collection.entity_class }
         let(:expected_error) do
           Cuprum::Collections::Errors::MissingDefaultContract.new(entity_class:)
         end
@@ -580,11 +595,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
     # - #call_command: A method that calls the command being tested with all
     #   required parameters.
     deferred_examples 'should validate the entity' do
-      let(:entity_class) do
-        repository
-          .find_or_create(qualified_name: resource.qualified_name)
-          .entity_class
-      end
+      let(:entity_class) { collection.entity_class }
       let(:entity_attributes) do
         next super() if defined?(super())
 
@@ -614,7 +625,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           .and_error(expected_error)
       end
 
-      it { expect(entity_attributes).to be == expected_attributes }
+      it { expect(entity_attributes).to match(expected_attributes) }
     end
   end
 end

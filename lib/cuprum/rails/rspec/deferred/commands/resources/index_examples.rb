@@ -96,6 +96,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           defined?(super()) ? super() : command.call(**command_options)
         end
 
+        include_deferred 'when the collection is defined'
+
         it 'should define the method' do
           expect(command)
             .to be_callable
@@ -154,9 +156,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         end
 
         describe 'with where: a Hash' do
-          let(:collection) do
-            repository.find_or_create(qualified_name: resource.qualified_name)
-          end
           let(:command_options) { super().merge(where: where_hash) }
           let(:filtered_data) do
             collection
@@ -175,9 +174,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         end
 
         context 'when the resource has a scope' do
-          let(:collection) do
-            repository.find_or_create(qualified_name: resource.qualified_name)
-          end
           let(:resource_options) { super().merge(scope: resource_scope) }
           let(:filtered_data) do
             collection

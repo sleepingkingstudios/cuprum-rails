@@ -107,6 +107,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             .create(qualified_name: resource.qualified_name, **options)
         end
 
+        include_deferred 'when the collection is defined'
+
         it 'should define the method' do
           expect(command)
             .to be_callable

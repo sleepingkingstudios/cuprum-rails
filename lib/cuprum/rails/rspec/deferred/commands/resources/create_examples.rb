@@ -52,11 +52,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       depends_on :expected_attributes,
         'a Hash containing the expected attributes for the created entity'
 
-      let(:entity_class) do
-        repository
-          .find_or_create(qualified_name: resource.qualified_name)
-          .entity_class
-      end
+      let(:entity_class) { collection.entity_class }
       let(:entity_attributes) do
         next super() if defined?(super())
 
@@ -160,11 +156,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           SleepingKingStudios::Tools::Toolbelt.instance
         end
 
-        before(:example) do
-          options = default_contract ? { default_contract: } : {}
-
-          repository.create(qualified_name: resource.qualified_name, **options)
-        end
+        include_deferred 'when the collection is defined'
 
         it 'should define the method' do
           expect(command)
