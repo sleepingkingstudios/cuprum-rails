@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'cuprum/rails/rspec/deferred/commands/resources/edit_examples'
+require 'cuprum/rails/rspec/deferred/commands/resources/update_examples'
 
 require 'support/examples/commands/books_examples'
-require 'support/commands/books/edit'
+require 'support/commands/books/update'
 
 # @note Integration test for command with custom attributes.
-RSpec.describe Spec::Support::Commands::Books::Edit do
-  include Cuprum::Rails::RSpec::Deferred::Commands::Resources::EditExamples
+RSpec.describe Spec::Support::Commands::Books::Update do
+  include Cuprum::Rails::RSpec::Deferred::Commands::Resources::UpdateExamples
   include Spec::Support::Examples::Commands::BooksExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
@@ -26,5 +26,5 @@ RSpec.describe Spec::Support::Commands::Books::Edit do
 
   include_deferred 'with parameters for a Book command'
 
-  include_deferred 'should implement the Edit command'
+  include_deferred 'should implement the Update command'
 end

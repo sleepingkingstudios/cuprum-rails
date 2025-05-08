@@ -207,7 +207,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
                 .reduce(&:merge)
             end
             let(:expected_attributes) do
-              original_attributes.merge(configured_valid_attributes)
+              original_attributes.merge(super().except(*extra_attributes.keys))
             end
 
             include_deferred 'should update the entity'
@@ -244,6 +244,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     # - Calling the command should not change the collection count.
     # - After calling the command, the item in the collection matching the
     #   entity's primary key should match the expected attributes.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by the command. Defaults to an
+    #   instance of the entity class matching #expected_attributes.
     deferred_examples 'should update the entity' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
@@ -252,26 +257,21 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       depends_on :expected_attributes,
         'a Hash containing the expected attributes for the created entity'
 
-      let(:entity_class) do
-        repository
-          .find_or_create(qualified_name: resource.qualified_name)
-          .entity_class
-      end
-      let(:entity_attributes) do
+      let(:entity_class) { collection.entity_class }
+      let(:expected_value) do
         next super() if defined?(super())
 
-        value = call_command.value
+        next match(expected_attributes) if entity_class <= Hash
 
-        value.is_a?(Hash) ? value : value.attributes
+        an_instance_of(entity_class).and have_attributes(expected_attributes)
       end
 
-      it 'should return a passing result' do
-        expect(call_command)
-          .to be_a_passing_result
-          .with_value(an_instance_of(entity_class))
-      end
+      it 'should return a passing result', :aggregate_failures do
+        result = call_command
 
-      it { expect(entity_attributes).to match(expected_attributes) }
+        expect(result).to be_a_passing_result
+        expect(result.value).to match(expected_value)
+      end
 
       it { expect { call_command }.not_to(change { persisted_data.count }) } # rubocop:disable RSpec/ExpectChange
 
