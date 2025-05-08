@@ -50,6 +50,10 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       depends_on :call_command,
         'method that calls the command being tested with required parameters'
 
+      let(:expected_value) do
+        defined?(super()) ? super() : matched_entity
+      end
+
       before(:example) { expected_value }
 
       it 'should return a passing result' do

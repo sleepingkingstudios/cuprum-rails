@@ -133,9 +133,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
     #   in the collection that matches #resource_scope.
     deferred_context 'with a valid entity by primary key' do |&block|
       let(:matched_entity) { nil }
-      let(:expected_value) do
-        defined?(super()) ? super() : matched_entity
-      end
 
       describe 'with entity: value' do
         let(:entity) do
@@ -225,9 +222,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands
 
       let(:primary_key)    { nil }
       let(:matched_entity) { nil }
-      let(:expected_value) do
-        defined?(super()) ? super() : matched_entity
-      end
 
       describe 'with entity: value' do
         let(:entity) do
