@@ -44,6 +44,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     # - #expected_attributes: A hash containing the expected attributes for the
     #   created entity. The hash can contain or be wrapped in RSpec matchers,
     #   such as when asserting that a timestamp is any time value.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #expected_value: The value returned by the command. Defaults to an
+    #   instance of the entity class matching #expected_attributes.
     deferred_examples 'should create the entity' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
@@ -53,21 +58,20 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         'a Hash containing the expected attributes for the created entity'
 
       let(:entity_class) { collection.entity_class }
-      let(:entity_attributes) do
+      let(:expected_value) do
         next super() if defined?(super())
 
-        value = call_command.value
+        next match(expected_attributes) if entity_class <= Hash
 
-        value.is_a?(Hash) ? value : value.attributes
+        an_instance_of(entity_class).and have_attributes(expected_attributes)
       end
 
-      it 'should return a passing result' do
-        expect(call_command)
-          .to be_a_passing_result
-          .with_value(an_instance_of(entity_class))
-      end
+      it 'should return a passing result', :aggregate_failures do
+        result = call_command
 
-      it { expect(entity_attributes).to match(expected_attributes) }
+        expect(result).to be_a_passing_result
+        expect(result.value).to match(expected_value)
+      end
 
       it { expect { call_command }.to change { persisted_data.count }.by(1) } # rubocop:disable RSpec/ExpectChange
 
@@ -220,7 +224,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
               .reduce(&:merge)
           end
           let(:expected_attributes) do
-            empty_attributes.merge(configured_valid_attributes)
+            empty_attributes.merge(super().except(*extra_attributes.keys))
           end
 
           include_deferred 'should create the entity'
