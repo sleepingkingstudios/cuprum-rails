@@ -12,7 +12,14 @@ RSpec.describe Spec::Support::Commands::Chapters::Destroy do
 
   subject(:command) { described_class.new(repository:, resource:) }
 
-  def call_command
+  let(:expected_value) do
+    expected_chapter.merge(
+      'author' => author,
+      'book'   => expected_book
+    )
+  end
+
+  define_method :call_command do
     command.call(author:, entity:, primary_key:)
   end
 

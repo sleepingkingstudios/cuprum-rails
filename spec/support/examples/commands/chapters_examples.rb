@@ -88,12 +88,6 @@ module Spec::Support::Examples::Commands
 
         expected_unique_chapter
       end
-      let(:expected_value) do
-        expected_chapter.merge(
-          'author' => author,
-          'book'   => expected_book
-        )
-      end
       let(:expected_unique_chapter) do
         chapters_data.find { |chapter| chapter['book_id'] == 1 }
       end

@@ -12,19 +12,18 @@ RSpec.describe Spec::Support::Commands::Chapters::Index do
 
   subject(:command) { described_class.new(repository:, resource:) }
 
+  let(:expected_tags) { [] }
   let(:expected_data) do
     matching_data.map do |chapter|
       book    = books_data.find { |item| item['id'] == chapter['book_id'] }
-      author  =
-        authors_data.find { |item| item['id'] == book['author_id'] }
       chapter = chapter.merge(
-        'author' => author,
-        'book'   => book
+        'book' => book,
+        'tags' => expected_tags
       )
     end
   end
 
-  def call_command
+  define_method :call_command do
     command.call(authors: authors_data, **command_options)
   end
 
@@ -32,5 +31,15 @@ RSpec.describe Spec::Support::Commands::Chapters::Index do
 
   include_deferred 'with query parameters for a Chapter command'
 
-  include_deferred 'should implement the Index command'
+  include_deferred 'should implement the Index command' do
+    describe 'with tags: value' do
+      let(:tags)            { %w[category:genre-fiction classic] }
+      let(:expected_tags)   { tags }
+      let(:command_options) { super().merge(tags:) }
+
+      include_deferred 'when the collection has many items'
+
+      include_deferred 'should find the matching collection data'
+    end
+  end
 end

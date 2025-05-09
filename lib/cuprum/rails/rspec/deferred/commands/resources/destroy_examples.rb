@@ -50,6 +50,10 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       depends_on :call_command,
         'method that calls the command being tested with required parameters'
 
+      let(:expected_value) do
+        defined?(super()) ? super() : matched_entity
+      end
+
       before(:example) { expected_value }
 
       it 'should return a passing result' do
@@ -61,7 +65,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       it { expect { call_command }.to change { persisted_data.count }.by(-1) } # rubocop:disable RSpec/ExpectChange
 
       it 'should remove the entity from the collection' do # rubocop:disable RSpec/ExampleLength
-        primary_key_value = primary_key_for(expected_value)
+        primary_key_value = primary_key_for(matched_entity)
 
         expect { call_command }.to(
           change { persisted_data }.to(
@@ -105,6 +109,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
             .and_keywords(:entity, :primary_key)
             .and_any_keywords
         end
+
+        include_deferred 'when the collection is defined'
 
         include_deferred('should require entity', **examples_opts)
 

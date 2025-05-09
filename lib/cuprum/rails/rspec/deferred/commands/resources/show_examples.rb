@@ -19,10 +19,15 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     #   required parameters.
     # - #expected_value: The value returned by the command.
     deferred_examples 'should find the entity' do
-      it 'should return a passing result' do
-        expect(call_command)
-          .to be_a_passing_result
-          .with_value(expected_value)
+      let(:expected_value) do
+        defined?(super()) ? super() : matched_entity
+      end
+
+      it 'should return a passing result', :aggregate_failures do
+        result = call_command
+
+        expect(result).to be_a_passing_result
+        expect(result.value).to match(expected_value)
       end
     end
 
@@ -50,6 +55,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
           command.call(entity:, primary_key:)
         end
+
+        include_deferred 'when the collection is defined'
 
         it 'should define the method' do
           expect(command)

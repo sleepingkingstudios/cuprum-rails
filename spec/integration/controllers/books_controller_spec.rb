@@ -64,7 +64,7 @@ RSpec.describe BooksController do
 
       expect(renderer)
         .to have_received(:render)
-        .with((expected_view || action_name), { status: })
+        .with(expected_view || action_name, { status: })
     end
 
     it 'should assign the queried data' do

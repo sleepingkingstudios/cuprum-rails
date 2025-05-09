@@ -72,6 +72,9 @@ RSpec/ExampleWording:
 RSpec/HookArgument:
   Enabled: false
 
+RSpec/IncludeExamples:
+  Enabled: false
+
 RSpec/LeadingSubject:
   Enabled: false # Prefer shared examples at top of file.
 
