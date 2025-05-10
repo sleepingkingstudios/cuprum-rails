@@ -16,7 +16,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         default_contract =
           defined?(self.default_contract) ? self.default_contract : nil
 
-        repository.find_or_create(
+        repository.create(
           default_contract:,
           qualified_name:   resource.qualified_name,
           **collection_options

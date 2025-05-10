@@ -17,7 +17,7 @@ module Spec::Support::Examples::Commands
         repository.find_or_create(qualified_name: 'books')
       end
       let(:chapters_collection) do
-        repository.find_or_create(qualified_name: 'chapters')
+        repository.find_or_create(default_contract:, qualified_name: 'chapters')
       end
       let(:collection) do
         chapters_collection
@@ -61,6 +61,12 @@ module Spec::Support::Examples::Commands
       let(:chapters_data)   { [] }
       let(:collection_data) { [] }
       let(:command_options) { {} }
+      let(:default_contract) do
+        Stannum::Contracts::HashContract.new(allow_extra_keys: true) do
+          key 'chapter_index',  Stannum::Constraints::Presence.new
+          key 'title',          Stannum::Constraints::Presence.new
+        end
+      end
     end
 
     deferred_context 'with query parameters for a Chapter command' do
@@ -94,12 +100,6 @@ module Spec::Support::Examples::Commands
     end
 
     deferred_context 'with resource parameters for a Chapter command' do
-      let(:default_contract) do
-        Stannum::Contracts::HashContract.new(allow_extra_keys: true) do
-          key 'chapter_index',  Stannum::Constraints::Presence.new
-          key 'title',          Stannum::Constraints::Presence.new
-        end
-      end
       let(:original_attributes) { expected_chapter }
       let(:empty_attributes)    { { 'book' => nil, 'book_id' => nil } }
       let(:valid_attributes) do

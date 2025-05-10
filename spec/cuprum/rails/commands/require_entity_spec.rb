@@ -24,16 +24,16 @@ RSpec.describe Cuprum::Rails::Commands::RequireEntity do
   describe '#call' do
     let(:parameters) { {} }
 
+    define_method :call_command do
+      command.call(**parameters)
+    end
+
     it 'should define the method' do
       expect(command)
         .to be_callable
         .with(0).arguments
         .and_keywords(:entity, :primary_key)
         .and_any_keywords
-    end
-
-    define_method :call_command do
-      command.call(**parameters)
     end
 
     context 'when initialized with require_primary_key: false' do

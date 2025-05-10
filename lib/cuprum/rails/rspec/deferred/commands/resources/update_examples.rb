@@ -18,7 +18,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     define_method :persisted_data do
       return super() if defined?(super())
 
-      repository[resource.qualified_name]
+      collection
         .find_matching
         .call
         .value
@@ -98,13 +98,6 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
         define_method(:tools) do
           SleepingKingStudios::Tools::Toolbelt.instance
-        end
-
-        before(:example) do
-          options = default_contract ? { default_contract: } : {}
-
-          repository
-            .create(qualified_name: resource.qualified_name, **options)
         end
 
         include_deferred 'when the collection is defined'
