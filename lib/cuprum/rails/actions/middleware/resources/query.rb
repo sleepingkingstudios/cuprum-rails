@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'cuprum/collections/commands/associations/find_many'
+require 'cuprum/collections/scope'
 
 require 'cuprum/rails/actions/middleware/resources'
 require 'cuprum/rails/result'
@@ -11,11 +12,39 @@ module Cuprum::Rails::Actions::Middleware::Resources
     include Cuprum::Middleware
 
     # @param resource_params [Hash] parameters to pass to the resource.
-    def initialize(**resource_params)
+    # @param limit [Integer] the maximum number of results to return.
+    # @param offset [Integer] the initial ordered items to skip.
+    # @param order [Array<String, Symbol>, Hash<{String, Symbol => Symbol}>]
+    #   the sort order of the returned items. Should be either an array of
+    #   attribute names or a hash of attribute names and directions.
+    # @param where [Hash, Cuprum::Collections::Scope] additional filters for
+    #   selecting data. The middleware will only return data matching these
+    #   filters.
+    #
+    # @yield builds a scope to filter the returned data.
+    # @yieldparam [Cuprum::Collections::Scopes::Criteria::Parser::BlockParser]
+    #   parser object for generating the query scope.
+    # @yieldreturn [Hash] the generated scope hash.
+    #
+    # @see Cuprum::Rails::Resource#initialize
+    def initialize(
+      limit:  nil,
+      offset: nil,
+      order:  nil,
+      where:  nil,
+      **resource_params,
+      &block
+    )
       super()
 
-      @resource = build_resource(**resource_params)
+      where ||= Cuprum::Collections::Scope.new(&block) if block_given?
+
+      @resource     = build_resource(**resource_params)
+      @query_params = { limit:, offset:, order:, where: }.compact
     end
+
+    # @return [Hash] options passed to the query.
+    attr_reader :query_params
 
     # @return [Cuprum::Collections::Resource] the resource.
     attr_reader :resource
@@ -74,11 +103,11 @@ module Cuprum::Rails::Actions::Middleware::Resources
 
     def perform_query
       if resource.singular?
-        values = step { query_command.call(limit: 1) }
+        values = step { query_command.call(**query_params, limit: 1) }
 
         success(values.first)
       else
-        values = step { query_command.call }
+        values = step { query_command.call(**query_params) }
 
         success(values.to_a)
       end

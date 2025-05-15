@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'cuprum/collections/rspec/fixtures'
+require 'cuprum/collections/scope'
+
 require 'cuprum/rails/actions/middleware/resources/find'
 require 'cuprum/rails/records/repository'
 require 'cuprum/rails/request'
@@ -8,18 +11,23 @@ require 'cuprum/rails/resource'
 require 'support/book'
 
 RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
-  subject(:middleware) { described_class.new(**constructor_options) }
+  subject(:middleware) do
+    described_class.new(**constructor_options, &constructor_block)
+  end
 
+  let(:query_params)        { {} }
   let(:resource_params)     { { name: 'books' } }
-  let(:constructor_options) { resource_params }
+  let(:constructor_options) { { **query_params, **resource_params } }
+  let(:constructor_block)   { nil }
 
   describe '.new' do
-    it 'should define the constructor' do
+    it 'should define the constructor' do # rubocop:disable RSpec/ExampleLength
       expect(described_class)
         .to be_constructible
         .with(0).arguments
-        .and_keywords(:only_form_actions)
+        .and_keywords(:only_form_actions, :limit, :offset, :order, :where)
         .and_any_keywords
+        .and_a_block
     end
 
     describe 'with invalid resource params' do
@@ -36,6 +44,26 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
   end
 
   describe '#call' do
+    shared_context 'when there are many resource values' do
+      let(:books_data) do
+        Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
+      end
+      let(:books_collection) do
+        repository.find_or_create(entity_class: Book)
+      end
+
+      before(:example) do
+        books_data.map do |attributes|
+          entity = Book.new(attributes)
+          result = books_collection.insert_one.call(entity:)
+
+          raise result.error.message unless result.success?
+
+          result.value
+        end
+      end
+    end
+
     shared_examples 'should return the resource values' do
       it 'should return the resource values' do
         expect(call_command)
@@ -44,21 +72,17 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
           .and_value(expected_value)
       end
 
-      context 'when there are many resource values' do
-        let(:books) do
-          attributes = [
-            { title: 'Gideon the Ninth', author: 'Tamsyn Muir' },
-            { title: 'Harrow the Ninth', author: 'Tamsyn Muir' },
-            { title: 'Nona the Ninth',   author: 'Tamsyn Muir' }
-          ]
-
-          attributes.map { |hsh| Book.new(hsh) }
+      wrap_context 'when there are many resource values' do
+        let(:expected_books) do
+          books_collection
+            .find_matching
+            .call(**query_params, &constructor_block)
+            .value
+            .to_a
         end
         let(:expected_value) do
-          super().merge({ 'books' => match_array(books) })
+          super().merge({ 'books' => match_array(expected_books) })
         end
-
-        before(:example) { books.map(&:save!) }
 
         it 'should return the resource values', :aggregate_failures do
           result = call_command
@@ -169,32 +193,130 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
       end
     end
 
+    context 'when initialized with limit: value' do
+      let(:query_params) { super().merge(limit: 3) }
+
+      include_examples 'should return the resource values'
+    end
+
+    context 'when initialized with offset: value' do
+      let(:query_params) { super().merge(offset: 3) }
+
+      include_examples 'should return the resource values'
+    end
+
+    context 'when initialized with order: value' do
+      let(:query_params) { super().merge(order: :title) }
+
+      include_examples 'should return the resource values'
+    end
+
+    context 'when initialized with where: a Hash' do
+      let(:query_params) { super().merge(where: { author: 'J.R.R. Tolkien' }) }
+
+      include_examples 'should return the resource values'
+    end
+
+    context 'when initialized with where: a Scope' do
+      let(:scope) do
+        Cuprum::Collections::Scope.new do |query|
+          { published_at: query.gte('1970-01-01') }
+        end
+      end
+      let(:query_params) { super().merge(where: scope) }
+
+      include_examples 'should return the resource values'
+    end
+
+    context 'when initialized with a block' do
+      let(:constructor_block) do
+        ->(query) { { published_at: query.gte('1970-01-01') } }
+      end
+      let(:scope)    { Cuprum::Collections::Scope.new(&constructor_block) }
+      let(:expected) { query_params.merge(where: scope) }
+
+      include_examples 'should return the resource values'
+    end
+
     context 'when initialized with singular: true' do
+      shared_examples 'should return the resource value' do
+        it 'should return the resource value' do
+          expect(call_command)
+            .to be_a_passing_result
+            .with_value(expected_value)
+        end
+
+        wrap_context 'when there are many resource values' do
+          let(:expected_book) do
+            books_collection
+              .find_matching
+              .call(**query_params, &constructor_block)
+              .value
+              .first
+          end
+          let(:expected_value) do
+            super().merge({ 'book' => expected_book })
+          end
+
+          it 'should return the resource value' do
+            expect(call_command)
+              .to be_a_result
+              .with_status(expected_status)
+              .and_value(expected_value)
+          end
+        end
+      end
+
       let(:constructor_options) { super().merge(singular: true) }
       let(:expected_value)      { next_result.value.merge({ 'book' => nil }) }
 
-      it 'should return the resource value' do
-        expect(call_command)
-          .to be_a_passing_result
-          .with_value(expected_value)
+      include_examples 'should return the resource value'
+
+      context 'when initialized with limit: value' do
+        let(:query_params) { super().merge(limit: 3) }
+
+        include_examples 'should return the resource value'
       end
 
-      context 'when the resource value exists' do
-        let(:book) do
-          Book.new(title: 'Gideon the Ninth', author: 'Tamsyn Muir')
-        end
-        let(:expected_value) do
-          super().merge({ 'book' => book })
+      context 'when initialized with offset: value' do
+        let(:query_params) { super().merge(offset: 3) }
+
+        include_examples 'should return the resource value'
+      end
+
+      context 'when initialized with order: value' do
+        let(:query_params) { super().merge(order: :title) }
+
+        include_examples 'should return the resource value'
+      end
+
+      context 'when initialized with where: a Hash' do
+        let(:query_params) do
+          super().merge(where: { author: 'J.R.R. Tolkien' })
         end
 
-        before(:example) { book.save! }
+        include_examples 'should return the resource value'
+      end
 
-        it 'should return the resource value' do
-          expect(call_command)
-            .to be_a_result
-            .with_status(expected_status)
-            .and_value(expected_value)
+      context 'when initialized with where: a Scope' do
+        let(:scope) do
+          Cuprum::Collections::Scope.new do |query|
+            { published_at: query.gte('1970-01-01') }
+          end
         end
+        let(:query_params) { super().merge(where: scope) }
+
+        include_examples 'should return the resource value'
+      end
+
+      context 'when initialized with a block' do
+        let(:constructor_block) do
+          ->(query) { { published_at: query.gte('1970-01-01') } }
+        end
+        let(:scope)    { Cuprum::Collections::Scope.new(&constructor_block) }
+        let(:expected) { query_params.merge(where: scope) }
+
+        include_examples 'should return the resource value'
       end
     end
   end
@@ -212,6 +334,55 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
       let(:constructor_options) { super().merge(only_form_actions: true) }
 
       it { expect(middleware.only_form_actions?).to be true }
+    end
+  end
+
+  describe '#query_params' do
+    include_examples 'should define reader', :query_params, -> { {} }
+
+    context 'when initialized with limit: value' do
+      let(:query_params) { super().merge(limit: 3) }
+
+      it { expect(middleware.query_params).to be == query_params }
+    end
+
+    context 'when initialized with offset: value' do
+      let(:query_params) { super().merge(offset: 3) }
+
+      it { expect(middleware.query_params).to be == query_params }
+    end
+
+    context 'when initialized with order: value' do
+      let(:query_params) { super().merge(order: :title) }
+
+      it { expect(middleware.query_params).to be == query_params }
+    end
+
+    context 'when initialized with where: a Hash' do
+      let(:query_params) { super().merge(where: { author: 'J.R.R. Tolkien' }) }
+
+      it { expect(middleware.query_params).to be == query_params }
+    end
+
+    context 'when initialized with where: a Scope' do
+      let(:scope) do
+        Cuprum::Collections::Scope.new do |query|
+          { published_at: query.gte('1970-01-01') }
+        end
+      end
+      let(:query_params) { super().merge(where: scope) }
+
+      it { expect(middleware.query_params).to be == query_params }
+    end
+
+    context 'when initialized with a block' do
+      let(:constructor_block) do
+        ->(query) { { published_at: query.gte('1970-01-01') } }
+      end
+      let(:scope)    { Cuprum::Collections::Scope.new(&constructor_block) }
+      let(:expected) { query_params.merge(where: scope) }
+
+      it { expect(middleware.query_params).to be == expected }
     end
   end
 
