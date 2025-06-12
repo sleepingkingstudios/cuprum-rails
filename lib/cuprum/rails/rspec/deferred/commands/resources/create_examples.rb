@@ -179,7 +179,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         end
 
         describe 'with attributes: an empty Hash' do
-          let(:matched_attributes) { {} }
+          let(:matched_attributes) { empty_attributes }
 
           include_deferred 'should validate the entity'
 
