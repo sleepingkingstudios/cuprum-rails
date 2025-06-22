@@ -18,6 +18,7 @@ RSpec.describe Spec::Support::Commands::Orm::Create do
       records:      [expected_attributes]
     )
   end
+  let(:persisted_value) { expected_attributes }
 
   include_deferred 'with parameters for a Book command'
 

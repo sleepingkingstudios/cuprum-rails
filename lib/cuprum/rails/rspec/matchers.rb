@@ -37,5 +37,48 @@ module Cuprum::Rails::RSpec
     def be_a_result(expected_class = nil)
       Cuprum::Rails::RSpec::Matchers::BeAResultMatcher.new(expected_class)
     end
+
+    # Asserts that the value is an ActiveRecord timestamp.
+    #
+    # @param optional [true, false] if true, allows nil values. Defaults to
+    #   false.
+    #
+    # @return [RSpec::Matchers::BuiltIn::BaseMatcher] the generated matcher.
+    def be_a_timestamp(optional: false)
+      matcher = be_a(ActiveSupport::TimeWithZone)
+
+      return matcher unless optional
+
+      matcher.or(be(nil))
+    end
+    alias a_timestamp be_a_timestamp
+
+    # Asserts the object is an instance of the class with expected attributes.
+    #
+    # If the attributes are nil, instead asserts that the value is nil.
+    # Otherwise, the expected attributes will be coerced to match the record
+    # class's columns.
+    #
+    # @param attributes [Hash, nil] the attributes expected for the value.
+    # @param record_class [Class] the expected class for the value.
+    #
+    # @return [RSpec::Matchers::BuiltIn::BaseMatcher] the generated matcher.
+    def match_record(attributes:, record_class:)
+      return be(nil) if attributes.nil?
+
+      matcher = be_a(record_class)
+
+      return matcher if attributes.empty?
+
+      record     = record_class.new(attributes)
+      attributes = attributes.except('created_at', 'updated_at')
+      attributes = attributes.each.to_h do |key, value|
+        next [key, value] if value.respond_to?(:matches?)
+
+        [key, record.send(key)]
+      end
+
+      matcher.and have_attributes(attributes)
+    end
   end
 end

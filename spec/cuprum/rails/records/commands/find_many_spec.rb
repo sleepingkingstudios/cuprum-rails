@@ -3,19 +3,23 @@
 require 'cuprum/collections/rspec/deferred/commands/find_many_examples'
 
 require 'cuprum/rails/records/commands/find_many'
+require 'cuprum/rails/rspec/matchers'
 
 require 'support/examples/records/command_examples'
 
 RSpec.describe Cuprum::Rails::Records::Commands::FindMany do
   include Cuprum::Collections::RSpec::Deferred::Commands::FindManyExamples
+  include Cuprum::Rails::RSpec::Matchers
   include Spec::Support::Examples::Records::CommandExamples
 
   subject(:command) { described_class.new(collection:) }
 
   let(:expected_data) do
-    matching_data.map do |attributes|
-      attributes ? record_class.new(attributes) : nil
-    end
+    match_array(
+      matching_data.map do |attributes|
+        match_record(attributes:, record_class:)
+      end
+    )
   end
 
   include_deferred 'with parameters for a records command'

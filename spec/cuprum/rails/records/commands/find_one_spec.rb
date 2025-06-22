@@ -3,17 +3,19 @@
 require 'cuprum/collections/rspec/deferred/commands/find_one_examples'
 
 require 'cuprum/rails/records/commands/find_one'
+require 'cuprum/rails/rspec/matchers'
 
 require 'support/examples/records/command_examples'
 
 RSpec.describe Cuprum::Rails::Records::Commands::FindOne do
   include Cuprum::Collections::RSpec::Deferred::Commands::FindOneExamples
+  include Cuprum::Rails::RSpec::Matchers
   include Spec::Support::Examples::Records::CommandExamples
 
   subject(:command) { described_class.new(collection:) }
 
   let(:expected_data) do
-    record_class.new(matching_data)
+    match_record(attributes: matching_data, record_class:)
   end
 
   include_deferred 'with parameters for a records command'
@@ -29,7 +31,7 @@ RSpec.describe Cuprum::Rails::Records::Commands::FindOne do
   describe '#call' do
     describe 'with a malformed primary key value' do
       let(:primary_key_value) { '12345' }
-      let(:expected_message) { @message } # rubocop:disable RSpec/InstanceVariable
+      let(:expected_message)  { @message } # rubocop:disable RSpec/InstanceVariable
       let(:expected_error) do
         Cuprum::Rails::Errors::InvalidStatement.new(message: expected_message)
       end

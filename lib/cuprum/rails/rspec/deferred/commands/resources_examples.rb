@@ -588,8 +588,16 @@ module Cuprum::Rails::RSpec::Deferred::Commands
     #
     # - #call_command: A method that calls the command being tested with all
     #   required parameters.
+    #
+    # The behavior can be customized by defining the following methods:
+    #
+    # - #entity_attributes: The value returned by the command, converted to an
+    #   attributes hash.
+    # - #expected_error: The error returned by the command.
     deferred_examples 'should validate the entity' do
-      let(:entity_class) { collection.entity_class }
+      let(:entity_class) do
+        repository[resource.qualified_name].entity_class
+      end
       let(:entity_attributes) do
         next super() if defined?(super())
 
@@ -598,6 +606,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         value.is_a?(Hash) ? value : value&.attributes
       end
       let(:expected_error) do
+        return super() if defined?(super())
+
         collection = repository[resource.qualified_name]
         entity     =
           collection
