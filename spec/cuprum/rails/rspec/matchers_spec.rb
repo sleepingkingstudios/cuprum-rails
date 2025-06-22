@@ -103,51 +103,6 @@ RSpec.describe Cuprum::Rails::RSpec::Matchers do
     end
   end
 
-  describe '#be_a_timestamp' do
-    let(:matcher) { example_group.be_a_timestamp }
-
-    it 'should define the method' do
-      expect(example_group)
-        .to respond_to(:be_a_timestamp)
-        .with(0).arguments
-        .and_keywords(:optional)
-    end
-
-    it 'should alias the method' do
-      expect(example_group)
-        .to have_aliased_method(:be_a_timestamp)
-        .as(:a_timestamp)
-    end
-
-    describe 'when matching nil' do
-      it { expect(matcher.matches?(nil)).to be false }
-    end
-
-    describe 'when matching an Object' do
-      it { expect(matcher.matches?(Object.new.freeze)).to be false }
-    end
-
-    describe 'when matching a timestamp' do
-      it { expect(matcher.matches?(Time.zone.now)).to be true }
-    end
-
-    describe 'with optional: true' do
-      let(:matcher) { example_group.be_a_timestamp(optional: true) }
-
-      describe 'when matching nil' do
-        it { expect(matcher.matches?(nil)).to be true }
-      end
-
-      describe 'when matching an Object' do
-        it { expect(matcher.matches?(Object.new.freeze)).to be false }
-      end
-
-      describe 'when matching a timestamp' do
-        it { expect(matcher.matches?(Time.zone.now)).to be true }
-      end
-    end
-  end
-
   describe '#match_record' do
     let(:attributes)   { {} }
     let(:record_class) { Book }
@@ -227,5 +182,21 @@ RSpec.describe Cuprum::Rails::RSpec::Matchers do
         it { expect(matcher.matches?(record)).to be true }
       end
     end
+  end
+
+  describe '#match_time' do
+    let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::MatchTimeMatcher }
+    let(:matcher)       { example_group.match_time(expected) }
+    let(:expected)      { Time.zone.today }
+
+    it 'should define the method' do
+      expect(example_group).to respond_to(:match_time).with(1).argument
+    end
+
+    it { expect(matcher).to be_a matcher_class }
+
+    it { expect(matcher.description).to be == "match time #{expected.inspect}" }
+
+    it { expect(matcher.expected).to be expected }
   end
 end

@@ -7,6 +7,8 @@ module Cuprum::Rails::RSpec
   module Matchers
     autoload :BeAResultMatcher,
       'cuprum/rails/rspec/matchers/be_a_result_matcher'
+    autoload :MatchTimeMatcher,
+      'cuprum/rails/rspec/matchers/match_time_matcher'
 
     # Asserts that the object is a result with status: :failure.
     #
@@ -38,21 +40,6 @@ module Cuprum::Rails::RSpec
       Cuprum::Rails::RSpec::Matchers::BeAResultMatcher.new(expected_class)
     end
 
-    # Asserts that the value is an ActiveRecord timestamp.
-    #
-    # @param optional [true, false] if true, allows nil values. Defaults to
-    #   false.
-    #
-    # @return [RSpec::Matchers::BuiltIn::BaseMatcher] the generated matcher.
-    def be_a_timestamp(optional: false)
-      matcher = be_a(ActiveSupport::TimeWithZone)
-
-      return matcher unless optional
-
-      matcher.or(be(nil))
-    end
-    alias a_timestamp be_a_timestamp
-
     # Asserts the object is an instance of the class with expected attributes.
     #
     # If the attributes are nil, instead asserts that the value is nil.
@@ -79,6 +66,16 @@ module Cuprum::Rails::RSpec
       end
 
       matcher.and have_attributes(attributes)
+    end
+
+    # Asserts the object is a time representation matching the expected time.
+    #
+    # @param expected [ActiveSupport::TimeWithZone, Date, DateTime, Time,
+    #   Integer, String] the expected time-like object.
+    #
+    # @return [Cuprum::Rails::RSpec::Matchers::MatchTimeMatcher]
+    def match_time(expected)
+      Cuprum::Rails::RSpec::Matchers::MatchTimeMatcher.new(expected)
     end
   end
 end
