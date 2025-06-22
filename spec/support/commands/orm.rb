@@ -4,6 +4,6 @@ require 'support/commands'
 
 module Spec::Support::Commands
   module Orm
-    Records = Data.define(:record_class, :records)
+    Records = Struct.new(:record_class, :records, keyword_init: true)
   end
 end

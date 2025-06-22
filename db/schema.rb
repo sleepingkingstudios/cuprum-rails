@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_22_104832) do
+ActiveRecord::Schema[7.0].define(version: 2025_06_12_054548) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 2023_09_22_104832) do
     t.string "author", default: "", null: false
     t.string "series"
     t.string "category"
-    t.datetime "published_at"
+    t.datetime "published_at", precision: nil
   end
 
   create_table "chapters", force: :cascade do |t|
@@ -42,7 +42,9 @@ ActiveRecord::Schema.define(version: 2023_09_22_104832) do
     t.string "author", default: "", null: false
     t.string "series"
     t.string "category"
-    t.datetime "published_at"
+    t.datetime "published_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["uuid"], name: "index_tomes_on_uuid", unique: true
   end
 
