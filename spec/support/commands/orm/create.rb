@@ -9,9 +9,16 @@ module Spec::Support::Commands::Orm
     private
 
     def process(**options)
-      record = step { super(**options) }
+      result  = steps { super(**options) }
+      records = Records.new(
+        record_class: collection.entity_class,
+        records:      [result.value]
+      )
 
-      Records.new(record_class: collection.entity_class, records: [record])
+      build_result(
+        **result.properties,
+        value: records
+      )
     end
   end
 end

@@ -12,12 +12,19 @@ RSpec.describe Spec::Support::Commands::Orm::Update do
 
   subject(:command) { described_class.new(repository:, resource:) }
 
+  let(:entity_attributes) do
+    call_command
+      .value
+      .records
+      .first
+  end
   let(:expected_value) do
     be_a(Spec::Support::Commands::Orm::Records).and have_attributes(
       record_class: Hash,
       records:      [match(expected_attributes)]
     )
   end
+  let(:persisted_value) { expected_attributes }
 
   include_deferred 'with parameters for a Book command'
 

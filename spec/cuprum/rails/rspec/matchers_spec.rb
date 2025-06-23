@@ -2,16 +2,16 @@
 
 require 'cuprum/rails/rspec/matchers'
 
+require 'support/book'
+
 RSpec.describe Cuprum::Rails::RSpec::Matchers do
   include described_class
 
   let(:example_group) { self }
-  let(:matcher_class) do
-    Cuprum::Rails::RSpec::Matchers::BeAResultMatcher
-  end
 
   describe '#be_a_failing_result' do
-    let(:matcher) { example_group.be_a_failing_result }
+    let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::BeAResultMatcher }
+    let(:matcher)       { example_group.be_a_failing_result }
 
     it 'should define the method' do
       expect(example_group)
@@ -42,7 +42,8 @@ RSpec.describe Cuprum::Rails::RSpec::Matchers do
   end
 
   describe '#be_a_passing_result' do
-    let(:matcher) { example_group.be_a_passing_result }
+    let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::BeAResultMatcher }
+    let(:matcher)       { example_group.be_a_passing_result }
     let(:expectations) do
       'with the expected error and status: :success'
     end
@@ -75,8 +76,25 @@ RSpec.describe Cuprum::Rails::RSpec::Matchers do
     end
   end
 
+  describe '#be_a_record' do
+    let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::BeARecordMatcher }
+    let(:matcher)       { example_group.be_a_record(record_class) }
+    let(:record_class)  { Book }
+
+    it 'should define the method' do
+      expect(example_group).to respond_to(:be_a_record).with(1).argument
+    end
+
+    it { expect(matcher).to be_a matcher_class }
+
+    it { expect(matcher.description).to be == 'be a Book' }
+
+    it { expect(matcher.record_class).to be Book }
+  end
+
   describe '#be_a_result' do
-    let(:matcher) { example_group.be_a_result }
+    let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::BeAResultMatcher }
+    let(:matcher)       { example_group.be_a_result }
 
     it 'should define the method' do
       expect(example_group).to respond_to(:be_a_result).with(0..1).arguments
@@ -99,5 +117,21 @@ RSpec.describe Cuprum::Rails::RSpec::Matchers do
 
       it { expect(matcher.expected_class).to be expected_class }
     end
+  end
+
+  describe '#match_time' do
+    let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::MatchTimeMatcher }
+    let(:matcher)       { example_group.match_time(expected) }
+    let(:expected)      { Time.zone.today }
+
+    it 'should define the method' do
+      expect(example_group).to respond_to(:match_time).with(1).argument
+    end
+
+    it { expect(matcher).to be_a matcher_class }
+
+    it { expect(matcher.description).to be == "match time #{expected.inspect}" }
+
+    it { expect(matcher.expected).to be expected }
   end
 end

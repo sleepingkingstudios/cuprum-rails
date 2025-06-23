@@ -4,16 +4,14 @@ require 'rspec/sleeping_king_studios/deferred/provider'
 
 require 'cuprum/rails/rspec/deferred/commands/resources'
 require 'cuprum/rails/rspec/deferred/commands/resources_examples'
+require 'cuprum/rails/rspec/matchers'
 
 module Cuprum::Rails::RSpec::Deferred::Commands::Resources
   # Deferred examples for validating Create command implementations.
   module CreateExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
     include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
-
-    define_method :attributes_for do |item|
-      item.is_a?(Hash) ? item : item&.attributes
-    end
+    include Cuprum::Rails::RSpec::Matchers
 
     define_method :persisted_data do
       return super if defined?(super)
@@ -49,6 +47,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     #
     # - #expected_value: The value returned by the command. Defaults to an
     #   instance of the entity class matching #expected_attributes.
+    # - #persisted_value: The value saved to the collection. Defaults to the
+    #   expected value.
     deferred_examples 'should create the entity' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
@@ -61,30 +61,35 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       let(:expected_value) do
         next super() if defined?(super())
 
-        next match(expected_attributes) if entity_class <= Hash
+        be_a_record(entity_class).with_attributes(expected_attributes)
+      end
+      let(:persisted_value) do
+        next super() if defined?(super())
 
-        an_instance_of(entity_class).and have_attributes(expected_attributes)
+        expected_value
+      end
+
+      define_method :match_expected_value do
+        # :nocov:
+        return expected_value if expected_value.respond_to?(:matches?)
+
+        match(expected_value)
+        # :nocov:
       end
 
       it 'should return a passing result', :aggregate_failures do
         result = call_command
 
         expect(result).to be_a_passing_result
-        expect(result.value).to match(expected_value)
+        expect(result.value).to match_expected_value
       end
 
       it { expect { call_command }.to change { persisted_data.count }.by(1) } # rubocop:disable RSpec/ExpectChange
 
-      it 'should add the entity to the collection' do # rubocop:disable RSpec/ExampleLength
-        expect { call_command }.to(
-          change { persisted_data }.to(
-            satisfy do |data|
-              data.any? do |item|
-                match(expected_attributes).matches?(attributes_for(item))
-              end
-            end
-          )
-        )
+      it 'should add the entity to the collection' do
+        call_command
+
+        expect(persisted_data).to include(persisted_value)
       end
     end
 
@@ -224,7 +229,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
               .reduce(&:merge)
           end
           let(:expected_attributes) do
-            empty_attributes.merge(super().except(*extra_attributes.keys))
+            empty_attributes
+              .slice(*super().keys)
+              .merge(super().except(*extra_attributes.keys))
           end
 
           include_deferred 'should create the entity'

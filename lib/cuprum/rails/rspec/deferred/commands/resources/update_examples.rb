@@ -4,16 +4,14 @@ require 'rspec/sleeping_king_studios/deferred/provider'
 
 require 'cuprum/rails/rspec/deferred/commands/resources'
 require 'cuprum/rails/rspec/deferred/commands/resources_examples'
+require 'cuprum/rails/rspec/matchers'
 
 module Cuprum::Rails::RSpec::Deferred::Commands::Resources
   # Deferred examples for validating Update command implementations.
   module UpdateExamples
     include RSpec::SleepingKingStudios::Deferred::Provider
     include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
-
-    define_method :attributes_for do |item|
-      item.is_a?(Hash) ? item : item&.attributes
-    end
+    include Cuprum::Rails::RSpec::Matchers
 
     define_method :persisted_data do
       return super() if defined?(super())
@@ -242,6 +240,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
     #
     # - #expected_value: The value returned by the command. Defaults to an
     #   instance of the entity class matching #expected_attributes.
+    # - #persisted_value: The value saved to the collection. Defaults to the
+    #   expected value.
     deferred_examples 'should update the entity' do
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
@@ -254,16 +254,27 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
       let(:expected_value) do
         next super() if defined?(super())
 
-        next match(expected_attributes) if entity_class <= Hash
+        be_a_record(entity_class).with_attributes(expected_attributes)
+      end
+      let(:persisted_value) do
+        next super() if defined?(super())
 
-        an_instance_of(entity_class).and have_attributes(expected_attributes)
+        expected_value
+      end
+
+      define_method :match_expected_value do
+        # :nocov:
+        return expected_value if expected_value.respond_to?(:matches?)
+
+        match(expected_value)
+        # :nocov:
       end
 
       it 'should return a passing result', :aggregate_failures do
         result = call_command
 
         expect(result).to be_a_passing_result
-        expect(result.value).to match(expected_value)
+        expect(result.value).to match_expected_value
       end
 
       it { expect { call_command }.not_to(change { persisted_data.count }) } # rubocop:disable RSpec/ExpectChange
@@ -278,7 +289,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
           updated[resource.primary_key_name] == primary_key
         end
 
-        expect(attributes_for(updated_entity)).to match(expected_attributes)
+        expect(updated_entity).to match(persisted_value)
       end
     end
   end
