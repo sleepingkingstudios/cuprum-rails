@@ -593,6 +593,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
     #
     # - #entity_attributes: The value returned by the command, converted to an
     #   attributes hash.
+    # - #expected_value: The value returned by the command. Defaults to an
+    #   instance of the entity class matching #expected_attributes.
     # - #expected_error: The error returned by the command.
     deferred_examples 'should validate the entity' do
       let(:entity_class) do
@@ -604,6 +606,11 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         value = call_command.value
 
         value.is_a?(Hash) ? value : value&.attributes
+      end
+      let(:expected_value) do
+        next super() if defined?(super())
+
+        be_a_record(entity_class).with_attributes(expected_attributes)
       end
       let(:expected_error) do
         return super() if defined?(super())
@@ -622,14 +629,21 @@ module Cuprum::Rails::RSpec::Deferred::Commands
         )
       end
 
-      it 'should return a failing result' do
-        expect(call_command)
-          .to be_a_failing_result
-          .with_value(an_instance_of(entity_class))
-          .and_error(expected_error)
+      define_method :match_expected_value do
+        # :nocov:
+        return expected_value if expected_value.respond_to?(:matches?)
+
+        match(expected_value)
+        # :nocov:
       end
 
-      it { expect(entity_attributes).to match(expected_attributes) }
+      it 'should return a failing result', :aggregate_failures do
+        result = call_command
+
+        expect(result).to be_a_failing_result
+        expect(result.value).to match_expected_value
+        expect(result.error).to match(expected_error)
+      end
     end
   end
 end

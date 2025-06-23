@@ -252,20 +252,9 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
 
       let(:entity_class) { collection.entity_class }
       let(:expected_value) do
-        # :nocov:
         next super() if defined?(super())
 
-        next match(expected_attributes) if entity_class <= Hash
-
-        if entity_class <= ActiveRecord::Base
-          next match_record(
-            attributes:   expected_attributes,
-            record_class: entity_class
-          )
-        end
-
-        an_instance_of(entity_class).and have_attributes(expected_attributes)
-        # :nocov:
+        be_a_record(entity_class).with_attributes(expected_attributes)
       end
       let(:persisted_value) do
         next super() if defined?(super())
@@ -273,11 +262,19 @@ module Cuprum::Rails::RSpec::Deferred::Commands::Resources
         expected_value
       end
 
+      define_method :match_expected_value do
+        # :nocov:
+        return expected_value if expected_value.respond_to?(:matches?)
+
+        match(expected_value)
+        # :nocov:
+      end
+
       it 'should return a passing result', :aggregate_failures do
         result = call_command
 
         expect(result).to be_a_passing_result
-        expect(result.value).to match(expected_value)
+        expect(result.value).to match_expected_value
       end
 
       it { expect { call_command }.not_to(change { persisted_data.count }) } # rubocop:disable RSpec/ExpectChange

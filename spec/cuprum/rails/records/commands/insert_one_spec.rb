@@ -20,8 +20,12 @@ RSpec.describe Cuprum::Rails::Records::Commands::InsertOne do
       author: 'Tamsyn Muir'
     }
   end
-  let(:entity)        { record_class.new(attributes) }
-  let(:expected_data) { match_record(attributes: matching_data, record_class:) }
+  let(:entity) { record_class.new(attributes) }
+  let(:expected_data) do
+    next nil if matching_data.nil?
+
+    be_a_record(record_class).with_attributes(matching_data)
+  end
 
   include_deferred 'with parameters for a records command'
 

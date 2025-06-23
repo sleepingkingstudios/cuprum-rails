@@ -15,7 +15,9 @@ RSpec.describe Cuprum::Rails::Records::Commands::FindOne do
   subject(:command) { described_class.new(collection:) }
 
   let(:expected_data) do
-    match_record(attributes: matching_data, record_class:)
+    next nil if matching_data.nil?
+
+    be_a_record(record_class).with_attributes(matching_data)
   end
 
   include_deferred 'with parameters for a records command'

@@ -26,9 +26,7 @@ RSpec.describe Cuprum::Rails::Commands::Resources::Create do
       'author'       => '',
       'series'       => nil,
       'category'     => nil,
-      'published_at' => nil,
-      'created_at'   => nil,
-      'updated_at'   => nil
+      'published_at' => nil
     }
   end
   let(:valid_attributes) do

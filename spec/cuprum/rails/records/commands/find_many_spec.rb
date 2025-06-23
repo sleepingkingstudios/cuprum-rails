@@ -17,7 +17,9 @@ RSpec.describe Cuprum::Rails::Records::Commands::FindMany do
   let(:expected_data) do
     match_array(
       matching_data.map do |attributes|
-        match_record(attributes:, record_class:)
+        next nil if attributes.nil?
+
+        be_a_record(record_class).with_attributes(attributes)
       end
     )
   end
