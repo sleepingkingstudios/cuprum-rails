@@ -5,6 +5,8 @@ require 'cuprum/rails/rspec'
 module Cuprum::Rails::RSpec
   # Namespace for custom RSpec matchers.
   module Matchers
+    autoload :BeARecordMatcher,
+      'cuprum/rails/rspec/matchers/be_a_record_matcher'
     autoload :BeAResultMatcher,
       'cuprum/rails/rspec/matchers/be_a_result_matcher'
     autoload :MatchTimeMatcher,
@@ -31,6 +33,17 @@ module Cuprum::Rails::RSpec
     def be_a_passing_result(expected_class = nil)
       be_a_result(expected_class).with_status(:success).and_error(nil)
     end
+
+    # Asserts that the object is a record, with chainable attributes.
+    #
+    # @param expected_class [Class] the expected record class.
+    #
+    # @return [Cuprum::Rails::RSpec::Matchers::BeARecordMatcher] the generated
+    #   matcher.
+    def be_a_record(expected_class)
+      Cuprum::Rails::RSpec::Matchers::BeARecordMatcher.new(expected_class)
+    end
+    alias a_record be_a_record
 
     # Asserts that the object is a Cuprum::Result.
     #

@@ -5,6 +5,8 @@ require 'cuprum/rails/rspec/matchers'
 module Cuprum::Rails::RSpec::Matchers
   # Matcher for comparing two time-like values.
   class MatchTimeMatcher
+    include RSpec::Matchers::Composable
+
     # @param expected [ActiveSupport::TimeWithZone, Date, DateTime, Time,
     #   Integer, String] the expected time-like object.
     def initialize(expected)

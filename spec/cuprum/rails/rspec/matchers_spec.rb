@@ -76,6 +76,22 @@ RSpec.describe Cuprum::Rails::RSpec::Matchers do
     end
   end
 
+  describe '#be_a_record' do
+    let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::BeARecordMatcher }
+    let(:matcher)       { example_group.be_a_record(record_class) }
+    let(:record_class)  { Book }
+
+    it 'should define the method' do
+      expect(example_group).to respond_to(:be_a_record).with(1).argument
+    end
+
+    it { expect(matcher).to be_a matcher_class }
+
+    it { expect(matcher.description).to be == 'be a Book' }
+
+    it { expect(matcher.record_class).to be Book }
+  end
+
   describe '#be_a_result' do
     let(:matcher_class) { Cuprum::Rails::RSpec::Matchers::BeAResultMatcher }
     let(:matcher)       { example_group.be_a_result }
