@@ -843,4 +843,39 @@ RSpec.describe Cuprum::Rails::Request do
         .to be == described_class.instance_method(:query_params=)
     end
   end
+
+  describe '#with_properties' do
+    it 'should define the method' do
+      expect(request)
+        .to respond_to(:with_properties)
+        .with(0).arguments
+        .and_any_keywords
+    end
+
+    it { expect(request.with_properties).to be_a described_class }
+
+    it { expect(request.with_properties.properties).to eq request.properties }
+
+    describe 'with updated properties' do
+      let(:values) do
+        {
+          http_method: :patch,
+          params:      { id: 0 }
+        }
+      end
+      let(:expected_properties) do
+        request.properties.merge(values)
+      end
+
+      it 'should not change the original request' do
+        expect { request.with_properties(**values) }
+          .not_to change(request, :properties)
+      end
+
+      it 'should set the properties of the copied request' do
+        expect(request.with_properties(**values).properties)
+          .to be == expected_properties
+      end
+    end
+  end
 end

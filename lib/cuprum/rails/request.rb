@@ -83,9 +83,9 @@ module Cuprum::Rails
     # @option properties [Hash<String, Object>] :query_params the query
     #   parameters.
     def initialize(context: nil, http_method: nil, **properties)
-      http_method = normalize_http_method(http_method)
-      @context    = context
-      @properties = properties.merge(http_method:)
+      @context = context
+
+      set_properties(http_method:, **properties)
     end
 
     # @return [Object] the controller or request context.
@@ -225,6 +225,29 @@ module Cuprum::Rails
     #   false.
     def put?
       @properties[:http_method] == :put
+    end
+
+    # Creates a copy of the request with the specified properties.
+    #
+    # @param properties [Hash] the properties to assign. All other properties
+    #   will match the original request.
+    #
+    # @return [Cuprum::Rails::Request] the copied request.
+    def with_properties(**properties)
+      dup.tap do |copy|
+        copy.set_properties(
+          **self.properties,
+          **properties
+        )
+      end
+    end
+
+    protected
+
+    def set_properties(http_method: nil, **properties)
+      http_method = normalize_http_method(http_method)
+
+      @properties = properties.merge(http_method:)
     end
 
     private
