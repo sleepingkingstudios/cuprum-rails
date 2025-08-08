@@ -11,14 +11,8 @@ gem 'cuprum-collections',
   branch: 'main'
 gem 'rails', '~> 8.0.0'
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
-gem 'sleeping_king_studios-tools',
-  '>= 1.2.0.alpha',
-  git:    'https://github.com/sleepingkingstudios/sleeping_king_studios-tools.git',
-  branch: 'main'
-gem 'stannum',
-  '>= 0.4.0.alpha',
-  git:    'https://github.com/sleepingkingstudios/stannum.git',
-  branch: 'main'
+gem 'sleeping_king_studios-tools', '~> 1.2'
+gem 'stannum', '~> 0.4'
 
 group :development, :test do
   gem 'appraisal', '~> 2.4'
@@ -35,7 +29,7 @@ end
 group :test do
   gem 'rspec', '~> 3.13'
   gem 'rspec-sleeping_king_studios', '~> 2.8', '>= 2.8.1'
-  gem 'rubocop', '~> 1.77'
+  gem 'rubocop', '~> 1.79'
   gem 'rubocop-factory_bot', '~> 2.27'
   gem 'rubocop-rails', '~> 2.32'
   gem 'rubocop-rake', '~> 0.7'
