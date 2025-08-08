@@ -328,10 +328,6 @@ RSpec.describe Cuprum::Rails::Request do
     value:   { 'foo' => 'bar' }
 
   include_examples 'should define request property',
-    :http_method,
-    value: :get
-
-  include_examples 'should define request property',
     :params,
     default: {},
     value:   { 'foo' => 'bar' }
@@ -519,6 +515,142 @@ RSpec.describe Cuprum::Rails::Request do
     end
   end
 
+  describe '#delete?' do
+    include_examples 'should define predicate', :delete?
+
+    context 'when initialized with http_method: :delete' do
+      let(:http_method) { :delete }
+
+      it { expect(request.delete?).to be true }
+    end
+
+    context 'when initialized with http_method: other method' do
+      let(:http_method) { :post }
+
+      it { expect(request.delete?).to be false }
+    end
+  end
+
+  describe '#get?' do
+    include_examples 'should define predicate', :get?
+
+    context 'when initialized with http_method: :get' do
+      let(:http_method) { :get }
+
+      it { expect(request.get?).to be true }
+    end
+
+    context 'when initialized with http_method: other method' do
+      let(:http_method) { :post }
+
+      it { expect(request.get?).to be false }
+    end
+  end
+
+  describe '#head?' do
+    include_examples 'should define predicate', :head?
+
+    context 'when initialized with http_method: :head' do
+      let(:http_method) { :head }
+
+      it { expect(request.head?).to be true }
+    end
+
+    context 'when initialized with http_method: other method' do
+      let(:http_method) { :post }
+
+      it { expect(request.head?).to be false }
+    end
+  end
+
+  describe '#http_method' do
+    include_examples 'should define reader', :http_method, -> { http_method }
+
+    context 'when initialized with http_method: nil' do
+      let(:http_method) { nil }
+
+      it { expect(request.http_method).to be nil }
+    end
+
+    context 'when initialized with http_method: an empty String' do
+      let(:http_method) { '' }
+
+      it { expect(request.http_method).to be nil }
+    end
+
+    context 'when initialized with http_method: a lowercase String' do
+      let(:http_method) { 'get' }
+
+      it { expect(request.http_method).to be :get }
+    end
+
+    context 'when initialized with http_method: an uppercase String' do
+      let(:http_method) { 'GET' }
+
+      it { expect(request.http_method).to be :get }
+    end
+
+    context 'when initialized with http_method: a Symbol' do
+      let(:http_method) { :get }
+
+      it { expect(request.http_method).to be :get }
+    end
+  end
+
+  describe '#http_method=' do
+    include_examples 'should define writer', :http_method=
+
+    context 'with nil' do
+      let(:value) { nil }
+
+      it 'should set the property' do
+        expect { request.http_method = value }
+          .to change(request, :http_method)
+          .to be nil
+      end
+    end
+
+    context 'with an empty String' do
+      let(:value) { '' }
+
+      it 'should set the property' do
+        expect { request.http_method = value }
+          .to change(request, :http_method)
+          .to be nil
+      end
+    end
+
+    context 'with a lowercase String' do
+      let(:value) { 'get' }
+
+      it 'should set the property' do
+        expect { request.http_method = value }
+          .to change(request, :http_method)
+          .to be :get
+      end
+    end
+
+    context 'with an uppercase String' do
+      let(:value) { 'GET' }
+
+      it 'should set the property' do
+        expect { request.http_method = value }
+          .to change(request, :http_method)
+          .to be :get
+      end
+    end
+
+    context 'with a Symbol' do
+      let(:value) { :get }
+
+      it 'should set the property' do
+        expect { request.http_method = value }
+          .to change(request, :http_method)
+          .to be :get
+      end
+    end
+  end
+
   describe '#member_action?' do
     include_examples 'should define predicate', :member_action?, false
 
@@ -549,6 +681,22 @@ RSpec.describe Cuprum::Rails::Request do
     end
   end
 
+  describe '#options?' do
+    include_examples 'should define predicate', :options?
+
+    context 'when initialized with http_method: :options' do
+      let(:http_method) { :options }
+
+      it { expect(request.options?).to be true }
+    end
+
+    context 'when initialized with http_method: other method' do
+      let(:http_method) { :post }
+
+      it { expect(request.options?).to be false }
+    end
+  end
+
   describe '#parameters' do
     it 'should alias the method' do
       expect(described_class.instance_method(:parameters))
@@ -560,6 +708,22 @@ RSpec.describe Cuprum::Rails::Request do
     it 'should alias the method' do
       expect(described_class.instance_method(:parameters=))
         .to be == described_class.instance_method(:params=)
+    end
+  end
+
+  describe '#patch?' do
+    include_examples 'should define predicate', :patch?
+
+    context 'when initialized with http_method: :patch' do
+      let(:http_method) { :patch }
+
+      it { expect(request.patch?).to be true }
+    end
+
+    context 'when initialized with http_method: other method' do
+      let(:http_method) { :post }
+
+      it { expect(request.patch?).to be false }
     end
   end
 
@@ -576,6 +740,22 @@ RSpec.describe Cuprum::Rails::Request do
       expect(request)
         .to have_aliased_method(:path_parameters=)
         .as(:path_params=)
+    end
+  end
+
+  describe '#post?' do
+    include_examples 'should define predicate', :post?
+
+    context 'when initialized with http_method: :post' do
+      let(:http_method) { :post }
+
+      it { expect(request.post?).to be true }
+    end
+
+    context 'when initialized with http_method: other method' do
+      let(:http_method) { :get }
+
+      it { expect(request.post?).to be false }
     end
   end
 
@@ -609,6 +789,22 @@ RSpec.describe Cuprum::Rails::Request do
       let(:properties) { super().merge(session: Object.new.freeze) }
 
       it { expect(request.properties).to be == properties }
+    end
+  end
+
+  describe '#put?' do
+    include_examples 'should define predicate', :put?
+
+    context 'when initialized with http_method: :put' do
+      let(:http_method) { :put }
+
+      it { expect(request.put?).to be true }
+    end
+
+    context 'when initialized with http_method: other method' do
+      let(:http_method) { :post }
+
+      it { expect(request.put?).to be false }
     end
   end
 
