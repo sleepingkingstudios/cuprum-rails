@@ -283,16 +283,12 @@ RSpec.describe Cuprum::Rails::Request do
       let(:options) { { member_action: true } }
 
       it 'should set the member action property' do
-        expect(
-          described_class.build(request:, **options).member_action?
-        )
+        expect(described_class.build(request:, **options).member_action?)
           .to be true
       end
 
       it 'should set the request properties' do
-        expect(
-          described_class.build(request:, **options)['member_action']
-        )
+        expect(described_class.build(request:, **options)['member_action'])
           .to be true
       end
     end
@@ -842,6 +838,21 @@ RSpec.describe Cuprum::Rails::Request do
       expect(described_class.instance_method(:query_parameters=))
         .to be == described_class.instance_method(:query_params=)
     end
+  end
+
+  describe '#with_params' do
+    let(:value) do
+      request
+        .params
+        .merge('custom' => 'value')
+        .tap { |hsh| hsh.delete('project_id') }
+    end
+
+    it { expect(request).to respond_to(:with_params).with(1).argument }
+
+    it { expect(request.with_params(value)).to be_a described_class }
+
+    it { expect(request.with_params(value).params).to be == value }
   end
 
   describe '#with_properties' do

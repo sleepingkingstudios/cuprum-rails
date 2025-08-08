@@ -227,6 +227,15 @@ module Cuprum::Rails
       @properties[:http_method] == :put
     end
 
+    # Creates a copy of the request with the specified params.
+    #
+    # @param params [hash] the params to set.
+    #
+    # @return [Cuprum::Rails::Request] the copied request.
+    def with_params(params)
+      with_properties(params:)
+    end
+
     # Creates a copy of the request with the specified properties.
     #
     # @param properties [Hash] the properties to assign. All other properties
