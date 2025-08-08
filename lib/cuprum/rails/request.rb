@@ -4,7 +4,7 @@ require 'cuprum/rails'
 
 module Cuprum::Rails
   # Wraps a web request with a generic interface.
-  class Request
+  class Request # rubocop:disable Metrics/ClassLength
     class << self
       FILTERED_HEADER_PREFIXES = %w[
         action_
@@ -82,9 +82,10 @@ module Cuprum::Rails
     #   parameters.
     # @option properties [Hash<String, Object>] :query_params the query
     #   parameters.
-    def initialize(context: nil, **properties)
-      @context    = context
-      @properties = properties
+    def initialize(context: nil, http_method: nil, **properties)
+      @context = context
+
+      set_properties(http_method:, **properties)
     end
 
     # @return [Object] the controller or request context.
@@ -145,6 +146,12 @@ module Cuprum::Rails
     alias query_parameters  query_params
     alias query_parameters= query_params=
 
+    # @return [true, false] true if the other object is a Request with matching
+    #   properties; otherwise false.
+    def ==(other)
+      other.is_a?(self.class) && other.properties == properties
+    end
+
     # @param property_name [String, Symbol] the name of the property.
     #
     # @return [Object] the value of the property
@@ -162,6 +169,29 @@ module Cuprum::Rails
       @properties[property_name.intern] = value
     end
 
+    # @return [true, false] true if the request is a DELETE request, otherwise
+    #   false.
+    def delete?
+      @properties[:http_method] == :delete
+    end
+
+    # @return [true, false] true if the request is a GET request, otherwise
+    #   false.
+    def get?
+      @properties[:http_method] == :get
+    end
+
+    # @return [true, false] true if the request is a HEAD request, otherwise
+    #   false.
+    def head?
+      @properties[:http_method] == :head
+    end
+
+    # @param value [String, Symbol] the name of the http method.
+    def http_method=(value)
+      @properties[:http_method] = normalize_http_method(value)
+    end
+
     # @return [Boolean] true if the request is for a resource member action;
     #   otherwise false.
     def member_action?
@@ -173,7 +203,73 @@ module Cuprum::Rails
       context&.session
     end
 
+    # @return [true, false] true if the request is a OPTIONS request, otherwise
+    #   false.
+    def options?
+      @properties[:http_method] == :options
+    end
+
+    # @return [true, false] true if the request is a PATCH request, otherwise
+    #   false.
+    def patch?
+      @properties[:http_method] == :patch
+    end
+
+    # @return [true, false] true if the request is a POST request, otherwise
+    #   false.
+    def post?
+      @properties[:http_method] == :post
+    end
+
+    # @return [true, false] true if the request is a PUT request, otherwise
+    #   false.
+    def put?
+      @properties[:http_method] == :put
+    end
+
+    # Creates a copy of the request with the specified params.
+    #
+    # @param params [hash] the params to set.
+    #
+    # @return [Cuprum::Rails::Request] the copied request.
+    def with_params(params)
+      with_properties(params:)
+    end
+
+    # Creates a copy of the request with the specified properties.
+    #
+    # @param properties [Hash] the properties to assign. All other properties
+    #   will match the original request.
+    #
+    # @return [Cuprum::Rails::Request] the copied request.
+    def with_properties(**properties)
+      dup.tap do |copy|
+        copy.set_properties(
+          **self.properties,
+          **properties
+        )
+      end
+    end
+
+    protected
+
+    def set_properties(http_method: nil, **properties)
+      http_method = normalize_http_method(http_method)
+
+      @properties = properties.merge(http_method:)
+    end
+
     private
+
+    def normalize_http_method(value)
+      return nil if value.blank?
+
+      value
+        .to_s
+        .strip
+        .downcase
+        .to_sym
+    end
 
     def validate_property_name!(name) # rubocop:disable Metrics/MethodLength
       if name.nil?
