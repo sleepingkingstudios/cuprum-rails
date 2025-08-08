@@ -42,11 +42,20 @@ module Spec::Support::Examples
         shared_examples 'should define the action' do
           let(:member_action) { action_options.fetch(:member, false) }
           let(:expected) do
+            expected_action_class =
+              an_instance_of(Class).and(be <= Spec::Action)
+
             {
-              action_class:   Spec::Action,
+              action_class:   expected_action_class,
               action_name:    action_name.intern,
               member_action?: member_action
             }
+          end
+          let(:expected_command_class) do
+            defined?(command_class) ? command_class : nil
+          end
+          let(:controller_action) do
+            described_class.actions[action_name.intern]
           end
 
           it 'should return the action name' do
@@ -57,14 +66,20 @@ module Spec::Support::Examples
           it 'should define the action' do
             build_action
 
-            expect(described_class.actions[action_name.intern])
+            expect(controller_action)
               .to be_a(Cuprum::Rails::Controllers::Action)
               .and(have_attributes(**expected))
           end
 
-          describe '#:action_name' do
-            let(:action) { described_class.actions[action_name.intern] }
+          it 'should configure the action' do
+            build_action
 
+            action = controller_action.action_class.new
+
+            expect(action.command_class).to match(expected_command_class)
+          end
+
+          describe '#:action_name' do
             before(:example) { build_action }
 
             it 'should define the method' do
@@ -134,7 +149,7 @@ module Spec::Support::Examples
                   resource:
                 )
 
-                allow(action).to receive(:call).and_return(response)
+                allow(controller_action).to receive(:call).and_return(response)
               end
 
               it 'should build the request' do
@@ -148,7 +163,9 @@ module Spec::Support::Examples
               it 'should call the action' do
                 controller.send(action_name)
 
-                expect(action).to have_received(:call).with(controller, request)
+                expect(controller_action)
+                  .to have_received(:call)
+                  .with(controller, request)
               end
 
               it 'should call the response' do
@@ -172,7 +189,7 @@ module Spec::Support::Examples
                 it 'should call the action' do
                   controller.send(action_name)
 
-                  expect(action)
+                  expect(controller_action)
                     .to have_received(:call)
                     .with(controller, custom_request)
                 end
@@ -184,7 +201,7 @@ module Spec::Support::Examples
                 it 'should call the action' do
                   controller.send(action_name)
 
-                  expect(action)
+                  expect(controller_action)
                     .to have_received(:call)
                     .with(controller, request)
                 end
@@ -201,7 +218,7 @@ module Spec::Support::Examples
                   it 'should set the request format' do # rubocop:disable RSpec/ExampleLength
                     controller.send(action_name)
 
-                    expect(action)
+                    expect(controller_action)
                       .to have_received(:call)
                       .with(
                         controller,
@@ -215,9 +232,32 @@ module Spec::Support::Examples
           end
         end
 
+        shared_examples 'should define the action with options' do
+          include_examples 'should define the action'
+
+          describe 'with command_class: value' do
+            let(:command_class)  { Class.new(Cuprum::Rails::Command) }
+            let(:action_options) { super().merge(command_class:) }
+
+            include_examples 'should define the action'
+          end
+
+          describe 'with member: false' do
+            let(:action_options) { super().merge(member: false) }
+
+            include_examples 'should define the action'
+          end
+
+          describe 'with member: true' do
+            let(:action_options) { super().merge(member: true) }
+
+            include_examples 'should define the action'
+          end
+        end
+
         let(:action_options) { {} }
 
-        example_class 'Spec::Action'
+        example_class 'Spec::Action', Cuprum::Rails::Action
 
         it 'should define the class method' do
           expect(described_class)
@@ -270,19 +310,7 @@ module Spec::Support::Examples
             described_class.action(action_name, Spec::Action, **action_options)
           end
 
-          include_examples 'should define the action'
-
-          describe 'with member: false' do
-            let(:action_options) { super().merge(member: false) }
-
-            include_examples 'should define the action'
-          end
-
-          describe 'with member: true' do
-            let(:action_options) { super().merge(member: true) }
-
-            include_examples 'should define the action'
-          end
+          include_examples 'should define the action with options'
         end
 
         describe 'with action_name: a Symbol' do
@@ -292,19 +320,7 @@ module Spec::Support::Examples
             described_class.action(action_name, Spec::Action, **action_options)
           end
 
-          include_examples 'should define the action'
-
-          describe 'with member: false' do
-            let(:action_options) { super().merge(member: false) }
-
-            include_examples 'should define the action'
-          end
-
-          describe 'with member: true' do
-            let(:action_options) { super().merge(member: true) }
-
-            include_examples 'should define the action'
-          end
+          include_examples 'should define the action with options'
         end
 
         describe 'with action_class: nil' do
@@ -332,7 +348,12 @@ module Spec::Support::Examples
           before(:example) do
             allow(Cuprum::Rails::Action)
               .to receive(:subclass)
+              .with(no_args)
               .and_return(Spec::Action)
+
+            allow(Spec::Action)
+              .to receive(:subclass)
+              .and_call_original
           end
 
           def build_action
@@ -343,19 +364,7 @@ module Spec::Support::Examples
             )
           end
 
-          include_examples 'should define the action'
-
-          describe 'with member: false' do
-            let(:action_options) { super().merge(member: false) }
-
-            include_examples 'should define the action'
-          end
-
-          describe 'with member: true' do
-            let(:action_options) { super().merge(member: true) }
-
-            include_examples 'should define the action'
-          end
+          include_examples 'should define the action with options'
         end
 
         describe 'with a block and action_class: value' do
