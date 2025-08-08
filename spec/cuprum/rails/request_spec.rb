@@ -346,6 +346,28 @@ RSpec.describe Cuprum::Rails::Request do
     default: {},
     value:   { 'foo' => 'bar' }
 
+  describe '#==' do
+    describe 'with nil' do
+      it { expect(request == nil).to be false } # rubocop:disable Style/NilComparison
+    end
+
+    describe 'with an Object' do
+      it { expect(request == Object.new.freeze).to be false }
+    end
+
+    describe 'with a Request with non-matching properties' do
+      let(:other) { described_class.new }
+
+      it { expect(request == other).to be false }
+    end
+
+    describe 'with a Request with matching properties' do
+      let(:other) { described_class.new(**request.properties) }
+
+      it { expect(request == other).to be true }
+    end
+  end
+
   describe '#[]' do
     it { expect(request).to respond_to(:[]).with(1).argument }
 

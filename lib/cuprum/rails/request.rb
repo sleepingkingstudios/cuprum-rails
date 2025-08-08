@@ -146,6 +146,12 @@ module Cuprum::Rails
     alias query_parameters  query_params
     alias query_parameters= query_params=
 
+    # @return [true, false] true if the other object is a Request with matching
+    #   properties; otherwise false.
+    def ==(other)
+      other.is_a?(self.class) && other.properties == properties
+    end
+
     # @param property_name [String, Symbol] the name of the property.
     #
     # @return [Object] the value of the property
