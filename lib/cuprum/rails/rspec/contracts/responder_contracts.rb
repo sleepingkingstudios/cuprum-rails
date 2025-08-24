@@ -23,6 +23,14 @@ module Cuprum::Rails::RSpec::Contracts
         constructor_keywords: [],
         controller_name:      'Spec::CustomController'
       |
+        SleepingKingStudios::Tools::Toolbelt
+          .instance
+          .core_tools
+          .deprecate(
+            'Cuprum::Rails::RSpec::Contracts::ResponderContracts',
+            'Use Cuprum::Rails::RSpec::Deferred::ResponderExamples instead.'
+          )
+
         def self.let?(method_name, &block)
           let(method_name, &block) unless method_defined?(method_name)
         end

@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/base_responder'
-require 'cuprum/rails/rspec/contracts/responder_contracts'
+require 'cuprum/rails/rspec/deferred/responder_examples'
 
 RSpec.describe Cuprum::Rails::Responders::BaseResponder do
-  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+  include Cuprum::Rails::RSpec::Deferred::ResponderExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
-  let(:action_name) { :published }
-  let(:controller)  { Spec::CustomController.new }
-  let(:request)     { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
       action_name:,
@@ -19,5 +16,5 @@ RSpec.describe Cuprum::Rails::Responders::BaseResponder do
     }
   end
 
-  include_contract 'should implement the responder methods'
+  include_deferred 'should implement the Responder methods'
 end

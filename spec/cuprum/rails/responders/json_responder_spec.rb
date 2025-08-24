@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/json_responder'
-require 'cuprum/rails/rspec/contracts/responder_contracts'
+require 'cuprum/rails/rspec/deferred/responder_examples'
 require 'cuprum/rails/serializers/json/active_record_serializer'
 
 require 'support/book'
 
 RSpec.describe Cuprum::Rails::Responders::JsonResponder do
-  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+  include Cuprum::Rails::RSpec::Deferred::ResponderExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
@@ -31,9 +31,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     end
   end
 
-  let(:action_name) { :published }
-  let(:controller)  { Spec::CustomController.new }
-  let(:request)     { Cuprum::Rails::Request.new }
   let(:serializers) { Cuprum::Rails::Serializers::Json.default_serializers }
   let(:constructor_options) do
     {
@@ -52,7 +49,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     expect(described_class).to be < Cuprum::Rails::Responders::Serialization
   end
 
-  include_contract 'should implement the responder methods',
+  include_deferred 'should implement the Responder methods',
     constructor_keywords: %i[matcher serializers]
 
   describe '#call' do
