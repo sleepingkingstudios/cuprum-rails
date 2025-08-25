@@ -1,17 +1,14 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/html/singular_resource'
-require 'cuprum/rails/rspec/contracts/responder_contracts'
+require 'cuprum/rails/rspec/deferred/responder_examples'
 
 RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
-  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+  include Cuprum::Rails::RSpec::Deferred::ResponderExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
   let(:described_class) { Spec::ResourceResponder }
-  let(:action_name)     { :publish }
-  let(:controller)      { Spec::CustomController.new }
-  let(:request)         { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
       action_name:,
@@ -27,7 +24,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
     allow(SleepingKingStudios::Tools::CoreTools).to receive(:deprecate)
   end
 
-  include_contract 'should implement the responder methods',
+  include_deferred 'should implement the Responder methods',
     constructor_keywords: %i[matcher]
 
   describe '#call' do
@@ -149,7 +146,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the show page'
+        include_deferred 'should redirect back',
+          fallback_location: -> { resource.routes.show_path }
       end
 
       describe 'with a passing result' do

@@ -52,6 +52,17 @@ module Cuprum::Rails::Responders::Html
 
         redirect_to(routes.index_path)
       end
+
+      match :failure do
+        fallback_location =
+          if resource.singular?
+            routes.show_path
+          else
+            routes.index_path
+          end
+
+        redirect_back(fallback_location:)
+      end
     end
 
     action :index do

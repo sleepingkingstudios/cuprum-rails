@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/responders/html_responder'
-require 'cuprum/rails/rspec/contracts/responder_contracts'
+require 'cuprum/rails/rspec/deferred/responder_examples'
 
 RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
-  include Cuprum::Rails::RSpec::Contracts::ResponderContracts
+  include Cuprum::Rails::RSpec::Deferred::ResponderExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
-  let(:action_name) { :published }
-  let(:controller)  { Spec::CustomController.new }
-  let(:request)     { Cuprum::Rails::Request.new }
   let(:constructor_options) do
     {
       action_name:,
@@ -27,7 +24,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
     expect(described_class).to be < Cuprum::Rails::Responders::Html::Rendering
   end
 
-  include_contract 'should implement the responder methods',
+  include_deferred 'should implement the Responder methods',
     constructor_keywords: %i[matcher]
 
   describe '#call' do
@@ -57,37 +54,21 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
     end
 
     describe 'with a failing result' do
-      let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
-      let(:result)   { Cuprum::Result.new(status: :failure, error:) }
-      let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::Html::RedirectResponse
-      end
+      let(:error)  { Cuprum::Error.new(message: 'Something went wrong.') }
+      let(:result) { Cuprum::Result.new(status: :failure, error:) }
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.path).to be == resource.routes.index_path }
-
-      it { expect(response.status).to be 302 }
+      include_deferred 'should redirect to', -> { resource.routes.index_path }
 
       context 'when initialized with member_action: false' do
         let(:constructor_options) { super().merge(member_action: false) }
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.path).to be == resource.base_path }
-
-        it { expect(response.status).to be 302 }
+        include_deferred 'should redirect to', -> { resource.base_path }
       end
 
       context 'when initialized with member_action: true' do
         let(:constructor_options) { super().merge(member_action: false) }
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.path).to be == resource.base_path }
-
-        it { expect(response.status).to be 302 }
+        include_deferred 'should redirect to', -> { resource.base_path }
 
         context 'when the resource defines routes' do
           let(:routes) do
@@ -97,11 +78,8 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
             Cuprum::Rails::Resource.new(name: 'books', routes:)
           end
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.path).to be == routes.index_path }
-
-          it { expect(response.status).to be 302 }
+          include_deferred 'should redirect to',
+            -> { resource.routes.index_path }
 
           # rubocop:disable RSpec/NestedGroups
           context 'when the result value exists' do
@@ -118,11 +96,8 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
               klass.define_singleton_method(:primary_key) { :id }
             end
 
-            it { expect(response).to be_a response_class }
-
-            it { expect(response.path).to be == routes.show_path(value) }
-
-            it { expect(response.status).to be 302 }
+            include_deferred 'should redirect to',
+              -> { resource.routes.show_path(value) }
           end
 
           context 'when the result value is an empty Hash' do
@@ -134,11 +109,8 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
               )
             end
 
-            it { expect(response).to be_a response_class }
-
-            it { expect(response.path).to be == routes.index_path }
-
-            it { expect(response.status).to be 302 }
+            include_deferred 'should redirect to',
+              -> { resource.routes.index_path }
           end
 
           context 'when the result value is a Hash' do
@@ -155,11 +127,8 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
               klass.define_singleton_method(:primary_key) { :id }
             end
 
-            it { expect(response).to be_a response_class }
-
-            it { expect(response.path).to be == routes.show_path(value) }
-
-            it { expect(response.status).to be 302 }
+            include_deferred 'should redirect to',
+              -> { resource.routes.show_path(value) }
           end
           # rubocop:enable RSpec/NestedGroups
         end
@@ -178,49 +147,28 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
           resource.routes.with_wildcards(path_params).index_path
         end
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.path).to be == expected_path }
-
-        it { expect(response.status).to be 302 }
+        include_deferred 'should redirect to', -> { expected_path }
       end
     end
 
     describe 'with a passing result' do
       let(:result) { Cuprum::Result.new(status: :success) }
-      let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::Html::RenderResponse
-      end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.template).to be == action_name }
-
-      it { expect(response.assigns).to be == {} }
-
-      it { expect(response.layout).to be nil }
-
-      it { expect(response.status).to be 200 }
+      include_deferred 'should render template', -> { action_name }
 
       context 'when the result value exists' do
         let(:result) { Cuprum::Result.new(status: :success, value: :ok) }
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.template).to be == action_name }
-
-        it { expect(response.assigns).to be == { value: :ok } }
+        include_deferred 'should render template',
+          -> { action_name },
+          assigns: -> { { value: :ok } }
       end
 
       context 'when the result value is an empty Hash' do
         let(:result) { Cuprum::Result.new(status: :success, value: {}) }
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.template).to be == action_name }
-
-        it { expect(response.assigns).to be == {} }
+        include_deferred 'should render template',
+          -> { action_name }
       end
 
       context 'when the result value is a Hash' do
@@ -229,11 +177,9 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
         end
         let(:result) { Cuprum::Result.new(status: :success, value:) }
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.template).to be == action_name }
-
-        it { expect(response.assigns).to be == value }
+        include_deferred 'should render template',
+          -> { action_name },
+          assigns: -> { value }
       end
     end
 

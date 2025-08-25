@@ -151,24 +151,6 @@ RSpec.describe BooksController do
   end
 
   shared_examples 'should require a valid book id' do |api: true|
-    describe 'with a missing book id' do
-      let(:path_params) { super().tap { |hsh| hsh.delete('id') } }
-      let(:expected_error) do
-        errors = Stannum::Errors.new.tap do |err|
-          err['id'].add(Stannum::Constraints::Presence::TYPE)
-        end
-
-        Cuprum::Rails::Errors::InvalidParameters
-          .new(errors:)
-          .as_json
-      end
-      let(:status) { 400 }
-
-      wrap_examples 'should redirect to the index page'
-
-      wrap_examples 'should serialize the error' if api
-    end
-
     describe 'with an invalid book id' do
       let(:book_id)     { (Book.last&.id || -1) + 1 }
       let(:path_params) { super().merge('id' => book_id) }
@@ -207,7 +189,12 @@ RSpec.describe BooksController do
   let(:query_params) { {} }
   let(:path_params)  { {} }
   let(:renderer) do
-    instance_double(Spec::Renderer, redirect_to: nil, render: nil)
+    instance_double(
+      Spec::Renderer,
+      redirect_back_or_to: nil,
+      redirect_to:         nil,
+      render:              nil
+    )
   end
   let(:http_method) { :get }
   let(:path)        { '/' }
@@ -240,8 +227,9 @@ RSpec.describe BooksController do
   end
 
   example_class 'Spec::Renderer' do |klass|
-    klass.define_method(:redirect_to) { |*_, **_| nil }
-    klass.define_method(:render)      { |*_, **_| nil }
+    klass.define_method(:redirect_back_or_to) { |*_, **_| nil }
+    klass.define_method(:redirect_to)         { |*_, **_| nil }
+    klass.define_method(:render)              { |*_, **_| nil }
   end
 
   before(:example) do
@@ -561,6 +549,24 @@ RSpec.describe BooksController do
     it { expect(controller).to respond_to(:publish).with(0).arguments }
 
     include_examples 'should require a valid book id'
+
+    describe 'with a missing book id' do
+      let(:path_params) { super().tap { |hsh| hsh.delete('id') } }
+      let(:expected_error) do
+        errors = Stannum::Errors.new.tap do |err|
+          err['id'].add(Stannum::Constraints::Presence::TYPE)
+        end
+
+        Cuprum::Rails::Errors::InvalidParameters
+          .new(errors:)
+          .as_json
+      end
+      let(:status) { 400 }
+
+      wrap_examples 'should redirect to the index page'
+
+      wrap_examples 'should serialize the error'
+    end
 
     wrap_context 'when there are many books' do
       let(:book)    { Book.where(title: 'The Tombs of Atuan').first }
