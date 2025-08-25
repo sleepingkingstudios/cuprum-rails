@@ -133,7 +133,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
       describe 'with a failing result' do
         let(:result) { Cuprum::Result.new(status: :failure) }
 
-        include_examples 'should redirect to the index page'
+        include_deferred 'should redirect back',
+          fallback_location: -> { resource.routes.index_path }
       end
 
       describe 'with a passing result' do

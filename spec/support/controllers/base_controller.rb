@@ -23,6 +23,7 @@ class BaseController
   attr_reader :request
 
   def_delegators :@renderer,
+    :redirect_back_or_to,
     :redirect_to,
     :render
 

@@ -38,17 +38,11 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               primary_key:     true
             )
           end
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RenderResponse
-          end
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.layout).to be nil }
-
-          it { expect(response.template).to be == action_name }
-
-          it { expect(response.status).to be 404 }
+          include_deferred 'should render template',
+            -> { action_name },
+            assigns: -> { { error: } },
+            status:  404
         end
 
         context 'when the error matches the resource' do
@@ -60,9 +54,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               primary_key:     true
             )
           end
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RedirectResponse
-          end
           let(:expected_path) do
             if resource.singular?
               resource.routes.show_path
@@ -71,11 +62,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
             end
           end
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.path).to be == expected_path }
-
-          it { expect(response.status).to be 302 }
+          include_deferred 'should redirect to', -> { expected_path }
         end
 
         context 'when the resource has ancestors' do
@@ -113,17 +100,11 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 primary_key:     true
               )
             end
-            let(:response_class) do
-              Cuprum::Rails::Responses::Html::RenderResponse
-            end
 
-            it { expect(response).to be_a response_class }
-
-            it { expect(response.layout).to be nil }
-
-            it { expect(response.template).to be == action_name }
-
-            it { expect(response.status).to be 404 }
+            include_deferred 'should render template',
+              -> { action_name },
+              assigns: -> { { error: } },
+              status:  404
           end
 
           context 'when the error matches the primary resource' do
@@ -135,9 +116,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 primary_key:     true
               )
             end
-            let(:response_class) do
-              Cuprum::Rails::Responses::Html::RedirectResponse
-            end
             let(:expected_path) do
               routes = resource.routes.with_wildcards(request.path_params)
 
@@ -148,11 +126,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               end
             end
 
-            it { expect(response).to be_a response_class }
-
-            it { expect(response.path).to be == expected_path }
-
-            it { expect(response.status).to be 302 }
+            include_deferred 'should redirect to', -> { expected_path }
           end
 
           context 'when the error matches the parent resource' do
@@ -164,9 +138,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 primary_key:     true
               )
             end
-            let(:response_class) do
-              Cuprum::Rails::Responses::Html::RedirectResponse
-            end
             let(:expected_path) do
               series_resource
                 .routes
@@ -174,11 +145,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 .index_path
             end
 
-            it { expect(response).to be_a response_class }
-
-            it { expect(response.path).to be == expected_path }
-
-            it { expect(response.status).to be 302 }
+            include_deferred 'should redirect to', -> { expected_path }
           end
 
           context 'when the error matches the top-level resource' do
@@ -190,9 +157,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 primary_key:     true
               )
             end
-            let(:response_class) do
-              Cuprum::Rails::Responses::Html::RedirectResponse
-            end
             let(:expected_path) do
               authors_resource
                 .routes
@@ -200,11 +164,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 .index_path
             end
 
-            it { expect(response).to be_a response_class }
-
-            it { expect(response.path).to be == expected_path }
-
-            it { expect(response.status).to be 302 }
+            include_deferred 'should redirect to', -> { expected_path }
           end
         end
       end
@@ -212,15 +172,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
     shared_examples 'should redirect to the index page' do
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::Html::RedirectResponse
-      end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.path).to be == resource.routes.index_path }
-
-      it { expect(response.status).to be 302 }
+      include_deferred 'should redirect to', -> { resource.routes.index_path }
 
       context 'when the resource has ancestors' do
         let(:authors_resource) do
@@ -235,25 +188,14 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           resource.routes.with_wildcards(path_params).index_path
         end
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.path).to be == expected_path }
-
-        it { expect(response.status).to be 302 }
+        include_deferred 'should redirect to', -> { expected_path }
       end
     end
 
     shared_examples 'should redirect to the show page' do
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::Html::RedirectResponse
-      end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.path).to be == resource.routes.show_path }
-
-      it { expect(response.status).to be 302 }
+      include_deferred 'should redirect to', -> { resource.routes.show_path }
 
       context 'when the resource has ancestors' do
         let(:authors_resource) do
@@ -268,25 +210,14 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           resource.routes.with_wildcards(path_params).show_path
         end
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.path).to be == expected_path }
-
-        it { expect(response.status).to be 302 }
+        include_deferred 'should redirect to', -> { expected_path }
       end
     end
 
     shared_examples 'should redirect to the parent resource page' do
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::Html::RedirectResponse
-      end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.path).to be == resource.routes.parent_path }
-
-      it { expect(response.status).to be 302 }
+      include_deferred 'should redirect to', -> { resource.routes.parent_path }
 
       context 'when the resource has ancestors' do
         let(:authors_resource) do
@@ -301,29 +232,16 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           resource.routes.with_wildcards(path_params).parent_path
         end
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.path).to be == expected_path }
-
-        it { expect(response.status).to be 302 }
+        include_deferred 'should redirect to', -> { expected_path }
       end
     end
 
     shared_examples 'should render the template' do
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::Html::RenderResponse
-      end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.assigns).to be == value }
-
-      it { expect(response.layout).to be nil }
-
-      it { expect(response.template).to be == action_name }
-
-      it { expect(response.status).to be 200 }
+      include_deferred 'should render template',
+        -> { action_name },
+        assigns: -> { value }
     end
 
     context 'when initialized with a plural resource' do
@@ -351,45 +269,26 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               errors:
             )
           end
-          let(:value)    { { 'book' => entity_class.new('Gideon the Ninth') } }
-          let(:result)   { Cuprum::Result.new(error:, value:) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RenderResponse
-          end
-          let(:expected) { value.merge(errors:) }
+          let(:value)  { { 'book' => entity_class.new('Gideon the Ninth') } }
+          let(:result) { Cuprum::Result.new(error:, value:) }
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.assigns).to be == expected }
-
-          it { expect(response.layout).to be nil }
-
-          it { expect(response.template).to be == :new }
-
-          it { expect(response.status).to be 422 }
+          include_deferred 'should render template',
+            'new',
+            assigns: -> { value.merge(errors:) },
+            status:  422
         end
 
         describe 'with a passing result' do
           let(:entity) { Spec::Model.new(0, 'Gideon the Ninth') }
           let(:value)  { { 'book' => entity } }
           let(:result) { Cuprum::Result.new(value:) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RedirectResponse
-          end
 
           example_class 'Spec::Model', Struct.new(:id, :title) do |klass|
             klass.define_singleton_method(:primary_key) { :id }
           end
 
-          it { expect(response).to be_a response_class }
-
-          it 'should redirect to the show path' do
-            expect(response.path).to be == resource.routes.show_path(entity)
-          end
-
-          it { expect(response.status).to be 302 }
+          include_deferred 'should redirect to',
+            -> { resource.routes.show_path(entity) }
         end
       end
 
@@ -401,7 +300,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the index page'
+          include_deferred 'should redirect back',
+            fallback_location: -> { resource.routes.index_path }
         end
 
         describe 'with a passing result' do
@@ -442,17 +342,10 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         include_examples 'should handle a NotFound error'
 
         describe 'with a failing result' do
-          let(:result)   { Cuprum::Result.new(status: :failure) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RedirectResponse
-          end
+          let(:result) { Cuprum::Result.new(status: :failure) }
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.path).to be == '/' }
-
-          it { expect(response.status).to be 302 }
+          include_deferred 'should redirect to',
+            -> { resource.routes.root_path }
         end
 
         describe 'with a passing result' do
@@ -531,45 +424,26 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               errors:
             )
           end
-          let(:value)    { { 'book' => entity_class.new('Gideon the Ninth') } }
-          let(:result)   { Cuprum::Result.new(error:, value:) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RenderResponse
-          end
-          let(:expected) { value.merge(errors:) }
+          let(:value)  { { 'book' => entity_class.new('Gideon the Ninth') } }
+          let(:result) { Cuprum::Result.new(error:, value:) }
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.assigns).to be == expected }
-
-          it { expect(response.layout).to be nil }
-
-          it { expect(response.template).to be == :edit }
-
-          it { expect(response.status).to be 422 }
+          include_deferred 'should render template',
+            'edit',
+            assigns: -> { value.merge(errors:) },
+            status:  422
         end
 
         describe 'with a passing result' do
           let(:entity) { Spec::Model.new(0, 'Gideon the Ninth') }
           let(:value)  { { 'book' => entity } }
           let(:result) { Cuprum::Result.new(value:) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RedirectResponse
-          end
 
           example_class 'Spec::Model', Struct.new(:id, :title) do |klass|
             klass.define_singleton_method(:primary_key) { :id }
           end
 
-          it { expect(response).to be_a response_class }
-
-          it 'should redirect to the show path' do
-            expect(response.path).to be == resource.routes.show_path(entity)
-          end
-
-          it { expect(response.status).to be 302 }
+          include_deferred 'should redirect to',
+            -> { resource.routes.show_path(entity) }
         end
       end
 
@@ -622,23 +496,13 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               errors:
             )
           end
-          let(:value)    { { 'book' => entity_class.new('Gideon the Ninth') } }
-          let(:result)   { Cuprum::Result.new(error:, value:) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RenderResponse
-          end
-          let(:expected) { value.merge(errors:) }
+          let(:value)  { { 'book' => entity_class.new('Gideon the Ninth') } }
+          let(:result) { Cuprum::Result.new(error:, value:) }
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.assigns).to be == expected }
-
-          it { expect(response.layout).to be nil }
-
-          it { expect(response.template).to be == :new }
-
-          it { expect(response.status).to be 422 }
+          include_deferred 'should render template',
+            'new',
+            assigns: -> { value.merge(errors:) },
+            status:  422
         end
 
         describe 'with a passing result' do
@@ -646,19 +510,13 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           let(:value)  { { 'book' => entity } }
           let(:result) { Cuprum::Result.new(value:) }
           let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RedirectResponse
-          end
 
           example_class 'Spec::Model', Struct.new(:id, :title) do |klass|
             klass.define_singleton_method(:primary_key) { :id }
           end
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.path).to be == resource.routes.show_path }
-
-          it { expect(response.status).to be 302 }
+          include_deferred 'should redirect to',
+            -> { resource.routes.show_path }
         end
       end
 
@@ -670,7 +528,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
         describe 'with a failing result' do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
-          include_examples 'should redirect to the show page'
+          include_deferred 'should redirect back',
+            fallback_location: -> { resource.routes.show_path }
         end
 
         describe 'with a passing result' do
@@ -771,43 +630,26 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               errors:
             )
           end
-          let(:value)    { { 'book' => entity_class.new('Gideon the Ninth') } }
-          let(:result)   { Cuprum::Result.new(error:, value:) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RenderResponse
-          end
-          let(:expected) { value.merge(errors:) }
+          let(:value)  { { 'book' => entity_class.new('Gideon the Ninth') } }
+          let(:result) { Cuprum::Result.new(error:, value:) }
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.assigns).to be == expected }
-
-          it { expect(response.layout).to be nil }
-
-          it { expect(response.template).to be == :edit }
-
-          it { expect(response.status).to be 422 }
+          include_deferred 'should render template',
+            'edit',
+            assigns: -> { value.merge(errors:) },
+            status:  422
         end
 
         describe 'with a passing result' do
           let(:entity) { Spec::Model.new(0, 'Gideon the Ninth') }
           let(:value)  { { 'book' => entity } }
           let(:result) { Cuprum::Result.new(value:) }
-          let(:response) { responder.call(result) }
-          let(:response_class) do
-            Cuprum::Rails::Responses::Html::RedirectResponse
-          end
 
           example_class 'Spec::Model', Struct.new(:id, :title) do |klass|
             klass.define_singleton_method(:primary_key) { :id }
           end
 
-          it { expect(response).to be_a response_class }
-
-          it { expect(response.path).to be == resource.routes.show_path }
-
-          it { expect(response.status).to be 302 }
+          include_deferred 'should redirect to',
+            -> { resource.routes.show_path }
         end
       end
 
