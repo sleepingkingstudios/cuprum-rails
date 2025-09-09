@@ -7,6 +7,7 @@ module Cuprum::Rails
   module Responses
     autoload :HeadResponse, 'cuprum/rails/responses/head_response'
     autoload :Html,         'cuprum/rails/responses/html'
+    autoload :HtmlResponse, 'cuprum/rails/responses/html_response'
     autoload :JsonResponse, 'cuprum/rails/responses/json_response'
   end
 end
