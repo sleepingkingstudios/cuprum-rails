@@ -2,7 +2,7 @@
 
 ## O.3.0
 
-Dropped support for Rails 6.X
+Dropped support for Rails 6.X.
 
 ### Actions
 
@@ -40,6 +40,10 @@ Refactored the existing collection to `Cuprum::Rails::Records::Collection`.
 ### Responders
 
 Added support for Turbo Frames when rendering HTML content.
+
+### Responses
+
+Implemented `Cuprum::Rails::Responses::HtmlResponse`, implementing `render html: ''`.
 
 ## O.2.0
 
