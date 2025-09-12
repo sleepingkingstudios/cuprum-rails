@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/relation_contracts'
+require 'cuprum/collections/rspec/deferred/resource_examples'
 
 require 'cuprum/rails/resource'
 
@@ -8,7 +8,7 @@ require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Resource do
-  include Cuprum::Collections::RSpec::Contracts::RelationContracts
+  include Cuprum::Collections::RSpec::Deferred::ResourceExamples
 
   subject(:resource) { described_class.new(**constructor_options) }
 
@@ -78,12 +78,7 @@ RSpec.describe Cuprum::Rails::Resource do
     end
   end
 
-  include_contract 'should be a relation',
-    cardinality: true
-
-  include_contract 'should define primary keys'
-
-  include_contract 'should define cardinality'
+  include_deferred 'should be a Resource'
 
   describe '#actions' do
     let(:expected) { Set.new(described_class::PLURAL_ACTIONS) }
