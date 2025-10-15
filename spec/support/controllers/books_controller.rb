@@ -82,7 +82,7 @@ class BooksController < BaseController
   end
 
   middleware Spec::Support::Middleware::LoggingMiddleware,
-    only: %i[create destroy update]
+    actions: { only: %i[create destroy update] }
   middleware Spec::Support::Middleware::ProfilingMiddleware
 
   action :create,  Cuprum::Rails::Actions::Resources::Create,  member: false

@@ -94,29 +94,38 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
     context 'when the controller defines middleware' do
       let(:middleware) do
         [
-          Cuprum::Rails::Controllers::Middleware.new(
+          {
             command: Cuprum::Command.new
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+          },
+          {
             command: Cuprum::Command.new,
             except:  %i[index show]
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+          },
+          {
             command: Cuprum::Command.new,
             except:  %i[draft publish]
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+          },
+          {
             command: Cuprum::Command.new,
             only:    %i[create update]
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+          },
+          {
             command: Cuprum::Command.new,
             only:    %i[approve publish]
-          )
+          }
         ]
+          .map { |options| build_middleware(**options) }
       end
       let(:expected) do
         middleware.select { |item| item.matches?(action_name) }
+      end
+
+      def build_middleware(command:, **options)
+        actions =
+          Cuprum::Rails::Controllers::Middleware::InclusionMatcher
+            .build(except: options[:except], only: options[:only])
+
+        Cuprum::Rails::Controllers::Middleware.new(command:, actions:)
       end
 
       it { expect(configuration.middleware_for action_name).to be == expected }
