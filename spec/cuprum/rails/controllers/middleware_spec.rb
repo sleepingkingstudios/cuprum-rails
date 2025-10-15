@@ -309,17 +309,19 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
   end
 
   describe '#matches?' do
+    let(:action_name)     { :index }
+    let(:request_options) { { action_name: } }
+    let(:request) do
+      Cuprum::Rails::Request.new(**request_options)
+    end
+
     it { expect(middleware).to respond_to(:matches?).with(1).argument }
 
     it 'should alias the method as #match?' do
       expect(middleware.method(:matches?)).to be == middleware.method(:match?)
     end
 
-    describe 'with an action name' do
-      let(:action_name) { :index }
-
-      it { expect(middleware.matches? action_name).to be true }
-    end
+    it { expect(middleware.matches?(request)).to be true }
 
     context 'when initialized with actions' do
       let(:actions) do
@@ -333,25 +335,25 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
       describe 'with an action name not in actions.except or actions.only' do
         let(:action_name) { :new }
 
-        it { expect(middleware.matches? action_name).to be false }
+        it { expect(middleware.matches?(request)).to be false }
       end
 
       describe 'with an action name in actions.except' do
         let(:action_name) { :destroy }
 
-        it { expect(middleware.matches? action_name).to be false }
+        it { expect(middleware.matches?(request)).to be false }
       end
 
       describe 'with an action name in actions.only' do
         let(:action_name) { :index }
 
-        it { expect(middleware.matches? action_name).to be true }
+        it { expect(middleware.matches?(request)).to be true }
       end
 
       describe 'with an action name in actions.except and actions.only' do
         let(:action_name) { :create }
 
-        it { expect(middleware.matches? action_name).to be false }
+        it { expect(middleware.matches?(request)).to be false }
       end
     end
   end

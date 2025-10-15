@@ -103,17 +103,16 @@ module Cuprum::Rails::Controllers
         other.actions == actions
     end
 
-    # Checks if the middleware will be applied to the named action.
+    # Checks if the middleware will be applied to the given request.
     #
-    # If the middleware defines any :except actions, returns false if the action
-    # name is in the set. If the middleware defines any :only actions, returns
-    # false unless the action name is in the set. Otherwise, returns true.
+    # Applies the inclusion and exclusion filters defined for actions, if any,
+    # to the request.
     #
-    # @param action_name [Symbol] The name of the action.
+    # @param request [Symbol] the request to match.
     #
     # @return [true, false] whether the middleware will be applied.
-    def matches?(action_name)
-      actions.blank? || actions.matches?(action_name)
+    def matches?(request)
+      actions.blank? || actions.matches?(request.action_name)
     end
     alias match? matches?
   end

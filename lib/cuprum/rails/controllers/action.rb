@@ -51,7 +51,8 @@ module Cuprum::Rails::Controllers
     # @return [#call] the response object.
     def call(controller, request)
       responder  = build_responder(controller, request)
-      action     = apply_middleware(controller, action_class.new)
+      command    = action_class.new
+      action     = apply_middleware(controller:, command:, request:)
       result     = action.call(request:, **controller.action_options)
 
       responder.call(result)
@@ -65,11 +66,11 @@ module Cuprum::Rails::Controllers
 
     private
 
-    def apply_middleware(controller, command)
+    def apply_middleware(controller:, command:, request:)
       configuration = controller.class.configuration
       middleware    =
         configuration
-          .middleware_for(action_name)
+          .middleware_for(request)
           .map { |config| build_middleware(config.command) }
 
       Cuprum::Middleware.apply(
