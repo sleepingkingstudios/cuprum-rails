@@ -4,6 +4,7 @@ require 'cuprum/rails'
 
 require 'support/book'
 require 'support/controllers/base_controller'
+require 'support/middleware/api_version_middleware'
 require 'support/middleware/logging_middleware'
 require 'support/middleware/profiling_middleware'
 require 'support/serializers/book_serializer'
@@ -81,8 +82,10 @@ class BooksController < BaseController
     )
   end
 
+  middleware Spec::Support::Middleware::ApiVersionMiddleware.new('1982-07'),
+    formats: :json
   middleware Spec::Support::Middleware::LoggingMiddleware,
-    only: %i[create destroy update]
+    actions: { only: %i[create destroy update] }
   middleware Spec::Support::Middleware::ProfilingMiddleware
 
   action :create,  Cuprum::Rails::Actions::Resources::Create,  member: false

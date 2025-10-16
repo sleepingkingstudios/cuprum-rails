@@ -63,9 +63,13 @@ module Cuprum::Rails::RSpec::Deferred
           )
         end
 
-        it { expect(middleware.except.to_a).to be == except }
+        it 'should define the excluded actions' do
+          expect(middleware.actions&.except.to_a).to be == except.map(&:to_s)
+        end
 
-        it { expect(middleware.only.to_a).to be == only }
+        it 'should define the included actions' do
+          expect(middleware.actions&.only.to_a).to be == only.map(&:to_s)
+        end
       end
     end
 

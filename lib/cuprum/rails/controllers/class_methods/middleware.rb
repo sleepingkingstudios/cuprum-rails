@@ -10,23 +10,31 @@ module Cuprum::Rails::Controllers::ClassMethods
     #   @return [Array<Cuprum::Rails::Controllers::Middleware>] the configured
     #     middleware for the controller.
     #
-    # @overload middleware(command, except: [], only: {]})
+    # @overload middleware(command, actions: {})
     #   Defines middleware for the controller.
     #
     #   @param command [Class, Cuprum::Command] The middleware command.
     #     Middleware commands must take two parameters: a next_command argument,
     #     and a request: keyword.
-    #   @param except [Array<String, Symbol>] Action names to exclude. The
-    #     middleware will not be applied to actions on this list.
-    #   @param only [Array<String, Symbol>] Action names to include  If this is
-    #     not empty, the middleware will only be applied to actions on this
-    #     list.
+    #   @param actions [Hash{except:, only:}, Array<String, Symbol>] the actions
+    #     to include or exclude from the middleware.
+    #   @param formats [Hash{except:, only:}, Array<String, Symbol>] the formats
+    #     to include or exclude from the middleware.
     #
     #   @see Cuprum::Middleware
-    def middleware(command = nil, except: [], only: [])
+    #
+    #   @deprecate 0.3.0 Calling .middleware() with :except or :only keywords is
+    #     deprecated. Pass the :actions keyword instead.
+    def middleware(
+      command = nil,
+      actions: {},
+      except:  nil,
+      formats: {},
+      only:    nil
+    )
       unless command.nil?
         own_middleware <<
-          build_middleware(command:, except:, only:)
+          build_middleware(command:, actions:, except:, formats:, only:)
       end
 
       ancestors
@@ -43,20 +51,46 @@ module Cuprum::Rails::Controllers::ClassMethods
 
     private
 
-    def build_middleware(command:, except:, only:)
-      validate_command!(command)
-      validate_action_names!(except, as: 'except')
-      validate_action_names!(only,   as: 'only')
+    def build_actions(actions: nil, except: nil, only: nil, **) # rubocop:disable Metrics/MethodLength
+      #   @deprecate 0.3.0 Calling .middleware() with :except or :only keywords
+      #     is deprecated. Pass the :actions keyword instead.
+      if actions.blank? && (except.present? || only.present?)
+        SleepingKingStudios::Tools::Toolbelt.instance.core_tools.deprecate(
+          'Cuprum::Rails::Controller.middleware(except:, only:)',
+          message: 'Pass the :actions keyword instead.'
+        )
 
-      Cuprum::Rails::Controllers::Middleware.new(
-        command:,
-        except:,
-        only:
-      )
+        validate_action_names!(except, as: 'except')
+        validate_action_names!(only,   as: 'only')
+
+        actions = { except:, only: }
+      end
+
+      return if actions.blank?
+
+      Cuprum::Rails::Controllers::Middleware::InclusionMatcher.build(actions)
+    end
+
+    def build_formats(formats: nil, **)
+      return if formats.blank?
+
+      Cuprum::Rails::Controllers::Middleware::InclusionMatcher.build(formats)
+    end
+
+    def build_middleware(command:, **options)
+      validate_command!(command)
+
+      actions = build_actions(**options)
+      formats = build_formats(**options)
+
+      validate_action_names!(actions&.except, as: 'except')
+      validate_action_names!(actions&.only,   as: 'only')
+
+      Cuprum::Rails::Controllers::Middleware.new(command:, actions:, formats:)
     end
 
     def valid_action_names?(action_names)
-      return false unless action_names.is_a?(Array)
+      return false unless action_names.is_a?(Array) || action_names.is_a?(Set)
 
       action_names.all? do |action_name|
         next false unless action_name.is_a?(String) || action_name.is_a?(Symbol)

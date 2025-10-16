@@ -847,19 +847,15 @@ module Spec::Support::Examples
         let(:middleware) do
           [
             {
-              command: Spec::Middleware,
-              except:  [],
-              only:    []
+              command: Spec::Middleware
             },
             {
               command: Cuprum::Command.new,
-              except:  %i[destroy],
-              only:    []
+              actions: { except: %i[destroy] }
             },
             {
               command: Cuprum::Command.new,
-              except:  [],
-              only:    %i[index show]
+              actions: { only: %i[index show] }
             }
           ]
         end
@@ -868,26 +864,46 @@ module Spec::Support::Examples
           middleware.each do |hsh|
             described_class.middleware(
               hsh[:command],
-              except: hsh[:except],
-              only:   hsh[:only]
+              actions: hsh[:actions]
             )
           end
         end
       end
 
       describe '#middleware' do
-        shared_examples 'should define the middleware' do
+        shared_context 'when the controller displays a deprecation warning' do
+          let(:core_tools) do
+            SleepingKingStudios::Tools::Toolbelt.instance.core_tools
+          end
+          let(:deprecation_warning) do
+            'Cuprum::Rails::Controller.middleware(except:, only:)'
+          end
+          let(:deprecation_message) do
+            'Pass the :actions keyword instead.'
+          end
+
+          before(:example) do
+            allow(core_tools).to receive(:deprecate)
+          end
+        end
+
+        shared_examples 'should display a deprecation warning' do
+          include_context 'when the controller displays a deprecation warning'
+
+          it 'should display a deprecation warning' do
+            described_class.middleware(command, **options)
+
+            expect(core_tools)
+              .to have_received(:deprecate)
+              .with(deprecation_warning, message: deprecation_message)
+          end
+        end
+
+        shared_examples 'should define the middleware' do |block = nil, *|
           describe 'with command: a command instance' do
             let(:command) { Spec::Middleware.new }
-            let(:options) { {} }
             let(:configured_middleware) do
-              super() + [
-                {
-                  command:,
-                  except:  options.fetch(:except, []),
-                  only:    options.fetch(:only,   [])
-                }
-              ]
+              super() + [{ command:, **options }]
             end
 
             it 'should define the middleware' do
@@ -895,38 +911,13 @@ module Spec::Support::Examples
                 .to be == expected
             end
 
-            describe 'with except: value' do
-              let(:excepted_actions) { %i[index show] }
-              let(:options)          { super().merge(except: excepted_actions) }
-
-              it 'should define the middleware' do
-                expect(described_class.middleware(command, **options))
-                  .to be == expected
-              end
-            end
-
-            describe 'with only: value' do
-              let(:only_actions) { %i[create update] }
-              let(:options)      { super().merge(only: only_actions) }
-
-              it 'should define the middleware' do
-                expect(described_class.middleware(command, **options))
-                  .to be == expected
-              end
-            end
+            instance_exec(&block) if block.is_a?(Proc)
           end
 
           describe 'with command: a command class' do
             let(:command) { Spec::Middleware }
-            let(:options) { {} }
             let(:configured_middleware) do
-              super() + [
-                {
-                  command:,
-                  except:  options.fetch(:except, []),
-                  only:    options.fetch(:only,   [])
-                }
-              ]
+              super() + [{ command:, **options }]
             end
 
             it 'should define the middleware' do
@@ -934,25 +925,137 @@ module Spec::Support::Examples
                 .to be == expected
             end
 
-            describe 'with except: value' do
-              let(:excepted_actions) { %i[index show] }
-              let(:options)          { super().merge(except: excepted_actions) }
+            instance_exec(&block) if block.is_a?(Proc)
+          end
+        end
 
-              it 'should define the middleware' do
-                expect(described_class.middleware(command, **options))
-                  .to be == expected
-              end
+        shared_examples 'should define the middleware with options' do
+          let(:options) { {} }
+
+          include_examples 'should define the middleware'
+
+          describe 'with actions: nil' do
+            let(:options) { super().merge(actions: nil) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with actions: a String' do
+            let(:options) { super().merge(actions: 'publish') }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with actions: a Symbol' do
+            let(:options) { super().merge(actions: :publish) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with actions: an Array of Strings' do
+            let(:options) { super().merge(actions: %w[publish published]) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with actions: an Array of Symbols' do
+            let(:options) { super().merge(actions: %i[publish published]) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with actions: { except: }' do
+            let(:actions) { { except: %w[drafts] } }
+            let(:options) { super().merge(actions:) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with actions: { except:, only: }' do
+            let(:actions) do
+              { except: %w[drafts], only: %w[publish published] }
             end
+            let(:options) { super().merge(actions:) }
 
-            describe 'with only: value' do
-              let(:only_actions) { %i[create update] }
-              let(:options)      { super().merge(only: only_actions) }
+            include_examples 'should define the middleware'
+          end
 
-              it 'should define the middleware' do
-                expect(described_class.middleware(command, **options))
-                  .to be == expected
-              end
+          describe 'with actions: { only: }' do
+            let(:actions) { { only: %w[publish published] } }
+            let(:options) { super().merge(actions:) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with except: value' do
+            let(:excepted_actions) { %i[index show] }
+            let(:options)          { super().merge(except: excepted_actions) }
+
+            include_examples 'should define the middleware', lambda {
+              include_examples 'should display a deprecation warning'
+            }
+          end
+
+          describe 'with formats: nil' do
+            let(:options) { super().merge(formats: nil) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: a String' do
+            let(:options) { super().merge(formats: 'json') }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: a Symbol' do
+            let(:options) { super().merge(formats: :json) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: an Array of Strings' do
+            let(:options) { super().merge(formats: %w[json xml]) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: an Array of Symbols' do
+            let(:options) { super().merge(formats: %i[json xml]) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: { except: }' do
+            let(:formats) { { except: %w[html] } }
+            let(:options) { super().merge(formats:) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: { except:, only: }' do
+            let(:formats) do
+              { except: %w[html], only: %w[json xml] }
             end
+            let(:options) { super().merge(formats:) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: { only: }' do
+            let(:formats) { { only: %w[json xml] } }
+            let(:options) { super().merge(formats:) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with only: value' do
+            let(:only_actions) { %i[create update] }
+            let(:options)      { super().merge(only: only_actions) }
+
+            include_examples 'should define the middleware', lambda {
+              include_examples 'should display a deprecation warning'
+            }
           end
         end
 
@@ -961,10 +1064,32 @@ module Spec::Support::Examples
           configured_middleware.map do |hsh|
             Cuprum::Rails::Controllers::Middleware.new(
               command: hsh[:command],
-              except:  hsh[:except],
-              only:    hsh[:only]
+              actions: expected_actions_for(hsh),
+              formats: expected_formats_for(hsh)
             )
           end
+        end
+
+        define_method(:expected_actions_for) do |hsh|
+          actions = hsh.fetch(:actions) do
+            next unless hsh[:except].present? || hsh[:only].present?
+
+            { except: hsh[:except], only: hsh[:only] }
+          end
+
+          next if actions.blank?
+
+          Cuprum::Rails::Controllers::Middleware::InclusionMatcher
+            .build(actions)
+        end
+
+        define_method(:expected_formats_for) do |hsh|
+          formats = hsh[:formats]
+
+          next if formats.blank?
+
+          Cuprum::Rails::Controllers::Middleware::InclusionMatcher
+            .build(formats)
         end
 
         example_class 'Spec::Middleware', 'Cuprum::Command' do |klass|
@@ -975,12 +1100,12 @@ module Spec::Support::Examples
           expect(described_class)
             .to respond_to(:middleware)
             .with(0..1).arguments
-            .and_keywords(:except, :only)
+            .and_keywords(:actions, :formats)
         end
 
         it { expect(described_class.middleware).to be == [] }
 
-        include_examples 'should define the middleware'
+        include_examples 'should define the middleware with options'
 
         describe 'with command: an object' do
           let(:error_message) do
@@ -994,43 +1119,61 @@ module Spec::Support::Examples
         end
 
         describe 'with except: an object' do
+          include_context 'when the controller displays a deprecation warning'
+
           let(:command) { Cuprum::Command.new }
+          let(:options) { { except: Object.new.freeze } }
           let(:error_message) do
             'except must be a list of action names'
           end
 
           it 'should raise an exception' do
-            expect do
-              described_class.middleware command, except: Object.new.freeze
-            end
+            expect { described_class.middleware(command, **options) }
               .to raise_error ArgumentError, error_message
           end
         end
 
         describe 'with except: an invalid array' do
+          include_context 'when the controller displays a deprecation warning'
+
           let(:command) { Cuprum::Command.new }
+          let(:options) { { except: [nil] } }
           let(:error_message) do
             'except must be a list of action names'
           end
 
           it 'should raise an exception' do
-            expect do
-              described_class.middleware command, except: [nil]
-            end
+            expect { described_class.middleware(command, **options) }
               .to raise_error ArgumentError, error_message
           end
         end
 
         describe 'with only: an object' do
+          include_context 'when the controller displays a deprecation warning'
+
           let(:command) { Cuprum::Command.new }
+          let(:options) { { only: Object.new.freeze } }
           let(:error_message) do
             'only must be a list of action names'
           end
 
           it 'should raise an exception' do
-            expect do
-              described_class.middleware command, only: Object.new.freeze
-            end
+            expect { described_class.middleware(command, **options) }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with only: an invalid array' do
+          include_context 'when the controller displays a deprecation warning'
+
+          let(:command) { Cuprum::Command.new }
+          let(:options) { { only: [nil] } }
+          let(:error_message) do
+            'only must be a list of action names'
+          end
+
+          it 'should raise an exception' do
+            expect { described_class.middleware(command, **options) }
               .to raise_error ArgumentError, error_message
           end
         end
@@ -1040,7 +1183,7 @@ module Spec::Support::Examples
 
           it { expect(described_class.middleware).to be == expected }
 
-          include_examples 'should define the middleware'
+          include_examples 'should define the middleware with options'
         end
 
         context 'with a controller subclass' do
@@ -1050,14 +1193,14 @@ module Spec::Support::Examples
 
           it { expect(described_class.middleware).to be == [] }
 
-          include_examples 'should define the middleware'
+          include_examples 'should define the middleware with options'
 
           wrap_context 'when the controller defines middleware' do
             let(:configured_middleware) { middleware }
 
             it { expect(described_class.middleware).to be == expected }
 
-            include_examples 'should define the middleware'
+            include_examples 'should define the middleware with options'
           end
 
           context 'when the parent class defines middleware' do
@@ -1065,8 +1208,7 @@ module Spec::Support::Examples
               [
                 {
                   command: Spec::Middleware,
-                  except:  [],
-                  only:    %i[drafts published]
+                  actions: { only: %i[drafts published] }
                 }
               ]
             end
@@ -1076,22 +1218,21 @@ module Spec::Support::Examples
               subclass_middleware.each do |hsh|
                 Spec::Controller.middleware(
                   hsh[:command],
-                  except: hsh[:except],
-                  only:   hsh[:only]
+                  actions: hsh[:actions]
                 )
               end
             end
 
             it { expect(described_class.middleware).to be == expected }
 
-            include_examples 'should define the middleware'
+            include_examples 'should define the middleware with options'
 
             wrap_context 'when the controller defines middleware' do
               let(:configured_middleware) { super() + middleware }
 
               it { expect(described_class.middleware).to be == expected }
 
-              include_examples 'should define the middleware'
+              include_examples 'should define the middleware with options'
             end
           end
         end

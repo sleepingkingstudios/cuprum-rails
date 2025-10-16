@@ -82,44 +82,62 @@ RSpec.describe Cuprum::Rails::Controllers::Configuration do
 
   describe '#middleware_for' do
     let(:action_name) { :publish }
+    let(:request) do
+      Cuprum::Rails::Request.new(action_name:)
+    end
 
     it { expect(configuration).to respond_to(:middleware_for).with(1).argument }
 
     context 'when the controller does not define middleware' do
       let(:middleware) { [] }
 
-      it { expect(configuration.middleware_for action_name).to be == [] }
+      it { expect(configuration.middleware_for(request)).to be == [] }
     end
 
     context 'when the controller defines middleware' do
       let(:middleware) do
         [
-          Cuprum::Rails::Controllers::Middleware.new(
+          {
             command: Cuprum::Command.new
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+          },
+          {
             command: Cuprum::Command.new,
-            except:  %i[index show]
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+            actions: { except: %i[index show] }
+          },
+          {
             command: Cuprum::Command.new,
-            except:  %i[draft publish]
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+            actions: { except: %i[draft publish] }
+          },
+          {
             command: Cuprum::Command.new,
-            only:    %i[create update]
-          ),
-          Cuprum::Rails::Controllers::Middleware.new(
+            actions: { only: %i[create update] }
+          },
+          {
             command: Cuprum::Command.new,
-            only:    %i[approve publish]
-          )
+            actions: { only: %i[approve publish] }
+          }
         ]
+          .map { |options| build_middleware(**options) }
       end
       let(:expected) do
-        middleware.select { |item| item.matches?(action_name) }
+        middleware.select { |item| item.matches?(request) }
       end
 
-      it { expect(configuration.middleware_for action_name).to be == expected }
+      def build_middleware(command:, actions: nil, **options)
+        if actions
+          actions =
+            Cuprum::Rails::Controllers::Middleware::InclusionMatcher
+              .build(actions)
+        end
+
+        Cuprum::Rails::Controllers::Middleware.new(
+          actions:,
+          command:,
+          **options
+        )
+      end
+
+      it { expect(configuration.middleware_for(request)).to be == expected }
     end
   end
 

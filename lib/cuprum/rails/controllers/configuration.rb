@@ -55,12 +55,12 @@ module Cuprum::Rails::Controllers
 
     # Finds the configured middleware for the requested action name.
     #
-    # @param action_name [Symbol] The name of the action.
+    # @param request [Symbol] the request to match.
     #
     # @return [Array<Cuprum::Rails::Controllers::Middleware>] the configured
     #   middleware for the action.
-    def middleware_for(action_name)
-      middleware.select { |item| item.matches?(action_name) }
+    def middleware_for(request)
+      middleware.select { |item| item.matches?(request) }
     end
 
     # Finds the configured responder for the requested format.
