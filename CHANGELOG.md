@@ -26,6 +26,13 @@ Implemented `Cuprum::Rails::Command` as an abstract base class for action-compat
 
 - Implemented `Commands::Resources` to implement resourceful CRUD actions for plural or singular resources.
 
+### Controllers
+
+#### Middleware
+
+- Updated syntax for `Controller.middleware()`. Instead of passing `only:` and `except:` keywords directly to filter middleware by action name, pass them in an `actions: { except:, only: }` Hash. You can also define using a shorthand: `actions: :index` or `actions: %w[new edit update destroy]`.
+- `Controller.middleware()` now supports filtering by request format by passing a `formats:` keyword. You can pass a single format, an array of formats, or a Hash with `except:` and/or `only:` keys.
+
 ### Records
 
 Refactored the existing collection to `Cuprum::Rails::Records::Collection`.

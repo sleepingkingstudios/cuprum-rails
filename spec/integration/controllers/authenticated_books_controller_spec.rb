@@ -57,7 +57,7 @@ RSpec.describe AuthenticatedBooksController do
     let(:expected_json) do
       {
         'ok'   => true,
-        'data' => expected_data
+        'data' => expected_data.merge('api_version' => '1982-07')
       }
     end
 
