@@ -214,7 +214,7 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
       expect(described_class)
         .to respond_to(:new)
         .with(0).arguments
-        .and_keywords(:command, :actions)
+        .and_keywords(:command, :actions, :formats)
     end
   end
 
@@ -244,6 +244,15 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
           described_class::InclusionMatcher.build({ except: %i[drafts] })
         end
         let(:options) { super().merge(actions: other_actions) }
+
+        it { expect(middleware == other).to be false }
+      end
+
+      describe 'with non-matching formats' do
+        let(:other_formats) do
+          described_class::InclusionMatcher.build({ except: %i[soap] })
+        end
+        let(:options) { super().merge(formats: other_formats) }
 
         it { expect(middleware == other).to be false }
       end
@@ -308,9 +317,26 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
     include_examples 'should define reader', :command, -> { command }
   end
 
+  describe '#formats' do
+    include_examples 'should define reader', :formats, nil
+
+    context 'when initialized with formats' do
+      let(:formats) do
+        described_class::InclusionMatcher.build({
+          except: %i[json xml],
+          only:   %i[html xml turbo_stream]
+        })
+      end
+      let(:constructor_options) { super().merge(formats:) }
+
+      it { expect(middleware.formats).to be == formats }
+    end
+  end
+
   describe '#matches?' do
     let(:action_name)     { :index }
-    let(:request_options) { { action_name: } }
+    let(:format)          { :json }
+    let(:request_options) { { action_name:, format: } }
     let(:request) do
       Cuprum::Rails::Request.new(**request_options)
     end
@@ -354,6 +380,76 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
         let(:action_name) { :create }
 
         it { expect(middleware.matches?(request)).to be false }
+      end
+    end
+
+    context 'when initialized with formats' do
+      let(:formats) do
+        described_class::InclusionMatcher.build({
+          except: %i[json xml],
+          only:   %i[html xml turbo_stream]
+        })
+      end
+      let(:constructor_options) { super().merge(formats:) }
+
+      describe 'with a format not in formats.except or formats.only' do
+        let(:format) { :xhtml }
+
+        it { expect(middleware.matches?(request)).to be false }
+      end
+
+      describe 'with a format in formats.except' do
+        let(:format) { :json }
+
+        it { expect(middleware.matches?(request)).to be false }
+      end
+
+      describe 'with a format in formats.only' do
+        let(:format) { :html }
+
+        it { expect(middleware.matches?(request)).to be true }
+      end
+
+      describe 'with a format in formats.except and formats.only' do
+        let(:format) { :xml }
+
+        it { expect(middleware.matches?(request)).to be false }
+      end
+    end
+
+    context 'when initialized with multiple options' do
+      let(:actions) do
+        described_class::InclusionMatcher.build({
+          except: %i[create destroy update],
+          only:   %i[index show create]
+        })
+      end
+      let(:formats) do
+        described_class::InclusionMatcher.build({
+          except: %i[json xml],
+          only:   %i[html xml turbo_stream]
+        })
+      end
+      let(:constructor_options) { super().merge(actions:, formats:) }
+
+      describe 'with a request matching none of the options' do
+        let(:action_name) { :destroy }
+        let(:format)      { :json }
+
+        it { expect(middleware.matches?(request)).to be false }
+      end
+
+      describe 'with a request matching some of the options' do
+        let(:action_name) { :index }
+
+        it { expect(middleware.matches?(request)).to be false }
+      end
+
+      describe 'with a request matching all of the options' do
+        let(:action_name) { :index }
+        let(:format)      { :html }
+
+        it { expect(middleware.matches?(request)).to be true }
       end
     end
   end

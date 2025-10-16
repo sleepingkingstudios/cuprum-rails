@@ -996,6 +996,59 @@ module Spec::Support::Examples
             }
           end
 
+          describe 'with formats: nil' do
+            let(:options) { super().merge(formats: nil) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: a String' do
+            let(:options) { super().merge(formats: 'json') }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: a Symbol' do
+            let(:options) { super().merge(formats: :json) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: an Array of Strings' do
+            let(:options) { super().merge(formats: %w[json xml]) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: an Array of Symbols' do
+            let(:options) { super().merge(formats: %i[json xml]) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: { except: }' do
+            let(:formats) { { except: %w[html] } }
+            let(:options) { super().merge(formats:) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: { except:, only: }' do
+            let(:formats) do
+              { except: %w[html], only: %w[json xml] }
+            end
+            let(:options) { super().merge(formats:) }
+
+            include_examples 'should define the middleware'
+          end
+
+          describe 'with formats: { only: }' do
+            let(:formats) { { only: %w[json xml] } }
+            let(:options) { super().merge(formats:) }
+
+            include_examples 'should define the middleware'
+          end
+
           describe 'with only: value' do
             let(:only_actions) { %i[create update] }
             let(:options)      { super().merge(only: only_actions) }
@@ -1011,7 +1064,8 @@ module Spec::Support::Examples
           configured_middleware.map do |hsh|
             Cuprum::Rails::Controllers::Middleware.new(
               command: hsh[:command],
-              actions: expected_actions_for(hsh)
+              actions: expected_actions_for(hsh),
+              formats: expected_formats_for(hsh)
             )
           end
         end
@@ -1029,6 +1083,15 @@ module Spec::Support::Examples
             .build(actions)
         end
 
+        define_method(:expected_formats_for) do |hsh|
+          formats = hsh[:formats]
+
+          next if formats.blank?
+
+          Cuprum::Rails::Controllers::Middleware::InclusionMatcher
+            .build(formats)
+        end
+
         example_class 'Spec::Middleware', 'Cuprum::Command' do |klass|
           klass.define_method(:==) { |other| other.is_a?(Spec::Middleware) }
         end
@@ -1037,7 +1100,7 @@ module Spec::Support::Examples
           expect(described_class)
             .to respond_to(:middleware)
             .with(0..1).arguments
-            .and_keywords(:except, :only)
+            .and_keywords(:actions, :formats)
         end
 
         it { expect(described_class.middleware).to be == [] }

@@ -18,20 +18,23 @@ module Cuprum::Rails::Controllers::ClassMethods
     #     and a request: keyword.
     #   @param actions [Hash{except:, only:}, Array<String, Symbol>] the actions
     #     to include or exclude from the middleware.
-    #   @param except [Array<String, Symbol>] Action names to exclude. The
-    #     middleware will not be applied to actions on this list.
-    #   @param only [Array<String, Symbol>] Action names to include  If this is
-    #     not empty, the middleware will only be applied to actions on this
-    #     list.
+    #   @param formats [Hash{except:, only:}, Array<String, Symbol>] the formats
+    #     to include or exclude from the middleware.
     #
     #   @see Cuprum::Middleware
     #
     #   @deprecate 0.3.0 Calling .middleware() with :except or :only keywords is
     #     deprecated. Pass the :actions keyword instead.
-    def middleware(command = nil, actions: {}, except: nil, only: nil)
+    def middleware(
+      command = nil,
+      actions: {},
+      except:  nil,
+      formats: {},
+      only:    nil
+    )
       unless command.nil?
         own_middleware <<
-          build_middleware(command:, actions:, except:, only:)
+          build_middleware(command:, actions:, except:, formats:, only:)
       end
 
       ancestors
@@ -68,15 +71,22 @@ module Cuprum::Rails::Controllers::ClassMethods
       Cuprum::Rails::Controllers::Middleware::InclusionMatcher.build(actions)
     end
 
+    def build_formats(formats: nil, **)
+      return if formats.blank?
+
+      Cuprum::Rails::Controllers::Middleware::InclusionMatcher.build(formats)
+    end
+
     def build_middleware(command:, **options)
       validate_command!(command)
 
       actions = build_actions(**options)
+      formats = build_formats(**options)
 
       validate_action_names!(actions&.except, as: 'except')
       validate_action_names!(actions&.only,   as: 'only')
 
-      Cuprum::Rails::Controllers::Middleware.new(command:, actions:)
+      Cuprum::Rails::Controllers::Middleware.new(command:, actions:, formats:)
     end
 
     def valid_action_names?(action_names)

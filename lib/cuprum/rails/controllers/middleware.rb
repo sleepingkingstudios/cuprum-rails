@@ -83,9 +83,12 @@ module Cuprum::Rails::Controllers
     #   action or actions.
     # @param actions [Cuprum::Rails::Controllers::Middleware::InclusionMatcher]
     #   the actions that match the middleware.
-    def initialize(command:, actions: nil)
+    # @param formats [Cuprum::Rails::Controllers::Middleware::InclusionMatcher]
+    #   the formsats that match the middleware.
+    def initialize(command:, actions: nil, formats: nil)
       @command = command
       @actions = actions
+      @formats = formats
     end
 
     # @return [Cuprum::Rails::Controllers::Middleware::InclusionMatcher] the
@@ -96,11 +99,16 @@ module Cuprum::Rails::Controllers
     #   actions.
     attr_reader :command
 
+    # @return [Cuprum::Rails::Controllers::Middleware::InclusionMatcher] the
+    #   formats that match the middleware.
+    attr_reader :formats
+
     # @private
     def ==(other)
       other.is_a?(Cuprum::Rails::Controllers::Middleware) &&
         other.command == command &&
-        other.actions == actions
+        other.actions == actions &&
+        other.formats == formats
     end
 
     # Checks if the middleware will be applied to the given request.
@@ -112,7 +120,13 @@ module Cuprum::Rails::Controllers
     #
     # @return [true, false] whether the middleware will be applied.
     def matches?(request)
-      actions.blank? || actions.matches?(request.action_name)
+      unless actions.blank? || actions.matches?(request.action_name)
+        return false
+      end
+
+      return false unless formats.blank? || formats.matches?(request.format)
+
+      true
     end
     alias match? matches?
   end
