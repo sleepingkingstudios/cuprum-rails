@@ -63,7 +63,7 @@ module Cuprum::Rails::Responders::Html
 
       assigns = default_value
 
-      assigns[:error] = result.error unless result.error.nil?
+      assigns = assigns.merge('error' => result.error) unless result.error.nil?
 
       assigns
     end

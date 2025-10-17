@@ -106,7 +106,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RenderResponse
         end
-        let(:expected) { value.merge(errors:) }
+        let(:expected) { value.merge('errors' => errors) }
 
         it { expect(response).to be_a response_class }
 
@@ -246,7 +246,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RenderResponse
         end
-        let(:expected) { value.merge(errors:) }
+        let(:expected) { value.merge('errors' => errors) }
 
         it { expect(response).to be_a response_class }
 

@@ -161,7 +161,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
         include_deferred 'should render template',
           -> { action_name },
-          assigns: -> { { value: :ok } }
+          assigns: -> { { 'value' => :ok } }
       end
 
       context 'when the result value is an empty Hash' do
@@ -509,15 +509,15 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
       context 'when the result has an error' do
         let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
         let(:result)   { Cuprum::Result.new(status: :failure, error:) }
-        let(:expected) { { error: } }
+        let(:expected) { { 'error' => error } }
 
         it { expect(response.assigns).to be == expected }
       end
 
       context 'when the result has an error and a value' do
         let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
-        let(:value)    { { ok: false } }
-        let(:expected) { value.merge(error:) }
+        let(:value)    { { 'ok' => false } }
+        let(:expected) { value.merge('error' => error) }
         let(:result) do
           Cuprum::Result.new(status: :failure, error:, value:)
         end
@@ -533,7 +533,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
       context 'when the result has a non-Hash value' do
         let(:result)   { Cuprum::Result.new(status: :success, value: :ok) }
-        let(:expected) { { value: :ok } }
+        let(:expected) { { 'value' => :ok } }
 
         it { expect(response.assigns).to be == expected }
       end
@@ -541,14 +541,14 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
       context 'when the result has a Hash value' do
         let(:value)    { { ok: true } }
         let(:result)   { Cuprum::Result.new(status: :success, value:) }
-        let(:expected) { value }
+        let(:expected) { { 'ok' => true } }
 
         it { expect(response.assigns).to be == expected }
       end
     end
 
     describe 'with assigns: value' do
-      let(:assigns) { { key: 'value' } }
+      let(:assigns) { { 'key' => 'value' } }
       let(:options) { super().merge(assigns:) }
 
       it { expect(response.assigns).to be == assigns }

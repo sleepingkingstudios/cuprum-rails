@@ -41,7 +41,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             -> { action_name },
-            assigns: -> { { error: } },
+            assigns: -> { { 'error' => error } },
             status:  404
         end
 
@@ -103,7 +103,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
             include_deferred 'should render template',
               -> { action_name },
-              assigns: -> { { error: } },
+              assigns: -> { { 'error' => error } },
               status:  404
           end
 
@@ -274,7 +274,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'new',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 
@@ -429,7 +429,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'edit',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 
@@ -501,7 +501,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'new',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 
@@ -635,7 +635,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'edit',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 

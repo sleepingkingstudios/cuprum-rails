@@ -20,11 +20,19 @@ RSpec.describe Cuprum::Rails::Responses::Html::RenderResponse do
   describe '#assigns' do
     include_examples 'should define reader', :assigns, -> { be == {} }
 
-    context 'when initialized with assigns: a Hash' do
-      let(:assigns) { { key: 'value' } }
+    context 'when initialized with assigns: a Hash with String keys' do
+      let(:assigns) { { 'key' => 'value' } }
       let(:options) { super().merge(assigns:) }
 
       it { expect(response.assigns).to be == assigns }
+    end
+
+    context 'when initialized with assigns: a Hash with Symbol keys' do
+      let(:assigns)  { { key: 'value' } }
+      let(:options)  { super().merge(assigns:) }
+      let(:expected) { { 'key' => 'value' } }
+
+      it { expect(response.assigns).to be == expected }
     end
   end
 
