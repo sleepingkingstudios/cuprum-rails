@@ -106,7 +106,7 @@ module Cuprum::Rails::Controllers::ClassMethods
       action_class.subclass(**subclass_options)
     end
 
-    def define_action(action_name)
+    def define_action(action_name) # rubocop:disable Metrics/MethodLength
       define_method(action_name) do
         action  = self.class.actions[action_name]
         request =
@@ -114,8 +114,10 @@ module Cuprum::Rails::Controllers::ClassMethods
             .class
             .build_request(self, member_action: action.member_action?)
             .tap { |req| self.class.apply_request_defaults(req) }
+
         response = action.call(self, request)
         response.call(self)
+        response
       end
     end
 
