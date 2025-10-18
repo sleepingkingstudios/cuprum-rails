@@ -2,12 +2,14 @@
 
 require 'cuprum/rails/responders/json_responder'
 require 'cuprum/rails/rspec/deferred/responder_examples'
+require 'cuprum/rails/rspec/deferred/responses/json_response_examples'
 require 'cuprum/rails/serializers/json/active_record_serializer'
 
 require 'support/book'
 
 RSpec.describe Cuprum::Rails::Responders::JsonResponder do
   include Cuprum::Rails::RSpec::Deferred::ResponderExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::JsonResponseExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
@@ -75,9 +77,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
       let(:result)   { Cuprum::Result.new(status: :failure, error:) }
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::JsonResponse
-      end
       let(:generic_error) do
         Cuprum::Error.new(
           message: 'Something went wrong when processing the request'
@@ -90,11 +89,9 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         }
       end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.data).to be == expected }
-
-      it { expect(response.status).to be 500 }
+      include_deferred 'should render JSON',
+        data:   -> { expected },
+        status: 500
 
       context 'when the environment is development' do
         let(:expected) do
@@ -108,11 +105,9 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
           allow(Rails.env).to receive(:development?).and_return(true)
         end
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 500 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 500
       end
 
       context 'with a subclass with custom generic error' do
@@ -143,11 +138,9 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         end
         # rubocop:enable RSpec/DescribedClass
 
-        it { expect(response).to be_a response_class }
-
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 500 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 500
       end
     end
 
@@ -162,9 +155,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
       let(:value)    { data }
       let(:result)   { Cuprum::Result.new(status: :success, value:) }
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::JsonResponse
-      end
       let(:expected) do
         {
           'ok'   => true,
@@ -172,11 +162,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         }
       end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.data).to be == expected }
-
-      it { expect(response.status).to be 200 }
+      include_deferred 'should render JSON', data: -> { expected }
 
       describe 'with a record value' do
         let(:serializers) do
@@ -193,7 +179,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         end
         let(:data) { value.attributes }
 
-        it { expect(response.data).to be == expected }
+        include_deferred 'should render JSON', data: -> { expected }
       end
 
       describe 'with an unserializable value' do
@@ -240,9 +226,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     let(:value)    { data }
     let(:options)  { {} }
     let(:response) { responder.render(value, **options) }
-    let(:response_class) do
-      Cuprum::Rails::Responses::JsonResponse
-    end
 
     it 'should define the method' do
       expect(responder)
@@ -259,11 +242,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
       expect(responder).to have_received(:serialize).with(value) # rubocop:disable RSpec/SubjectStub
     end
 
-    it { expect(response).to be_a response_class }
-
-    it { expect(response.data).to be == data }
-
-    it { expect(response.status).to be 200 }
+    include_deferred 'should render JSON', data: -> { data }
 
     describe 'with a record value' do
       let(:serializers) do
@@ -280,7 +259,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
       end
       let(:data) { value.attributes }
 
-      it { expect(response.data).to be == data }
+      include_deferred 'should render JSON', data: -> { data }
     end
 
     describe 'with an unserializable value' do
@@ -301,7 +280,9 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     describe 'with status: value' do
       let(:options) { super().merge(status: 422) }
 
-      it { expect(response.status).to be 422 }
+      include_deferred 'should render JSON',
+        data:   -> { data },
+        status: 422
     end
   end
 
@@ -310,9 +291,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
 
     let(:options)  { {} }
     let(:response) { responder.render_failure(error, **options) }
-    let(:response_class) do
-      Cuprum::Rails::Responses::JsonResponse
-    end
     let(:expected) do
       {
         'ok'    => false,
@@ -327,16 +305,16 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         .and_keywords(:status)
     end
 
-    it { expect(response).to be_a response_class }
-
-    it { expect(response.data).to be == expected }
-
-    it { expect(response.status).to be 500 }
+    include_deferred 'should render JSON',
+      data:   -> { expected },
+      status: 500
 
     describe 'with status: value' do
       let(:options) { super().merge(status: 422) }
 
-      it { expect(response.status).to be 422 }
+      include_deferred 'should render JSON',
+        data:   -> { expected },
+        status: 422
     end
   end
 
@@ -351,9 +329,6 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     let(:value)    { data }
     let(:options)  { {} }
     let(:response) { responder.render_success(value, **options) }
-    let(:response_class) do
-      Cuprum::Rails::Responses::JsonResponse
-    end
     let(:expected) do
       {
         'ok'   => true,
@@ -368,11 +343,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
         .and_keywords(:status)
     end
 
-    it { expect(response).to be_a response_class }
-
-    it { expect(response.data).to be == expected }
-
-    it { expect(response.status).to be 200 }
+    include_deferred 'should render JSON', data: -> { expected }
 
     describe 'with a record value' do
       let(:serializers) do
@@ -389,7 +360,7 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
       end
       let(:data) { value.attributes }
 
-      it { expect(response.data).to be == expected }
+      include_deferred 'should render JSON', data: -> { expected }
     end
 
     describe 'with an unserializable value' do
@@ -410,7 +381,9 @@ RSpec.describe Cuprum::Rails::Responders::JsonResponder do
     describe 'with status: value' do
       let(:options) { super().merge(status: 201) }
 
-      it { expect(response.status).to be 201 }
+      include_deferred 'should render JSON',
+        data:   -> { expected },
+        status: 201
     end
   end
 
