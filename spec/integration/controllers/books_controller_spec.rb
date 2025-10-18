@@ -3,12 +3,16 @@
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/rspec/deferred/controller_examples'
+require 'cuprum/rails/rspec/deferred/responses/html_response_examples'
+require 'cuprum/rails/rspec/deferred/responses/json_response_examples'
 
 require 'support/controllers/books_controller'
 
 # @note Integration spec for Cuprum::Rails::Controller.
 RSpec.describe BooksController do
   include Cuprum::Rails::RSpec::Deferred::ControllerExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::HtmlResponseExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::JsonResponseExamples
 
   subject(:controller) do
     described_class.new(
@@ -305,6 +309,7 @@ RSpec.describe BooksController do
     let(:path)        { '/books' }
     let(:attributes)  { { title: 'Gideon the Ninth' } }
     let(:params)      { { 'book' => attributes } }
+    let(:response)    { controller.create }
 
     it { expect(controller).to respond_to(:create).with(0).arguments }
 
@@ -356,6 +361,33 @@ RSpec.describe BooksController do
       wrap_examples 'should serialize the error'
 
       wrap_examples 'should log the action'
+
+      describe 'with format: :html' do
+        let(:format) { :html }
+
+        include_deferred 'should render template',
+          :new,
+          status:  422,
+          assigns: lambda {
+            {
+              'book'   => expected_book,
+              'errors' => expected_errors
+            }
+          }
+      end
+
+      describe 'with format: :json' do
+        let(:format) { :json }
+
+        include_deferred 'should render JSON',
+          data:   lambda {
+            {
+              'ok'    => false,
+              'error' => expected_error.as_json
+            }
+          },
+          status: 422
+      end
     end
 
     describe 'with valid attributes' do
@@ -393,6 +425,26 @@ RSpec.describe BooksController do
       wrap_examples 'should serialize the data'
 
       wrap_examples 'should log the action'
+
+      describe 'with format: :html' do
+        let(:format) { :html }
+
+        include_deferred 'should redirect to',
+          -> { "/books/#{expected_book.id}" }
+      end
+
+      describe 'with format: :json' do
+        let(:format) { :json }
+
+        include_deferred 'should render JSON',
+          data:   lambda {
+            {
+              'ok'   => true,
+              'data' => expected_data.merge('api_version' => '1982-07')
+            }
+          },
+          status: 201
+      end
     end
   end
 
@@ -402,6 +454,7 @@ RSpec.describe BooksController do
     let(:path)         { "/books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
+    let(:response)     { controller.destroy }
 
     it { expect(controller).to respond_to(:destroy).with(0).arguments }
 
@@ -439,6 +492,24 @@ RSpec.describe BooksController do
       wrap_examples 'should serialize the data'
 
       wrap_examples 'should log the action'
+
+      describe 'with format: :html' do
+        let(:format) { :html }
+
+        include_deferred 'should redirect to', '/books'
+      end
+
+      describe 'with format: :json' do
+        let(:format) { :json }
+
+        include_deferred 'should render JSON',
+          data: lambda {
+            {
+              'ok'   => true,
+              'data' => expected_data.merge('api_version' => '1982-07')
+            }
+          }
+      end
     end
   end
 
@@ -448,6 +519,7 @@ RSpec.describe BooksController do
     let(:path)         { "books/#{book_id}/edit" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
+    let(:response)     { controller.edit }
 
     it { expect(controller).to respond_to(:edit).with(0).arguments }
 
@@ -464,6 +536,19 @@ RSpec.describe BooksController do
       end
 
       wrap_examples 'should render the view'
+
+      describe 'with format: :html' do
+        let(:format) { :html }
+
+        include_deferred 'should render template',
+          :edit,
+          assigns: lambda {
+            {
+              'book'         => book,
+              'time_elapsed' => '50 milliseconds'
+            }
+          }
+      end
     end
   end
 
@@ -486,6 +571,7 @@ RSpec.describe BooksController do
         'time_elapsed' => '50 milliseconds'
       }
     end
+    let(:response) { controller.index }
 
     it { expect(controller).to respond_to(:index).with(0).arguments }
 
@@ -493,12 +579,58 @@ RSpec.describe BooksController do
 
     wrap_examples 'should serialize the data'
 
+    describe 'with format: :html' do
+      include_deferred 'should render template',
+        :index,
+        assigns: lambda {
+          {
+            'books'        => expected_books.to_a,
+            'time_elapsed' => '50 milliseconds'
+          }
+        }
+    end
+
+    describe 'with format: :json' do
+      let(:format) { :json }
+
+      include_deferred 'should render JSON',
+        data: lambda {
+          {
+            'ok'   => true,
+            'data' => expected_data.merge('api_version' => '1982-07')
+          }
+        }
+    end
+
     wrap_context 'when there are many books' do
       let(:expected_books) { Book.order(:id).to_a }
 
       wrap_examples 'should render the view'
 
       wrap_examples 'should serialize the data'
+
+      describe 'with format: :html' do
+        include_deferred 'should render template',
+          :index,
+          assigns: lambda {
+            {
+              'books'        => expected_books.to_a,
+              'time_elapsed' => '50 milliseconds'
+            }
+          }
+      end
+
+      describe 'with format: :json' do
+        let(:format) { :json }
+
+        include_deferred 'should render JSON',
+          data: lambda {
+            {
+              'ok'   => true,
+              'data' => expected_data.merge('api_version' => '1982-07')
+            }
+          }
+      end
 
       context 'with filter params' do
         let(:params) do
@@ -514,6 +646,29 @@ RSpec.describe BooksController do
         wrap_examples 'should render the view'
 
         wrap_examples 'should serialize the data'
+
+        describe 'with format: :html' do
+          include_deferred 'should render template',
+            :index,
+            assigns: lambda {
+              {
+                'books'        => expected_books.to_a,
+                'time_elapsed' => '50 milliseconds'
+              }
+            }
+        end
+
+        describe 'with format: :json' do
+          let(:format) { :json }
+
+          include_deferred 'should render JSON',
+            data: lambda {
+              {
+                'ok'   => true,
+                'data' => expected_data.merge('api_version' => '1982-07')
+              }
+            }
+        end
       end
     end
   end
@@ -528,10 +683,24 @@ RSpec.describe BooksController do
         '@time_elapsed' => '50 milliseconds'
       }
     end
+    let(:response) { controller.new }
 
     it { expect(controller).to respond_to(:new).with(0).arguments }
 
     wrap_examples 'should render the view'
+
+    describe 'with format: :html' do
+      let(:format) { :html }
+
+      include_deferred 'should render template',
+        :new,
+        assigns: lambda {
+          {
+            'book'         => Book.new,
+            'time_elapsed' => '50 milliseconds'
+          }
+        }
+    end
   end
 
   describe '#publish' do
@@ -541,6 +710,7 @@ RSpec.describe BooksController do
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
+    let(:response)     { controller.publish }
 
     before(:example) do
       allow(Time.zone).to receive(:today).and_return(current_date)
@@ -566,6 +736,25 @@ RSpec.describe BooksController do
       wrap_examples 'should redirect to the index page'
 
       wrap_examples 'should serialize the error'
+
+      describe 'with format: :html' do
+        let(:format) { :html }
+
+        include_deferred 'should redirect to', '/books'
+      end
+
+      describe 'with format: :json' do
+        let(:format) { :json }
+
+        include_deferred 'should render JSON',
+          data:   lambda {
+            {
+              'ok'    => false,
+              'error' => expected_error.as_json
+            }
+          },
+          status: 400
+      end
     end
 
     wrap_context 'when there are many books' do
@@ -593,6 +782,31 @@ RSpec.describe BooksController do
       wrap_examples 'should render the view'
 
       wrap_examples 'should serialize the data'
+
+      describe 'with format: :html' do
+        let(:format) { :html }
+
+        include_deferred 'should render template',
+          :publish,
+          assigns: lambda {
+            {
+              'book'         => book.reload,
+              'time_elapsed' => '50 milliseconds'
+            }
+          }
+      end
+
+      describe 'with format: :json' do
+        let(:format) { :json }
+
+        include_deferred 'should render JSON',
+          data: lambda {
+            {
+              'ok'   => true,
+              'data' => expected_data.merge('api_version' => '1982-07')
+            }
+          }
+      end
     end
   end
 
@@ -602,6 +816,7 @@ RSpec.describe BooksController do
     let(:path)         { "books/#{book_id}" }
     let(:book_id)      { (Book.last&.id || -1) + 1 }
     let(:path_params)  { super().merge('id' => book_id) }
+    let(:response)     { controller.show }
 
     it { expect(controller).to respond_to(:show).with(0).arguments }
 
@@ -626,6 +841,31 @@ RSpec.describe BooksController do
       wrap_examples 'should render the view'
 
       wrap_examples 'should serialize the data'
+
+      describe 'with format: :html' do
+        let(:format) { :html }
+
+        include_deferred 'should render template',
+          :show,
+          assigns: lambda {
+            {
+              'book'         => book,
+              'time_elapsed' => '50 milliseconds'
+            }
+          }
+      end
+
+      describe 'with format: :json' do
+        let(:format) { :json }
+
+        include_deferred 'should render JSON',
+          data: lambda {
+            {
+              'ok'   => true,
+              'data' => expected_data.merge('api_version' => '1982-07')
+            }
+          }
+      end
     end
   end
 
@@ -637,6 +877,7 @@ RSpec.describe BooksController do
     let(:attributes)   { { 'title' => 'Gideon the Ninth' } }
     let(:path_params)  { super().merge('id' => book_id) }
     let(:params)       { super().merge('book' => attributes) }
+    let(:response)     { controller.update }
 
     it { expect(controller).to respond_to(:update).with(0).arguments }
 
@@ -697,6 +938,33 @@ RSpec.describe BooksController do
         wrap_examples 'should serialize the error'
 
         wrap_examples 'should log the action'
+
+        describe 'with format: :html' do
+          let(:format) { :html }
+
+          include_deferred 'should render template',
+            :edit,
+            status:  422,
+            assigns: lambda {
+              {
+                'book'   => expected_book,
+                'errors' => expected_errors
+              }
+            }
+        end
+
+        describe 'with format: :json' do
+          let(:format) { :json }
+
+          include_deferred 'should render JSON',
+            data:   lambda {
+              {
+                'ok'    => false,
+                'error' => expected_error.as_json
+              }
+            },
+            status: 422
+        end
       end
 
       describe 'with valid attributes' do
@@ -728,6 +996,25 @@ RSpec.describe BooksController do
         wrap_examples 'should serialize the data'
 
         wrap_examples 'should log the action'
+
+        describe 'with format: :html' do
+          let(:format) { :html }
+
+          include_deferred 'should redirect to',
+            -> { "/books/#{expected_book.id}" }
+        end
+
+        describe 'with format: :json' do
+          let(:format) { :json }
+
+          include_deferred 'should render JSON',
+            data: lambda {
+              {
+                'ok'   => true,
+                'data' => expected_data.merge('api_version' => '1982-07')
+              }
+            }
+        end
       end
     end
   end

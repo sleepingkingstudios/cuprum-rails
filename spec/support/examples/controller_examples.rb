@@ -174,6 +174,10 @@ module Spec::Support::Examples
                 expect(response).to have_received(:call).with(controller)
               end
 
+              it 'should return the response' do
+                expect(controller.send(action_name)).to be response
+              end
+
               context 'when the controller overrides .build_request' do
                 let(:custom_request) { Spec::CustomRequest.new }
 

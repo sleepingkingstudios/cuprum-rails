@@ -2,9 +2,11 @@
 
 require 'cuprum/rails/responders/html/resource'
 require 'cuprum/rails/rspec/deferred/responder_examples'
+require 'cuprum/rails/rspec/deferred/responses/html_response_examples'
 
 RSpec.describe Cuprum::Rails::Responders::Html::Resource do
   include Cuprum::Rails::RSpec::Deferred::ResponderExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::HtmlResponseExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
@@ -27,7 +29,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     shared_examples 'should handle a NotFound error' do
       describe 'with a failing result with a NotFound error' do
         let(:result)   { Cuprum::Result.new(error:) }
-        let(:response) { responder.call(result) }
 
         context 'when the error does not match a resource' do
           let(:error) do
@@ -41,7 +42,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             -> { action_name },
-            assigns: -> { { error: } },
+            assigns: -> { { 'error' => error } },
             status:  404
         end
 
@@ -103,7 +104,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
             include_deferred 'should render template',
               -> { action_name },
-              assigns: -> { { error: } },
+              assigns: -> { { 'error' => error } },
               status:  404
           end
 
@@ -171,8 +172,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     end
 
     shared_examples 'should redirect to the index page' do
-      let(:response) { responder.call(result) }
-
       include_deferred 'should redirect to', -> { resource.routes.index_path }
 
       context 'when the resource has ancestors' do
@@ -193,8 +192,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     end
 
     shared_examples 'should redirect to the show page' do
-      let(:response) { responder.call(result) }
-
       include_deferred 'should redirect to', -> { resource.routes.show_path }
 
       context 'when the resource has ancestors' do
@@ -215,8 +212,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     end
 
     shared_examples 'should redirect to the parent resource page' do
-      let(:response) { responder.call(result) }
-
       include_deferred 'should redirect to', -> { resource.routes.parent_path }
 
       context 'when the resource has ancestors' do
@@ -237,12 +232,12 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
     end
 
     shared_examples 'should render the template' do
-      let(:response) { responder.call(result) }
-
       include_deferred 'should render template',
         -> { action_name },
         assigns: -> { value }
     end
+
+    let(:response) { responder.call(result) }
 
     context 'when initialized with a plural resource' do
       context 'when initialized with action_name: :create' do
@@ -274,7 +269,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'new',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 
@@ -429,7 +424,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'edit',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 
@@ -501,7 +496,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'new',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 
@@ -635,7 +630,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
 
           include_deferred 'should render template',
             'edit',
-            assigns: -> { value.merge(errors:) },
+            assigns: -> { value.merge('errors' => errors) },
             status:  422
         end
 

@@ -11,7 +11,7 @@ module Cuprum::Rails::Responses::Html
     # @param status [Integer] the HTTP status of the response.
     # @param template [String, Symbol] the template to render.
     def initialize(template, assigns: {}, flash: {}, layout: nil, status: 200)
-      @assigns  = assigns
+      @assigns  = assigns.transform_keys(&:to_s)
       @flash    = flash
       @layout   = layout
       @status   = status

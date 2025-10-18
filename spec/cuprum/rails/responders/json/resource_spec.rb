@@ -2,11 +2,13 @@
 
 require 'cuprum/rails/responders/json/resource'
 require 'cuprum/rails/rspec/deferred/responder_examples'
+require 'cuprum/rails/rspec/deferred/responses/json_response_examples'
 
 require 'support/book'
 
 RSpec.describe Cuprum::Rails::Responders::Json::Resource do
   include Cuprum::Rails::RSpec::Deferred::ResponderExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::JsonResponseExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
@@ -28,9 +30,6 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
       let(:error)    { Cuprum::Error.new(message: 'Something went wrong.') }
       let(:result)   { Cuprum::Result.new(status: :failure, error:) }
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::JsonResponse
-      end
       let(:generic_error) do
         Cuprum::Error.new(
           message: 'Something went wrong when processing the request'
@@ -43,11 +42,9 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
         }
       end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.data).to be == expected }
-
-      it { expect(response.status).to be 500 }
+      include_deferred 'should render JSON',
+        data:   -> { expected },
+        status: 500
 
       describe 'with an AlreadyExists error' do
         let(:error) do
@@ -65,9 +62,9 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
           }
         end
 
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 422 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 422
       end
 
       describe 'with an ExtraAttributes error' do
@@ -85,9 +82,9 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
           }
         end
 
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 422 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 422
       end
 
       describe 'with a FailedValidation error' do
@@ -104,9 +101,9 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
           }
         end
 
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 422 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 422
       end
 
       describe 'with an InvalidParameters error' do
@@ -124,9 +121,9 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
           }
         end
 
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 400 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 400
       end
 
       describe 'with a NotFound error' do
@@ -145,9 +142,9 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
           }
         end
 
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 404 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 404
       end
     end
 
@@ -162,9 +159,6 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
       let(:value)    { data }
       let(:result)   { Cuprum::Result.new(status: :success, value:) }
       let(:response) { responder.call(result) }
-      let(:response_class) do
-        Cuprum::Rails::Responses::JsonResponse
-      end
       let(:expected) do
         {
           'ok'   => true,
@@ -172,18 +166,14 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
         }
       end
 
-      it { expect(response).to be_a response_class }
-
-      it { expect(response.data).to be == expected }
-
-      it { expect(response.status).to be 200 }
+      include_deferred 'should render JSON', data: -> { expected }
 
       describe 'with action_name: :create' do
         let(:action_name) { :create }
 
-        it { expect(response.data).to be == expected }
-
-        it { expect(response.status).to be 201 }
+        include_deferred 'should render JSON',
+          data:   -> { expected },
+          status: 201
       end
     end
   end

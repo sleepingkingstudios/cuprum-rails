@@ -2,9 +2,11 @@
 
 require 'cuprum/rails/responders/html/plural_resource'
 require 'cuprum/rails/rspec/deferred/responder_examples'
+require 'cuprum/rails/rspec/deferred/responses/html_response_examples'
 
 RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
   include Cuprum::Rails::RSpec::Deferred::ResponderExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::HtmlResponseExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
@@ -64,6 +66,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
         singular: false
       )
     end
+    let(:response) { responder.call(result) }
 
     context 'when initialized with action_name: :create' do
       let(:action_name) { :create }
@@ -93,7 +96,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RenderResponse
         end
-        let(:expected) { value.merge(errors:) }
+        let(:expected) { value.merge('errors' => errors) }
 
         it { expect(response).to be_a response_class }
 
@@ -260,7 +263,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
         let(:response_class) do
           Cuprum::Rails::Responses::Html::RenderResponse
         end
-        let(:expected) { value.merge(errors:) }
+        let(:expected) { value.merge('errors' => errors) }
 
         it { expect(response).to be_a response_class }
 
