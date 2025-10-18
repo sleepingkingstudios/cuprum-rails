@@ -28,6 +28,8 @@ Implemented `Cuprum::Rails::Command` as an abstract base class for action-compat
 
 ### Controllers
 
+- Updated controller actions to return the response object.
+
 #### Middleware
 
 - Updated syntax for `Controller.middleware()`. Instead of passing `only:` and `except:` keywords directly to filter middleware by action name, pass them in an `actions: { except:, only: }` Hash. You can also define using a shorthand: `actions: :index` or `actions: %w[new edit update destroy]`.
@@ -51,6 +53,13 @@ Added support for Turbo Frames when rendering HTML content.
 ### Responses
 
 Implemented `Cuprum::Rails::Responses::HtmlResponse`, implementing `render html: ''`.
+
+### RSpec
+
+Extracted `Cuprum::Rails::RSpec::Deferred::Responses`, with support for HTML and JSON responses.
+
+- Can now use the `Responses` deferred examples for testing controllers as well as responders.
+- Existing responder specs should include the relevante response examples and define an explicit `let(:response)` helper.
 
 ## O.2.0
 
