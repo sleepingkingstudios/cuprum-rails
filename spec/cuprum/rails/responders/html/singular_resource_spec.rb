@@ -2,9 +2,11 @@
 
 require 'cuprum/rails/responders/html/singular_resource'
 require 'cuprum/rails/rspec/deferred/responder_examples'
+require 'cuprum/rails/rspec/deferred/responses/html_response_examples'
 
 RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
   include Cuprum::Rails::RSpec::Deferred::ResponderExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::HtmlResponseExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
@@ -29,7 +31,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
 
   describe '#call' do
     shared_examples 'should redirect to the show page' do
-      let(:response) { responder.call(result) }
       let(:response_class) do
         Cuprum::Rails::Responses::Html::RedirectResponse
       end
@@ -42,7 +43,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
     end
 
     shared_examples 'should redirect to the parent resource page' do
-      let(:response) { responder.call(result) }
       let(:response_class) do
         Cuprum::Rails::Responses::Html::RedirectResponse
       end
@@ -55,7 +55,6 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
     end
 
     shared_examples 'should render the template' do
-      let(:response) { responder.call(result) }
       let(:response_class) do
         Cuprum::Rails::Responses::Html::RenderResponse
       end
@@ -77,6 +76,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
         singular: true
       )
     end
+    let(:response) { responder.call(result) }
 
     context 'when initialized with action_name: :create' do
       let(:action_name) { :create }

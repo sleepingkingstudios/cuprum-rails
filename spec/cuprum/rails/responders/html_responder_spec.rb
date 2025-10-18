@@ -2,9 +2,11 @@
 
 require 'cuprum/rails/responders/html_responder'
 require 'cuprum/rails/rspec/deferred/responder_examples'
+require 'cuprum/rails/rspec/deferred/responses/html_response_examples'
 
 RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
   include Cuprum::Rails::RSpec::Deferred::ResponderExamples
+  include Cuprum::Rails::RSpec::Deferred::Responses::HtmlResponseExamples
 
   subject(:responder) { described_class.new(**constructor_options) }
 
@@ -29,6 +31,7 @@ RSpec.describe Cuprum::Rails::Responders::HtmlResponder do
 
   describe '#call' do
     let(:described_class) { Spec::HtmlResponder }
+    let(:response)        { responder.call(result) }
 
     example_class 'Spec::HtmlResponder',
       Cuprum::Rails::Responders::HtmlResponder # rubocop:disable RSpec/DescribedClass
