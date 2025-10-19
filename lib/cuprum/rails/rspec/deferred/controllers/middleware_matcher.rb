@@ -194,7 +194,7 @@ module Cuprum::Rails::RSpec::Deferred::Controllers
           # :nocov:
 
           # @deprecate 0.3.0
-          SleepingKingStudios::Tools::Toolbox
+          SleepingKingStudios::Tools::Toolbelt
             .instance
             .core_tools
             .deprecate(

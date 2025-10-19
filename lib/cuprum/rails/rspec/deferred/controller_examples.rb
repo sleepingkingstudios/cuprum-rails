@@ -70,6 +70,15 @@ module Cuprum::Rails::RSpec::Deferred
           Cuprum::Rails::RSpec::Deferred::Controllers::MiddlewareMatcher
 
         # :nocov:
+        let(:configured_class) do
+          # :nocov:
+
+          # @deprecate 0.3.0
+          next middleware_class unless middleware_class.is_a?(Proc)
+
+          instance_exec(&middleware_class)
+          # :nocov:
+        end
         let(:configured_matching) do
           next matching unless matching.is_a?(Proc)
 
@@ -81,7 +90,7 @@ module Cuprum::Rails::RSpec::Deferred
             except:,
             formats:,
             matching:         configured_matching,
-            middleware_class:,
+            middleware_class: configured_class,
             only:
           )
         end
