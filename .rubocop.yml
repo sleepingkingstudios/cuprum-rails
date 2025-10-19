@@ -21,6 +21,7 @@ RSpec:
   Include:
     - '**/*_examples.rb'
     - '**/*_spec.rb'
+    - '**/*_spec.fixture.rb'
 
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
@@ -87,6 +88,10 @@ RSpec/NestedGroups:
 RSpec/SpecFilePathFormat:
   Exclude:
     - spec/integration/**/*
+
+RSpec/SpecFilePathSuffix:
+  Exclude:
+    - '**/*spec.fixture.rb'
 
 RSpecRails/HaveHttpStatus:
   Enabled: false

@@ -41,7 +41,9 @@ module Cuprum::Rails::Controllers
       def self.build(value)
         return new if value.blank?
 
-        return new(**value) if value.is_a?(Hash)
+        if value.is_a?(Hash)
+          return new(**value.transform_values { |item| Array(item) })
+        end
 
         new(only: Array(value))
       end

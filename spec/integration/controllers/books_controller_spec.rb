@@ -255,8 +255,13 @@ RSpec.describe BooksController do
   include_deferred 'should not respond to format', :xml
 
   include_deferred 'should define middleware',
+    Spec::Support::Middleware::ApiVersionMiddleware,
+    formats:  :json,
+    matching: { api_version: '1982-07' }
+
+  include_deferred 'should define middleware',
     Spec::Support::Middleware::LoggingMiddleware,
-    only: %i[create destroy update]
+    actions: %i[create destroy update]
 
   include_deferred 'should define middleware',
     Spec::Support::Middleware::ProfilingMiddleware
