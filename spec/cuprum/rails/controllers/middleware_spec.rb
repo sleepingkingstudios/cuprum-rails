@@ -83,7 +83,23 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
         end
       end
 
-      describe 'with a Hash with except: value' do
+      describe 'with a Hash with except: a String' do
+        let(:value) { { except: 'create' } }
+
+        it { expect(matcher.except).to be == Set.new(%w[create]) }
+
+        it { expect(matcher.only).to be == Set.new }
+      end
+
+      describe 'with a Hash with except: a Symbol' do
+        let(:value) { { except: :create } }
+
+        it { expect(matcher.except).to be == Set.new(%w[create]) }
+
+        it { expect(matcher.only).to be == Set.new }
+      end
+
+      describe 'with a Hash with except: an Array' do
         let(:value) { { except: %w[create destroy] } }
 
         it { expect(matcher.except).to be == Set.new(value[:except]) }
@@ -91,7 +107,23 @@ RSpec.describe Cuprum::Rails::Controllers::Middleware do
         it { expect(matcher.only).to be == Set.new }
       end
 
-      describe 'with a Hash with only: value' do
+      describe 'with a Hash with only: a String' do
+        let(:value) { { only: 'index' } }
+
+        it { expect(matcher.except).to be == Set.new }
+
+        it { expect(matcher.only).to be == Set.new(%w[index]) }
+      end
+
+      describe 'with a Hash with only: a Symbol' do
+        let(:value) { { only: :index } }
+
+        it { expect(matcher.except).to be == Set.new }
+
+        it { expect(matcher.only).to be == Set.new(%w[index]) }
+      end
+
+      describe 'with a Hash with only: an Array' do
         let(:value) { { only: %i[index show] } }
 
         it { expect(matcher.except).to be == Set.new }
