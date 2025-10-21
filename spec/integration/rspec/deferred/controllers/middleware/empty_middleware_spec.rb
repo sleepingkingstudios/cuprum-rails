@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rspec/sleeping_king_studios/concerns/example_constants'
+require 'rspec/sleeping_king_studios/matchers/core/construct'
+
 require 'cuprum/rails/rspec/deferred/controller_examples'
 
 RSpec.describe Cuprum::Rails::RSpec::Deferred::ControllerExamples do
