@@ -17,11 +17,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gemfile: ['rails_8_0']
+        gemfile: ['rails_8_1']
         ruby-version: ['3.2', '3.3', '3.4']
         include:
           - gemfile: 'rails_7_2'
             ruby-version: '3.3'
+          - gemfile: 'rails_8_0'
+            ruby-version: '3.4'
 
     # Sets up the build environment.
     env:
