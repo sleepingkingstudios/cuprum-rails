@@ -97,7 +97,13 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
     let(:next_command) { instance_double(Cuprum::Command, call: next_result) }
     let(:params)       { {} }
     let(:request)      { Cuprum::Rails::Request.new(params:) }
-    let(:repository)   { Cuprum::Rails::Records::Repository.new }
+    let(:repository) do
+      Cuprum::Rails::Records::Repository.new.tap do |repository|
+        repository.create(entity_class: Book)
+        repository.create(entity_class: Chapter)
+        repository.create(entity_class: Cover)
+      end
+    end
     let(:resource)     { Cuprum::Rails::Resource.new(name: 'chapters') }
     let(:options)      { {} }
 

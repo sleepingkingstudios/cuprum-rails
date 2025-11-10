@@ -13,14 +13,13 @@ module Spec::Support::Examples::Commands
     include RSpec::SleepingKingStudios::Deferred::Provider
 
     deferred_context 'when the collection has many items' do
+      include_deferred 'when the collection is defined'
+
       let(:books_collection) do
-        repository.find_or_create(qualified_name: 'books')
+        repository.find(qualified_name: 'books')
       end
       let(:chapters_collection) do
-        repository.find_or_create(default_contract:, qualified_name: 'chapters')
-      end
-      let(:collection) do
-        chapters_collection
+        repository.find(default_contract:, qualified_name: 'chapters')
       end
       let(:authors_data) do
         Spec::Support::Commands::Chapters::AUTHORS_FIXTURES
@@ -46,7 +45,11 @@ module Spec::Support::Examples::Commands
     end
 
     deferred_context 'with parameters for a Chapter command' do
-      let(:repository) { Cuprum::Collections::Basic::Repository.new }
+      let(:repository) do
+        Cuprum::Collections::Basic::Repository.new.tap do |repository|
+          repository.create(qualified_name: 'books')
+        end
+      end
       let(:resource) do
         Cuprum::Rails::Resource.new(name: 'chapters', **resource_options)
       end

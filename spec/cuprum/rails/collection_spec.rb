@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/collection_contracts'
+require 'cuprum/collections/rspec/deferred/collection_examples'
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/collection'
@@ -10,7 +10,7 @@ require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Collection do
-  include Cuprum::Collections::RSpec::Contracts::CollectionContracts
+  include Cuprum::Collections::RSpec::Deferred::CollectionExamples
 
   subject(:collection) { described_class.new(**constructor_options) }
 
@@ -49,8 +49,9 @@ RSpec.describe Cuprum::Rails::Collection do
     end
   end
 
-  include_contract 'should be a collection',
-    commands_namespace: 'Cuprum::Rails::Records::Commands'
+  include_deferred 'should be a Collection',
+    commands_namespace: 'Cuprum::Rails::Records::Commands',
+    default_scope:      Cuprum::Rails::Records::Scopes::AllScope
 
   describe '#primary_key_name' do
     context 'when the record class defines a custom primary key' do

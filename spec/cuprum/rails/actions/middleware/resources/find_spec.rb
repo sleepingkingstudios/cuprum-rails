@@ -49,7 +49,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
         Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES
       end
       let(:books_collection) do
-        repository.find_or_create(entity_class: Book)
+        repository.find(entity_class: Book)
       end
 
       before(:example) do
@@ -99,8 +99,12 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Resources::Find do
     let(:next_command) do
       instance_double(Cuprum::Command, call: next_result)
     end
-    let(:request)         { Cuprum::Rails::Request.new(http_method: :get) }
-    let(:repository)      { Cuprum::Rails::Records::Repository.new }
+    let(:request) { Cuprum::Rails::Request.new(http_method: :get) }
+    let(:repository) do
+      Cuprum::Rails::Records::Repository.new.tap do |repository|
+        repository.create(entity_class: Book)
+      end
+    end
     let(:resource)        { Cuprum::Rails::Resource.new(name: 'authors') }
     let(:options)         { {} }
     let(:expected_status) { next_result.status }

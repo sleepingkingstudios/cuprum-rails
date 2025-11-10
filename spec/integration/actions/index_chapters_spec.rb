@@ -16,6 +16,7 @@ RSpec.describe Spec::Support::Actions::IndexChapters do
     Cuprum::Rails::Records::Repository
       .new
       .tap { |repo| repo.create(entity_class: Book) }
+      .tap { |repo| repo.create(entity_class: Chapter) }
   end
   let(:resource) do
     Cuprum::Rails::Resource.new(

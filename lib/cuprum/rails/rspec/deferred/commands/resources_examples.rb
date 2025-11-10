@@ -337,7 +337,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
 
       describe '#collection' do
         let(:expected) do
-          repository.find_or_create(qualified_name: resource.qualified_name)
+          repository.find(qualified_name: resource.qualified_name)
         end
 
         include_deferred 'when the collection is defined'

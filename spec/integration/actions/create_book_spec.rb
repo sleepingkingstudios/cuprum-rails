@@ -17,6 +17,7 @@ RSpec.describe Spec::Support::Actions::CreateBook do
   let(:repository) do
     Cuprum::Rails::Records::Repository
       .new
+      .tap { |repo| repo.create(entity_class: Book) }
       .tap { |repo| repo.create(entity_class: Chapter) }
   end
   let(:resource) do

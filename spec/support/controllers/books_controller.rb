@@ -25,7 +25,7 @@ class BooksController < BaseController
     private
 
     def books_collection
-      repository.find_or_create(entity_class: Book)
+      repository.find(entity_class: Book)
     end
 
     def parameters_contract
@@ -55,11 +55,9 @@ class BooksController < BaseController
   end
 
   def self.repository
-    repository = super
-
-    repository.find_or_create(entity_class: Book)
-
-    repository
+    super.tap do |repository|
+      repository.create(entity_class: Book)
+    end
   end
 
   def self.resource # rubocop:disable Metrics/MethodLength

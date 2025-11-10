@@ -17,7 +17,7 @@ module Spec::Support::Commands::Chapters
     end
 
     def books_collection
-      repository.find_or_create(qualified_name: 'books')
+      repository.find(qualified_name: 'books')
     end
 
     def find_books(chapters)

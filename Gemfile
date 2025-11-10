@@ -5,7 +5,9 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'cuprum', '~> 1.3'
-gem 'cuprum-collections', '~> 0.5', '~> 0.5.1'
+gem 'cuprum-collections',
+  '0.6.0.alpha',
+  git: 'https://github.com/sleepingkingstudios/cuprum-collections'
 gem 'rails', '~> 8.1.0'
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
 gem 'sleeping_king_studios-tools', '~> 1.2'
