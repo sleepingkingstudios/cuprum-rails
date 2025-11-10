@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
 require 'cuprum/rails/commands/resource_command'
-
-require 'support/examples/commands/resources_examples'
+require 'cuprum/rails/rspec/deferred/commands/resources_examples'
 
 RSpec.describe Cuprum::Rails::Commands::ResourceCommand do
-  include Spec::Support::Examples::Commands::ResourcesExamples
+  include Cuprum::Rails::RSpec::Deferred::Commands::ResourcesExamples
 
   subject(:command) { described_class.new(repository:, resource:) }
 
-  include_deferred 'with parameters for a resource command'
+  let(:repository) { Cuprum::Collections::Basic::Repository.new }
+  let(:resource) do
+    Cuprum::Rails::Resource.new(name: 'books', **resource_options)
+  end
+  let(:resource_options) { {} }
 
-  include_deferred 'should implement the resource command methods'
+  include_deferred 'should implement the ResourceCommand methods'
 end
