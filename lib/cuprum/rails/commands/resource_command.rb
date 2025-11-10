@@ -29,7 +29,7 @@ module Cuprum::Rails::Commands
     def collection
       @collection ||=
         repository
-          .find_or_create(qualified_name: resource.qualified_name)
+          .find(qualified_name: resource.qualified_name)
           .with_scope(resource.scope)
     end
 

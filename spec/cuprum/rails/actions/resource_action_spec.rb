@@ -18,6 +18,11 @@ RSpec.describe Cuprum::Rails::Actions::ResourceAction do
       **resource_options
     )
   end
+  let(:repository) do
+    Cuprum::Rails::Records::Repository.new.tap do |repository|
+      repository.create(entity_class: Book)
+    end
+  end
   let(:resource_options) { {} }
 
   include_contract 'should be a resource action'

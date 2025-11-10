@@ -95,7 +95,9 @@ module Cuprum::Rails::RSpec::Contracts
         let(:configured_repository) do
           return repository if defined?(repository)
 
+          # :nocov:
           Cuprum::Rails::Records::Repository.new
+          # :nocov:
         end
         let(:configured_request) do
           return request if defined?(request)
@@ -198,7 +200,7 @@ module Cuprum::Rails::RSpec::Contracts
 
           context 'when the repository defines a matching collection' do
             let!(:existing_collection) do
-              configured_repository.find_or_create(
+              configured_repository.find(
                 qualified_name: resource.qualified_name
               )
             end
@@ -210,7 +212,9 @@ module Cuprum::Rails::RSpec::Contracts
             let(:configured_repository) do
               repository = super()
 
-              repository.find_or_create(
+              repository.remove(qualified_name: resource.qualified_name)
+
+              repository.create(
                 entity_class:   resource.entity_class,
                 name:           'other_collection',
                 qualified_name: resource.qualified_name
@@ -686,7 +690,7 @@ module Cuprum::Rails::RSpec::Contracts
             let(:configured_expected_entity) do
               if configured_existing_entity
                 repository
-                  .find_or_create(
+                  .find(
                     qualified_name: resource.qualified_name
                   )
                   .assign_one

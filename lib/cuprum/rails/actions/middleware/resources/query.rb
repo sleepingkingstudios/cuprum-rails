@@ -62,7 +62,7 @@ module Cuprum::Rails::Actions::Middleware::Resources
     end
 
     def collection
-      repository.find_or_create(
+      repository.find(
         name:           resource.name,
         qualified_name: resource.qualified_name
       )

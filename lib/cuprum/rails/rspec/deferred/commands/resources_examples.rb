@@ -263,7 +263,118 @@ module Cuprum::Rails::RSpec::Deferred::Commands
       end
     end
 
-    # Examples that assert that the collection requires a default contract.
+    # Examples that assert that the command implements the standard interface.
+    deferred_examples 'should implement the ResourceCommand methods' do
+      describe '.new' do
+        define_method :tools do
+          SleepingKingStudios::Tools::Toolbelt.instance
+        end
+
+        describe 'with repository: nil' do
+          let(:repository) { nil }
+          let(:error_message) do
+            tools.assertions.error_message_for(
+              'sleeping_king_studios.tools.assertions.instance_of',
+              as:       'repository',
+              expected: Cuprum::Collections::Repository
+            )
+          end
+
+          it 'should raise an exception' do
+            expect { described_class.new(repository:, resource:) }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with repository: an Object' do
+          let(:repository) { Object.new.freeze }
+          let(:error_message) do
+            tools.assertions.error_message_for(
+              'sleeping_king_studios.tools.assertions.instance_of',
+              as:       'repository',
+              expected: Cuprum::Collections::Repository
+            )
+          end
+
+          it 'should raise an exception' do
+            expect { described_class.new(repository:, resource:) }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with resource: nil' do
+          let(:resource) { nil }
+          let(:error_message) do
+            tools.assertions.error_message_for(
+              'sleeping_king_studios.tools.assertions.instance_of',
+              as:       'resource',
+              expected: Cuprum::Collections::Resource
+            )
+          end
+
+          it 'should raise an exception' do
+            expect { described_class.new(repository:, resource:) }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+
+        describe 'with resource: an Object' do
+          let(:resource) { Object.new.freeze }
+          let(:error_message) do
+            tools.assertions.error_message_for(
+              'sleeping_king_studios.tools.assertions.instance_of',
+              as:       'resource',
+              expected: Cuprum::Collections::Resource
+            )
+          end
+
+          it 'should raise an exception' do
+            expect { described_class.new(repository:, resource:) }
+              .to raise_error ArgumentError, error_message
+          end
+        end
+      end
+
+      describe '#collection' do
+        let(:expected) do
+          repository.find(qualified_name: resource.qualified_name)
+        end
+
+        include_deferred 'when the collection is defined'
+
+        include_examples 'should define private reader',
+          :collection,
+          -> { expected }
+
+        context 'when the resource has a scope' do
+          let(:resource_scope) do
+            ->(query) { { 'series' => query.not_equal(nil) } }
+          end
+          let(:resource_options) do
+            super().merge(scope: resource_scope)
+          end
+          let(:expected_scope) { expected.scope.and(&resource_scope) }
+
+          it 'should apply the resource scope to the collection' do
+            collection = subject.send(:collection)
+
+            expect(collection.scope).to be == expected_scope
+          end
+        end
+      end
+
+      describe '#tools' do
+        let(:toolbelt) do
+          SleepingKingStudios::Tools::Toolbelt.instance
+        end
+
+        include_examples 'should define private reader', :tools
+
+        it { expect(subject.send(:tools)).to be toolbelt }
+      end
+    end
+
+    # Examples that assert that the command requires a default contract.
     #
     # The following methods must be defined in the example group:
     #

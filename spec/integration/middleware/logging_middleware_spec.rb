@@ -9,12 +9,10 @@ RSpec.describe Spec::Support::Middleware::LoggingMiddleware do
   subject(:middleware) { described_class.new }
 
   let(:repository) do
-    repository = Cuprum::Rails::Records::Repository.new
-
-    repository.find_or_create(entity_class: Book)
-    repository.find_or_create(entity_class: Tome)
-
-    repository
+    Cuprum::Rails::Records::Repository.new.tap do |repository|
+      repository.create(entity_class: Book)
+      repository.create(entity_class: Tome)
+    end
   end
   let(:resource) do
     Cuprum::Rails::Resource.new(name: 'rare_books')

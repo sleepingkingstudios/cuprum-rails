@@ -124,7 +124,13 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Find do
     let(:next_result)  { Cuprum::Result.new(value: next_value) }
     let(:next_command) { instance_double(Cuprum::Command, call: next_result) }
     let(:request)      { Cuprum::Rails::Request.new }
-    let(:repository)   { Cuprum::Rails::Records::Repository.new }
+    let(:repository) do
+      Cuprum::Rails::Records::Repository.new.tap do |repository|
+        repository.create(entity_class: Book)
+        repository.create(entity_class: Chapter)
+        repository.create(entity_class: Cover)
+      end
+    end
     let(:resource)     { Cuprum::Rails::Resource.new(name: 'books') }
     let(:options)      { {} }
 
