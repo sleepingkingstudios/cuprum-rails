@@ -3,10 +3,10 @@
 require 'cuprum/collections/rspec/fixtures'
 
 require 'cuprum/rails/records/scopes/base'
-require 'cuprum/rails/rspec/contracts/scope_contracts'
+require 'cuprum/rails/rspec/deferred/scope_examples'
 
 RSpec.describe Cuprum::Rails::Records::Scopes::Base do
-  include Cuprum::Rails::RSpec::Contracts::ScopeContracts
+  include Cuprum::Rails::RSpec::Deferred::ScopeExamples
 
   subject(:scope) { described_class.new }
 
@@ -19,7 +19,7 @@ RSpec.describe Cuprum::Rails::Records::Scopes::Base do
     end
   end
 
-  include_contract 'should be a rails scope'
+  include_deferred 'should implement the Records::Scope methods'
 
   describe '#build_relation' do
     let(:record_class) { Book }
@@ -32,7 +32,7 @@ RSpec.describe Cuprum::Rails::Records::Scopes::Base do
 
     it { expect(relation.to_a).to be == expected }
 
-    wrap_context 'when the collection has many items' do
+    wrap_deferred 'when the collection has many items' do
       it { expect(relation.to_a).to be == expected }
     end
   end

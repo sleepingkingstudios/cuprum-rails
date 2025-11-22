@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/scopes/builder_contracts'
+require 'cuprum/collections/rspec/deferred/scopes/builder_examples'
 require 'cuprum/collections/scope'
 
 require 'cuprum/rails/records/scopes/all_scope'
@@ -11,7 +11,7 @@ require 'cuprum/rails/records/scopes/disjunction_scope'
 require 'cuprum/rails/records/scopes/none_scope'
 
 RSpec.describe Cuprum::Rails::Records::Scopes::Builder do
-  include Cuprum::Collections::RSpec::Contracts::Scopes::BuilderContracts
+  include Cuprum::Collections::RSpec::Deferred::Scopes::BuilderExamples
 
   subject(:builder) { described_class.instance }
 
@@ -19,10 +19,6 @@ RSpec.describe Cuprum::Rails::Records::Scopes::Builder do
     Cuprum::Collections::Scope.new({ 'ok' => true })
   end
 
-  include_contract 'should be a scope builder',
-    all_class:         Cuprum::Rails::Records::Scopes::AllScope,
-    conjunction_class: Cuprum::Rails::Records::Scopes::ConjunctionScope,
-    criteria_class:    Cuprum::Rails::Records::Scopes::CriteriaScope,
-    disjunction_class: Cuprum::Rails::Records::Scopes::DisjunctionScope,
-    none_class:        Cuprum::Rails::Records::Scopes::NoneScope
+  include_deferred 'should build collection Scopes',
+    namespace: Cuprum::Rails::Records::Scopes
 end
