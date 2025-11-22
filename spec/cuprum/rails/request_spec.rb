@@ -7,34 +7,31 @@ RSpec.describe Cuprum::Rails::Request do
 
   shared_examples 'should define request property' \
   do |property_name, value:, default: nil, optional: false|
-    reader_name = property_name
-    writer_name = :"#{property_name}="
-
-    describe "##{reader_name}" do
+    describe "##{property_name}" do
       include_examples 'should define reader',
-        reader_name,
+        property_name,
         -> { properties.fetch(property_name, default) }
 
       if optional
         context "when initialized with #{property_name}: value" do
           let(:properties) { super().merge(property_name => value) }
 
-          it { expect(request.send(reader_name)).to be value }
+          it { expect(request.send(property_name)).to be value }
         end
       end
     end
 
-    describe "##{writer_name}" do
-      include_examples 'should define writer', writer_name
+    describe "##{property_name}=" do
+      include_examples 'should define writer', :"#{property_name}="
 
       it "should set the #{property_name.to_s.tr '_', ' '}" do
-        expect { request.send(writer_name, value) }
-          .to change(request, reader_name)
+        expect { request.send(:"#{property_name}=", value) }
+          .to change(request, property_name)
           .to be value
       end
 
       it 'should update the properties' do
-        expect { request.send(writer_name, value) }
+        expect { request.send(:"#{property_name}=", value) }
           .to change(request, :properties)
           .to be > { property_name => value }
       end

@@ -61,7 +61,7 @@ module Cuprum::Rails::Responders::Html
             routes.index_path
           end
 
-        redirect_back(fallback_location:)
+        redirect_back(fallback_location:) # rubocop:disable Rails/RedirectBackOrTo
       end
     end
 

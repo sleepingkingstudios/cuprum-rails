@@ -66,10 +66,10 @@ module Cuprum::Rails::RSpec::Deferred
     |
       # rubocop:enable Metrics/ParameterLists
       describe '.middleware' do
-        matcher_class =
-          Cuprum::Rails::RSpec::Deferred::Controllers::MiddlewareMatcher
-
         # :nocov:
+        let(:matcher_class) do
+          Cuprum::Rails::RSpec::Deferred::Controllers::MiddlewareMatcher
+        end
         let(:configured_class) do
           # @deprecate 0.3.0
           next middleware_class unless middleware_class.is_a?(Proc)
