@@ -19,7 +19,16 @@ module Cuprum::Rails::RSpec::Contracts
       #
       #   @param example_group [RSpec::Core::ExampleGroup] the example group to
       #     which the contract is applied.
+      #
+      # @deprecated 0.6.0
       contract do
+        message =
+          'Use deferred_examples "should implement the Records::Scope methods"'
+        SleepingKingStudios::Tools::Toobelt.instance.core_tools.deprecate(
+          'ShouldBeARailsScopeContract',
+          message:
+        )
+
         shared_context 'when the collection has many items' do
           let(:data) { Cuprum::Collections::RSpec::Fixtures::BOOKS_FIXTURES }
         end

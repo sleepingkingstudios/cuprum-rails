@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/scopes/logical_contracts'
+require 'cuprum/collections/rspec/deferred/scopes/conjunction_examples'
 
 require 'cuprum/rails/records/scopes/conjunction_scope'
 require 'cuprum/rails/records/scopes/criteria_scope'
-require 'cuprum/rails/rspec/contracts/scope_contracts'
+require 'cuprum/rails/rspec/deferred/scope_examples'
 
 RSpec.describe Cuprum::Rails::Records::Scopes::ConjunctionScope do
-  include Cuprum::Collections::RSpec::Contracts::Scopes::LogicalContracts
-  include Cuprum::Rails::RSpec::Contracts::ScopeContracts
+  include Cuprum::Collections::RSpec::Deferred::Scopes::ConjunctionExamples
+  include Cuprum::Rails::RSpec::Deferred::ScopeExamples
 
   subject(:scope) { described_class.new(scopes:) }
 
@@ -16,17 +16,17 @@ RSpec.describe Cuprum::Rails::Records::Scopes::ConjunctionScope do
   let(:native_query) { Book.all }
   let(:data)         { [] }
 
-  def build_scope(filters = nil, &block)
+  define_method :build_scope do |filters = nil, &block|
     scope_class = Cuprum::Rails::Records::Scopes::CriteriaScope
 
-    if block_given?
+    if block
       scope_class.build(&block)
     else
       scope_class.build(filters)
     end
   end
 
-  def filtered_data
+  define_method :filtered_data do
     scope
       .call(native_query:)
       .map do |record|
@@ -46,14 +46,14 @@ RSpec.describe Cuprum::Rails::Records::Scopes::ConjunctionScope do
     end
   end
 
-  include_contract 'should be a conjunction scope'
+  include_deferred 'should implement the ConjunctionScope methods'
 
-  include_contract 'should be a rails scope'
+  include_deferred 'should implement the Records::Scope methods'
 
   describe '#build_relation' do
     let(:record_class) { Book }
 
-    def filtered_data
+    define_method :filtered_data do
       scope
         .build_relation(record_class:)
         .map do |record|
@@ -63,6 +63,6 @@ RSpec.describe Cuprum::Rails::Records::Scopes::ConjunctionScope do
         end
     end
 
-    include_contract 'should filter data by logical and'
+    include_deferred 'should filter data by logical AND'
   end
 end

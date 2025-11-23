@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require 'cuprum/collections/queries'
-require 'cuprum/collections/rspec/contracts/scopes/criteria_contracts'
+require 'cuprum/collections/rspec/deferred/scopes/criteria_examples'
 
 require 'cuprum/rails/records/scopes/criteria_scope'
-require 'cuprum/rails/rspec/contracts/scope_contracts'
+require 'cuprum/rails/rspec/deferred/scope_examples'
 
 RSpec.describe Cuprum::Rails::Records::Scopes::CriteriaScope do
-  include Cuprum::Collections::RSpec::Contracts::Scopes::CriteriaContracts
-  include Cuprum::Rails::RSpec::Contracts::ScopeContracts
+  include Cuprum::Collections::RSpec::Deferred::Scopes::CriteriaExamples
+  include Cuprum::Rails::RSpec::Deferred::ScopeExamples
 
   subject(:scope) do
     described_class.new(criteria:, **constructor_options)
@@ -19,7 +19,7 @@ RSpec.describe Cuprum::Rails::Records::Scopes::CriteriaScope do
   let(:data)                { [] }
   let(:constructor_options) { {} }
 
-  def filtered_data
+  define_method :filtered_data do
     subject
       .call(native_query:)
       .map do |record|
@@ -301,9 +301,9 @@ RSpec.describe Cuprum::Rails::Records::Scopes::CriteriaScope do
     end
   end
 
-  include_contract 'should be a criteria scope'
+  include_deferred 'should implement the CriteriaScope methods'
 
-  include_contract 'should be a rails scope'
+  include_deferred 'should implement the Records::Scope methods'
 
   describe '#build_relation' do
     let(:record_class) { Book }
@@ -318,6 +318,6 @@ RSpec.describe Cuprum::Rails::Records::Scopes::CriteriaScope do
         end
     end
 
-    include_contract 'should filter data by criteria'
+    include_deferred 'should filter data by criteria'
   end
 end

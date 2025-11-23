@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/query_contracts'
+require 'cuprum/collections/rspec/deferred/query_examples'
 
 require 'cuprum/rails/query'
 
@@ -8,7 +8,7 @@ require 'support/book'
 require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Query do
-  include Cuprum::Collections::RSpec::Contracts::QueryContracts
+  include Cuprum::Collections::RSpec::Deferred::QueryExamples
 
   shared_context 'with a mock native query' do
     let(:mock_query) do
@@ -56,7 +56,7 @@ RSpec.describe Cuprum::Rails::Query do
   let(:initial_scope) { nil }
   let(:default_order) { { record_class.primary_key => :asc } }
 
-  def add_item_to_collection(item)
+  define_method :add_item_to_collection do |item|
     Book.create!(item)
   end
 
@@ -87,7 +87,7 @@ RSpec.describe Cuprum::Rails::Query do
     end
   end
 
-  include_contract 'should be a query'
+  include_deferred 'should be a Query'
 
   describe '#each' do
     include_context 'with a mock native query'

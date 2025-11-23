@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
-require 'cuprum/collections/rspec/contracts/scope_contracts'
+require 'cuprum/collections/rspec/deferred/scopes/all_examples'
 
 require 'cuprum/rails/records/scopes/all_scope'
-require 'cuprum/rails/rspec/contracts/scope_contracts'
+require 'cuprum/rails/rspec/deferred/scope_examples'
 
 RSpec.describe Cuprum::Rails::Records::Scopes::AllScope do
-  include Cuprum::Collections::RSpec::Contracts::ScopeContracts
-  include Cuprum::Rails::RSpec::Contracts::ScopeContracts
+  include Cuprum::Collections::RSpec::Deferred::Scopes::AllExamples
+  include Cuprum::Rails::RSpec::Deferred::ScopeExamples
 
   subject(:scope) { described_class.new }
 
   let(:native_query) { Book.all }
   let(:data)         { [] }
 
-  def filtered_data
+  define_method :filtered_data do
     subject
       .call(native_query:)
       .map do |record|
@@ -43,7 +43,7 @@ RSpec.describe Cuprum::Rails::Records::Scopes::AllScope do
     end
   end
 
-  include_contract 'should be an all scope'
+  include_deferred 'should implement the AllScope methods'
 
-  include_contract 'should be a rails scope'
+  include_deferred 'should implement the Records::Scope methods'
 end
