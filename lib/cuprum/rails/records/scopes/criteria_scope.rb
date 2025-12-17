@@ -53,8 +53,12 @@ module Cuprum::Rails::Records::Scopes
           less_than_or_equal_to(attribute, value)
         when Operators::NOT_EQUAL
           not_equal(attribute, value)
+        when Operators::NOT_NULL
+          not_null(attribute)
         when Operators::NOT_ONE_OF
           not_one_of(attribute, value)
+        when Operators::NULL
+          null(attribute)
         when Operators::ONE_OF
           one_of(attribute, value)
         else
@@ -122,12 +126,20 @@ module Cuprum::Rails::Records::Scopes
         )
       end
 
+      def not_null(attribute)
+        sanitize('(:attribute IS NOT NULL)', attribute:)
+      end
+
       def not_one_of(attribute, value)
         sanitize(
           '(:attribute NOT IN (:value) OR :attribute IS NULL)',
           attribute:,
           value:
         )
+      end
+
+      def null(attribute)
+        sanitize('(:attribute IS NULL)', attribute:)
       end
 
       def one_of(attribute, value)
