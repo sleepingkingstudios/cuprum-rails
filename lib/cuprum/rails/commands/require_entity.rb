@@ -59,15 +59,15 @@ module Cuprum::Rails::Commands
 
     def entity_not_found_error
       Cuprum::Collections::Errors::NotFound.new(
-        collection_name: collection.name,
-        query:           collection.query
+        name:  collection.name,
+        query: collection.query
       )
     end
 
     def entity_not_unique_error
       Cuprum::Collections::Errors::NotUnique.new(
-        collection_name: collection.name,
-        query:           collection.query
+        name:  collection.name,
+        query: collection.query
       )
     end
 

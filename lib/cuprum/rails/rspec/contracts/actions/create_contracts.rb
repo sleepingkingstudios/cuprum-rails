@@ -267,7 +267,7 @@ module Cuprum::Rails::RSpec::Contracts::Actions
               Cuprum::Collections::Errors::AlreadyExists.new(
                 attribute_name:  primary_key_name,
                 attribute_value: primary_key_value,
-                collection_name: configured_resource.name,
+                name:            configured_resource.name,
                 primary_key:     true
               )
             end

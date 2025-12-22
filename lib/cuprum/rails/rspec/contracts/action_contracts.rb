@@ -480,7 +480,7 @@ module Cuprum::Rails::RSpec::Contracts
               Cuprum::Collections::Errors::NotFound.new(
                 attribute_name:  configured_resource.primary_key.to_s,
                 attribute_value: configured_primary_key_value,
-                collection_name: configured_resource.name,
+                name:            configured_resource.name,
                 primary_key:     true
               )
             end

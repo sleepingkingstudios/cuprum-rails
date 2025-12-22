@@ -51,7 +51,7 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
           Cuprum::Collections::Errors::AlreadyExists.new(
             attribute_name:  :id,
             attribute_value: 0,
-            collection_name: 'books',
+            name:            'books',
             primary_key:     true
           )
         end
@@ -131,7 +131,7 @@ RSpec.describe Cuprum::Rails::Responders::Json::Resource do
           Cuprum::Collections::Errors::NotFound.new(
             attribute_name:  :id,
             attribute_value: 0,
-            collection_name: 'books',
+            name:            'books',
             primary_key:     true
           )
         end

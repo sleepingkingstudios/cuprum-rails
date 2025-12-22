@@ -21,7 +21,7 @@ module Cuprum::Rails::Records
       Cuprum::Collections::Errors::AlreadyExists.new(
         attribute_name:  primary_key_name,
         attribute_value: primary_key,
-        collection_name:,
+        name:,
         primary_key:     true
       )
     end
@@ -42,7 +42,7 @@ module Cuprum::Rails::Records
       Cuprum::Collections::Errors::NotFound.new(
         attribute_name:  primary_key_name,
         attribute_value: primary_key,
-        collection_name:,
+        name:,
         primary_key:     true
       )
     end

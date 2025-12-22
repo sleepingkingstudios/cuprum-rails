@@ -105,7 +105,7 @@ module Cuprum::Rails::Responders::Html
 
     def handle_not_found_error(result)
       matching = find_ancestor do |ancestor|
-        ancestor.name == result.error.collection_name
+        ancestor.name == result.error.collection['name']
       end
 
       return render(request.action_name, status: 404) unless matching # rubocop:disable Rails/HttpStatus
