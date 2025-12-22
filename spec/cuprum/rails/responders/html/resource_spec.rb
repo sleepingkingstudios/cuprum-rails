@@ -35,7 +35,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
             Cuprum::Collections::Errors::NotFound.new(
               attribute_name:  'id',
               attribute_value: 1,
-              collection_name: 'series',
+              name:            'series',
               primary_key:     true
             )
           end
@@ -51,7 +51,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
             Cuprum::Collections::Errors::NotFound.new(
               attribute_name:  'id',
               attribute_value: 0,
-              collection_name: 'books',
+              name:            'books',
               primary_key:     true
             )
           end
@@ -97,7 +97,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               Cuprum::Collections::Errors::NotFound.new(
                 attribute_name:  'borrower_id',
                 attribute_value: 3,
-                collection_name: 'borrowers',
+                name:            'borrowers',
                 primary_key:     true
               )
             end
@@ -113,7 +113,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               Cuprum::Collections::Errors::NotFound.new(
                 attribute_name:  'id',
                 attribute_value: 2,
-                collection_name: 'books',
+                name:            'books',
                 primary_key:     true
               )
             end
@@ -135,7 +135,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               Cuprum::Collections::Errors::NotFound.new(
                 attribute_name:  'id',
                 attribute_value: 1,
-                collection_name: 'series',
+                name:            'series',
                 primary_key:     true
               )
             end
@@ -154,7 +154,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               Cuprum::Collections::Errors::NotFound.new(
                 attribute_name:  'id',
                 attribute_value: 0,
-                collection_name: 'authors',
+                name:            'authors',
                 primary_key:     true
               )
             end

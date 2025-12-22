@@ -106,7 +106,7 @@ end
 
 Initializing a collection requires the `:record_class` keyword, which should be a Class that inherits from `ActiveRecord::Base`. You can also specify some optional keywords:
 
-- The `:collection_name` parameter sets the name of the collection. It is used to create an envelope for query commands, such as the `FindMany`, `FindMatching` and `FindOne` commands.
+- The `:name` parameter sets the name of the collection. It is used to create an envelope for query commands, such as the `FindMany`, `FindMatching` and `FindOne` commands.
 - The `:default_contract` parameter sets a default contract for validating collection entities. If no `:contract` keyword is passed to the `ValidateOne` command, it will use the default contract to validate the entity instead of the validation constraints defined for the model.
 - The `:member_name` parameter is used to create an envelope for singular query commands such as the `FindOne` command. If not given, the member name will be generated automatically as a singular form of the collection name.
 - The `:primary_key_name` parameter specifies the attribute that serves as the primary key for the collection entities. The default value is `:id`.
@@ -396,7 +396,7 @@ repository.key?('books')
 
 collection = repository.find(entity_class: Book)
 #=> a Cuprum::Rails::Records::Collection
-collection.collection_name
+collection.name
 #=> 'books'
 collection.qualified_name
 #=> 'books'
@@ -404,7 +404,7 @@ repository['books']
 #=> the books collection
 ```
 
-If the model has a namespace, e.g. `Authentication::User`, the `#collection_name` will be based on the last name segment, while the `#qualified_name` will be based on the entire name.
+If the model has a namespace, e.g. `Authentication::User`, the `#name` will be based on the last name segment, while the `#qualified_name` will be based on the entire name.
 
 ```ruby
 repository = Cuprum::Rails::Records::Repository.new
@@ -413,7 +413,7 @@ repository.key?('authentication/users')
 
 collection = repository.find(entity_class: Authentication::User)
 #=> a Cuprum::Rails::Records::Collection
-collection.collection_name
+collection.name
 #=> 'users'
 collection.qualified_name
 #=> 'authentication/users'
@@ -421,7 +421,7 @@ repository['authentication/users']
 #=> the users collection
 ```
 
-You can also pass the `#collection_name` and `#qualified_name` as parameters.
+You can also pass the `#name` and `#qualified_name` as parameters.
 
 <a id="controllers"></a>
 

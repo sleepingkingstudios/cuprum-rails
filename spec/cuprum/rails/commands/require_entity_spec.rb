@@ -55,8 +55,8 @@ RSpec.describe Cuprum::Rails::Commands::RequireEntity do
       context 'when there are no values matching the resource scope' do
         let(:expected_error) do
           Cuprum::Collections::Errors::NotFound.new(
-            collection_name: collection.name,
-            query:           collection.query
+            name:  collection.name,
+            query: collection.query
           )
         end
 
@@ -95,8 +95,8 @@ RSpec.describe Cuprum::Rails::Commands::RequireEntity do
         end
         let(:expected_error) do
           Cuprum::Collections::Errors::NotUnique.new(
-            collection_name: collection.name,
-            query:           collection.query
+            name:  collection.name,
+            query: collection.query
           )
         end
 
@@ -206,8 +206,8 @@ RSpec.describe Cuprum::Rails::Commands::RequireEntity do
         let(:parameters) { {} }
         let(:expected_error) do
           Cuprum::Collections::Errors::NotFound.new(
-            collection_name: collection.name,
-            query:           collection.query
+            name:  collection.name,
+            query: collection.query
           )
         end
 
@@ -236,8 +236,8 @@ RSpec.describe Cuprum::Rails::Commands::RequireEntity do
         let(:parameters)  { { primary_key: } }
         let(:expected_error) do
           Cuprum::Collections::Errors::NotFound.new(
-            collection_name: collection.name,
-            query:           collection.query
+            name:  collection.name,
+            query: collection.query
           )
         end
 
@@ -337,8 +337,8 @@ RSpec.describe Cuprum::Rails::Commands::RequireEntity do
     context 'when there are no values matching the resource scope' do
       let(:expected_error) do
         Cuprum::Collections::Errors::NotFound.new(
-          collection_name: collection.name,
-          query:           collection.query
+          name:  collection.name,
+          query: collection.query
         )
       end
 
@@ -377,8 +377,8 @@ RSpec.describe Cuprum::Rails::Commands::RequireEntity do
       end
       let(:expected_error) do
         Cuprum::Collections::Errors::NotUnique.new(
-          collection_name: collection.name,
-          query:           collection.query
+          name:  collection.name,
+          query: collection.query
         )
       end
 

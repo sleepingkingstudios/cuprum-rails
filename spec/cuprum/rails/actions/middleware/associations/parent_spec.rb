@@ -154,7 +154,7 @@ RSpec.describe Cuprum::Rails::Actions::Middleware::Associations::Parent do
         Cuprum::Collections::Errors::NotFound.new(
           attribute_name:  'id',
           attribute_value: book_id,
-          collection_name: 'book',
+          name:            'book',
           primary_key:     true
         )
       end

@@ -472,7 +472,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           Cuprum::Collections::Errors::NotFound.new(
             attribute_name:  resource.primary_key_name,
             attribute_value: invalid_primary_key_value,
-            collection_name: resource.name,
+            name:            resource.name,
             primary_key:     true
           )
         end
@@ -499,7 +499,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
             Cuprum::Collections::Errors::NotFound.new(
               attribute_name:  resource.primary_key_name,
               attribute_value: invalid_primary_key_value,
-              collection_name: resource.name,
+              name:            resource.name,
               primary_key:     true
             )
           end
@@ -530,7 +530,7 @@ module Cuprum::Rails::RSpec::Deferred::Commands
               Cuprum::Collections::Errors::NotFound.new(
                 attribute_name:  resource.primary_key_name,
                 attribute_value: invalid_scoped_primary_key_value,
-                collection_name: resource.name,
+                name:            resource.name,
                 primary_key:     true
               )
             end
@@ -576,8 +576,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
           collection = repository[resource.qualified_name]
 
           Cuprum::Collections::Errors::NotFound.new(
-            collection_name: collection.name,
-            query:           collection.query
+            name:  collection.name,
+            query: collection.query
           )
         end
 
@@ -596,8 +596,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
             collection = repository[resource.qualified_name]
 
             Cuprum::Collections::Errors::NotUnique.new(
-              collection_name: collection.name,
-              query:           collection.query
+              name:  collection.name,
+              query: collection.query
             )
           end
 
@@ -617,8 +617,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
                 repository[resource.qualified_name].with_scope(resource_scope)
 
               Cuprum::Collections::Errors::NotFound.new(
-                collection_name: collection.name,
-                query:           collection.query
+                name:  collection.name,
+                query: collection.query
               )
             end
 
@@ -636,8 +636,8 @@ module Cuprum::Rails::RSpec::Deferred::Commands
                 repository[resource.qualified_name].with_scope(resource_scope)
 
               Cuprum::Collections::Errors::NotUnique.new(
-                collection_name: collection.name,
-                query:           collection.query
+                name:  collection.name,
+                query: collection.query
               )
             end
 

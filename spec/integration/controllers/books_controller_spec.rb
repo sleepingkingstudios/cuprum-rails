@@ -162,7 +162,7 @@ RSpec.describe BooksController do
         Cuprum::Collections::Errors::NotFound.new(
           attribute_name:  'id',
           attribute_value: book_id,
-          collection_name: 'books',
+          name:            'books',
           primary_key:     true
         )
       end
