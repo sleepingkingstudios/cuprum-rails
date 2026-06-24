@@ -12,6 +12,8 @@ module Spec::Support::Examples::Serializers::Json
   module PropertiesSerializerExamples
     extend RSpec::SleepingKingStudios::Concerns::SharedExampleGroup
 
+    def tools = SleepingKingStudios::Tools::Toolbelt.instance
+
     shared_context 'with a serializer class' do
       let(:described_class) { Spec::Serializer }
 
@@ -145,7 +147,7 @@ module Spec::Support::Examples::Serializers::Json
           describe 'with property_name: nil' do
             let(:property_name) { nil }
             let(:error_message) do
-              "property name can't be blank"
+              tools.assertions.error_message_for(:presence, as: 'property name')
             end
 
             it 'should raise an exception' do
@@ -157,7 +159,7 @@ module Spec::Support::Examples::Serializers::Json
           describe 'with property_name: an Object' do
             let(:property_name) { Object.new }
             let(:error_message) do
-              'property name is not a String or a Symbol'
+              tools.assertions.error_message_for(:name, as: 'property name')
             end
 
             it 'should raise an exception' do
@@ -169,7 +171,7 @@ module Spec::Support::Examples::Serializers::Json
           describe 'with property_name: an empty String' do
             let(:property_name) { '' }
             let(:error_message) do
-              "property name can't be blank"
+              tools.assertions.error_message_for(:presence, as: 'property name')
             end
 
             it 'should raise an exception' do
@@ -181,7 +183,7 @@ module Spec::Support::Examples::Serializers::Json
           describe 'with property_name: an empty Symbol' do
             let(:property_name) { :'' }
             let(:error_message) do
-              "property name can't be blank"
+              tools.assertions.error_message_for(:presence, as: 'property name')
             end
 
             it 'should raise an exception' do
@@ -305,7 +307,12 @@ module Spec::Support::Examples::Serializers::Json
           describe 'with scope: an Array containing an empty String' do
             let(:property_scope) { [''] }
             let(:options)        { super().merge(scope: property_scope) }
-            let(:error_message)  { "scope item at 0 can't be blank" }
+            let(:error_message) do
+              tools.assertions.error_message_for(
+                :presence,
+                as: 'scope item at 0'
+              )
+            end
 
             it 'should raise an exception' do
               expect { define_property }
@@ -316,7 +323,12 @@ module Spec::Support::Examples::Serializers::Json
           describe 'with scope: an Array containing an empty Symbol' do
             let(:property_scope) { [:''] }
             let(:options)        { super().merge(scope: property_scope) }
-            let(:error_message)  { "scope item at 0 can't be blank" }
+            let(:error_message) do
+              tools.assertions.error_message_for(
+                :presence,
+                as: 'scope item at 0'
+              )
+            end
 
             it 'should raise an exception' do
               expect { define_property }

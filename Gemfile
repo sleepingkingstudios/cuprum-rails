@@ -5,12 +5,10 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'cuprum', '~> 1.3'
-gem 'cuprum-collections',
-  '0.6.0.alpha',
-  git: 'https://github.com/sleepingkingstudios/cuprum-collections'
+gem 'cuprum-collections', '~> 0.6'
 gem 'rails', '~> 8.1.0'
 gem 'sleeping_king_studios-tasks', '~> 0.4', '>= 0.4.1'
-gem 'sleeping_king_studios-tools', '~> 1.2'
+gem 'sleeping_king_studios-tools', '~> 1.3'
 gem 'stannum', '~> 0.4'
 
 group :development, :test do
@@ -21,8 +19,8 @@ group :development, :test do
 end
 
 group :doc do
-  gem 'commonmarker', '~> 0.23', require: false
-  gem 'yard',         '~> 0.9',  require: false
+  gem 'commonmarker', '~> 2.0', require: false
+  gem 'yard',         '~> 0.9', require: false
 end
 
 group :test do
