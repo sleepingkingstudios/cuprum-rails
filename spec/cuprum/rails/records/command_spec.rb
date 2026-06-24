@@ -30,7 +30,11 @@ RSpec.describe Cuprum::Rails::Records::Command do
 
   describe '#validate_entity' do
     let(:expected_message) do
-      "entity is not an instance of #{collection.entity_class}"
+      tools.assertions.error_message_for(
+        :instance_of,
+        as:       'entity',
+        expected: collection.entity_class
+      )
     end
 
     it 'should define the private method' do

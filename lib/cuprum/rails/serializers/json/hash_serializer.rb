@@ -24,7 +24,7 @@ module Cuprum::Rails::Serializers::Json
     # @raise UndefinedSerializerError if there is no matching serializer for
     #   any of the values in the hash.
     def call(hash, context:)
-      unless hash.is_a?(Hash) && hash.keys.all? { |key| key.is_a?(String) }
+      unless hash.is_a?(Hash) && hash.keys.all?(String)
         raise ArgumentError, 'object must be a Hash with String keys'
       end
 

@@ -39,6 +39,8 @@ Stannum::Messages.strategy = Stannum::Messages::DefaultStrategy.new(
   ]
 )
 
+SleepingKingStudios::Tools.initializer.call
+
 # Isolated namespace for defining spec-only or transient objects.
 module Spec; end
 

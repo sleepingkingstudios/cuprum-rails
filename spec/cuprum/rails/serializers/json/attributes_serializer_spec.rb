@@ -112,7 +112,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       describe 'with attribute_name: nil' do
         let(:attribute_name) { nil }
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -124,7 +124,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       describe 'with attribute_name: an Object' do
         let(:attribute_name) { Object.new }
         let(:error_message) do
-          'property name is not a String or a Symbol'
+          tools.assertions.error_message_for(:name, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -136,7 +136,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       describe 'with attribute_name: an empty String' do
         let(:attribute_name) { '' }
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -148,7 +148,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
       describe 'with attribute_name: an empty Symbol' do
         let(:attribute_name) { :'' }
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -290,7 +290,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:attribute_names) { [:fuel_type, nil, :fuel_quantity] }
 
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -308,9 +308,8 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:attribute_names) do
           [:fuel_type, Object.new.freeze, :fuel_quantity]
         end
-
         let(:error_message) do
-          'property name is not a String or a Symbol'
+          tools.assertions.error_message_for(:name, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -328,7 +327,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:attribute_names) { ['fuel_type', '', 'fuel_quantity'] }
 
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -346,7 +345,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         let(:attribute_names) { [:fuel_type, :'', :fuel_quantity] }
 
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -370,7 +369,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         end
 
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -394,7 +393,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         end
 
         let(:error_message) do
-          'property name is not a String or a Symbol'
+          tools.assertions.error_message_for(:name, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -418,7 +417,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         end
 
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
@@ -442,7 +441,7 @@ RSpec.describe Cuprum::Rails::Serializers::Json::AttributesSerializer do
         end
 
         let(:error_message) do
-          "property name can't be blank"
+          tools.assertions.error_message_for(:presence, as: 'property name')
         end
 
         it 'should raise an exception' do
