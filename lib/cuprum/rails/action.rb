@@ -165,7 +165,7 @@ module Cuprum::Rails
 
     def normalize_parameters(params)
       # Use #to_h to convert from a HashWithIndifferentKeys to a core Hash.
-      params.to_h { |key, value| [key.is_a?(String) ? key.to_sym : key, value] } # rubocop:disable Style/HashTransformKeys
+      params.to_h { |key, value| [key.is_a?(String) ? key.to_sym : key, value] }
     end
 
     def process(request:, repository: nil, resource: nil, **options)

@@ -26,11 +26,11 @@ end
 group :test do
   gem 'rspec', '~> 3.13'
   gem 'rspec-sleeping_king_studios', '~> 2.8', '>= 2.8.1'
-  gem 'rubocop', '~> 1.82'
+  gem 'rubocop', '~> 1.88'
   gem 'rubocop-factory_bot', '~> 2.28'
-  gem 'rubocop-rails', '~> 2.34'
+  gem 'rubocop-rails', '~> 2.35'
   gem 'rubocop-rake', '~> 0.7', '>= 0.7.1'
-  gem 'rubocop-rspec', '~> 3.8'
+  gem 'rubocop-rspec', '~> 3.10'
   gem 'rubocop-rspec_rails', '~> 2.32'
   gem 'simplecov', '~> 0.22'
 end
