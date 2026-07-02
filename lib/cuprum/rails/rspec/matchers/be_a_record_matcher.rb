@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'set'
-
 require 'rspec/matchers/composable'
 
 require 'cuprum/rails/rspec/matchers'

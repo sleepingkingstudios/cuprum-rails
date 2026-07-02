@@ -7,11 +7,12 @@ require 'cuprum/rails/serializers/context'
 module Cuprum::Rails::Responders
   # Implements serializing a result value into response data.
   module Serialization
-    # @param serializers [Hash<Class, Object>] The serializers for converting
-    #   result values into serialized data.
-    # @param options [Hash] Additional parameters for the responder.
-    def initialize(serializers:, **options)
-      super(**options)
+    # @overload initialize(serializers:, **options)
+    #   @param serializers [Hash<Class, Object>] The serializers for converting
+    #     result values into serialized data.
+    #   @param options [Hash] Additional parameters for the responder.
+    def initialize(serializers:, **)
+      super(**)
 
       @serializers = serializers
     end

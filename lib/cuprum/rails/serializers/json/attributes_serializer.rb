@@ -86,12 +86,12 @@ module Cuprum::Rails::Serializers::Json
       #
       # @raise AbstractSerializerError when attempting to define a serialized
       #   property on an abstract class.
-      def attribute(name, serializer: nil, &block)
+      def attribute(name, serializer: nil, &)
         property(
           name,
           scope:      name,
           serializer:,
-          &block
+          &
         )
       end
 

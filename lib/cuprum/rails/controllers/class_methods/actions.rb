@@ -34,10 +34,10 @@ module Cuprum::Rails::Controllers::ClassMethods
     #   @yieldparam options [Hash<Symbol, Object>] additional options for the
     #     action.
     #   @yieldreturn [Cuprum::Result] the result of the action.
-    def action(action_name, action_class = nil, **options, &) # rubocop:disable Metrics/MethodLength
+    def action(action_name, action_class = nil, **, &) # rubocop:disable Metrics/MethodLength
       validate_name(action_name, as: 'action name')
 
-      options = apply_default_options(action_name, **options)
+      options = apply_default_options(action_name, **)
 
       action_class = resolve_action_class(action_class, &)
       action_class = apply_subclass_options(action_class, **options)
@@ -67,19 +67,21 @@ module Cuprum::Rails::Controllers::ClassMethods
       request.format ||= configuration.default_format
     end
 
-    # Generates a Cuprum::Rails::Request from a native request.
+    # @overload build_request(context, **options)
+    #   Generates a Cuprum::Rails::Request from a native request.
     #
-    # Override this method to generate a request subclass.
+    #   Override this method to generate a request subclass.
     #
-    # @param context [#request] the controller or controller context.
-    # @param options [Hash{Symbol=>Object}] additional options for the request.
+    #   @param context [#request] the controller or controller context.
+    #   @param options [Hash{Symbol=>Object}] additional options for the
+    #     request.
     #
-    # @return [Cuprum::Rails::Request] the generated request.
-    def build_request(context, **options)
+    #   @return [Cuprum::Rails::Request] the generated request.
+    def build_request(context, **)
       Cuprum::Rails::Request.build(
         context:,
         request: context.request,
-        **options
+        **
       )
     end
 

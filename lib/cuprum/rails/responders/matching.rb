@@ -24,12 +24,10 @@ module Cuprum::Rails::Responders
       # @yield The clause implementation. This block will be called in the
       #   context of the matcher.
       # @yieldreturn [#call, #renderer] the response for the action.
-      def match(status, error: nil, value: nil, &block)
+      def match(status, error: nil, value: nil, &)
         matcher = @matcher || Cuprum::Matcher.new
 
-        matcher.singleton_class.match(
-          status, error:, value:, &block
-        )
+        matcher.singleton_class.match(status, error:, value:, &)
 
         @matcher = matcher
       end
@@ -56,27 +54,28 @@ module Cuprum::Rails::Responders
       end
     end
 
-    # @param action_name [String, Symbol] the name of the action to match.
-    # @param controller [Cuprum::Rails::Controller] the called controller.
-    # @param matcher [Cuprum::Matcher] an optional matcher specific to the
-    #   action. This will be matched before any of the generic matchers.
-    # @param member_action [Boolean] true if the action acts on a collection
-    #   item, not on the collection as a whole.
-    # @param request [Cuprum::Rails::Request] the request to the controller.
+    # @overload initialize(action_name:, controller:, request:, matcher: nil, member_action: false, **options)
+    #   @param action_name [String, Symbol] the name of the action to match.
+    #   @param controller [Cuprum::Rails::Controller] the called controller.
+    #   @param matcher [Cuprum::Matcher] an optional matcher specific to the
+    #     action. This will be matched before any of the generic matchers.
+    #   @param member_action [Boolean] true if the action acts on a collection
+    #     item, not on the collection as a whole.
+    #   @param request [Cuprum::Rails::Request] the request to the controller.
     def initialize( # rubocop:disable Metrics/ParameterLists
       action_name:,
       controller:,
       request:,
       matcher:       nil,
       member_action: false,
-      **options
+      **
     )
       super(
         action_name:,
         controller:,
         member_action:,
         request:,
-        **options
+        **
       )
 
       @matcher = matcher

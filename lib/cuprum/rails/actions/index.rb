@@ -23,12 +23,12 @@ module Cuprum::Rails::Actions
       tools.hash_tools.convert_keys_to_strings(request.params)
     end
 
-    def find_entities(limit:, offset:, order:, &block)
+    def find_entities(limit:, offset:, order:, &)
       collection.find_matching.call(
         limit:,
         offset:,
         order:,
-        &block
+        &
       )
     end
 

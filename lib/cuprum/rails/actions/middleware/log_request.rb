@@ -103,10 +103,10 @@ module Cuprum::Rails::Actions::Middleware
       hsh.merge(request_properties(request:))
     end
 
-    def process(next_command, request:, **options)
-      Rails.logger.info format_log(request:, **options)
+    def process(next_command, request:, **)
+      Rails.logger.info format_log(request:, **)
 
-      next_command.call(request:, **options)
+      next_command.call(request:, **)
     end
 
     def request_properties(request:)

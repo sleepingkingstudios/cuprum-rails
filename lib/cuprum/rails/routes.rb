@@ -77,12 +77,12 @@ module Cuprum::Rails
 
     # @param base_path [String] the relative path of the resource.
     # @param parent_path [String] the path to the parent resource, if any.
-    def initialize(base_path:, parent_path: nil, &block)
+    def initialize(base_path:, parent_path: nil, &)
       @base_path   = base_path
       @parent_path = parent_path
       @wildcards   = {}
 
-      singleton_class.instance_exec(&block) if block_given?
+      singleton_class.instance_exec(&) if block_given?
     end
 
     # @return [String] the relative path of the resource.

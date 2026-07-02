@@ -33,11 +33,11 @@ module Cuprum::Rails::Actions::Middleware::Resources
       order:  nil,
       where:  nil,
       **resource_params,
-      &block
+      &
     )
       super()
 
-      where ||= Cuprum::Collections::Scope.new(&block) if block_given?
+      where ||= Cuprum::Collections::Scope.new(&) if block_given?
 
       @resource     = build_resource(**resource_params)
       @query_params = { limit:, offset:, order:, where: }.compact

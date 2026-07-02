@@ -30,10 +30,10 @@ module Spec::Support::Commands::Chapters
         .first
     end
 
-    def process(author: nil, **options)
+    def process(author: nil, **)
       @author = author
 
-      super(**options)
+      super(**)
     end
 
     def update_entity(attributes:, entity:)

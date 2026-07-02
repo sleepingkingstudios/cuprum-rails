@@ -32,14 +32,14 @@ module Spec::Support::Commands::Chapters
         .first
     end
 
-    def process(author: nil, **options)
+    def process(author: nil, **)
       @author = author
 
-      super(**options)
+      super(**)
     end
 
-    def require_entity(**options)
-      chapter = step { super(**options) }
+    def require_entity(**)
+      chapter = step { super }
       book_id = chapter['book_id']
       book    = step { find_book(book_id) }
       chapter = assign_book(book:, chapter:)

@@ -31,9 +31,9 @@ module Cuprum::Rails::Actions::Middleware::Resources
       where:             nil,
       only_form_actions: false,
       **resource_params,
-      &block
+      &
     )
-      super(limit:, offset:, order:, where:, **resource_params, &block)
+      super(limit:, offset:, order:, where:, **resource_params, &)
 
       @only_form_actions = !!only_form_actions
     end

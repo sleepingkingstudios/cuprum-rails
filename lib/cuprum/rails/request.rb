@@ -13,12 +13,13 @@ module Cuprum::Rails
       ].freeze
       private_constant :FILTERED_HEADER_PREFIXES
 
-      # Generates a Request from a native Rails request.
+      # @overload build(request:, **options)
+      #   Generates a Request from a native Rails request.
       #
-      # @param request [ActionDispatch::Request] The native request to build.
+      #   @param request [ActionDispatch::Request] The native request to build.
       #
-      # @return [Cuprum::Rails::Request] the generated request.
-      def build(request:, **options) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      #   @return [Cuprum::Rails::Request] the generated request.
+      def build(request:, **) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         body_params  = request.request_parameters
         query_params = request.query_parameters
         path_params  = filter_path_parameters(request.path_parameters)
@@ -35,7 +36,7 @@ module Cuprum::Rails
           path:            request.fullpath,
           path_params:,
           query_params:,
-          **options
+          **
         )
       end
 
