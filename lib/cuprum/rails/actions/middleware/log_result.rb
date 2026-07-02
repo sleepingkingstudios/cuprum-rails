@@ -34,8 +34,8 @@ module Cuprum::Rails::Actions::Middleware
         .to_h { |key, value| [key.to_s.titleize, value.pretty_inspect] }
     end
 
-    def process(next_command, **options)
-      result = next_command.call(**options)
+    def process(next_command, **)
+      result = next_command.call(**)
 
       if result.success?
         Rails.logger.info format_log(result:)

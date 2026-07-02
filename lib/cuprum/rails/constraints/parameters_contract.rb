@@ -7,8 +7,8 @@ require 'cuprum/rails/constraints'
 module Cuprum::Rails::Constraints
   # Contract for validating request parameters.
   class ParametersContract < Stannum::Contracts::IndifferentHashContract
-    def initialize(**options)
-      super(allow_extra_keys: true, **options)
+    def initialize(**)
+      super(allow_extra_keys: true, **)
     end
   end
 end

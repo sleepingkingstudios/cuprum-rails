@@ -52,25 +52,26 @@ module Cuprum::Rails::Responders
       render_failure(Rails.env.development? ? result.error : generic_error)
     end
 
-    # @param action_name [String, Symbol] the name of the action to match.
-    # @param controller [Cuprum::Rails::Controller] the called controller.
-    # @param controller_name [String] the name of the called controller.
-    #   Defaults to controller.class.name.
-    # @param matcher [Cuprum::Matcher] an optional matcher specific to the
-    #   action. This will be matched before any of the generic matchers.
-    # @param member_action [Boolean] true if the action acts on a collection
-    #   item, not on the collection as a whole.
-    # @param request [Cuprum::Rails::Request] the request to the controller.
-    # @param serializers [Hash<Class, Object>] the serializers for converting
-    #   result values into serialized data.
-    # @param options [Hash] additional parameters for the responder.
+    # @overload initialize(action_name:, controller:, request:, serializers:, member_action: false, **options)
+    #   @param action_name [String, Symbol] the name of the action to match.
+    #   @param controller [Cuprum::Rails::Controller] the called controller.
+    #   @param controller_name [String] the name of the called controller.
+    #     Defaults to controller.class.name.
+    #   @param matcher [Cuprum::Matcher] an optional matcher specific to the
+    #     action. This will be matched before any of the generic matchers.
+    #   @param member_action [Boolean] true if the action acts on a collection
+    #     item, not on the collection as a whole.
+    #   @param request [Cuprum::Rails::Request] the request to the controller.
+    #   @param serializers [Hash<Class, Object>] the serializers for converting
+    #     result values into serialized data.
+    #   @param options [Hash] additional parameters for the responder.
     def initialize( # rubocop:disable Metrics/ParameterLists
       action_name:,
       controller:,
       request:,
       serializers:,
       member_action: false,
-      **options
+      **
     )
       super(
         action_name:,
@@ -80,7 +81,7 @@ module Cuprum::Rails::Responders
         resource:,
         request:,
         serializers:,
-        **options
+        **
       )
     end
 

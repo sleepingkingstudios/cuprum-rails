@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'set'
-
 require 'cuprum/rails/controllers'
 
 module Cuprum::Rails::Controllers

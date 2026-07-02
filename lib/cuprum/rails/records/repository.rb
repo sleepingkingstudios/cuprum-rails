@@ -11,8 +11,8 @@ module Cuprum::Rails::Records
   class Repository < Cuprum::Collections::Repository
     private
 
-    def build_collection(**options)
-      Cuprum::Rails::Records::Collection.new(**options)
+    def build_collection(**)
+      Cuprum::Rails::Records::Collection.new(**)
     end
 
     def qualified_name_for(**parameters)

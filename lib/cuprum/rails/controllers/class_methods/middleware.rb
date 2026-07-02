@@ -77,11 +77,11 @@ module Cuprum::Rails::Controllers::ClassMethods
       Cuprum::Rails::Controllers::Middleware::InclusionMatcher.build(formats)
     end
 
-    def build_middleware(command:, **options)
+    def build_middleware(command:, **)
       validate_command!(command)
 
-      actions = build_actions(**options)
-      formats = build_formats(**options)
+      actions = build_actions(**)
+      formats = build_formats(**)
 
       validate_action_names!(actions&.except, as: 'except')
       validate_action_names!(actions&.only,   as: 'only')
