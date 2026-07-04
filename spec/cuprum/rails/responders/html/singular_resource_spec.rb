@@ -39,7 +39,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
 
       it { expect(response.path).to be == resource.routes.show_path }
 
-      it { expect(response.status).to be 302 }
+      it { expect(response.status).to be 303 }
     end
 
     shared_examples 'should redirect to the parent resource page' do
@@ -51,7 +51,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
 
       it { expect(response.path).to be == resource.routes.parent_path }
 
-      it { expect(response.status).to be 302 }
+      it { expect(response.status).to be 303 }
     end
 
     shared_examples 'should render the template' do
@@ -136,7 +136,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
 
         it { expect(response.path).to be == resource.routes.show_path }
 
-        it { expect(response.status).to be 302 }
+        it { expect(response.status).to be 303 }
       end
     end
 
@@ -276,7 +276,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::SingularResource do
 
         it { expect(response.path).to be == resource.routes.show_path }
 
-        it { expect(response.status).to be 302 }
+        it { expect(response.status).to be 303 }
       end
     end
 

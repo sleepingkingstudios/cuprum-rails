@@ -63,7 +63,9 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
             end
           end
 
-          include_deferred 'should redirect to', -> { expected_path }
+          include_deferred 'should redirect to',
+            -> { expected_path },
+            status: 303
         end
 
         context 'when the resource has ancestors' do
@@ -127,7 +129,9 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
               end
             end
 
-            include_deferred 'should redirect to', -> { expected_path }
+            include_deferred 'should redirect to',
+              -> { expected_path },
+              status: 303
           end
 
           context 'when the error matches the parent resource' do
@@ -146,7 +150,9 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 .index_path
             end
 
-            include_deferred 'should redirect to', -> { expected_path }
+            include_deferred 'should redirect to',
+              -> { expected_path },
+              status: 303
           end
 
           context 'when the error matches the top-level resource' do
@@ -165,14 +171,18 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
                 .index_path
             end
 
-            include_deferred 'should redirect to', -> { expected_path }
+            include_deferred 'should redirect to',
+              -> { expected_path },
+              status: 303
           end
         end
       end
     end
 
     shared_examples 'should redirect to the index page' do
-      include_deferred 'should redirect to', -> { resource.routes.index_path }
+      include_deferred 'should redirect to',
+        -> { resource.routes.index_path },
+        status: 303
 
       context 'when the resource has ancestors' do
         let(:authors_resource) do
@@ -187,12 +197,16 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           resource.routes.with_wildcards(path_params).index_path
         end
 
-        include_deferred 'should redirect to', -> { expected_path }
+        include_deferred 'should redirect to',
+          -> { expected_path },
+          status: 303
       end
     end
 
     shared_examples 'should redirect to the show page' do
-      include_deferred 'should redirect to', -> { resource.routes.show_path }
+      include_deferred 'should redirect to',
+        -> { resource.routes.show_path },
+        status: 303
 
       context 'when the resource has ancestors' do
         let(:authors_resource) do
@@ -207,12 +221,16 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           resource.routes.with_wildcards(path_params).show_path
         end
 
-        include_deferred 'should redirect to', -> { expected_path }
+        include_deferred 'should redirect to',
+          -> { expected_path },
+          status: 303
       end
     end
 
     shared_examples 'should redirect to the parent resource page' do
-      include_deferred 'should redirect to', -> { resource.routes.parent_path }
+      include_deferred 'should redirect to',
+        -> { resource.routes.parent_path },
+        status: 303
 
       context 'when the resource has ancestors' do
         let(:authors_resource) do
@@ -227,7 +245,9 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           resource.routes.with_wildcards(path_params).parent_path
         end
 
-        include_deferred 'should redirect to', -> { expected_path }
+        include_deferred 'should redirect to',
+          -> { expected_path },
+          status: 303
       end
     end
 
@@ -283,7 +303,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           end
 
           include_deferred 'should redirect to',
-            -> { resource.routes.show_path(entity) }
+            -> { resource.routes.show_path(entity) },
+            status: 303
         end
       end
 
@@ -340,7 +361,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
           include_deferred 'should redirect to',
-            -> { resource.routes.root_path }
+            -> { resource.routes.root_path },
+            status: 303
         end
 
         describe 'with a passing result' do
@@ -438,7 +460,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           end
 
           include_deferred 'should redirect to',
-            -> { resource.routes.show_path(entity) }
+            -> { resource.routes.show_path(entity) },
+            status: 303
         end
       end
 
@@ -511,7 +534,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           end
 
           include_deferred 'should redirect to',
-            -> { resource.routes.show_path }
+            -> { resource.routes.show_path },
+            status: 303
         end
       end
 
@@ -524,7 +548,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           let(:result) { Cuprum::Result.new(status: :failure) }
 
           include_deferred 'should redirect back',
-            fallback_location: -> { resource.routes.show_path }
+            fallback_location: -> { resource.routes.show_path },
+            status:            303
         end
 
         describe 'with a passing result' do
@@ -644,7 +669,8 @@ RSpec.describe Cuprum::Rails::Responders::Html::Resource do
           end
 
           include_deferred 'should redirect to',
-            -> { resource.routes.show_path }
+            -> { resource.routes.show_path },
+            status: 303
         end
       end
 

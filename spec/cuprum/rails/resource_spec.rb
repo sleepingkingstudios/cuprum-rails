@@ -4,6 +4,7 @@ require 'cuprum/rails/resource'
 require 'cuprum/rails/rspec/deferred/resource_examples'
 
 require 'support/book'
+require 'support/tome'
 
 RSpec.describe Cuprum::Rails::Resource do
   include Cuprum::Rails::RSpec::Deferred::ResourceExamples

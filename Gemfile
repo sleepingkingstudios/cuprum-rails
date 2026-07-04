@@ -16,6 +16,7 @@ group :development, :test do
   gem 'byebug', '~> 11.0'
   gem 'database_cleaner-active_record', '~> 2.2'
   gem 'pg', '~> 1.5'
+  gem 'readline'
 end
 
 group :doc do

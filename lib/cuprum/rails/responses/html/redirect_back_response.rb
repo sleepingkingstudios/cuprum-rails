@@ -9,7 +9,7 @@ module Cuprum::Rails::Responses::Html
     #   previous location cannot be determined.
     # @param flash [Hash] the flash messages to set.
     # @param status [Integer] the HTTP status of the response.
-    def initialize(fallback_location: '/', flash: {}, status: 302)
+    def initialize(fallback_location: '/', flash: {}, status: 303)
       @fallback_location = fallback_location
       @flash             = flash
       @status            = status
