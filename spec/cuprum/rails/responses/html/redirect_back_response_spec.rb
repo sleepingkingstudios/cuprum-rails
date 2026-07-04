@@ -41,7 +41,7 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
       )
     end
     let(:fallback_location) { '/' }
-    let(:status)            { 302 }
+    let(:status)            { 303 }
 
     it { expect(response).to respond_to(:call).with(1).argument }
 
@@ -113,12 +113,12 @@ RSpec.describe Cuprum::Rails::Responses::Html::RedirectBackResponse do
   end
 
   describe '#status' do
-    include_examples 'should define reader', :status, 302
+    include_examples 'should define reader', :status, 303
 
     context 'when initialized with status: value' do
-      let(:options) { super().merge(status: 303) }
+      let(:options) { super().merge(status: 302) }
 
-      it { expect(response.status).to be 303 }
+      it { expect(response.status).to be 302 }
     end
   end
 end

@@ -15,14 +15,14 @@ module Cuprum::Rails::RSpec::Deferred::Responses
     #   Defaults to '/'.
     # @param flash [Hash] the flash messages set for the redirect. Defaults to
     #   an empty Hash.
-    # @param status [Integer] the HTTP status for the redirect. Defaults to 302
+    # @param status [Integer] the HTTP status for the redirect. Defaults to 303
     #   Found.
     #
     # The following methods must be defined in the example group:
     #
     # - #response: The response being tested.
     deferred_examples 'should redirect back' \
-    do |fallback_location: '/', flash: {}, status: 302|
+    do |fallback_location: '/', flash: {}, status: 303|
       include RSpec::SleepingKingStudios::Deferred::Dependencies
 
       depends_on :response, 'the response being tested'

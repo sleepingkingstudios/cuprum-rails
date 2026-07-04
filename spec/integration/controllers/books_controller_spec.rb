@@ -44,7 +44,7 @@ RSpec.describe BooksController do
 
       expect(renderer)
         .to have_received(:redirect_to)
-        .with('/books', { status: 302 })
+        .with('/books', { status: 303 })
     end
   end
 
@@ -54,7 +54,7 @@ RSpec.describe BooksController do
 
       expect(renderer)
         .to have_received(:redirect_to)
-        .with("/books/#{expected_book.id}", { status: 302 })
+        .with("/books/#{expected_book.id}", { status: 303 })
     end
   end
 
@@ -435,7 +435,8 @@ RSpec.describe BooksController do
         let(:format) { :html }
 
         include_deferred 'should redirect to',
-          -> { "/books/#{expected_book.id}" }
+          -> { "/books/#{expected_book.id}" },
+          status: 303
       end
 
       describe 'with format: :json' do
@@ -501,7 +502,7 @@ RSpec.describe BooksController do
       describe 'with format: :html' do
         let(:format) { :html }
 
-        include_deferred 'should redirect to', '/books'
+        include_deferred 'should redirect to', '/books', status: 303
       end
 
       describe 'with format: :json' do
@@ -745,7 +746,7 @@ RSpec.describe BooksController do
       describe 'with format: :html' do
         let(:format) { :html }
 
-        include_deferred 'should redirect to', '/books'
+        include_deferred 'should redirect to', '/books', status: 303
       end
 
       describe 'with format: :json' do
@@ -1006,7 +1007,8 @@ RSpec.describe BooksController do
           let(:format) { :html }
 
           include_deferred 'should redirect to',
-            -> { "/books/#{expected_book.id}" }
+            -> { "/books/#{expected_book.id}" },
+            status: 303
         end
 
         describe 'with format: :json' do

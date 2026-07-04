@@ -58,6 +58,9 @@ Metrics/ModuleLength:
 Naming/RescuedExceptionsVariableName:
   PreferredName: exception
 
+Rails/HttpStatus:
+  Enabled: false
+
 Rails/IndexWith:
   Enabled: false
 

@@ -40,7 +40,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
 
       it { expect(response.path).to be == resource.routes.index_path }
 
-      it { expect(response.status).to be 302 }
+      it { expect(response.status).to be 303 }
     end
 
     shared_examples 'should render the template' do
@@ -126,7 +126,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
 
         it { expect(response.path).to be == resource.routes.show_path(entity) }
 
-        it { expect(response.status).to be 302 }
+        it { expect(response.status).to be 303 }
       end
     end
 
@@ -184,7 +184,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
 
         it { expect(response.path).to be == '/' }
 
-        it { expect(response.status).to be 302 }
+        it { expect(response.status).to be 303 }
       end
 
       describe 'with a passing result' do
@@ -293,7 +293,7 @@ RSpec.describe Cuprum::Rails::Responders::Html::PluralResource do
 
         it { expect(response.path).to be == resource.routes.show_path(entity) }
 
-        it { expect(response.status).to be 302 }
+        it { expect(response.status).to be 303 }
       end
     end
 

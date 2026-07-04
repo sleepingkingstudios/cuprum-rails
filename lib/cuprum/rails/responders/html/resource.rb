@@ -34,23 +34,23 @@ module Cuprum::Rails::Responders::Html
       match :failure, error: Cuprum::Collections::Errors::FailedValidation do
         render :new,
           assigns: result.value.merge(errors: result.error.errors),
-          status:  422 # rubocop:disable Rails/HttpStatus
+          status:  422
       end
 
       match :success do
-        next redirect_to(routes.show_path) if resource.singular?
+        next redirect_to(routes.show_path, status: 303) if resource.singular?
 
         entity = result.value[resource.singular_name]
 
-        redirect_to routes.show_path(entity)
+        redirect_to(routes.show_path(entity), status: 303)
       end
     end
 
     action :destroy do
       match :success do
-        next redirect_to(routes.parent_path) if resource.singular?
+        next redirect_to(routes.parent_path, status: 303) if resource.singular?
 
-        redirect_to(routes.index_path)
+        redirect_to(routes.index_path, status: 303)
       end
 
       match :failure do
@@ -61,13 +61,13 @@ module Cuprum::Rails::Responders::Html
             routes.index_path
           end
 
-        redirect_back(fallback_location:) # rubocop:disable Rails/RedirectBackOrTo
+        redirect_back(fallback_location:, status: 303) # rubocop:disable Rails/RedirectBackOrTo
       end
     end
 
     action :index do
       match :failure do
-        redirect_to routes.root_path
+        redirect_to routes.root_path, status: 303
       end
     end
 
@@ -75,15 +75,15 @@ module Cuprum::Rails::Responders::Html
       match :failure, error: Cuprum::Collections::Errors::FailedValidation do
         render :edit,
           assigns: result.value.merge(errors: result.error.errors),
-          status:  422 # rubocop:disable Rails/HttpStatus
+          status:  422
       end
 
       match :success do
-        next redirect_to(routes.show_path) if resource.singular?
+        next redirect_to(routes.show_path, status: 303) if resource.singular?
 
         entity = result.value[resource.singular_name]
 
-        redirect_to routes.show_path(entity)
+        redirect_to(routes.show_path(entity), status: 303)
       end
     end
 
@@ -92,9 +92,9 @@ module Cuprum::Rails::Responders::Html
     end
 
     match :failure do
-      next redirect_to(routes.show_path) if resource.singular?
+      next redirect_to(routes.show_path, status: 303) if resource.singular?
 
-      redirect_to(routes.index_path)
+      redirect_to(routes.index_path, status: 303)
     end
 
     private
@@ -108,11 +108,14 @@ module Cuprum::Rails::Responders::Html
         ancestor.name == result.error.collection['name']
       end
 
-      return render(request.action_name, status: 404) unless matching # rubocop:disable Rails/HttpStatus
+      return render(request.action_name, status: 404) unless matching
 
       routes = matching.routes.with_wildcards(request.path_params || {})
 
-      redirect_to(matching.singular? ? routes.show_path : routes.index_path)
+      redirect_to(
+        matching.singular? ? routes.show_path : routes.index_path,
+        status: 303
+      )
     end
   end
 end
